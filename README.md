@@ -20,8 +20,9 @@ Testo adds the following features to Alcotest:
 - more ways to select tests.
 
 Like with Alcotest, a test executable is generated from a list of tests
-written in OCaml.
-The core subcommands are:
+written in OCaml. The function to interpret the command line
+and run things is `Testo.interpret_argv`.
+The core subcommands supported by a test executable are:
 
 - `run`
 - `status`
