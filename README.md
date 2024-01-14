@@ -1,5 +1,10 @@
 # Testo
 
+> Party hard, test harder &mdash; DJ Testo
+
+🚧 _This project has not been yet released on Opam, lacks basic
+documentation, and is still subject to frequent interface changes._
+
 Testo is a test framework for OCaml that takes inspiration from its
 predecessor [Alcotest](https://github.com/mirage/alcotest). Additional
 features it provides include:
