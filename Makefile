@@ -14,3 +14,7 @@ test: build
 .PHONY: retest
 retest: build
 	./meta-test --lazy
+
+.PHONY: clean
+clean:
+	dune clean
