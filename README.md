@@ -20,11 +20,18 @@ Testo adds the following features to Alcotest:
 - more ways to select tests.
 
 Like with Alcotest, a test executable is generated from a list of tests
-written in OCaml. The core subcommands are:
+written in OCaml.
+The core subcommands are:
 
 - `run`
 - `status`
 - `approve`
+
+A test is fundamentally a name and test function of type
+`unit -> unit`. A test is considered successful if the test function
+returns normally and is considered failed if it raises an exception.
+A test is created with `Testo.create` which takes a variety of options
+in addition to the name and the test function.
 
 Testo doesn't provide a library for writing assertions. Using the
 [Alcotest](https://mirage.github.io/alcotest/alcotest/Alcotest/index.html)
