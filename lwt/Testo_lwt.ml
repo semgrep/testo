@@ -2,9 +2,9 @@
    Run tests that return Lwt promises
 *)
 
-type test = unit Lwt.t Alcotest_ext.t
+type test = unit Lwt.t Testo.t
 
-let mona : unit Lwt.t Alcotest_ext.Mona.t =
+let mona : unit Lwt.t Testo.Mona.t =
   let catch func handler =
     Lwt.catch func (fun exn ->
         (* TODO: need to capture the stack trace earlier? How? *)
@@ -15,7 +15,7 @@ let mona : unit Lwt.t Alcotest_ext.Mona.t =
 
 let create ?category ?checked_output ?expected_outcome ?mask_output ?skipped
     ?tags ?tolerate_chdir name func =
-  Alcotest_ext.create_gen ?category ?checked_output ?expected_outcome
+  Testo.create_gen ?category ?checked_output ?expected_outcome
     ?mask_output ?skipped ?tags ?tolerate_chdir mona name func
 
-let interpret_argv = Alcotest_ext.interpret_argv_gen ~mona
+let interpret_argv = Testo.interpret_argv_gen ~mona

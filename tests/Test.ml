@@ -3,9 +3,9 @@
 *)
 
 (* We should consider a shorter name for this library. *)
-let t = Alcotest_ext.create
-let testing_tag = Alcotest_ext.Tag.declare "testing"
-let tags_tag = Alcotest_ext.Tag.declare "tags"
+let t = Testo.create
+let testing_tag = Testo.Tag.declare "testing"
+let tags_tag = Testo.Tag.declare "tags"
 
 let tests =
   [
@@ -35,7 +35,7 @@ let tests =
   ]
 
 let () =
-  Alcotest_ext.interpret_argv ~project_name:"alcotest_ext_dummy_tests"
+  Testo.interpret_argv ~project_name:"testo_dummy_tests"
     ~handle_subcommand_result:(fun exit_code _ ->
       print_endline "<handling result before exiting>";
       (* nosemgrep: forbid-exit *)

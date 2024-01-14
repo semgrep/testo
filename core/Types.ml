@@ -2,7 +2,7 @@
    Mixed bag of types used by most modules of the library, including private
    modules.
 
-   Some of these types are exported by the main module Alcotest_ext.
+   Some of these types are exported by the main module Testo.
    Feel free to isolate types in their own modules if it makes things clearer.
 *)
 

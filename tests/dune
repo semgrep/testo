@@ -3,7 +3,7 @@
  (name test)
  (modules Test)
  (libraries
-    alcotest_ext
+    testo
  )
 )
 
@@ -13,7 +13,7 @@
  (name failing_test)
  (modules Failing_test)
  (libraries
-    alcotest_ext
+    testo
  )
 )
 
@@ -23,6 +23,6 @@
  (name meta_test)
  (modules Meta_test)
  (libraries
-    alcotest_ext
+    testo
  )
 )

@@ -4,7 +4,7 @@
 *)
 
 open Printf
-module T = Alcotest_ext
+module T = Testo
 
 let t = T.create
 
@@ -42,10 +42,10 @@ let test_subcommand shell_command_string =
   shell_command command
 
 let clear_status () =
-  shell_command "rm -rf _build/alcotest_ext/status/alcotest_ext_dummy_tests"
+  shell_command "rm -rf _build/testo/status/testo_dummy_tests"
 
 let clear_snapshots () =
-  shell_command "rm -rf tests/snapshots/alcotest_ext_dummy_tests"
+  shell_command "rm -rf tests/snapshots/testo_dummy_tests"
 
 let test_standard_flow () =
   section "Clean start";
@@ -114,5 +114,5 @@ let tests =
   ]
 
 let () =
-  Alcotest_ext.interpret_argv ~project_name:"alcotest_ext_meta_tests" (fun () ->
+  Testo.interpret_argv ~project_name:"testo_meta_tests" (fun () ->
       tests)

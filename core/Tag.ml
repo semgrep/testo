@@ -27,7 +27,7 @@ let check_tag_syntax tag =
   if not (has_valid_tag_syntax tag) then
     invalid_arg
       (sprintf
-         "Alcotest_ext.declare_tag: invalid syntax for test tag %S.\n\
+         "Testo.declare_tag: invalid syntax for test tag %S.\n\
           It must be a dot-separated sequence of one or more lowercase \
           alphanumeric\n\
           identifiers e.g. \"foo_bar.v2.todo\" . It must match the following \
@@ -44,7 +44,7 @@ let declare tag =
   if Hashtbl.mem declared_tags tag then
     invalid_arg
       (sprintf
-         "Alcotest_ext.declare_tag: tag %S was declared multiple times.\n\
+         "Testo.declare_tag: tag %S was declared multiple times.\n\
           Each tag must be declared exactly once to avoid accidental conflicts."
          tag)
   else Hashtbl.add declared_tags tag ();

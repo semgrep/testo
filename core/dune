@@ -1,7 +1,7 @@
 ; Extension of the Alcotest library
 (library
-  (public_name alcotest_ext)
-  (name alcotest_ext)
+  (public_name testo)
+  (name testo)
   (libraries
     alcotest
     cmdliner

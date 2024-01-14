@@ -1,4 +1,4 @@
-# Alcotest_ext (temporary name)
+# Testo
 
 This is an extension of the
 [Alcotest library](https://github.com/mirage/alcotest).

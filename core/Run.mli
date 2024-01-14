@@ -12,7 +12,7 @@ type 'unit_promise alcotest_test_case =
 type 'unit_promise alcotest_test =
   string * 'unit_promise alcotest_test_case list
 
-(* See comments in the public interface Alcotest_ext.mli *)
+(* See comments in the public interface Testo.mli *)
 val to_alcotest :
   'unit_promise Types.test list -> 'unit_promise alcotest_test list
 

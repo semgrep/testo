@@ -2,8 +2,8 @@
    Utilities for writing test suites that are compatible with Alcotest.
 
    This is the only module exported by this library. Other modules are
-   either hidden or included as submodules such as 'Alcotest_ext_tag'
-   which is exposed as 'Alcotest_ext.Tag'. This allows us to:
+   either hidden or included as submodules such as 'Testo_tag'
+   which is exposed as 'Testo.Tag'. This allows us to:
    - use dedicated file-modules for data structures without cramming
      everything into this single file such as Tag module providing Tag.t
    - hide internal modules that shouldn't be accessed by users of the library
@@ -239,7 +239,7 @@ val pack_tests : string -> simple_test list -> test list
    The test gets added to the global list of tests.
    This is meant to declare inline tests as follows:
 
-     let () = Alcotest_ext.test "foo" (fun () ->
+     let () = Testo.test "foo" (fun () ->
        (* test body raising exceptions to signal failure *)
        ...
      )
@@ -308,7 +308,7 @@ val to_alcotest : 'unit_promise t list -> 'unit_promise alcotest_test list
    expectation_workspace_root: Storage path for expected output. The default
      is 'tests/snapshots'.
    status_workspace_root: Storage path for test results. The default is
-     '_build/alcotest_ext/status'.
+     '_build/testo/status'.
    project_name: name of the program as shown in the --help page and used
      as a folder name for storing test results.
 *)

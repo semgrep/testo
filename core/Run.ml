@@ -53,7 +53,7 @@ let check_id_uniqueness (tests : _ T.test list) =
                      These names result in the same hash ID: %s\n\
                      If this is accidental, please report the problem to the \
                      authors of\n\
-                     alcotest_ext."
+                     testo."
                     name0 name id))
 
 let string_of_status_summary (sum : T.status_summary) =
@@ -168,7 +168,7 @@ let chdir_error (test : _ T.test) =
    it's probably too costly and prevents the test from using hacks relying
    on globals (such as the lazy initialization of some shared resource).
 
-   The Alcotest_ext system needs at least the relative path to its own
+   The Testo system needs at least the relative path to its own
    files to remain valid even if a test changes the current directory
    by a call to chdir. An alternative way to do that would be to use
    absolute paths but it makes error messages a little uglier.
@@ -224,7 +224,7 @@ let to_alcotest_gen
          let func =
            (*
          A "skipped" test is marked as skipped in Alcotest's run output
-         and leaves no trace such that Alcotest_ext thinks it never ran.
+         and leaves no trace such that Testo thinks it never ran.
        *)
            if test.skipped then Alcotest.skip
            else wrap_test_function test test.func

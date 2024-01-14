@@ -3,7 +3,7 @@
    nicely.
 *)
 
-let t = Alcotest_ext.create
+let t = Testo.create
 
 let failing_function () =
   print_endline "<something being printed by the test>";
@@ -28,5 +28,5 @@ non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
   ]
 
 let () =
-  Alcotest_ext.interpret_argv ~project_name:"alcotest_ext_dummy_failing_tests"
+  Testo.interpret_argv ~project_name:"testo_dummy_failing_tests"
     (fun () -> tests)
