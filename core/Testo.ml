@@ -89,9 +89,6 @@ type 'unit_promise t = 'unit_promise T.test = {
 
 type test = unit t
 
-(* Legacy type that doesn't support options *)
-type simple_test = string * (unit -> unit)
-
 (* Polymorphic type alias for an Alcotest's 'test_case'. *)
 type 'unit_promise alcotest_test_case =
   string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
@@ -189,18 +186,14 @@ let mask_temp_paths ?(mask = "<TEMPORARY FILE PATH>") () =
 (* Allow conversion from Lwt to synchronous function *)
 let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
 let has_tag tag test = List.mem tag test.tags
-let simple_test (name, func) = create name func
-let simple_tests simple_tests = Helpers.list_map simple_test simple_tests
 
-let pack_tests_pro suite_name (tests : _ list) : _ list =
+let pack_tests suite_name (tests : _ list) : _ list =
   Helpers.list_map
     (fun x -> update x ~category:(suite_name :: x.category))
     tests
 
-let pack_tests suite_name tests = pack_tests_pro suite_name (simple_tests tests)
-
 let pack_suites suite_name (tests : _ t list list) : _ t list =
-  tests |> Helpers.list_flatten |> pack_tests_pro suite_name
+  tests |> Helpers.list_flatten |> pack_tests suite_name
 
 (*
    Sort by category and test name.

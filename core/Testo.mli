@@ -1,8 +1,8 @@
 (*
-   Utilities for writing test suites that are compatible with Alcotest.
+   Testo library - Utilities for writing OCaml test suites
 
    This is the only module exported by this library. Other modules are
-   either hidden or included as submodules such as 'Testo_tag'
+   either hidden or included as submodules such as 'Tag'
    which is exposed as 'Testo.Tag'. This allows us to:
    - use dedicated file-modules for data structures without cramming
      everything into this single file such as Tag module providing Tag.t
@@ -141,9 +141,6 @@ type 'unit_promise subcommand_result =
   | Status_result of 'unit_promise test_with_status list
   | Approve_result
 
-(* Legacy type that doesn't support options *)
-type simple_test = string * (unit -> unit)
-
 (*
    Create a test to appear in a test suite.
 *)
@@ -226,14 +223,6 @@ val update_func :
 
 val has_tag : Tag.t -> 'a t -> bool
 
-(* Convert legacy optionless format to new format *)
-val simple_test : string * (unit -> unit) -> unit t
-val simple_tests : (string * (unit -> unit)) list -> unit t list
-
-(* Legacy interface. It's fine to keep using it but it doesn't allow
-   defining tests with special options such as capturing and checking stdout. *)
-val pack_tests : string -> simple_test list -> test list
-
 (* Register a test. This supports only synchronous tests.
 
    The test gets added to the global list of tests.
@@ -265,7 +254,7 @@ val get_registered_tests : unit -> test list
      pack_tests_pro "apples" [test_color; test_juiciness]
      pack_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
 *)
-val pack_tests_pro : string -> 'a t list -> 'a t list
+val pack_tests : string -> 'a t list -> 'a t list
 val pack_suites : string -> 'a t list list -> 'a t list
 
 (*
