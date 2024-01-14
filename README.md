@@ -1,15 +1,14 @@
 # Testo
 
-This is an extension of the
-[Alcotest library](https://github.com/mirage/alcotest).
-At the time of writing, it uses Alcotest for running tests and adds a layer
-that stores past test results, including:
+Testo is a test framework for OCaml that takes inspiration from its
+predecessor [Alcotest](https://github.com/mirage/alcotest). Additional
+features it provides include:
 
 - comparing test outcome with expectation, allowing tests to be expected to
   fail;
 - comparing captured output with expected output;
 - approving new output;
-- listing test status without running them;
+- reviewing test status without re-running them;
 - nested test suites;
 - tags;
 - more ways to select tests.
