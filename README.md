@@ -6,8 +6,9 @@
 documentation, and is still subject to frequent interface changes._
 
 Testo is a test framework for OCaml that takes inspiration from its
-predecessor [Alcotest](https://github.com/mirage/alcotest). Additional
-features it provides include:
+predecessor [Alcotest](https://github.com/mirage/alcotest) and from
+[pytest](https://pypi.org/project/pytest/).
+Testo adds the following features to Alcotest:
 
 - comparing test outcome with expectation, allowing tests to be expected to
   fail;
@@ -24,3 +25,13 @@ written in OCaml. The core subcommands are:
 - `run`
 - `status`
 - `approve`
+
+Testo doesn't provide a library for writing assertions. Using the
+[Alcotest](https://mirage.github.io/alcotest/alcotest/Alcotest/index.html)
+module for this is recommended. For example,
+checking that some test result `res` equals an expected value of `42`
+is written as:
+```ocaml
+Alcotest.(check int) "equal" 42 res;
+```
+This raises an exception that is turned into a nice error message.
