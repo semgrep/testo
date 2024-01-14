@@ -2,7 +2,7 @@
 
 > Party hard, test harder &mdash; DJ Testo
 
-🚧 _This project has not been yet released on Opam, lacks basic
+🚧 _This project hasn't been released on Opam yet, lacks basic
 documentation, and is still subject to frequent interface changes._
 
 Testo is a test framework for OCaml that takes inspiration from its
