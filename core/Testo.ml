@@ -187,13 +187,13 @@ let mask_temp_paths ?(mask = "<TEMPORARY FILE PATH>") () =
 let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
 let has_tag tag test = List.mem tag test.tags
 
-let pack_tests suite_name (tests : _ list) : _ list =
+let categorize name (tests : _ list) : _ list =
   Helpers.list_map
-    (fun x -> update x ~category:(suite_name :: x.category))
+    (fun x -> update x ~category:(name :: x.category))
     tests
 
-let pack_suites suite_name (tests : _ t list list) : _ t list =
-  tests |> Helpers.list_flatten |> pack_tests suite_name
+let categorize_suites name (tests : _ t list list) : _ t list =
+  tests |> Helpers.list_flatten |> categorize name
 
 (*
    Sort by category and test name.

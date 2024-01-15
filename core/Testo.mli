@@ -103,7 +103,8 @@ type 'unit_promise t = private {
   internal_full_name : string;
   (* Categories are made for organizing tests as a tree which is useful
      for display and filtering. A new category is created typically when
-     grouping multiple test suites into one with 'pack_suites'.
+     grouping multiple test suites into one with 'categorize_suites'
+     or when assigning a category to a list of tests with 'categorize'.
      e.g. ["food"; "fruit"; "kiwi"] *)
   category : string list;
   name : string;
@@ -251,11 +252,13 @@ val get_registered_tests : unit -> test list
 (*
    Usage:
 
-     pack_tests_pro "apples" [test_color; test_juiciness]
-     pack_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
+     let apple_tests =
+       categorize "apples" [test_color; test_juiciness]
+     let fruit_tests =
+       categorize_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
 *)
-val pack_tests : string -> 'a t list -> 'a t list
-val pack_suites : string -> 'a t list list -> 'a t list
+val categorize : string -> 'a t list -> 'a t list
+val categorize_suites : string -> 'a t list list -> 'a t list
 
 (*
    Sort tests by path, alphabetically:

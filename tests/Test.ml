@@ -7,6 +7,18 @@ let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
 let tags_tag = Testo.Tag.declare "tags"
 
+let fruit_tests =
+  Testo.categorize "fruit" [
+    t "apple" (fun () -> ());
+    t "kiwi" (fun () -> ());
+  ]
+
+let animal_tests =
+  Testo.categorize "animal" [ t "banana slug" (fun () -> ()) ]
+
+let categorized =
+  Testo.categorize_suites "biohazard" [fruit_tests; animal_tests]
+
 let tests =
   [
     t "simple" (fun () -> ());
@@ -32,7 +44,7 @@ let tests =
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t ~checked_output:Stdout ~mask_output:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
-  ]
+  ] @ categorized
 
 let () =
   Testo.interpret_argv ~project_name:"testo_dummy_tests"
