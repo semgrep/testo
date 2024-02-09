@@ -1,5 +1,5 @@
 (*
-   Dummy suite exercising a variety of test options.
+   Test suite exercising a variety of test options.
 *)
 
 open Printf
@@ -80,12 +80,18 @@ let tests =
          let random_string = string_of_float (Unix.gettimeofday ()) in
          printf "[%s] water is wet.\n" random_string
       );
+    t ~checked_output:Stdout
+      ~normalize:[Testo.mask_not_substrings
+                    ["a"; "def"; "defgh"; "efghij"; "z"]]
+      "check for substrings in stdout"
+      (fun () ->
+         printf "abcdefghijklmnoprstuvwxyz"
+      );
   ] @ categorized
 
 let () =
-  Testo.interpret_argv ~project_name:"testo_dummy_tests"
+  Testo.interpret_argv ~project_name:"testo_tests"
     ~handle_subcommand_result:(fun exit_code _ ->
       print_endline "<handling result before exiting>";
-      (* nosemgrep: forbid-exit *)
       exit exit_code)
     (fun () -> tests)

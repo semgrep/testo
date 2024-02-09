@@ -236,6 +236,21 @@ val mask_temp_paths : ?mask:string -> unit -> (string -> string)
 *)
 val mask_not_substring : ?mask:string -> string -> (string -> string)
 
+(* Keep all the given substrings and mask everything else.
+
+   In case of overlaps between matching substrings, priority is given
+   to the one starting earlier. If two substrings share a prefix, the
+   longest match is preferred.
+
+   Examples:
+
+   ["cute"; "exec"] will cause "execute" to become "<MASKED>ute".
+
+   ["wat"; "water"] will cause "hard water"
+   to become "<MASKED>water", not "<MASKED>wat<MASKED>".
+*)
+val mask_not_substrings : ?mask:string -> string list -> (string -> string)
+
 (*
    Keep the substrings that match the given PCRE pattern and mask
    everything else.

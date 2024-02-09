@@ -1,6 +1,6 @@
 (*
-   Dummy suite that fails so we can check that failing tests are reported
-   nicely.
+   Test suite that fails on purpose so we can check that failing tests
+   are reported nicely.
 *)
 
 let t = Testo.create
@@ -32,5 +32,5 @@ non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
   ]
 
 let () =
-  Testo.interpret_argv ~project_name:"testo_dummy_failing_tests"
+  Testo.interpret_argv ~project_name:"testo_failing_tests"
     (fun () -> tests)

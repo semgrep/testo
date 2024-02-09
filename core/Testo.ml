@@ -224,8 +224,19 @@ let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
     )
     |> String.concat ""
 
+let mask_not_substrings ?mask substrings =
+  mask_not_pcre_pattern ?mask (
+    (* Sort the substrings by decreasing length so as to give preference to
+       the longest match possible when two of them share a prefix. *)
+    substrings
+    |> List.stable_sort
+      (fun a b -> Int.compare (String.length b) (String.length a))
+    |> Helpers.list_map Re.Pcre.quote
+    |> String.concat "|"
+  )
+
 let mask_not_substring ?mask substring =
-  mask_not_pcre_pattern ?mask (Re.Pcre.quote substring)
+  mask_not_substrings ?mask [substring]
 
 (* Allow conversion from Lwt to synchronous function *)
 let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
