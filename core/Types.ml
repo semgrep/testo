@@ -119,11 +119,12 @@ let recompute_internal_full_name (test : _ test) =
    Compare the captured output that is checked and ignore the unchecked output.
 *)
 let equal_checked_output (a : expected_output) (b : captured_output) =
+  let eq = String.equal in
   match (a, b) with
   | Ignored, Ignored _ -> true
-  | Expected_stdout out, Captured_stdout (out2, _) -> String.equal out out2
-  | Expected_stderr err, Captured_stderr (err2, _) -> String.equal err err2
-  | Expected_merged data, Captured_merged data2 -> String.equal data data2
+  | Expected_stdout out, Captured_stdout (out2, _) -> eq out out2
+  | Expected_stderr err, Captured_stderr (err2, _) -> eq err err2
+  | Expected_merged data, Captured_merged data2 -> eq data data2
   | Expected_stdout_stderr (out, err), Captured_stdout_stderr (out2, err2) ->
-      String.equal out out2 && String.equal err err2
+      eq out out2 && eq err err2
   | _ -> false

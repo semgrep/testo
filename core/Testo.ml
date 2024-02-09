@@ -119,7 +119,8 @@ let update_id (test : _ t) =
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
-let create_gen ?(category = []) ?(checked_output = Ignore_output)
+let create_gen ?(category = [])
+    ?(checked_output = Ignore_output)
     ?(expected_outcome = Should_succeed) ?(mask_output = []) ?(skipped = false)
     ?(tags = []) ?(tolerate_chdir = false) mona name func =
   {
@@ -138,15 +139,15 @@ let create_gen ?(category = []) ?(checked_output = Ignore_output)
   }
   |> update_id
 
-let create ?category ?checked_output ?expected_outcome ?mask_output ?skipped
-    ?tags ?tolerate_chdir name func =
-  create_gen ?category ?checked_output ?expected_outcome ?mask_output ?skipped
-    ?tags ?tolerate_chdir Mona.sync name func
+let create ?category ?checked_output ?expected_outcome
+    ?mask_output ?skipped ?tags ?tolerate_chdir name func =
+  create_gen ?category ?checked_output ?expected_outcome
+    ?mask_output ?skipped ?tags ?tolerate_chdir Mona.sync name func
 
 let opt option default = Option.value option ~default
 
-let update ?category ?checked_output ?expected_outcome ?func ?mask_output ?name
-    ?skipped ?tags ?tolerate_chdir old =
+let update ?category ?checked_output ?expected_outcome
+    ?func ?mask_output ?name ?skipped ?tags ?tolerate_chdir old =
   {
     id = "";
     internal_full_name = "";
@@ -210,6 +211,22 @@ let mask_temp_paths ?(mask = "<TEMPORARY FILE PATH>") () =
   in
   mask_pcre_pattern ~mask pat
 
+let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
+  let re = Re.Pcre.regexp pat in
+  fun subj ->
+    Re.split_full re subj
+    |> Helpers.list_map (function
+      | `Text _ -> mask
+      | `Delim groups ->
+          match Re.Group.get_opt groups 0 with
+          | Some substring -> substring
+          | None -> (* assert false *) ""
+    )
+    |> String.concat ""
+
+let mask_not_substring ?mask substring =
+  mask_not_pcre_pattern ?mask (Re.Pcre.quote substring)
+
 (* Allow conversion from Lwt to synchronous function *)
 let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
 let has_tag tag test = List.mem tag test.tags
@@ -235,10 +252,10 @@ let to_alcotest = Run.to_alcotest
 let registered_tests : test list ref = ref []
 let register x = registered_tests := x :: !registered_tests
 
-let test ?category ?checked_output ?expected_outcome ?mask_output ?skipped ?tags
-    ?tolerate_chdir name func =
-  create ?category ?checked_output ?expected_outcome ?mask_output ?skipped ?tags
-    ?tolerate_chdir name func
+let test ?category ?checked_output ?expected_outcome
+    ?mask_output ?skipped ?tags ?tolerate_chdir name func =
+  create ?category ?checked_output ?expected_outcome
+    ?mask_output ?skipped ?tags ?tolerate_chdir name func
   |> register
 
 let get_registered_tests () = List.rev !registered_tests

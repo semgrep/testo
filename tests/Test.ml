@@ -2,6 +2,8 @@
    Dummy suite exercising a variety of test options.
 *)
 
+open Printf
+
 (* We should consider a shorter name for this library. *)
 let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
@@ -18,6 +20,25 @@ let animal_tests =
 
 let categorized =
   Testo.categorize_suites "biohazard" [fruit_tests; animal_tests]
+
+let test_mask_pcre_pattern () =
+  let test_one (pat, subj, expected_result, mask) =
+    printf "pat=%S subj=%S expected_result=%S mask=%s\n"
+      pat subj expected_result
+      (match mask with None -> "default" | Some x -> sprintf "%S" x);
+    let res = Testo.mask_pcre_pattern ?mask pat subj in
+    Alcotest.(check string) __LOC__ expected_result res
+  in
+  [
+    "", "", "", None;
+    "", "aa", "XaXa", Some "X";
+    "", "aa", "<MASKED>a<MASKED>a", None;
+    "a", "aa", "XX", Some "X";
+    "a", "a,a", "X,X", Some "X";
+    "a+", "xxaxxxaaaxxa", "xxAxxxAxxA", Some "A";
+    "<(a+)>", "xxaxxx<aaa>xx<a>", "xxaxxx<A>xx<A>", Some "A";
+    "<a+>", "xxaxxx<aaa>xx<a>", "xxaxxxAxxA", Some "A";
+  ] |> List.iter test_one
 
 let tests =
   [
@@ -44,7 +65,22 @@ let tests =
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t ~checked_output:Stdout ~mask_output:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
-  ] @ categorized @ Real_unit_tests.tests
+    t "mask_pcre_pattern" test_mask_pcre_pattern;
+    t ~checked_output:Stdout
+      ~mask_output:[Testo.mask_not_substring "water"]
+      "check for substring in stdout"
+      (fun () ->
+         let random_string = string_of_float (Unix.gettimeofday ()) in
+         printf "[%s] water is wet.\n" random_string
+      );
+    t ~checked_output:Stdout
+      ~mask_output:[Testo.mask_not_pcre_pattern "[A-Za-z]+"]
+      "check words in stdout"
+      (fun () ->
+         let random_string = string_of_float (Unix.gettimeofday ()) in
+         printf "[%s] water is wet.\n" random_string
+      );
+  ] @ categorized
 
 let () =
   Testo.interpret_argv ~project_name:"testo_dummy_tests"

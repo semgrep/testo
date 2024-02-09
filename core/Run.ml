@@ -288,20 +288,16 @@ let to_alcotest_internal ~with_storage ~flip_xfail_outcome tests =
 let to_alcotest tests =
   to_alcotest_internal ~with_storage:false ~flip_xfail_outcome:true tests
 
-let contains_regexp pat =
-  let rex = Re.Pcre.regexp pat in
-  fun str -> Re.execp rex str
-
 let filter ~filter_by_substring tests =
   let tests =
     match filter_by_substring with
     | None -> tests
     | Some sub ->
-        let contains_substring = contains_regexp (Re.Pcre.quote sub) in
+        let contains_sub = Helpers.contains_substring sub in
         tests
         |> List.filter (fun (test : _ T.test) ->
-               contains_substring test.internal_full_name
-               || contains_substring test.id)
+               contains_sub test.internal_full_name
+               || contains_sub test.id)
   in
   tests
 
@@ -392,7 +388,8 @@ let print_status ~highlight_test ~always_show_unchecked_output
       else (
         (match status.expectation.expected_outcome with
         | Should_succeed -> ()
-        | Should_fail reason -> printf "%sExpected to fail: %s\n" bullet reason);
+        | Should_fail reason ->
+            printf "%sExpected to fail: %s\n" bullet reason);
         (match test.checked_output with
         | Ignore_output -> ()
         | _ ->
@@ -441,7 +438,8 @@ let print_status ~highlight_test ~always_show_unchecked_output
             | Some (log_description, data) ->
                 printf "%sLog (%s):\n%s" bullet log_description
                   (Style.quote_multiline_text data);
-                if not (String.ends_with ~suffix:"\n" data) then print_char '\n'
+                if not (String.ends_with ~suffix:"\n" data) then
+                  print_char '\n'
             )));
   flush stdout
 
@@ -546,17 +544,19 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the status subcommand
 *)
-let list_status ~always_show_unchecked_output ~filter_by_substring ~output_style
-    tests =
+let list_status ~always_show_unchecked_output ~filter_by_substring
+    ~output_style tests =
   check_id_uniqueness tests;
   let selected_tests = filter ~filter_by_substring tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
     | Full ->
-        print_full_status ~always_show_unchecked_output tests tests_with_status
+        print_full_status
+          ~always_show_unchecked_output tests tests_with_status
     | Short ->
-        print_short_status ~always_show_unchecked_output tests tests_with_status
+        print_short_status
+          ~always_show_unchecked_output tests tests_with_status
   in
   (exit_code, tests_with_status)
 

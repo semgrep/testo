@@ -197,7 +197,7 @@ val update :
    of captured output. This is for the 'mask_output' option of 'create'.
 *)
 val mask_line :
-  ?mask:string -> ?after:string -> ?before:string -> unit -> string -> string
+  ?mask:string -> ?after:string -> ?before:string -> unit -> (string -> string)
 
 (*
    Mask all occurrences of this PCRE pattern. The syntax is limited to
@@ -217,7 +217,7 @@ val mask_line :
      mask_pcre_pattern ~mask:"X" {|<([0-9]+)>|} "xxx <42> xxx"
        = "xxx <X> xxx"
 *)
-val mask_pcre_pattern : ?mask:string -> string -> string -> string
+val mask_pcre_pattern : ?mask:string -> string -> (string -> string)
 
 (*
    Mask strings that look like temporary file paths. This is useful in the
@@ -227,7 +227,20 @@ val mask_pcre_pattern : ?mask:string -> string -> string -> string
    - the files placed in the system's temporary folder are assigned
      random names.
 *)
-val mask_temp_paths : ?mask:string -> unit -> string -> string
+val mask_temp_paths : ?mask:string -> unit -> (string -> string)
+
+(*
+   Keep the given substring and mask everything else.
+   This is for tests that only care about a particular substring being
+   present in the output.
+*)
+val mask_not_substring : ?mask:string -> string -> (string -> string)
+
+(*
+   Keep the substrings that match the given PCRE pattern and mask
+   everything else.
+*)
+val mask_not_pcre_pattern : ?mask:string -> string -> (string -> string)
 
 (*
    Special case of the 'update' function that allows a different type

@@ -12,3 +12,7 @@ val list_flatten : 'a list list -> 'a list
    Also create its parents if they don't exist and 'recursive' is true.
 *)
 val make_dir_if_not_exists : ?recursive:bool -> string -> unit
+
+val contains_pcre_pattern : string -> (string -> bool)
+
+val contains_substring : string -> (string -> bool)
