@@ -70,6 +70,12 @@ val status_summary_of_status : Types.status -> Types.status_summary
 *)
 val approve_new_output : 'a Types.test -> (unit, string) Result.t
 
+(*
+   If a test is configured to normalize its output, this returns the
+   suffix for the backup file holding the original captured output.
+*)
+val get_orig_output_suffix : 'a Types.test -> string option
+
 (**************************************************************************)
 (* Wrappers for capturing test output *)
 (**************************************************************************)
