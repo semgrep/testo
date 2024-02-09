@@ -101,7 +101,7 @@ type 'unit_promise test = {
   (* Options *)
   expected_outcome : expected_outcome;
   tags : Tag.t list;
-  mask_output : (string -> string) list;
+  normalize : (string -> string) list;
   checked_output : output_kind;
   skipped : bool;
   tolerate_chdir : bool;

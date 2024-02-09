@@ -13,9 +13,9 @@ let mona : unit Lwt.t Testo.Mona.t =
   in
   { return = Lwt.return; bind = Lwt.bind; catch }
 
-let create ?category ?checked_output ?expected_outcome ?mask_output ?skipped
+let create ?category ?checked_output ?expected_outcome ?normalize ?skipped
     ?tags ?tolerate_chdir name func =
   Testo.create_gen ?category ?checked_output ?expected_outcome
-    ?mask_output ?skipped ?tags ?tolerate_chdir mona name func
+    ?normalize ?skipped ?tags ?tolerate_chdir mona name func
 
 let interpret_argv = Testo.interpret_argv_gen ~mona

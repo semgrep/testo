@@ -114,7 +114,7 @@ type 'unit_promise t = private {
   tags : Tag.t list; (* tags must be declared once using 'create_tag' *)
   (* An optional function to rewrite any output data so as to mask the
      variable parts. *)
-  mask_output : (string -> string) list;
+  normalize : (string -> string) list;
   checked_output : output_kind;
   (* The 'skipped' property causes a test to be skipped by Alcotest but still
      shown as "[SKIP]" rather than being omitted. *)
@@ -149,7 +149,7 @@ val create :
   ?category:string list ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
-  ?mask_output:(string -> string) list ->
+  ?normalize:(string -> string) list ->
   ?skipped:bool ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
@@ -165,7 +165,7 @@ val create_gen :
   ?category:string list ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
-  ?mask_output:(string -> string) list ->
+  ?normalize:(string -> string) list ->
   ?skipped:bool ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
@@ -184,7 +184,7 @@ val update :
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> 'unit_promise) ->
-  ?mask_output:(string -> string) list ->
+  ?normalize:(string -> string) list ->
   ?name:string ->
   ?skipped:bool ->
   ?tags:Tag.t list ->
@@ -194,7 +194,7 @@ val update :
 
 (*
    String replacement utilities to be used for masking the variable parts
-   of captured output. This is for the 'mask_output' option of 'create'.
+   of captured output. This is for the 'normalize' option of 'create'.
 *)
 val mask_line :
   ?mask:string -> ?after:string -> ?before:string -> unit -> (string -> string)
@@ -269,7 +269,7 @@ val test :
   ?category:string list ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
-  ?mask_output:(string -> string) list ->
+  ?normalize:(string -> string) list ->
   ?skipped:bool ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->

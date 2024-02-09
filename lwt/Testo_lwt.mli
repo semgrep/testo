@@ -17,7 +17,7 @@ val create :
   ?category:string list ->
   ?checked_output:Testo.output_kind ->
   ?expected_outcome:Testo.expected_outcome ->
-  ?mask_output:(string -> string) list ->
+  ?normalize:(string -> string) list ->
   ?skipped:bool ->
   ?tags:Testo.Tag.t list ->
   ?tolerate_chdir:bool ->

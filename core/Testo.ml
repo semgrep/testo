@@ -80,7 +80,7 @@ type 'unit_promise t = 'unit_promise T.test = {
   func : unit -> 'unit_promise;
   expected_outcome : expected_outcome;
   tags : Tag.t list;
-  mask_output : (string -> string) list;
+  normalize : (string -> string) list;
   checked_output : output_kind;
   skipped : bool;
   tolerate_chdir : bool;
@@ -121,7 +121,7 @@ let update_id (test : _ t) =
 
 let create_gen ?(category = [])
     ?(checked_output = Ignore_output)
-    ?(expected_outcome = Should_succeed) ?(mask_output = []) ?(skipped = false)
+    ?(expected_outcome = Should_succeed) ?(normalize = []) ?(skipped = false)
     ?(tags = []) ?(tolerate_chdir = false) mona name func =
   {
     id = "";
@@ -131,7 +131,7 @@ let create_gen ?(category = [])
     func;
     expected_outcome;
     tags;
-    mask_output;
+    normalize;
     checked_output;
     skipped;
     tolerate_chdir;
@@ -140,14 +140,14 @@ let create_gen ?(category = [])
   |> update_id
 
 let create ?category ?checked_output ?expected_outcome
-    ?mask_output ?skipped ?tags ?tolerate_chdir name func =
+    ?normalize ?skipped ?tags ?tolerate_chdir name func =
   create_gen ?category ?checked_output ?expected_outcome
-    ?mask_output ?skipped ?tags ?tolerate_chdir Mona.sync name func
+    ?normalize ?skipped ?tags ?tolerate_chdir Mona.sync name func
 
 let opt option default = Option.value option ~default
 
 let update ?category ?checked_output ?expected_outcome
-    ?func ?mask_output ?name ?skipped ?tags ?tolerate_chdir old =
+    ?func ?normalize ?name ?skipped ?tags ?tolerate_chdir old =
   {
     id = "";
     internal_full_name = "";
@@ -157,7 +157,7 @@ let update ?category ?checked_output ?expected_outcome
     (* requires same type for func and old.func *)
     expected_outcome = opt expected_outcome old.expected_outcome;
     tags = opt tags old.tags;
-    mask_output = opt mask_output old.mask_output;
+    normalize = opt normalize old.normalize;
     checked_output = opt checked_output old.checked_output;
     skipped = opt skipped old.skipped;
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
@@ -253,9 +253,9 @@ let registered_tests : test list ref = ref []
 let register x = registered_tests := x :: !registered_tests
 
 let test ?category ?checked_output ?expected_outcome
-    ?mask_output ?skipped ?tags ?tolerate_chdir name func =
+    ?normalize ?skipped ?tags ?tolerate_chdir name func =
   create ?category ?checked_output ?expected_outcome
-    ?mask_output ?skipped ?tags ?tolerate_chdir name func
+    ?normalize ?skipped ?tags ?tolerate_chdir name func
   |> register
 
 let get_registered_tests () = List.rev !registered_tests
