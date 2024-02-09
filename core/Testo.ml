@@ -226,7 +226,7 @@ let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
 
 let mask_not_substrings ?mask substrings =
   mask_not_pcre_pattern ?mask (
-    (* Sort the substrings be decreasing length so as to give preference to
+    (* Sort the substrings by decreasing length so as to give preference to
        the longest match possible when two of them share a prefix. *)
     substrings
     |> List.stable_sort
