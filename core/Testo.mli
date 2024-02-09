@@ -199,6 +199,24 @@ val update :
 val mask_line :
   ?mask:string -> ?after:string -> ?before:string -> unit -> string -> string
 
+(*
+   Mask all occurrences of this PCRE pattern. The syntax is limited to
+   what the ocaml-re library supports.
+
+   In the case that the pattern contains a capturing group and it
+   (the first group) matches, only this substring is replaced by the mask
+   rather than the whole match.
+
+   Examples:
+
+     (* without a capturing group: *)
+     mask_pcre_pattern ~mask:"X" {|<[0-9]+>|} "xxx <42> xxx"
+       = "xxx X xxx"
+
+     (* with a capturing group: *)
+     mask_pcre_pattern ~mask:"X" {|<([0-9]+)>|} "xxx <42> xxx"
+       = "xxx <X> xxx"
+*)
 val mask_pcre_pattern : ?mask:string -> string -> string -> string
 
 (*

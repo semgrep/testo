@@ -44,7 +44,7 @@ let tests =
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t ~checked_output:Stdout ~mask_output:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
-  ] @ categorized
+  ] @ categorized @ Real_unit_tests.tests
 
 let () =
   Testo.interpret_argv ~project_name:"testo_dummy_tests"

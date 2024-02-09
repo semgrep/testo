@@ -1,7 +1,7 @@
 ; A dummy test suite with some failing tests and some successful tests
 (executable
  (name test)
- (modules Test)
+ (modules Real_unit_tests Test)
  (libraries
     testo
  )

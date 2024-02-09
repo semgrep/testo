@@ -172,10 +172,37 @@ let mask_line ?(mask = "<MASKED>") ?(after = "") ?(before = "") () =
   let subst _matched = after ^ mask ^ before in
   fun subj -> Re.Pcre.substitute ~rex ~subst subj
 
+(*
+   Find all the matches for the pattern in the subject string and replace them
+   by the mask string:
+   - If the pattern contains a group and the first group matches, only this
+     matched group is replaced by the mask.
+   - Otherwise, the whole match is replaced by the mask.
+*)
 let mask_pcre_pattern ?(mask = "<MASKED>") pat =
-  let rex = Re.Pcre.regexp pat in
-  let subst _matched = mask in
-  fun subj -> Re.Pcre.substitute ~rex ~subst subj
+  let re = Re.Pcre.regexp pat in
+  fun subj ->
+    Re.split_full re subj
+    |> Helpers.list_map (function
+      | `Text (* unmatched input *) str -> str
+      | `Delim (* match *) groups ->
+          let match_start, match_stop =
+            try Re.Group.offset groups 0
+            with Not_found -> assert false
+          in
+          let group_start, group_stop =
+            try Re.Group.offset groups 1
+            with Not_found -> match_start, match_stop
+          in
+          assert (group_start >= match_start);
+          assert (group_stop <= match_stop);
+          let frag1 =
+            String.sub subj match_start (group_start - match_start) in
+          let frag2 =
+            String.sub subj group_stop (match_stop - group_stop) in
+          frag1 ^ mask ^ frag2
+    )
+    |> String.concat ""
 
 let mask_temp_paths ?(mask = "<TEMPORARY FILE PATH>") () =
   let pat =
