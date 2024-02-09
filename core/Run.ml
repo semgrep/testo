@@ -537,7 +537,7 @@ let print_short_status ~always_show_unchecked_output tests tests_with_status =
 
 let get_test_with_status test =
   let status = Store.get_status test in
-  (test, status, Store.status_summary_of_status test status)
+  (test, status, Store.status_summary_of_status status)
 
 let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 

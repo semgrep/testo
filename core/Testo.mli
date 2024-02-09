@@ -69,11 +69,6 @@ type output_kind =
   | Merged_stdout_stderr
   | Separate_stdout_stderr
 
-type check_output =
-  | Diff
-  | Contains of string
-  | Check_output of (old:string -> new_:string -> bool)
-
 module Mona : module type of Mona
 module Tag : module type of Tag
 
@@ -121,7 +116,6 @@ type 'unit_promise t = private {
      variable parts. *)
   mask_output : (string -> string) list;
   checked_output : output_kind;
-  check_output : check_output;
   (* The 'skipped' property causes a test to be skipped by Alcotest but still
      shown as "[SKIP]" rather than being omitted. *)
   skipped : bool;
@@ -153,7 +147,6 @@ type 'unit_promise subcommand_result =
 *)
 val create :
   ?category:string list ->
-  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?mask_output:(string -> string) list ->
@@ -170,7 +163,6 @@ val create :
 *)
 val create_gen :
   ?category:string list ->
-  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?mask_output:(string -> string) list ->
@@ -189,7 +181,6 @@ val create_gen :
 *)
 val update :
   ?category:string list ->
-  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> 'unit_promise) ->
@@ -206,7 +197,7 @@ val update :
    of captured output. This is for the 'mask_output' option of 'create'.
 *)
 val mask_line :
-  ?mask:string -> ?after:string -> ?before:string -> unit -> string -> string
+  ?mask:string -> ?after:string -> ?before:string -> unit -> (string -> string)
 
 (*
    Mask all occurrences of this PCRE pattern. The syntax is limited to
@@ -226,7 +217,7 @@ val mask_line :
      mask_pcre_pattern ~mask:"X" {|<([0-9]+)>|} "xxx <42> xxx"
        = "xxx <X> xxx"
 *)
-val mask_pcre_pattern : ?mask:string -> string -> string -> string
+val mask_pcre_pattern : ?mask:string -> string -> (string -> string)
 
 (*
    Mask strings that look like temporary file paths. This is useful in the
@@ -236,7 +227,20 @@ val mask_pcre_pattern : ?mask:string -> string -> string -> string
    - the files placed in the system's temporary folder are assigned
      random names.
 *)
-val mask_temp_paths : ?mask:string -> unit -> string -> string
+val mask_temp_paths : ?mask:string -> unit -> (string -> string)
+
+(*
+   Keep the given substring and mask everything else.
+   This is for tests that only care about a particular substring being
+   present in the output.
+*)
+val mask_not_substring : ?mask:string -> string -> (string -> string)
+
+(*
+   Keep the substrings that match the given PCRE pattern and mask
+   everything else.
+*)
+val mask_not_pcre_pattern : ?mask:string -> string -> (string -> string)
 
 (*
    Special case of the 'update' function that allows a different type
@@ -263,7 +267,6 @@ val has_tag : Tag.t -> 'a t -> bool
 *)
 val test :
   ?category:string list ->
-  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?mask_output:(string -> string) list ->

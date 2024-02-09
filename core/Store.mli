@@ -60,8 +60,7 @@ val get_status : 'a Types.test -> Types.status
    is false. Note however that a user typically wants the first output of
    the test to become the reference with no questions asked.
 *)
-val status_summary_of_status :
-  'a Types.test -> Types.status -> Types.status_summary
+val status_summary_of_status : Types.status -> Types.status_summary
 
 (*
    Replace the expected output of a test with a satisfying outcome

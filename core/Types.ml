@@ -86,12 +86,6 @@ type output_kind =
   | Separate_stdout_stderr
 
 (* public *)
-type check_output =
-  | Diff
-  | Contains of string
-  | Check_output of (old:string -> new_:string -> bool)
-
-(* public *)
 type 'unit_promise test = {
   (* The ID will be used as a compact key
      for referencing tests in filters and in file names.
@@ -109,7 +103,6 @@ type 'unit_promise test = {
   tags : Tag.t list;
   mask_output : (string -> string) list;
   checked_output : output_kind;
-  check_output : check_output;
   skipped : bool;
   tolerate_chdir : bool;
   m : 'unit_promise Mona.t;
@@ -122,23 +115,11 @@ type 'a test_with_status = 'a test * status * status_summary
 let recompute_internal_full_name (test : _ test) =
   String.concat " > " (test.category @ [ test.name ])
 
-let equal_of_checked_output (check_output : check_output) =
-  match check_output with
-  | Diff -> String.equal
-  | Contains substring ->
-      let search = Helpers.contains_substring substring in
-      (fun _old new_ -> search new_)
-  | Check_output f ->
-      (* TODO: protect ourselves against exceptions or leave it to the user? *)
-      (fun old new_ -> f ~old ~new_)
-
 (*
    Compare the captured output that is checked and ignore the unchecked output.
 *)
-let equal_checked_output
-    ~(check_output : check_output)
-    (a : expected_output) (b : captured_output) =
-  let eq = equal_of_checked_output check_output in
+let equal_checked_output (a : expected_output) (b : captured_output) =
+  let eq = String.equal in
   match (a, b) with
   | Ignored, Ignored _ -> true
   | Expected_stdout out, Captured_stdout (out2, _) -> eq out out2

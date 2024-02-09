@@ -46,18 +46,19 @@ let tests =
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t ~checked_output:Stdout ~mask_output:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
-    t ~check_output:(Contains "water") ~checked_output:Stdout
+    t ~checked_output:Stdout
+      ~mask_output:[Testo.mask_not_substring "water"]
       "check for substring in stdout"
       (fun () ->
          let random_string = string_of_float (Unix.gettimeofday ()) in
          printf "[%s] water is wet.\n" random_string
       );
-    t ~check_output:(Check_output (fun ~old:_ ~new_ -> String.length new_ = 3))
-      ~checked_output:Stdout
-      "check length of stdout = 3"
+    t ~checked_output:Stdout
+      ~mask_output:[Testo.mask_not_pcre_pattern "[A-Za-z]+"]
+      "check words in stdout"
       (fun () ->
-         Random.self_init ();
-         printf "%03i" (Random.int 100)
+         let random_string = string_of_float (Unix.gettimeofday ()) in
+         printf "[%s] water is wet.\n" random_string
       );
   ] @ categorized @ Real_unit_tests.tests
 

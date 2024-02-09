@@ -72,18 +72,6 @@ type output_kind = T.output_kind =
   | Merged_stdout_stderr
   | Separate_stdout_stderr
 
-(*
-   Different ways to check the captured output ('new_') against the reference
-   ('old').
-   - Diff: strict equality;
-   - Contains subs: the new output must contain the substring 'subs';
-   - Check_output f: call 'f', which should not raise exceptions.
-*)
-type check_output = T.check_output =
-  | Diff
-  | Contains of string
-  | Check_output of (old:string -> new_:string -> bool)
-
 type 'unit_promise t = 'unit_promise T.test = {
   id : string;
   internal_full_name : string;
@@ -94,7 +82,6 @@ type 'unit_promise t = 'unit_promise T.test = {
   tags : Tag.t list;
   mask_output : (string -> string) list;
   checked_output : output_kind;
-  check_output : check_output;
   skipped : bool;
   tolerate_chdir : bool;
   m : 'unit_promise Mona.t;
@@ -132,7 +119,7 @@ let update_id (test : _ t) =
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
-let create_gen ?(category = []) ?(check_output = Diff)
+let create_gen ?(category = [])
     ?(checked_output = Ignore_output)
     ?(expected_outcome = Should_succeed) ?(mask_output = []) ?(skipped = false)
     ?(tags = []) ?(tolerate_chdir = false) mona name func =
@@ -146,21 +133,20 @@ let create_gen ?(category = []) ?(check_output = Diff)
     tags;
     mask_output;
     checked_output;
-    check_output;
     skipped;
     tolerate_chdir;
     m = mona;
   }
   |> update_id
 
-let create ?category ?check_output ?checked_output ?expected_outcome
+let create ?category ?checked_output ?expected_outcome
     ?mask_output ?skipped ?tags ?tolerate_chdir name func =
-  create_gen ?category ?check_output ?checked_output ?expected_outcome
+  create_gen ?category ?checked_output ?expected_outcome
     ?mask_output ?skipped ?tags ?tolerate_chdir Mona.sync name func
 
 let opt option default = Option.value option ~default
 
-let update ?category ?check_output ?checked_output ?expected_outcome
+let update ?category ?checked_output ?expected_outcome
     ?func ?mask_output ?name ?skipped ?tags ?tolerate_chdir old =
   {
     id = "";
@@ -173,7 +159,6 @@ let update ?category ?check_output ?checked_output ?expected_outcome
     tags = opt tags old.tags;
     mask_output = opt mask_output old.mask_output;
     checked_output = opt checked_output old.checked_output;
-    check_output = opt check_output old.check_output;
     skipped = opt skipped old.skipped;
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
     m = old.m;
@@ -226,6 +211,22 @@ let mask_temp_paths ?(mask = "<TEMPORARY FILE PATH>") () =
   in
   mask_pcre_pattern ~mask pat
 
+let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
+  let re = Re.Pcre.regexp pat in
+  fun subj ->
+    Re.split_full re subj
+    |> Helpers.list_map (function
+      | `Text _ -> mask
+      | `Delim groups ->
+          match Re.Group.get_opt groups 0 with
+          | Some substring -> substring
+          | None -> (* assert false *) ""
+    )
+    |> String.concat ""
+
+let mask_not_substring ?mask substring =
+  mask_not_pcre_pattern ?mask (Re.Pcre.quote substring)
+
 (* Allow conversion from Lwt to synchronous function *)
 let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
 let has_tag tag test = List.mem tag test.tags
@@ -251,9 +252,9 @@ let to_alcotest = Run.to_alcotest
 let registered_tests : test list ref = ref []
 let register x = registered_tests := x :: !registered_tests
 
-let test ?category ?check_output ?checked_output ?expected_outcome
+let test ?category ?checked_output ?expected_outcome
     ?mask_output ?skipped ?tags ?tolerate_chdir name func =
-  create ?category ?check_output ?checked_output ?expected_outcome
+  create ?category ?checked_output ?expected_outcome
     ?mask_output ?skipped ?tags ?tolerate_chdir name func
   |> register
 
