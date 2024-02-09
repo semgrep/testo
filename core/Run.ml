@@ -345,7 +345,9 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
   | _nonzero ->
       printf "%sCaptured %s differs from expectation.\n" bullet output_kind
 
-let show_output_details (sum : T.status_summary)
+let show_output_details
+    (test : _ T.test)
+    (sum : T.status_summary)
     (output_file_pairs : Store.output_file_pair list) =
   let success = success_of_status_summary sum in
   output_file_pairs
@@ -369,7 +371,11 @@ let show_output_details (sum : T.status_summary)
              if success <> OK_but_new then
                printf "%sPath to expected %s: %s\n" bullet short_name
                  path_to_expected_output);
-         printf "%sPath to captured %s: %s\n" bullet short_name path_to_output)
+         printf "%sPath to captured %s: %s%s\n"
+           bullet short_name path_to_output
+           (match Store.get_orig_output_suffix test with
+            | Some suffix -> sprintf " [%s]" suffix
+            | None -> ""))
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
 
@@ -422,7 +428,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                      (String.concat ", " paths))
             | Ok _ -> ()));
         let output_file_pairs = Store.get_output_file_pairs test in
-        show_output_details sum output_file_pairs;
+        show_output_details test sum output_file_pairs;
         match success_of_status_summary sum with
         | OK when not always_show_unchecked_output -> ()
         | OK_but_new when not always_show_unchecked_output ->

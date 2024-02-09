@@ -179,6 +179,11 @@ let unchecked_filename = "log"
    of the test output as specified by the option 'mask_output' function. *)
 let orig_suffix = ".orig"
 
+let get_orig_output_suffix (test : _ T.test) =
+  match test.normalize with
+  | [] -> None
+  | _ -> Some orig_suffix
+
 let names_of_output (output : T.output_kind) : string list =
   match output with
   | Ignore_output -> [ unchecked_filename ]
@@ -350,10 +355,10 @@ let compose_functions_left_to_right funcs x =
    unpredicable parts, we rewrite the standard output file and we make a
    backup of the original. *)
 let mask_output (test : 'unit_promise T.test) =
-  match test.normalize with
-  | [] -> ()
-  | mask_functions ->
-      let rewrite_string = compose_functions_left_to_right mask_functions in
+  match get_orig_output_suffix test with
+  | None -> ()
+  | Some orig_suffix ->
+      let rewrite_string = compose_functions_left_to_right test.normalize in
       get_checked_output_paths test
       |> List.iter (fun std_path ->
              let backup_path = std_path ^ orig_suffix in
