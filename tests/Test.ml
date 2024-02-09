@@ -63,18 +63,18 @@ let tests =
       (fun () -> failwith "this exception is expected");
     t "skipped" ~skipped:true (fun () -> failwith "this shouldn't happen");
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
-    t ~checked_output:Stdout ~mask_output:[ String.lowercase_ascii ] "masked"
+    t ~checked_output:Stdout ~normalize:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;
     t ~checked_output:Stdout
-      ~mask_output:[Testo.mask_not_substring "water"]
+      ~normalize:[Testo.mask_not_substring "water"]
       "check for substring in stdout"
       (fun () ->
          let random_string = string_of_float (Unix.gettimeofday ()) in
          printf "[%s] water is wet.\n" random_string
       );
     t ~checked_output:Stdout
-      ~mask_output:[Testo.mask_not_pcre_pattern "[A-Za-z]+"]
+      ~normalize:[Testo.mask_not_pcre_pattern "[A-Za-z]+"]
       "check words in stdout"
       (fun () ->
          let random_string = string_of_float (Unix.gettimeofday ()) in

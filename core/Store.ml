@@ -350,7 +350,7 @@ let compose_functions_left_to_right funcs x =
    unpredicable parts, we rewrite the standard output file and we make a
    backup of the original. *)
 let mask_output (test : 'unit_promise T.test) =
-  match test.mask_output with
+  match test.normalize with
   | [] -> ()
   | mask_functions ->
       let rewrite_string = compose_functions_left_to_right mask_functions in

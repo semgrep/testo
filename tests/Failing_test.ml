@@ -27,7 +27,7 @@ non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     t "missing snapshot" ~checked_output:Stdout (fun () -> ());
     t "doesn't contain substring"
       ~checked_output:Stdout
-      ~mask_output:[Testo.mask_not_substring "water"]
+      ~normalize:[Testo.mask_not_substring "water"]
       (fun () -> print_string "fire");
   ]
 
