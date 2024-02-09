@@ -62,6 +62,19 @@ Legend:
 [2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/a3e1a604f579/stdout[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/3b24997d50c8/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/33a93d234d01/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
@@ -71,9 +84,6 @@ Legend:
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[33m[MISS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/821b3bb120c2/outcome[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
@@ -158,6 +168,28 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/3b24997d50c8/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/33a93d234d01/outcome[0m
@@ -175,16 +207,10 @@ Legend:
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m                          [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/821b3bb120c2/outcome[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-17/17 selected tests:
+19/19 selected tests:
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-17 new tests
+19 new tests
 overall status: [32msuccess[0m
 <handling result before exiting>
 RUN ./test run
@@ -237,14 +263,24 @@ Legend:
 [2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/a3e1a604f579/stdout[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[33m[RUN][0m   3b24997d50c8 [36mmask_pcre_pattern[0m...[2K[32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[33m[RUN][0m   d5b0041ea8f4 [36mcheck for substring in stdout[0m...[2K[33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[33m[RUN][0m   99746f633129 [36mcheck words in stdout[0m...[2K[33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m...[2K[32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
 [33m[RUN][0m   ec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m...[2K[32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/ec7514c8554d/log
 [33m[RUN][0m   b8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m...[2K[32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[33m[RUN][0m   821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m...[2K[32m[PASS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0md1a055429711 [36mcapture stdout[0m                                          [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -284,11 +320,27 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-17/17 selected tests:
-  16 successful (15 pass, 1 xfail)
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+19/19 selected tests:
+  18 successful (17 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 new test
-5 tests whose output needs first-time approval
+7 tests whose output needs first-time approval
 overall status: [32msuccess[0m
 <handling result before exiting>
 RUN ./test status
@@ -343,14 +395,24 @@ Legend:
 [2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/a3e1a604f579/stdout[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
 [32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/ec7514c8554d/log
 [32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[32m[PASS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0md1a055429711 [36mcapture stdout[0m                                          [2m│[0m
@@ -391,11 +453,27 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-17/17 selected tests:
-  16 successful (15 pass, 1 xfail)
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+19/19 selected tests:
+  18 successful (17 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 new test
-5 tests whose output needs first-time approval
+7 tests whose output needs first-time approval
 overall status: [32msuccess[0m
 <handling result before exiting>
 RUN ./test status --short
@@ -438,11 +516,27 @@ RUN ./test status --short
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-17/17 selected tests:
-  16 successful (15 pass, 1 xfail)
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+19/19 selected tests:
+  18 successful (17 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 new test
-5 tests whose output needs first-time approval
+7 tests whose output needs first-time approval
 overall status: [32msuccess[0m
 <handling result before exiting>
 RUN ./test approve
@@ -500,17 +594,27 @@ Legend:
 [2m• [0mPath to expected stdout: tests/snapshots/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[32m[PASS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[32m[PASS]  [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
 [32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/ec7514c8554d/log
 [32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[32m[PASS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
 
-17/17 selected tests:
-  16 successful (15 pass, 1 xfail)
+19/19 selected tests:
+  18 successful (17 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 new test
 overall status: [32msuccess[0m
@@ -578,6 +682,19 @@ Legend:
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/a3e1a604f579/outcome[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/3b24997d50c8/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/99746f633129/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/33a93d234d01/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
@@ -587,9 +704,6 @@ Legend:
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[33m[MISS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/821b3bb120c2/outcome[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
@@ -674,6 +788,28 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/3b24997d50c8/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/99746f633129/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/33a93d234d01/outcome[0m
@@ -691,16 +827,10 @@ Legend:
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m                          [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_dummy_tests/821b3bb120c2/outcome[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-17/17 selected tests:
+19/19 selected tests:
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-17 new tests
+19 new tests
 overall status: [32msuccess[0m
 <handling result before exiting>
 RUN ./test run
@@ -754,16 +884,26 @@ Legend:
 [2m• [0mPath to expected stdout: tests/snapshots/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[33m[RUN][0m   3b24997d50c8 [36mmask_pcre_pattern[0m...[2K[32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[33m[RUN][0m   d5b0041ea8f4 [36mcheck for substring in stdout[0m...[2K[32m[PASS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[33m[RUN][0m   99746f633129 [36mcheck words in stdout[0m...[2K[32m[PASS]  [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m...[2K[32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
 [33m[RUN][0m   ec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m...[2K[32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/ec7514c8554d/log
 [33m[RUN][0m   b8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m...[2K[32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[33m[RUN][0m   821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m...[2K[32m[PASS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
-17/17 selected tests:
-  16 successful (15 pass, 1 xfail)
+19/19 selected tests:
+  18 successful (17 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 new test
 overall status: [32msuccess[0m
@@ -824,14 +964,24 @@ Legend:
 [2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/a3e1a604f579/stdout[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
+[32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/3b24997d50c8/log
+[33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/33a93d234d01/log
 [32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/ec7514c8554d/log
 [32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/b8cd199f2e62/log
-[32m[PASS]  [0m821b3bb120c2 [36munit tests[0m > [36mmask_pcre_pattern[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/821b3bb120c2/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0md1a055429711 [36mcapture stdout[0m                                          [2m│[0m
@@ -872,11 +1022,27 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-17/17 selected tests:
-  16 successful (15 pass, 1 xfail)
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/d5b0041ea8f4/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/d5b0041ea8f4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_dummy_tests/99746f633129/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_dummy_tests/99746f633129/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_dummy_tests/99746f633129/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+19/19 selected tests:
+  18 successful (17 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 new test
-5 tests whose output needs first-time approval
+7 tests whose output needs first-time approval
 overall status: [32msuccess[0m
 <handling result before exiting>
 RUN ./test approve
