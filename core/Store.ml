@@ -480,7 +480,8 @@ let get_status (test : _ T.test) : T.status =
   let result = get_result test in
   { expectation; result }
 
-let status_summary_of_status (status : T.status) : T.status_summary =
+let status_summary_of_status
+    (test : _ T.test) (status : T.status) : T.status_summary =
   match status.result with
   | Error _ ->
       {
@@ -491,7 +492,10 @@ let status_summary_of_status (status : T.status) : T.status_summary =
       let expect = status.expectation in
       let has_expected_output, output_matches =
         match (expect.expected_output, result.captured_output) with
-        | Ok output1, output2 when T.equal_checked_output output1 output2 ->
+        | Ok output1, output2
+          when T.equal_checked_output
+              ~check_output:test.check_output
+              output1 output2 ->
             (true, true)
         | Ok _, _ -> (true, false)
         | Error _, _ -> (false, true)

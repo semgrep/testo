@@ -69,6 +69,11 @@ type output_kind =
   | Merged_stdout_stderr
   | Separate_stdout_stderr
 
+type check_output =
+  | Diff
+  | Contains of string
+  | Check_output of (old:string -> new_:string -> bool)
+
 module Mona : module type of Mona
 module Tag : module type of Tag
 
@@ -116,6 +121,7 @@ type 'unit_promise t = private {
      variable parts. *)
   mask_output : (string -> string) list;
   checked_output : output_kind;
+  check_output : check_output;
   (* The 'skipped' property causes a test to be skipped by Alcotest but still
      shown as "[SKIP]" rather than being omitted. *)
   skipped : bool;
@@ -147,6 +153,7 @@ type 'unit_promise subcommand_result =
 *)
 val create :
   ?category:string list ->
+  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?mask_output:(string -> string) list ->
@@ -163,6 +170,7 @@ val create :
 *)
 val create_gen :
   ?category:string list ->
+  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?mask_output:(string -> string) list ->
@@ -181,6 +189,7 @@ val create_gen :
 *)
 val update :
   ?category:string list ->
+  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> 'unit_promise) ->
@@ -254,6 +263,7 @@ val has_tag : Tag.t -> 'a t -> bool
 *)
 val test :
   ?category:string list ->
+  ?check_output:check_output ->
   ?checked_output:output_kind ->
   ?expected_outcome:expected_outcome ->
   ?mask_output:(string -> string) list ->

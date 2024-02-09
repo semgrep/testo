@@ -41,3 +41,10 @@ let rec make_dir_if_not_exists ?(recursive = false) dir =
         failwith
           (sprintf "The parent folder of %S doesn't exist (current folder: %S)"
              dir (Sys.getcwd ()))
+
+let contains_pcre_pattern pat =
+  let rex = Re.Pcre.regexp pat in
+  fun str -> Re.execp rex str
+
+let contains_substring substring =
+  contains_pcre_pattern (Re.Pcre.quote substring)

@@ -2,6 +2,8 @@
    Dummy suite exercising a variety of test options.
 *)
 
+open Printf
+
 (* We should consider a shorter name for this library. *)
 let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
@@ -44,6 +46,19 @@ let tests =
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t ~checked_output:Stdout ~mask_output:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
+    t ~check_output:(Contains "water") ~checked_output:Stdout
+      "check for substring in stdout"
+      (fun () ->
+         let random_string = string_of_float (Unix.gettimeofday ()) in
+         printf "[%s] water is wet.\n" random_string
+      );
+    t ~check_output:(Check_output (fun ~old:_ ~new_ -> String.length new_ = 3))
+      ~checked_output:Stdout
+      "check length of stdout = 3"
+      (fun () ->
+         Random.self_init ();
+         printf "%03i" (Random.int 100)
+      );
   ] @ categorized @ Real_unit_tests.tests
 
 let () =
