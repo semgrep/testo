@@ -62,13 +62,15 @@ val get_status : 'a Types.test -> Types.status
 *)
 val status_summary_of_status : Types.status -> Types.status_summary
 
+type changed = Changed | Unchanged
+
 (*
    Replace the expected output of a test with a satisfying outcome
    (pass or xfail).
 
    Returns an error message if the test status is not PASS or XFAIL.
 *)
-val approve_new_output : 'a Types.test -> (unit, string) Result.t
+val approve_new_output : 'a Types.test -> (changed, string) Result.t
 
 (*
    If a test is configured to normalize its output, this returns the

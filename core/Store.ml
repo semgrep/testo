@@ -463,7 +463,9 @@ let expected_output_of_data (kind : T.output_kind) (data : string list) :
 
 let get_expectation (test : _ T.test) : T.expectation =
   let expected_output =
-    test |> get_expected_output |> list_result_of_result_list
+    test
+    |> get_expected_output
+    |> list_result_of_result_list
     |> Result.map (expected_output_of_data test.checked_output)
   in
   { expected_outcome = test.expected_outcome; expected_output }
@@ -538,24 +540,35 @@ The original reason given was:
            test.id reason)
   | _, Error msg -> Error msg
 
+type changed = Changed | Unchanged
+
 exception Local_error of string
 
-let approve_new_output (test : _ T.test) =
-  if test.skipped then Ok ()
+let approve_new_output (test : _ T.test) : (changed, string) Result.t =
+  if test.skipped then Ok Unchanged
   else
     match check_outcome test with
     | Error _ as res -> res
     | Ok () -> (
+        let old_expectation = get_expectation test in
         clear_expected_output test;
         try
           let data =
-            test |> get_checked_output
+            test
+            |> get_checked_output
             |> list_map (function
                  | Ok data -> data
                  | Error msg -> raise (Local_error msg))
           in
           set_expected_output test data;
-          Ok ()
+          let new_expectation = get_expectation test in
+          let changed =
+            if old_expectation = new_expectation then
+              Unchanged
+            else
+              Changed
+          in
+          Ok changed
         with
         | Local_error msg ->
             Error (sprintf "Cannot approve output for test %s: %s" test.id msg))
