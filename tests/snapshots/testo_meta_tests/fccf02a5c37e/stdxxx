@@ -617,6 +617,7 @@ RUN ./test status --short
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test approve
+Expected output changed for 8 tests.
 <handling result before exiting>
 RUN ./test status
 Legend:
@@ -1172,4 +1173,5 @@ Legend:
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test approve
+Expected output changed for 8 tests.
 <handling result before exiting>

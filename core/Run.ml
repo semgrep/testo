@@ -33,6 +33,9 @@ let exit_failure = 1
 (* Left margin for text relating to a test *)
 let bullet = Style.color Faint "• "
 
+(* For appending an 's' at the end for words in messages *)
+let plural num = if num >= 2 then "s" else ""
+
 (*
    Check that no two tests have the same full name or the same ID.
 *)
@@ -309,13 +312,18 @@ let filter ~filter_by_substring tests =
   tests
 
 (* Returns an exit code *)
-let print_errors (xs : (_, string) Result.t list) : int =
-  let error_messages =
-    xs
-    |> List.filter_map (function
-         | Ok _ -> None
-         | Error msg -> Some msg)
-  in
+let print_errors (xs : (Store.changed, string) Result.t list) : int =
+  let changed = ref 0 in
+  let error_messages = ref [] in
+  xs
+  |> List.iter (function
+    | Ok Store.Changed -> incr changed
+    | Ok Store.Unchanged -> ()
+    | Error msg -> error_messages := msg :: !error_messages
+  );
+  let changed = !changed in
+  let error_messages = List.rev !error_messages in
+  printf "Expected output changed for %i test%s.\n%!" changed (plural changed);
   match error_messages with
   | [] -> exit_success
   | xs ->
@@ -535,8 +543,6 @@ let print_long_status ~always_show_unchecked_output tests_with_status =
   | _ ->
       print_statuses ~highlight_test:false ~always_show_unchecked_output
         tests_with_status
-
-let plural num = if num >= 2 then "s" else ""
 
 let print_status_summary tests tests_with_status =
   let stats = stats_of_tests tests tests_with_status in
