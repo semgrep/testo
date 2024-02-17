@@ -18,6 +18,9 @@
 (****************************************************************************)
 (* A bunch of types for advanced uses and subject to frequent changes. *)
 (****************************************************************************)
+(*
+   These types are documented in Types.ml.
+*)
 
 type expected_outcome =
   | Should_succeed
@@ -43,7 +46,8 @@ type result = { outcome : outcome; captured_output : captured_output }
 
 type expectation = {
   expected_outcome : expected_outcome;
-  expected_output : (expected_output, string list (* missing files *)) Result.t;
+  expected_output :
+    (expected_output, string list (* missing files *)) Result.t;
 }
 
 type status = {
@@ -51,7 +55,14 @@ type status = {
   result : (result, string list) Result.t;
 }
 
-type status_class = PASS | FAIL | XFAIL | XPASS | MISS
+type fail_reason = Exception | Wrong_output | Exception_and_wrong_output
+
+type status_class =
+  | PASS
+  | FAIL of fail_reason
+  | XFAIL of fail_reason
+  | XPASS
+  | MISS
 
 type status_summary = {
   status_class : status_class;

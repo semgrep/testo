@@ -60,6 +60,8 @@ type status = {
   result : (result, string list (* missing files *)) Result.t;
 }
 
+type fail_reason = Exception | Wrong_output | Exception_and_wrong_output
+
 (* A summary of the 'status' object using the same language as pytest.
 
    PASS: expected success, actual success
@@ -70,7 +72,12 @@ type status = {
 
    Maximum string length for display: 5 characters
 *)
-type status_class = PASS | FAIL | XFAIL | XPASS | MISS
+type status_class =
+  | PASS
+  | FAIL of fail_reason
+  | XFAIL of fail_reason
+  | XPASS
+  | MISS
 
 type status_summary = {
   status_class : status_class;

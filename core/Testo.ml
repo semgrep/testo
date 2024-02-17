@@ -46,7 +46,15 @@ type status = T.status = {
   result : (result, string list) Result.t;
 }
 
-type status_class = T.status_class = PASS | FAIL | XFAIL | XPASS | MISS
+type fail_reason = T.fail_reason =
+    Exception | Wrong_output | Exception_and_wrong_output
+
+type status_class = T.status_class =
+  | PASS
+  | FAIL of fail_reason
+  | XFAIL of fail_reason
+  | XPASS
+  | MISS
 
 type status_summary = T.status_summary = {
   status_class : status_class;

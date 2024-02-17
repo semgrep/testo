@@ -18,13 +18,17 @@ type status_stats = {
   needs_approval : int ref;
 }
 
-type success = OK | OK_but_new | Not_OK
+type success = OK | OK_but_new | Not_OK of T.fail_reason option
 
 type 'unit_promise alcotest_test_case =
   string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
 
 type 'unit_promise alcotest_test =
   string * 'unit_promise alcotest_test_case list
+
+(* The exit codes used by the built-in test runner. *)
+let exit_success = 0
+let exit_failure = 1
 
 (* Left margin for text relating to a test *)
 let bullet = Style.color Faint "• "
@@ -60,25 +64,25 @@ let string_of_status_summary (sum : T.status_summary) =
   let approval_suffix = if sum.has_expected_output then "" else "*" in
   match sum.status_class with
   | PASS -> "PASS" ^ approval_suffix
-  | FAIL -> "FAIL" ^ approval_suffix
-  | XFAIL -> "XFAIL" ^ approval_suffix
+  | FAIL _ -> "FAIL" ^ approval_suffix
+  | XFAIL _ -> "XFAIL" ^ approval_suffix
   | XPASS -> "XPASS" ^ approval_suffix
   | MISS -> "MISS"
 
 let success_of_status_summary (sum : T.status_summary) =
   match sum.status_class with
   | PASS
-  | XFAIL ->
+  | XFAIL _ ->
       if sum.has_expected_output then OK else OK_but_new
-  | FAIL -> Not_OK
-  | XPASS -> Not_OK
+  | FAIL fail_reason -> Not_OK (Some fail_reason)
+  | XPASS -> Not_OK None
   | MISS -> OK_but_new
 
 let color_of_status_summary (sum : T.status_summary) : Style.color =
   match success_of_status_summary sum with
   | OK -> Green
   | OK_but_new -> Yellow
-  | Not_OK -> Red
+  | Not_OK _ -> Red
 
 let brackets s = sprintf "[%s]" s
 
@@ -102,17 +106,20 @@ let stats_of_tests tests tests_with_status =
     }
   in
   tests_with_status
-  |> List.iter (fun (_test, _status, (sum : T.status_summary)) ->
-         (match sum.status_class with
-         | MISS -> ()
-         | _ -> if not sum.has_expected_output then incr stats.needs_approval);
-         incr
-           (match sum.status_class with
-           | PASS -> stats.pass
-           | FAIL -> stats.fail
-           | XFAIL -> stats.xfail
-           | XPASS -> stats.xpass
-           | MISS -> stats.miss));
+  |> List.iter (fun ((test : _ T.test), _status, (sum : T.status_summary)) ->
+    if not test.skipped then (
+      (match sum.status_class with
+       | MISS -> ()
+       | _ -> if not sum.has_expected_output then incr stats.needs_approval);
+      incr
+        (match sum.status_class with
+         | PASS -> stats.pass
+         | FAIL _ -> stats.fail
+         | XFAIL _ -> stats.xfail
+         | XPASS -> stats.xpass
+         | MISS -> stats.miss)
+    )
+  );
   stats
 
 (* Sample output: "", " {foo, bar}" *)
@@ -310,7 +317,7 @@ let print_errors (xs : (_, string) Result.t list) : int =
          | Error msg -> Some msg)
   in
   match error_messages with
-  | [] -> 0
+  | [] -> exit_success
   | xs ->
       let n_errors = List.length xs in
       let error_str =
@@ -319,7 +326,7 @@ let print_errors (xs : (_, string) Result.t list) : int =
       in
       let msg = String.concat "\n" error_messages in
       eprintf "%s%s\n%!" error_str msg;
-      1
+      exit_failure
 
 let is_important_status ((test : _ T.test), _status, (sum : T.status_summary)) =
   (not test.skipped)
@@ -328,7 +335,7 @@ let is_important_status ((test : _ T.test), _status, (sum : T.status_summary)) =
      match success_of_status_summary sum with
      | OK -> false
      | OK_but_new
-     | Not_OK ->
+     | Not_OK _ ->
          true)
 
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
@@ -365,7 +372,7 @@ let show_output_details
              | OK
              | OK_but_new ->
                  ()
-             | Not_OK ->
+             | Not_OK _ ->
                  (* TODO: only show diff if this particular file differs *)
                  show_diff short_name path_to_expected_output path_to_output);
              if success <> OK_but_new then
@@ -429,24 +436,44 @@ let print_status ~highlight_test ~always_show_unchecked_output
             | Ok _ -> ()));
         let output_file_pairs = Store.get_output_file_pairs test in
         show_output_details test sum output_file_pairs;
-        match success_of_status_summary sum with
-        | OK when not always_show_unchecked_output -> ()
-        | OK_but_new when not always_show_unchecked_output ->
-            (* TODO: show the checked output to be approved? *)
-            ()
-        | OK
-        | OK_but_new
-        | Not_OK -> (
-            match Store.get_unchecked_output test with
-            | Some (_, "")
-            | None ->
-                ()
-            | Some (log_description, data) ->
-                printf "%sLog (%s):\n%s" bullet log_description
-                  (Style.quote_multiline_text data);
-                if not (String.ends_with ~suffix:"\n" data) then
-                  print_char '\n'
-            )));
+        let success = success_of_status_summary sum in
+        let show_unchecked_output =
+          always_show_unchecked_output
+          || (match success with
+            | OK -> false
+            | OK_but_new -> true
+            | Not_OK _ -> true)
+        in
+        (* TODO: show the checked output to be approved? *)
+        if show_unchecked_output then (
+          match Store.get_unchecked_output test with
+          | None ->
+              (match success with
+               | OK ->
+                   ()
+               | OK_but_new ->
+                   ()
+               | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
+                   printf "%sFailed due to an exception. \
+                           See captured output.\n"
+                     bullet
+               | Not_OK (Some Wrong_output) ->
+                   printf "%sFailed due to wrong output.\n" bullet
+               | Not_OK None ->
+                   printf "%sSucceded when it should have failed. \
+                           See captured output.\n"
+                     bullet
+              )
+          | Some (log_description, data) ->
+              match data with
+              | "" ->
+                  printf "%sLog (%s) is empty.\n" bullet log_description
+              | _ ->
+                  printf "%sLog (%s):\n%s" bullet log_description
+                    (Style.quote_multiline_text data);
+                  if not (String.ends_with ~suffix:"\n" data) then
+                    print_char '\n'
+        )));
   flush stdout
 
 let print_statuses ~highlight_test ~always_show_unchecked_output
@@ -454,14 +481,18 @@ let print_statuses ~highlight_test ~always_show_unchecked_output
   tests_with_status
   |> List.iter (print_status ~highlight_test ~always_show_unchecked_output)
 
+(*
+   If anything's not perfect, consider it a failure.
+*)
 let is_overall_success statuses =
   statuses
-  |> List.for_all (fun (_test, _status, sum) ->
-         match sum |> success_of_status_summary with
-         | OK
-         | OK_but_new ->
-             true
-         | Not_OK -> false)
+  |> List.for_all (fun ((test : _ T.test), _status, sum) ->
+    test.skipped
+    || (match sum |> success_of_status_summary with
+      | OK -> true
+      | OK_but_new -> false
+      | Not_OK _ -> false)
+  )
 
 (*
    Status output:
@@ -483,11 +514,12 @@ let print_status_introduction () =
 %s[XFAIL]: a failing test that was expected to fail (tolerated failure);
 %s[XPASS]: a successful test that was expected to fail (progress?).
 %s[MISS]: a test that never ran;
+%s[SKIP]: a test that is always skipped but kept around for some reason;
 %s[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
 |}
-    bullet bullet bullet bullet bullet bullet
+    bullet bullet bullet bullet bullet bullet bullet
 
 let print_short_status ~always_show_unchecked_output tests_with_status =
   let tests_with_status = List.filter is_important_status tests_with_status in
@@ -634,12 +666,10 @@ let run_tests ~(mona : _ Mona.t) ~always_show_unchecked_output
       cont exit_code tests_with_status |> ignore;
       (* The continuation 'cont' should exit but otherwise we exit once
          it's done. *)
-      (* nosemgrep: forbid-exit *)
       exit exit_code)
   |> ignore;
   (* shouldn't be reached if 'bind' does what it's supposed to *)
-  (* nosemgrep: forbid-exit *)
-  exit 0
+  exit exit_success
 
 (*
    Entry point for the 'approve' subcommand
