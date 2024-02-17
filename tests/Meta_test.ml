@@ -1,6 +1,10 @@
 (*
    Test suite that runs the dummy test program and checks that its output
    is what we expect.
+
+   Warning: ./meta-test produces very confusing output!
+   I recommend running ./test and ./failed-test manually and see what's wrong
+   there.
 *)
 
 open Printf
@@ -15,12 +19,14 @@ let t = T.create
 (*
    Invoke an arbitrary shell command.
 *)
-let shell_command command =
+let shell_command ?(expected_exit_code = 0) ~loc command =
   printf "RUN %s\n%!" command;
-  (* nosemgrep: forbid-exec *)
-  match Sys.command command with
-  | 0 -> ()
-  | n -> failwith (sprintf "Command '%s' failed with exit code %i" command n)
+  let exit_code = Sys.command command in
+  if exit_code <> expected_exit_code then
+    failwith (
+      sprintf "%s:\nCommand '%s' exited with code %i but code %i was expected."
+        loc command exit_code expected_exit_code
+    )
 
 let section text =
   printf
@@ -37,45 +43,45 @@ let section text =
 (*
    Invoke the pre-build test program.
 *)
-let test_subcommand shell_command_string =
+let test_subcommand ?expected_exit_code ~__LOC__:loc shell_command_string =
   let command = "./test " ^ shell_command_string in
-  shell_command command
+  shell_command ?expected_exit_code ~loc command
 
-let clear_status () =
-  shell_command "rm -rf _build/testo/status/testo_dummy_tests"
+let clear_status ~__LOC__:loc () =
+  shell_command ~loc "rm -rf _build/testo/status/testo_tests"
 
-let clear_snapshots () =
-  shell_command "rm -rf tests/snapshots/testo_dummy_tests"
+let clear_snapshots ~__LOC__:loc () =
+  shell_command ~loc "rm -rf tests/snapshots/testo_tests"
 
 let test_standard_flow () =
   section "Clean start";
-  clear_status ();
-  clear_snapshots ();
-  test_subcommand "status";
-  test_subcommand "run";
-  test_subcommand "status";
-  test_subcommand "status --short";
-  test_subcommand "approve";
-  test_subcommand "status";
+  clear_status ~__LOC__ ();
+  clear_snapshots ~__LOC__ ();
+  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "run" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status --short" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "approve";
+  test_subcommand ~__LOC__ "status";
   section "Delete statuses but not snapshots";
-  clear_status ();
-  test_subcommand "status";
-  test_subcommand "run";
+  clear_status ~__LOC__ ();
+  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "run";
   section "Delete snapshots but not statuses";
-  clear_snapshots ();
-  test_subcommand "status";
-  test_subcommand "approve"
+  clear_snapshots ~__LOC__ ();
+  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "approve"
 
 (*****************************************************************************)
 (* Exercise the failing test suite *)
 (*****************************************************************************)
 
-let failing_test_subcommand shell_command_string =
+let failing_test_subcommand ~loc shell_command_string =
   let command = "./failing-test " ^ shell_command_string in
-  shell_command command
+  shell_command ~loc command
 
-let test_failing_flow_run () = failing_test_subcommand "run"
-let test_failing_flow_status () = failing_test_subcommand "status"
+let test_failing_flow_run () = failing_test_subcommand ~loc:__LOC__ "run"
+let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
 
 (*****************************************************************************)
 (* Meta test suite *)

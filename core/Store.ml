@@ -485,6 +485,14 @@ let get_status (test : _ T.test) : T.status =
   let result = get_result test in
   { expectation; result }
 
+let fail_reason_of_pair
+    (outcome : T.outcome) (output_matches : bool) : T.fail_reason option =
+  match outcome, output_matches with
+  | Failed, false -> Some Exception_and_wrong_output
+  | Failed, true -> Some Exception
+  | Succeeded, false -> Some Wrong_output
+  | Succeeded, true -> None
+
 let status_summary_of_status (status : T.status) : T.status_summary =
   match status.result with
   | Error _ ->
@@ -501,12 +509,13 @@ let status_summary_of_status (status : T.status) : T.status_summary =
         | Ok _, _ -> (true, false)
         | Error _, _ -> (false, true)
       in
+      let fail_reason = fail_reason_of_pair result.outcome output_matches in
       let status_class : T.status_class =
-        match (expect.expected_outcome, (result.outcome, output_matches)) with
-        | Should_succeed, (Succeeded, true) -> PASS
-        | Should_succeed, (Failed, _ | _, false) -> FAIL
-        | Should_fail _, (Succeeded, true) -> XPASS
-        | Should_fail _, (Failed, _ | _, false) -> XFAIL
+        match (expect.expected_outcome, fail_reason) with
+        | Should_succeed, None -> PASS
+        | Should_succeed, Some fail_reason -> FAIL fail_reason
+        | Should_fail _, None -> XPASS
+        | Should_fail _, Some fail_reason -> XFAIL fail_reason
       in
       { status_class; has_expected_output }
 
@@ -516,14 +525,17 @@ let check_outcome (test : _ T.test) =
   | Should_fail _, Ok Failed ->
       Ok ()
   | Should_succeed, Ok Failed ->
-      Error (sprintf "Cannot approve test %S because it failed." test.id)
+      Error (sprintf
+               "Cannot approve test %S because it raised an exception."
+               test.id)
   | Should_fail reason, Ok Succeeded ->
       Error
         (sprintf
-           "Cannot approve test %S because it succeeded but was expected to \
-            fail.\n\
-            The original reason given was:\n\
-           \  %S" test.id reason)
+           {|Cannot approve est %S because it succeeded but
+was expected to fail by raising an exception.
+The original reason given was:
+  %S|}
+           test.id reason)
   | _, Error msg -> Error msg
 
 exception Local_error of string
