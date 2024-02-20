@@ -74,6 +74,8 @@ type status_summary = {
 (** {1 Main interface } *)
 (****************************************************************************)
 
+(** {2 Test creation} *)
+
 (** This type specifies what part of the output of a test (stdout, stderr)
     should be captured and compared against expectations. *)
 type output_kind =
@@ -95,9 +97,10 @@ module Tag : module type of Tag
    is an alias for [unit t].
 
    A test is at a minimum a name and a test function that raises exceptions
-   to signal test failure.
+   to signal test failure. It is created with {!create} or other similar
+   functions provided by this module.
 
-   There are two main recommended ways of writing a test:
+   There are two main recommended ways of writing the test function:
 
    1. With [assert false]:
 
@@ -182,7 +185,7 @@ type 'unit_promise subcommand_result =
 
 {ul
    {- [category]: the nested category to assign to the test. The category
-      can be nested further using {!categorize} or {!categorize_suite}.}
+      can be nested further using {!categorize} or {!categorize_suites}.}
    {- [checked_output]: determines how to capture the test's output. Defaults
       to no capture.}
    {- [expected_outcome]: whether a test is expected to complete without
@@ -194,12 +197,12 @@ type 'unit_promise subcommand_result =
    {- [skipped]: whether the test should be skipped. This is intended for tests
       that give inconsistent results and need fixing.
       See also [expected_outcome].}
-   {- [tags]: a list of tags to apply to the test. See {!module:Tags}.}
+   {- [tags]: a list of tags to apply to the test. See {!module:Tag}.}
    {- [tolerate_chdir]: by default, a test will fail if it modifies the
       current directory and doesn't restore it. This flag cancels this check.
       Note that Testo will always restore the current directory after running
       a test regardless of this setting.}
-ul}
+}
 *)
 val create :
   ?category:string list ->
@@ -248,7 +251,18 @@ val update :
   'unit_promise t ->
   'unit_promise t
 
-(** {2 Masking functions}
+(**
+   Special case of the [update] function that allows a different type
+   for the new test function. This is useful for converting an Lwt test
+   into a regular one.
+*)
+val update_func :
+  'unit_promise t ->
+  'unit_promise2 Mona.t ->
+  (unit -> 'unit_promise2) ->
+  'unit_promise2 t
+
+(** {2 Output masking functions}
 
    Functions with the [mask_] prefix are string replacement
    utilities to be used for masking the variable parts of test output in order
@@ -330,7 +344,7 @@ val mask_not_substring : ?mask:string -> string -> (string -> string)
    {- [["wat"; "water"]] will cause ["hard water"]
       to become ["<MASKED>water"] and not ["<MASKED>wat<MASKED>"] because
       [water] is a longer match than [wat] starting at the same position.}
-ul}
+}
 *)
 val mask_not_substrings : ?mask:string -> string list -> (string -> string)
 
@@ -340,19 +354,7 @@ val mask_not_substrings : ?mask:string -> string list -> (string -> string)
 *)
 val mask_not_pcre_pattern : ?mask:string -> string -> (string -> string)
 
-(**
-   Special case of the [update] function that allows a different type
-   for the new test function. This is useful for converting an Lwt test
-   into a regular one.
-*)
-val update_func :
-  'unit_promise t ->
-  'unit_promise2 Mona.t ->
-  (unit -> 'unit_promise2) ->
-  'unit_promise2 t
-
-(** Whether a test has this tag. This is meant for filtering test suites. *)
-val has_tag : Tag.t -> 'a t -> bool
+(** {2 Inline tests} *)
 
 (** Add a test to the global test suite that can be recovered with
     {!get_registered_tests}.
@@ -384,6 +386,13 @@ val test :
 (** Recover the list of tests registered with {!val:test}. *)
 val get_registered_tests : unit -> test list
 
+(** {2 Categorization and filtering of test suites}
+
+    A Testo test suite is a flat list of test cases. However, each test
+    belongs to a category. Categories can be arbitrarily nested and can
+    be exported as a tree if desired.
+*)
+
 (**
    Put a list of tests into a parent category.
 
@@ -412,6 +421,11 @@ val categorize_suites : string -> 'a t list list -> 'a t list
 *)
 val sort : 'a t list -> 'a t list
 
+(** Whether a test has this tag. This is meant for filtering test suites. *)
+val has_tag : Tag.t -> 'a t -> bool
+
+(** {2 Conversion to Alcotest test suites} *)
+
 (** A type alias for Alcotest test cases. *)
 type 'unit_promise alcotest_test_case =
   string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
@@ -432,6 +446,8 @@ type 'unit_promise alcotest_test =
 *)
 val to_alcotest : 'unit_promise t list -> 'unit_promise alcotest_test list
 
+(** {2 Command-line interpretation} *)
+
 (**
    Launch the command-line interface. It provides subcommands for running
    the tests, for checking test statuses, and for approving
@@ -451,7 +467,7 @@ val to_alcotest : 'unit_promise t list -> 'unit_promise alcotest_test list
       [_build/testo/status].}
    {- [project_name]: name of the program as shown in the [--help] page
       and used as a folder name for storing test results.}
-ul}
+}
 *)
 val interpret_argv :
   ?argv:string array ->
