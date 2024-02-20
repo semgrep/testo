@@ -1,6 +1,8 @@
-(*
+(**
    Testo library - Utilities for writing OCaml test suites
+*)
 
+(*
    This is the only module exported by this library. Other modules are
    either hidden or included as submodules such as 'Tag'
    which is exposed as 'Testo.Tag'. This allows us to:
@@ -10,44 +12,43 @@
 
    Dune exposes only this module as long as its name matches the name of the
    library.
-
-   Alcotest API:
-   https://mirage.github.io/alcotest/alcotest/Alcotest/index.html
 *)
 
 (****************************************************************************)
-(* A bunch of types for advanced uses and subject to frequent changes. *)
-(****************************************************************************)
-(*
-   These types are documented in Types.ml.
+(** {1 Internal types}
+
+    These types are documented in the library's source code in [Types.ml].
+    They are subject to frequent and unannounced changes at the whim of the
+    library's authors. A casual user should not need them.
 *)
 
 type expected_outcome =
   | Should_succeed
-  | Should_fail of string (* explains why we expect this test to fail *)
+  | Should_fail of string (** explains why we expect this test to fail *)
 
 type outcome = Succeeded | Failed
 
 type captured_output =
-  | Ignored of string (* unchecked combined output *)
-  | Captured_stdout of string * string (* stdout, unchecked output *)
-  | Captured_stderr of string * string (* stderr, unchecked output *)
-  | Captured_stdout_stderr of string * string (* stdout, stderr *)
-  | Captured_merged of string (* combined output *)
+  | Ignored of string (** unchecked combined output *)
+  | Captured_stdout of string * string (** stdout, unchecked output *)
+  | Captured_stderr of string * string (** stderr, unchecked output *)
+  | Captured_stdout_stderr of string * string (** stdout, stderr *)
+  | Captured_merged of string (** combined output *)
 
 type expected_output =
   | Ignored
   | Expected_stdout of string
   | Expected_stderr of string
-  | Expected_stdout_stderr of string * string (* stdout, stderr *)
-  | Expected_merged of string (* combined output *)
+  | Expected_stdout_stderr of string * string (** stdout, stderr *)
+  | Expected_merged of string (** combined output *)
 
 type result = { outcome : outcome; captured_output : captured_output }
 
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output :
-    (expected_output, string list (* missing files *)) Result.t;
+    (expected_output, string list) Result.t; (** expected output,
+                                                 missing files *)
 }
 
 type status = {
@@ -70,91 +71,138 @@ type status_summary = {
 }
 
 (****************************************************************************)
-(* Main interface *)
+(** {1 Main interface } *)
 (****************************************************************************)
 
-type output_kind =
-  | Ignore_output
-  | Stdout
-  | Stderr
-  | Merged_stdout_stderr
-  | Separate_stdout_stderr
+(** {2 Test creation} *)
 
+(** This type specifies what part of the output of a test (stdout, stderr)
+    should be captured and compared against expectations. *)
+type output_kind =
+  | Ignore_output (** don't capture any output *)
+  | Stdout (** standard output only *)
+  | Stderr (** standard error output only *)
+  | Merged_stdout_stderr (** all output captured as a single file *)
+  | Separate_stdout_stderr (** stdout and stderr captured as separate files *)
+
+(** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 module Mona : module type of Mona
+
+(** The type of tags which can be used to define subsets of tests precisely. *)
 module Tag : module type of Tag
 
-(*
-   A test is a name and a function that raises exceptions to signal
-   test failure.
+(**
+   [t] is the type of a test. A test suite is a flat list of tests.
+   For ordinary tests, the type parameter is [unit]. Type {!type:test}
+   is an alias for [unit t].
 
-   There are two main recommended ways of writing a test:
+   A test is at a minimum a name and a test function that raises exceptions
+   to signal test failure. It is created with {!create} or other similar
+   functions provided by this module.
 
-   1. With 'assert false':
+   There are two main recommended ways of writing the test function:
 
-   Each test may use 'assert false' to indicate that the test doesn't pass.
+   1. With [assert false]:
+
+   Each test may use [assert false] to indicate that the test doesn't pass.
    This is the simplest way of failing while also showing the location
-   of the failure. When using 'assert false', you should print the expected
-   value and actual value if applicable.
+   of the failure. When using [assert false], you should generally take
+   care of printing the expected value and actual value to make debugging
+   easier later.
 
-   2. With 'Alcotest.(check ...)':
+   2. With [Alcotest.(check ...)]:
 
-   This is a little nicer because the error messages prints something like
-   "Expecting 'foo', got 'bar'". However, this makes tests more complicated
-   to write. If the test already prints the expected value and the actual
-   value as its output, it's just easier to fail with 'assert false'.
+   This is a little nicer because the error messages print something like
+   ["Expecting 'foo', got 'bar'"]. However, this can make tests slightly
+   more complicated to write. If the test already prints the expected value
+   and the actual value as its output, it's just easier to fail with
+   [assert false].
 
    In any case, Alcotest will capture the output (stdout, stderr) of each
    test and put it in its own file so we can consult it later. Don't
    hesitate to log a lot during the execution of the test.
 *)
 type 'unit_promise t = private {
-  (* Hash of the full name of the test, computed automatically. *)
   id : string;
-  (* Full name of the test, derived automatically from category and name. *)
+    (** Hash of the full name of the test, computed automatically. *)
+
   internal_full_name : string;
-  (* Categories are made for organizing tests as a tree which is useful
-     for display and filtering. A new category is created typically when
-     grouping multiple test suites into one with 'categorize_suites'
-     or when assigning a category to a list of tests with 'categorize'.
-     e.g. ["food"; "fruit"; "kiwi"] *)
+    (** Full name of the test, derived automatically from category and name. *)
+
   category : string list;
+    (** Categories are made for organizing tests as a tree which is useful
+        for display and filtering. A new category is created typically when
+        grouping multiple test suites into one with 'categorize_suites'
+        or when assigning a category to a list of tests with 'categorize'.
+        e.g. ["food"; "fruit"; "kiwi"] *)
+
   name : string;
   func : unit -> 'unit_promise;
+
   (***** Options *****)
   expected_outcome : expected_outcome;
-  tags : Tag.t list; (* tags must be declared once using 'create_tag' *)
-  (* An optional function to rewrite any output data so as to mask the
-     variable parts. *)
+  tags : Tag.t list;
+    (** Tags must be declared once using 'create_tag'. *)
+
   normalize : (string -> string) list;
+    (** An optional function to rewrite any output data so as to mask the
+        variable parts. *)
+
   checked_output : output_kind;
-  (* The 'skipped' property causes a test to be skipped by Alcotest but still
-     shown as "[SKIP]" rather than being omitted. *)
+    (** The 'skipped' property causes a test to be skipped by Alcotest but
+        still shown as "[SKIP]" rather than being omitted. *)
+
   skipped : bool;
-  (* If the test function changes the current directory without restoring it,
-     it's an error unless this flag is set. *)
+    (** If the test function changes the current directory without restoring
+        it, it's an error unless this flag is set. *)
+
   tolerate_chdir : bool;
-  (* All the tests in a test suite should share this field. *)
+    (** All the tests in a test suite should share this field. *)
+
   m : 'unit_promise Mona.t;
 }
 
-(* The type of an ordinary test, i.e. one that returns when it's done rather
-   than one that returns a deferred computation (Lwt, Async, etc.). *)
+(** An alias for the type of an ordinary test, i.e. one that returns
+    when it's done rather than one that returns a deferred computation
+    ([Lwt], [Async], etc.). *)
 type test = unit t
+
 type 'unit_promise test_with_status = 'unit_promise t * status * status_summary
 
-(*
+(**
    The return type of each subcommand.
    It allows custom code to do something with the test data e.g. export
-   to the JUnit format via the optional 'handle_subcommand_result' argument
-   of 'interpret_argv'.
+   to the JUnit format via the optional [handle_subcommand_result] argument
+   of [interpret_argv].
 *)
 type 'unit_promise subcommand_result =
   | Run_result of 'unit_promise test_with_status list
   | Status_result of 'unit_promise test_with_status list
   | Approve_result
 
-(*
+(**
    Create a test to appear in a test suite.
+
+{ul
+   {- [category]: the nested category to assign to the test. The category
+      can be nested further using {!categorize} or {!categorize_suites}.}
+   {- [checked_output]: determines how to capture the test's output. Defaults
+      to no capture.}
+   {- [expected_outcome]: whether a test is expected to complete without
+      raising an exception (default) or by raising an exception. }
+   {- [normalize]: a list of functions applied in turn to transform the
+      captured output before comparing it to the reference snapshot.
+      See {!mask_line} and other functions with the [mask] prefix which are
+      provided for this purpose.}
+   {- [skipped]: whether the test should be skipped. This is intended for tests
+      that give inconsistent results and need fixing.
+      See also [expected_outcome].}
+   {- [tags]: a list of tags to apply to the test. See {!module:Tag}.}
+   {- [tolerate_chdir]: by default, a test will fail if it modifies the
+      current directory and doesn't restore it. This flag cancels this check.
+      Note that Testo will always restore the current directory after running
+      a test regardless of this setting.}
+}
 *)
 val create :
   ?category:string list ->
@@ -168,8 +216,8 @@ val create :
   (unit -> unit) ->
   unit t
 
-(*
-   Generic version of 'create' provided for libraries whose test function
+(**
+   Generic version of [create] provided for libraries whose test function
    returns a promise (Lwt, Async, ...).
 *)
 val create_gen :
@@ -185,10 +233,10 @@ val create_gen :
   (unit -> 'unit_promise) ->
   'unit_promise t
 
-(*
-   Update some of the test's fields. This ensures that the 'id' is recomputed
-   correctly. If specified, any of the optional property will replace
-   the previous value.
+(**
+   Update some of the test's fields. This ensures that the test's unique
+   identifier {!field:id} is recomputed correctly. When specified, an
+   optional property will replace the previous value.
 *)
 val update :
   ?category:string list ->
@@ -203,14 +251,45 @@ val update :
   'unit_promise t ->
   'unit_promise t
 
-(*
-   String replacement utilities to be used for masking the variable parts
-   of captured output. This is for the 'normalize' option of 'create'.
+(**
+   Special case of the [update] function that allows a different type
+   for the new test function. This is useful for converting an Lwt test
+   into a regular one.
+*)
+val update_func :
+  'unit_promise t ->
+  'unit_promise2 Mona.t ->
+  (unit -> 'unit_promise2) ->
+  'unit_promise2 t
+
+(** {2 Output masking functions}
+
+   Functions with the [mask_] prefix are string replacement
+   utilities to be used for masking the variable parts of test output in order
+   to make them stable and comparable.
+   This is for the [normalize] option of {!create}.
+
+   Testo will keep a copy of the original, unmasked output for the developer
+   to consult.
+   In particular, this masking functionality will not prevent sensitive data
+   such as passwords or secret keys from being stored in the local file system.
+*)
+
+(** Mask partially each line that contains [before] or [after].
+
+    If both [after] and [before] are specified, they must occur in that
+    order on a line to have an effect. The text between these markers is
+    replaced by [mask]. If only [before] is specified, the portion of masked
+    text starts at the beginning of the line. If only [after] is specified,
+    the portion of masked text extends to the end of the line.
+
+    For example, [(mask_line ~after:"time:" ()) "London time: 10:15,\nBlah"]
+    produces ["London time:<MASKED>\nBlah"].
 *)
 val mask_line :
   ?mask:string -> ?after:string -> ?before:string -> unit -> (string -> string)
 
-(*
+(**
    Mask all occurrences of this PCRE pattern. The syntax is limited to
    what the ocaml-re library supports.
 
@@ -219,77 +298,78 @@ val mask_line :
    rather than the whole match.
 
    Examples:
-
+{v
      (* without a capturing group: *)
      mask_pcre_pattern ~mask:"X" {|<[0-9]+>|} "xxx <42> xxx"
        = "xxx X xxx"
-
+v}
+{v
      (* with a capturing group: *)
      mask_pcre_pattern ~mask:"X" {|<([0-9]+)>|} "xxx <42> xxx"
        = "xxx <X> xxx"
+v}
 *)
 val mask_pcre_pattern : ?mask:string -> string -> (string -> string)
 
-(*
+(**
    Mask strings that look like temporary file paths. This is useful in the
    following cases:
-   - the temporary folder depends on the platform (Unix, Windows) or
-     on the environment (TMPDIR environment variable or equivalent);
-   - the files placed in the system's temporary folder are assigned
-     random names.
+
+{ul
+   {- the temporary folder depends on the platform (Unix, Windows) or
+      on the environment (TMPDIR environment variable or equivalent);}
+   {- the files placed in the system's temporary folder are assigned
+      random names.}
+}
 *)
 val mask_temp_paths : ?mask:string -> unit -> (string -> string)
 
-(*
+(**
    Keep the given substring and mask everything else.
    This is for tests that only care about a particular substring being
    present in the output.
 *)
 val mask_not_substring : ?mask:string -> string -> (string -> string)
 
-(* Keep all the given substrings and mask everything else.
+(** Keep all the given substrings and mask everything else.
 
    In case of overlaps between matching substrings, priority is given
    to the one starting earlier. If two substrings share a prefix, the
    longest match is preferred.
 
    Examples:
-
-   ["cute"; "exec"] will cause "execute" to become "<MASKED>ute".
-
-   ["wat"; "water"] will cause "hard water"
-   to become "<MASKED>water", not "<MASKED>wat<MASKED>".
+{ul
+   {- [["cute"; "exec"]] will cause ["execute"] to become ["exec<MASKED>"]
+      because [exec] occurs first in the target string.}
+   {- [["wat"; "water"]] will cause ["hard water"]
+      to become ["<MASKED>water"] and not ["<MASKED>wat<MASKED>"] because
+      [water] is a longer match than [wat] starting at the same position.}
+}
 *)
 val mask_not_substrings : ?mask:string -> string list -> (string -> string)
 
-(*
+(**
    Keep the substrings that match the given PCRE pattern and mask
    everything else.
 *)
 val mask_not_pcre_pattern : ?mask:string -> string -> (string -> string)
 
-(*
-   Special case of the 'update' function that allows a different type
-   for the new test function. This is useful for converting an Lwt test
-   to a regular one.
-*)
-val update_func :
-  'unit_promise t ->
-  'unit_promise2 Mona.t ->
-  (unit -> 'unit_promise2) ->
-  'unit_promise2 t
+(** {2 Inline tests} *)
 
-val has_tag : Tag.t -> 'a t -> bool
+(** Add a test to the global test suite that can be recovered with
+    {!get_registered_tests}.
 
-(* Register a test. This supports only synchronous tests.
+    This mechanism supports only synchronous tests i.e. ordinary tests whose
+    test function has type [unit -> unit].
 
-   The test gets added to the global list of tests.
-   This is meant to declare inline tests as follows:
+    It is meant to declare inline tests as follows:
 
+{v
      let () = Testo.test "foo" (fun () ->
        (* test body raising exceptions to signal failure *)
        ...
      )
+v}
 *)
 val test :
   ?category:string list ->
@@ -303,63 +383,91 @@ val test :
   (unit -> unit) ->
   unit
 
-(* Get the list of registered tests. *)
+(** Recover the list of tests registered with {!val:test}. *)
 val get_registered_tests : unit -> test list
 
-(*
-   Usage:
+(** {2 Categorization and filtering of test suites}
 
+    A Testo test suite is a flat list of test cases. However, each test
+    belongs to a category. Categories can be arbitrarily nested and can
+    be exported as a tree if desired.
+*)
+
+(**
+   Put a list of tests into a parent category.
+
+   Usage:
+{v
      let apple_tests =
        categorize "apples" [test_color; test_juiciness]
-     let fruit_tests =
-       categorize_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
+v}
 *)
 val categorize : string -> 'a t list -> 'a t list
+
+(** Variant of {!categorize} that flattens the nested list first.
+
+{v
+     let fruit_tests =
+       categorize_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
+v}
+*)
 val categorize_suites : string -> 'a t list list -> 'a t list
 
-(*
-   Sort tests by path, alphabetically:
+(**
+   Sort tests by category and name, alphabetically.
 
-     "a>b" comes before "a>c",
-     "a>b" come before "a b".
-
-   Non-ascii path components are sorted by byte order, possibly giving
-   unexpected results.
+   Non-ASCII path components are currently sorted by byte order,
+   possibly giving unexpected results.
 *)
 val sort : 'a t list -> 'a t list
 
-(* Type alias for Alcotest test cases *)
+(** Whether a test has this tag. This is meant for filtering test suites. *)
+val has_tag : Tag.t -> 'a t -> bool
+
+(** {2 Conversion to Alcotest test suites} *)
+
+(** A type alias for Alcotest test cases. *)
 type 'unit_promise alcotest_test_case =
   string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
 
-(* Type alias for an Alcotest 'test'. *)
+(** A type alias for an Alcotest [test]. *)
 type 'unit_promise alcotest_test =
   string * 'unit_promise alcotest_test_case list
 
-(*
+(**
    Export our tests to a list of tests that can run in Alcotest.
    This removes the ability to store test outcomes or to check the test output
    against expectations. Tests that are expected to fail and indeed fail
    (XFAIL) will be treated as successful by Alcotest. Conversely, tests that
    fail to raise an exception (XPASS) will be shown as failed by Alcotest.
+
+   This function is provided to facilitate migrations between Alcotest
+   and Testo, not for long-term use.
 *)
 val to_alcotest : 'unit_promise t list -> 'unit_promise alcotest_test list
 
-(*
-   Launch the extended command-line interface with subcommands for running
-   the tests but also for checking test statuses and for approving
+(** {2 Command-line interpretation} *)
+
+(**
+   Launch the command-line interface. It provides subcommands for running
+   the tests, for checking test statuses, and for approving
    new output.
 
    Return value: exit code reflecting overall success or failure (0 or 1),
    and subcommand-specific data for export to JUnit or similar.
 
-   argv: command line to parse. Defaults to Sys.argv.
-   expectation_workspace_root: Storage path for expected output. The default
-     is 'tests/snapshots'.
-   status_workspace_root: Storage path for test results. The default is
-     '_build/testo/status'.
-   project_name: name of the program as shown in the --help page and used
-     as a folder name for storing test results.
+{ul
+   {- [argv]: command line to parse. Defaults to [Sys.argv].}
+   {- [expectation_workspace_root]: storage path for expected output.
+      The default is [tests/snapshots].}
+   {- [handle_subcommand_result]: optional function to call on the result
+      of the subcommand before exiting. It can be used to export test
+      results to a specific format.}
+   {- [status_workspace_root]: storage path for test results. The default is
+      [_build/testo/status].}
+   {- [project_name]: name of the program as shown in the [--help] page
+      and used as a folder name for storing test results.}
+}
 *)
 val interpret_argv :
   ?argv:string array ->
@@ -370,6 +478,9 @@ val interpret_argv :
   (unit -> test list) ->
   unit
 
+(** Generic variant of {!interpret_argv}. It requires an extra argument
+    [mona] that is defined once and for all by a library like
+    [Testo_lwt]. *)
 val interpret_argv_gen :
   ?argv:string array ->
   ?expectation_workspace_root:string ->

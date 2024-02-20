@@ -18,7 +18,7 @@ retest: build
 # See doc/README.md for info on how build and contribute to the docs
 .PHONY: doc
 doc:
-	$(MAKE) -C documentation
+	$(MAKE) -C docsrc
 
 .PHONY: clean
 clean:
