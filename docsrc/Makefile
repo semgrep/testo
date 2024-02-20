@@ -8,13 +8,18 @@
 # The destination folder mandated by GitHub Pages (web server)
 DOCROOT = ../docs
 
+# The pages are served at https://semgrep.github.io/testo/
+WWWROOT = /testo
+
 PAGES = tutorial howtos
 
 HTML = \
   $(DOCROOT)/index.html \
   $(addprefix $(DOCROOT)/, $(addsuffix /index.html, $(PAGES)))
 
-CONVERT_MARKDOWN_TO_HTML = pandoc -t html5 --standalone --css=/css/testo.css
+CONVERT_MARKDOWN_TO_HTML = \
+  pandoc -t html5 --standalone \
+    --css=$(WWWROOT)/css/testo.css
 
 .PHONY: build
 build:
@@ -35,5 +40,6 @@ $(DOCROOT)/%/index.html: %/index.md Makefile
 
 # Run a local HTTP server to preview the docs
 live:
-	xdg-open http://0.0.0.0:8000/
-	python3 -m http.server --directory ../docs 8000
+	# The path to the "site" is /testo/ like for the GitHub Pages site.
+	xdg-open http://0.0.0.0:8000/testo
+	python3 -m http.server --directory . 8000
