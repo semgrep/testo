@@ -33,7 +33,7 @@ new subcommands for capturing, checking, and approving the output of tests.")
 )
 
 (package
-  (name testo_lwt)
+  (name testo-lwt)
   (synopsis "Extension of the Alcotest library for Lwt")
   (description "\
 Use this if the tests return Lwt promises and you can't make them synchronous
