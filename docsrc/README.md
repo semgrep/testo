@@ -13,5 +13,7 @@ The online documentation for Testo consists of:
 See https://ocaml.org/docs/generating-documentation to understand the
 Odoc setup.
 
-To build or rebuild the documentation, run `make doc` from the project
-root.
+To build or rebuild the documentation, run `make` from here
+or `make doc` from the project root.
+
+To preview the documentation locally, run `make live` (requires Python).
