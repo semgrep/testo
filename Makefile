@@ -15,6 +15,11 @@ test: build
 retest: build
 	./meta-test --lazy
 
+# See doc/README.md for info on how build and contribute to the docs
+.PHONY: doc
+doc:
+	$(MAKE) -C documentation
+
 .PHONY: clean
 clean:
 	dune clean

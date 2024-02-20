@@ -1,6 +1,6 @@
 ; Testo for tests that must return promises
 (library
-  (public_name testo_lwt)
+  (public_name testo-lwt)
   (name testo_lwt)
   (libraries
     testo
