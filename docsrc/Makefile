@@ -17,13 +17,14 @@ HTML = \
   $(DOCROOT)/index.html \
   $(addprefix $(DOCROOT)/, $(addsuffix /index.html, $(PAGES)))
 
+# We reuse Odoc's style sheet for our Pandoc-generated documents so as to
+# get a uniform style.
 CONVERT_MARKDOWN_TO_HTML = \
   pandoc -t html5 --standalone \
-    --css=$(WWWROOT)/css/testo.css
+    --css=$(WWWROOT)/reference/odoc.support/odoc.css
 
 .PHONY: build
 build:
-	cp -a css $(DOCROOT)/
 	# Markdown source -> HTML
 	$(MAKE) $(HTML)
 	# OCaml source -> HTML
