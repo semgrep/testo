@@ -117,6 +117,15 @@ let tests =
       ~expected_outcome:
         (Should_fail "the invoked test suite is designed to fail")
       test_failing_flow_status;
+    t "output masking for failing tests"
+      ~expected_outcome:(Should_fail "expected to fail")
+      ~checked_output:Stdout
+      ~normalize:[ (fun data ->
+        if data = "not masked" then "<SUCCESSFULLY MASKED>" else data)
+      ]
+      (fun () ->
+         print_string "not masked";
+         failwith "this exception is expected");
   ]
 
 let () =

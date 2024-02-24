@@ -354,7 +354,7 @@ let compose_functions_left_to_right funcs x =
 (* Iff the test is configured to rewrite its output so as to mask the
    unpredicable parts, we rewrite the standard output file and we make a
    backup of the original. *)
-let mask_output (test : 'unit_promise T.test) =
+let normalize_output (test : 'unit_promise T.test) =
   match get_orig_output_suffix test with
   | None -> ()
   | Some orig_suffix ->
@@ -365,16 +365,16 @@ let mask_output (test : 'unit_promise T.test) =
              if Sys.file_exists backup_path then Sys.remove backup_path;
              Sys.rename std_path backup_path;
              let orig_data = read_file_exn backup_path in
-             let masked_data =
+             let normalized_data =
                try rewrite_string orig_data with
                | e ->
                    failwith
                      (sprintf
-                        "Exception raised by the test's mask_output function: \
-                         %s"
+                        "Exception raised by the test's normalize_output \
+                         function: %s"
                         (Printexc.to_string e))
              in
-             write_file std_path masked_data)
+             write_file std_path normalized_data)
 
 let with_redirect_merged_stdout_stderr ~mona path func =
   (* redirect stderr to stdout, then redirect stdout to stdxxx file *)
@@ -411,8 +411,10 @@ let with_output_capture (test : 'unit_promise T.test)
              func)
   in
   fun () ->
-    mona.bind (func ()) (fun () ->
-        mask_output test;
+    Mona.protect mona
+      func
+      ~finally:(fun () ->
+        normalize_output test;
         mona.return ())
 
 let with_outcome_capture (test : 'unit_promise T.test) func () =
