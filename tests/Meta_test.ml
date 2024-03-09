@@ -50,8 +50,23 @@ let test_subcommand ?expected_exit_code ~__LOC__:loc shell_command_string =
 let clear_status ~__LOC__:loc () =
   shell_command ~loc "rm -rf _build/testo/status/testo_tests"
 
+(*
+   These are the tests we want to approve/disapprove in the
+   meta tests below.
+   This is fragile but we don't have a better way right now.
+*)
+let auto_approve_tests = [
+  "9c96a5aa8b4b";
+  "0048917873df";
+  "17ec149855c2";
+  "02ac0ea4ae90";
+]
+
 let clear_snapshots ~__LOC__:loc () =
-  shell_command ~loc "rm -rf tests/snapshots/testo_tests"
+  auto_approve_tests
+  |> List.iter (fun id ->
+    shell_command ~loc ("rm -rf tests/snapshots/testo_tests/" ^ id)
+  )
 
 let test_standard_flow () =
   section "Clean start";
@@ -61,7 +76,7 @@ let test_standard_flow () =
   test_subcommand ~__LOC__ "run" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "status --short" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve";
+  test_subcommand ~__LOC__ "approve -s auto-approve";
   test_subcommand ~__LOC__ "status";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
@@ -70,7 +85,7 @@ let test_standard_flow () =
   section "Delete snapshots but not statuses";
   clear_snapshots ~__LOC__ ();
   test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve"
+  test_subcommand ~__LOC__ "approve -s auto-approve"
 
 (*****************************************************************************)
 (* Exercise the failing test suite *)

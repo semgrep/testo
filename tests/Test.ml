@@ -40,6 +40,23 @@ let test_mask_pcre_pattern () =
     "<a+>", "xxaxxx<aaa>xx<a>", "xxaxxxAxxA", Some "A";
   ] |> List.iter test_one
 
+let test_alcotest_error_formatting () =
+  printf "This alcotest check is expected to fail \
+          with nice error formatting.\n%!";
+  let exn =
+    try
+      Alcotest.(check string) "<description>" "a" "b";
+      assert false
+    with e -> e
+  in
+  eprintf "%s%!" (Printexc.to_string exn)
+
+(*
+   The tests marked as "auto-approve" are tests that capture their output
+   and will be automatically approved by the meta test suite.
+   Normal tests should not be auto-approved since it would defeat the purpose
+   of approval.
+*)
 let tests =
   [
     t "simple" (fun () -> ());
@@ -47,15 +64,23 @@ let tests =
     t "category" ~category:[ "category"; "subcategory" ] (fun () -> ());
     t "unchecked stdout" (fun () -> print_endline "hello\nworld");
     t "unchecked stderr" (fun () -> prerr_string "hello\n");
-    t "capture stdout" ~checked_output:Stdout (fun () -> print_string "hello\n");
-    t "capture stderr" ~checked_output:Stderr (fun () -> prerr_string "error\n");
-    t "capture stdxxx" ~checked_output:Merged_stdout_stderr (fun () ->
+    t "capture stdout"
+      ~category:["auto-approve"]
+      ~checked_output:Stdout (fun () -> print_string "hello\n");
+    t "capture stderr"
+      ~category:["auto-approve"]
+      ~checked_output:Stderr (fun () -> prerr_string "error\n");
+    t "capture stdxxx"
+      ~category:["auto-approve"]
+      ~checked_output:Merged_stdout_stderr (fun () ->
         print_string "hello\n";
         flush stdout;
         prerr_string "error\n";
         flush stderr;
         print_string "goodbye\n");
-    t "capture stdout and stderr" ~checked_output:Separate_stdout_stderr
+    t "capture stdout and stderr"
+      ~category:["auto-approve"]
+      ~checked_output:Separate_stdout_stderr
       (fun () ->
         print_string "hello\n";
         prerr_string "error\n");
@@ -87,6 +112,9 @@ let tests =
       (fun () ->
          printf "abcdefghijklmnoprstuvwxyz"
       );
+    t "alcotest error formatting"
+      ~checked_output:Stderr
+      test_alcotest_error_formatting
   ] @ categorized
 
 let () =
