@@ -1,0 +1,8 @@
+ASSERT <description>
+Alcotest assertion failure
+File "tests/Test.ml", line 48, character 6:
+FAIL <description>
+
+   Expected: `"a"'
+   Received: `"b"'
+
