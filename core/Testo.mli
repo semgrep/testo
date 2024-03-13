@@ -321,8 +321,21 @@ val mask_pcre_pattern : ?mask:string -> string -> (string -> string)
    {- the files placed in the system's temporary folder are assigned
       random names.}
 }
+
+   Options:
+{ul
+   {- [depth]: maximum number of path segments to mask after [/tmp] or
+               equivalent.
+               For example, [/tmp/b4ac9882/foo/bar] will become
+               [<MASKED TEMPORARY PATH>foo/bar] with the default depth
+               of [Some 1]. With a depth of 2, if would become
+               [<MASKED TEMPORARY PATH>bar]}. Use [None] to mask the full
+               path. Use [Some 0] to mask only [/tmp] or equivalent.
+   {- [mask]: replacement string. Defaults to [<MASKED TEMPORARY PATH>].}
+}
 *)
-val mask_temp_paths : ?mask:string -> unit -> (string -> string)
+val mask_temp_paths :
+  ?depth:int option -> ?mask:string -> unit -> (string -> string)
 
 (**
    Keep the given substring and mask everything else.
