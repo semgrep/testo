@@ -213,10 +213,26 @@ let mask_pcre_pattern ?(mask = "<MASKED>") pat =
     )
     |> String.concat ""
 
-let mask_temp_paths ?(mask = "<TEMPORARY FILE PATH>") () =
-  let pat =
-    Re.Pcre.quote (Filename.get_temp_dir_name ()) ^ {|[/\\A-Za-z0-9_.-]*|}
+let mask_temp_paths ?(depth = Some 1) ?(mask = "<TEMPORARY FILE PATH>") () =
+  let tmp_dir_pat = Re.Pcre.quote (Filename.get_temp_dir_name ()) in
+  let suffix_pat =
+    match depth with
+    | None ->
+        {|[/\\A-Za-z0-9_.-]*|}
+    | Some n ->
+        if n < 0 then
+          invalid_arg
+            "Testo.mask_temp_paths: depth must be (Some <nonzero>) or None"
+        else
+          let sep = {|[/\\]+|} in
+          let opt_sep = {|[/\\]*|} in
+          let segment = {|[A-Za-z0-9_.-]+|} in
+          let repeat pat =
+            Printf.sprintf "(?:%s){0,%d}" pat n
+          in
+          repeat (sep ^ segment) ^ opt_sep
   in
+  let pat = tmp_dir_pat ^ suffix_pat in
   mask_pcre_pattern ~mask pat
 
 let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =

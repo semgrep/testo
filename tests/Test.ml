@@ -40,6 +40,48 @@ let test_mask_pcre_pattern () =
     "<a+>", "xxaxxx<aaa>xx<a>", "xxaxxxAxxA", Some "A";
   ] |> List.iter test_one
 
+let test_mask_temp_paths () =
+  let mask = "XXX" in
+  let test_one (depth, input_str, expected_result) =
+    printf "depth=%S input_str=%S expected_result=%S\n%!"
+      (match depth with
+       | Some (Some n) -> string_of_int n
+       | Some None -> "no limit"
+       | None -> "default")
+      input_str
+      expected_result;
+    let res = Testo.mask_temp_paths ?depth ~mask () input_str in
+    Alcotest.(check string) __LOC__ expected_result res
+  in
+  let tmp_dir = Filename.get_temp_dir_name () in
+  let tmp rel_path = sprintf "%s/%s" tmp_dir rel_path in
+  [
+    None, tmp_dir, "XXX";
+    None, tmp "", "XXX";
+    None, tmp "a", "XXX";
+    None, tmp "a/", "XXX";
+    None, tmp "a/b", "XXXb";
+    None, tmp "a//b", "XXXb";
+    None, " " ^ tmp "a-b_12//bcccc/// ", " XXXbcccc/// ";
+    None, tmp "a" ^ " " ^ tmp "b", "XXX XXX";
+    (* no depth limit *)
+    Some None, tmp_dir, "XXX";
+    Some None, tmp "", "XXX";
+    Some None, tmp "a/b/c/d/e", "XXX";
+    (* default: None <=> Some (Some 1) *)
+    Some (Some 1), tmp_dir, "XXX";
+    Some (Some 1), tmp "", "XXX";
+    Some (Some 1), tmp "a/b", "XXXb";
+    (* mask only /tmp or /tmp/ *)
+    Some (Some 0), tmp_dir, "XXX";
+    Some (Some 0), tmp "", "XXX";
+    Some (Some 0), tmp "a/b", "XXXa/b";
+    (* mask up to 3 segments after /tmp *)
+    Some (Some 3), tmp "a/b/c/d", "XXXd";
+    Some (Some 3), tmp "a/b/c", "XXX";
+    Some (Some 3), tmp "a/b", "XXX";
+  ] |> List.iter test_one
+
 let test_alcotest_error_formatting () =
   printf "This alcotest check is expected to fail \
           with nice error formatting.\n%!";
@@ -91,6 +133,7 @@ let tests =
     t ~checked_output:Stdout ~normalize:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;
+    t "mask_temp_paths" test_mask_temp_paths;
     t ~checked_output:Stdout
       ~normalize:[Testo.mask_not_substring "water"]
       "check for substring in stdout"
@@ -114,6 +157,7 @@ let tests =
       );
     t "alcotest error formatting"
       ~checked_output:Stderr
+      ~normalize:[Testo.mask_line ~after:{|File "tests/Test.ml", line |} ()]
       test_alcotest_error_formatting
   ] @ categorized
 
