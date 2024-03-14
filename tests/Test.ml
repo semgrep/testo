@@ -26,7 +26,8 @@ let test_mask_pcre_pattern () =
     printf "pat=%S subj=%S expected_result=%S mask=%s\n"
       pat subj expected_result
       (match mask with None -> "default" | Some x -> sprintf "%S" x);
-    let res = Testo.mask_pcre_pattern ?mask pat subj in
+    let replace = Option.map (fun mask -> (fun _ -> mask)) mask in
+    let res = Testo.mask_pcre_pattern ?replace pat subj in
     Alcotest.(check string) __LOC__ expected_result res
   in
   [
@@ -41,7 +42,7 @@ let test_mask_pcre_pattern () =
   ] |> List.iter test_one
 
 let test_mask_temp_paths () =
-  let mask = "XXX" in
+  let tmpdir = "tmpdir" in
   let test_one (depth, input_str, expected_result) =
     printf "depth=%S input_str=%S expected_result=%S\n%!"
       (match depth with
@@ -50,36 +51,37 @@ let test_mask_temp_paths () =
        | None -> "default")
       input_str
       expected_result;
-    let res = Testo.mask_temp_paths ?depth ~mask () input_str in
+    let res = Testo.mask_temp_paths ?depth ~tmpdir () input_str in
     Alcotest.(check string) __LOC__ expected_result res
   in
-  let tmp_dir = Filename.get_temp_dir_name () in
-  let tmp rel_path = sprintf "%s/%s" tmp_dir rel_path in
+  let tmp rel_path = sprintf "%s/%s" tmpdir rel_path in
   [
-    None, tmp_dir, "XXX";
-    None, tmp "", "XXX";
-    None, tmp "a", "XXX";
-    None, tmp "a/", "XXX";
-    None, tmp "a/b", "XXXb";
-    None, tmp "a//b", "XXXb";
-    None, " " ^ tmp "a-b_12//bcccc/// ", " XXXbcccc/// ";
-    None, tmp "a" ^ " " ^ tmp "b", "XXX XXX";
+    None, tmpdir, "<TMP>";
+    None, tmp "", "<TMP>/";
+    None, tmp "a", "<TMP>/<MASKED>";
+    None, tmp "a/", "<TMP>/<MASKED>/";
+    None, tmp "a/b", "<TMP>/<MASKED>/b";
+    None, tmp "a//b", "<TMP>/<MASKED>//b";
+    None, tmp "a-b_12/bcccc", "<TMP>/<MASKED>/bcccc";
+    None, " " ^ tmp "a-b_12//bcccc/// ", " <TMP>/<MASKED>//bcccc/// ";
+    None, tmp "a" ^ " " ^ tmp "b", "<TMP>/<MASKED> <TMP>/<MASKED>";
     (* no depth limit *)
-    Some None, tmp_dir, "XXX";
-    Some None, tmp "", "XXX";
-    Some None, tmp "a/b/c/d/e", "XXX";
+    Some None, tmpdir, "<TMP>";
+    Some None, tmp "", "<TMP>/";
+    Some None, tmp "a/b/c/d/e",
+    "<TMP>/<MASKED>/<MASKED>/<MASKED>/<MASKED>/<MASKED>";
     (* default: None <=> Some (Some 1) *)
-    Some (Some 1), tmp_dir, "XXX";
-    Some (Some 1), tmp "", "XXX";
-    Some (Some 1), tmp "a/b", "XXXb";
+    Some (Some 1), tmpdir, "<TMP>";
+    Some (Some 1), tmp "", "<TMP>/";
+    Some (Some 1), tmp "a/b", "<TMP>/<MASKED>/b";
     (* mask only /tmp or /tmp/ *)
-    Some (Some 0), tmp_dir, "XXX";
-    Some (Some 0), tmp "", "XXX";
-    Some (Some 0), tmp "a/b", "XXXa/b";
+    Some (Some 0), tmpdir, "<TMP>";
+    Some (Some 0), tmp "", "<TMP>/";
+    Some (Some 0), tmp "a/b", "<TMP>/a/b";
     (* mask up to 3 segments after /tmp *)
-    Some (Some 3), tmp "a/b/c/d", "XXXd";
-    Some (Some 3), tmp "a/b/c", "XXX";
-    Some (Some 3), tmp "a/b", "XXX";
+    Some (Some 3), tmp "a/b/c/d", "<TMP>/<MASKED>/<MASKED>/<MASKED>/d";
+    Some (Some 3), tmp "a/b/c", "<TMP>/<MASKED>/<MASKED>/<MASKED>";
+    Some (Some 3), tmp "a/b", "<TMP>/<MASKED>/<MASKED>";
   ] |> List.iter test_one
 
 let test_alcotest_error_formatting () =

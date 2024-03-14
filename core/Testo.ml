@@ -188,8 +188,13 @@ let mask_line ?(mask = "<MASKED>") ?(after = "") ?(before = "") () =
      matched group is replaced by the mask.
    - Otherwise, the whole match is replaced by the mask.
 *)
-let mask_pcre_pattern ?(mask = "<MASKED>") pat =
+let mask_pcre_pattern ?replace pat =
   let re = Re.Pcre.regexp pat in
+  let replace =
+    match replace with
+    | None -> (fun _ -> "<MASKED>")
+    | Some replace -> replace
+  in
   fun subj ->
     Re.split_full re subj
     |> Helpers.list_map (function
@@ -207,14 +212,37 @@ let mask_pcre_pattern ?(mask = "<MASKED>") pat =
           assert (group_stop <= match_stop);
           let frag1 =
             String.sub subj match_start (group_start - match_start) in
+          let to_be_replaced =
+            String.sub subj group_start (group_stop - group_start) in
           let frag2 =
             String.sub subj group_stop (match_stop - group_stop) in
-          frag1 ^ mask ^ frag2
+          frag1 ^ replace to_be_replaced ^ frag2
     )
     |> String.concat ""
 
-let mask_temp_paths ?(depth = Some 1) ?(mask = "<TEMPORARY FILE PATH>") () =
-  let tmp_dir_pat = Re.Pcre.quote (Filename.get_temp_dir_name ()) in
+let path_segment_re = Re.Pcre.regexp {|[^\\/]+|}
+
+(* Internal function.
+   Replace "/tmp/a/b" with "<TMP>/<MASKED>/<MASKED>" *)
+let default_replace_path ~tmpdir str =
+  let prefix_len = String.length tmpdir in
+  let len = String.length str in
+  assert (prefix_len <= len);
+  let suffix = String.sub str prefix_len (len - prefix_len) in
+  let new_suffix =
+    Re.Pcre.substitute
+      ~rex:path_segment_re
+      ~subst:(fun _seg -> "<MASKED>")
+      suffix
+  in
+  "<TMP>" ^ new_suffix
+
+let mask_temp_paths
+    ?(depth = Some 1)
+    ?replace
+    ?(tmpdir = Filename.get_temp_dir_name ())
+    () =
+  let tmpdir_pat = Re.Pcre.quote tmpdir in
   let suffix_pat =
     match depth with
     | None ->
@@ -225,15 +253,19 @@ let mask_temp_paths ?(depth = Some 1) ?(mask = "<TEMPORARY FILE PATH>") () =
             "Testo.mask_temp_paths: depth must be (Some <nonzero>) or None"
         else
           let sep = {|[/\\]+|} in
-          let opt_sep = {|[/\\]*|} in
           let segment = {|[A-Za-z0-9_.-]+|} in
           let repeat pat =
             Printf.sprintf "(?:%s){0,%d}" pat n
           in
-          repeat (sep ^ segment) ^ opt_sep
+          repeat (sep ^ segment)
   in
-  let pat = tmp_dir_pat ^ suffix_pat in
-  mask_pcre_pattern ~mask pat
+  let pat = tmpdir_pat ^ suffix_pat in
+  let replace =
+    match replace with
+    | None -> default_replace_path ~tmpdir
+    | Some f -> f
+  in
+  mask_pcre_pattern ~replace pat
 
 let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
   let re = Re.Pcre.regexp pat in

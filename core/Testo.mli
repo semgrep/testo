@@ -294,22 +294,25 @@ val mask_line :
    what the ocaml-re library supports.
 
    In the case that the pattern contains a capturing group and it
-   (the first group) matches, only this substring is replaced by the mask
-   rather than the whole match.
+   (the first group) matches, only this substring is replaced
+   rather than the whole match. The default [replace] function replaces
+   the capture by ["<MASKED>"].
 
    Examples:
 {v
      (* without a capturing group: *)
-     mask_pcre_pattern ~mask:"X" {|<[0-9]+>|} "xxx <42> xxx"
+     mask_pcre_pattern ~replace:(fun _ -> "X") {|<[0-9]+>|} "xxx <42> xxx"
        = "xxx X xxx"
 v}
 {v
      (* with a capturing group: *)
-     mask_pcre_pattern ~mask:"X" {|<([0-9]+)>|} "xxx <42> xxx"
+     mask_pcre_pattern ~replace:(fun _ -> "X") {|<([0-9]+)>|} "xxx <42> xxx"
        = "xxx <X> xxx"
 v}
 *)
-val mask_pcre_pattern : ?mask:string -> string -> (string -> string)
+val mask_pcre_pattern :
+  ?replace:(string -> string) ->
+  string -> (string -> string)
 
 (**
    Mask strings that look like temporary file paths. This is useful in the
@@ -327,15 +330,21 @@ val mask_pcre_pattern : ?mask:string -> string -> (string -> string)
    {- [depth]: maximum number of path segments to mask after [/tmp] or
                equivalent.
                For example, [/tmp/b4ac9882/foo/bar] will become
-               [<TEMPORARY FILE PATH>foo/bar] with the default depth
+               [<TMP>/<MASKED>/foo/bar] with the default depth
                of [Some 1]. With a depth of 2, if would become
-               [<TEMPORARY FILE PATH>bar]}. Use [None] to mask the full
-               path. Use [Some 0] to mask only [/tmp] or equivalent.
-   {- [mask]: replacement string. Defaults to [<TEMPORARY FILE PATH>].}
+               [<TMP>/<MASKED>/<MASKED>/bar]. Use [None] to mask the full
+               path. Use [Some 0] to mask only [/tmp] or equivalent.}
+   {- [replace]: function that determines what to replace the matched path
+               with.}
+   {- [tmpdir]: the path to the temporary folder to use instead of the
+                system default.}
 }
 *)
 val mask_temp_paths :
-  ?depth:int option -> ?mask:string -> unit -> (string -> string)
+  ?depth:int option ->
+  ?replace:(string -> string) ->
+  ?tmpdir:string ->
+  unit -> (string -> string)
 
 (**
    Keep the given substring and mask everything else.
