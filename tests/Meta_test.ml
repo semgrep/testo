@@ -102,13 +102,15 @@ let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
 (* Meta test suite *)
 (*****************************************************************************)
 
-let delete pat = T.mask_pcre_pattern ~mask:"" pat
+let delete pat = T.mask_pcre_pattern ~replace:(fun _ -> "") pat
 
 let mask_alcotest_output =
   [
     T.mask_line ~mask:"<MASKED RUN ID>" ~after:"This run has ID `" ~before:"'"
       ();
-    T.mask_pcre_pattern ~mask:"<MASKED DURATION>" {|in [0-9]+\.[0-9]+s|};
+    T.mask_pcre_pattern
+      ~replace:(fun _ -> "<MASKED DURATION>")
+      {|in [0-9]+\.[0-9]+s|};
     T.mask_line ~after:"Called from " ();
     T.mask_line ~after:"Re-raised at " ();
     T.mask_line ~after:"Logs saved to " ();
