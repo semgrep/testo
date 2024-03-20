@@ -5,7 +5,11 @@
 open Printf
 module T = Types
 
-type status_output_style = Short | Full
+type status_output_style =
+  | Long_all
+  | Compact_all
+  | Long_important
+  | Compact_important
 
 type status_stats = {
   total_tests : int;
@@ -394,6 +398,12 @@ let show_output_details
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
 
+let format_one_line_status ((test : _ T.test), (_status : T.status), sum) =
+  sprintf "%s%s" (format_status_summary sum) (format_title test)
+
+let print_one_line_status test_with_status =
+  printf "%s\n" (format_one_line_status test_with_status)
+
 let with_highlight_test ~highlight_test ~title func =
   if highlight_test then printf "%s" (Style.frame title)
   else printf "%s\n" title;
@@ -401,8 +411,8 @@ let with_highlight_test ~highlight_test ~title func =
   if highlight_test then print_string (Style.horizontal_line ())
 
 let print_status ~highlight_test ~always_show_unchecked_output
-    ((test : _ T.test), (status : T.status), sum) =
-  let title = sprintf "%s%s" (format_status_summary sum) (format_title test) in
+    (((test : _ T.test), (status : T.status), sum) as test_with_status)=
+  let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
       if (* Details about expectations *)
          test.skipped then printf "%sAlways skipped\n" bullet
@@ -529,6 +539,16 @@ let print_status_introduction () =
 |}
     bullet bullet bullet bullet bullet bullet bullet
 
+let print_compact_status ?(important = false) tests_with_status =
+  let tests_with_status =
+    if important then
+      List.filter is_important_status tests_with_status
+    else
+      tests_with_status
+  in
+  List.iter print_one_line_status tests_with_status;
+  if is_overall_success tests_with_status then exit_success else exit_failure
+
 let print_short_status ~always_show_unchecked_output tests_with_status =
   let tests_with_status = List.filter is_important_status tests_with_status in
   match tests_with_status with
@@ -565,7 +585,7 @@ let print_status_summary tests tests_with_status =
   printf "overall status: %s\n"
     (if overall_success then Style.color Green "success"
      else Style.color Red "failure");
-  if overall_success then 0 else 1
+  if overall_success then exit_success else exit_failure
 
 let print_full_status ~always_show_unchecked_output tests tests_with_status =
   print_status_introduction ();
@@ -595,12 +615,16 @@ let list_status ~always_show_unchecked_output ~filter_by_substring
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
-    | Full ->
+    | Long_all ->
         print_full_status
           ~always_show_unchecked_output tests tests_with_status
-    | Short ->
+    | Long_important ->
         print_short_status
           ~always_show_unchecked_output tests tests_with_status
+    | Compact_all ->
+        print_compact_status tests_with_status
+    | Compact_important ->
+        print_compact_status ~important:true tests_with_status
   in
   (exit_code, tests_with_status)
 

@@ -24,7 +24,7 @@ let default_conf =
   {
     filter_by_substring = None;
     show_output = false;
-    status_output_style = Full;
+    status_output_style = Compact_important;
     lazy_ = false;
   }
 
@@ -102,7 +102,7 @@ let show_output_term : bool Term.t =
   in
   Arg.value (Arg.flag info)
 
-let verbose_term : bool Term.t =
+let verbose_run_term : bool Term.t =
   let info =
     Arg.info [ "v"; "verbose" ]
       ~doc:
@@ -133,7 +133,7 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
   in
   Term.(
     const combine $ filter_by_substring_term $ lazy_term $ show_output_term
-    $ verbose_term)
+    $ verbose_run_term)
 
 let subcmd_run test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
@@ -143,19 +143,47 @@ let subcmd_run test_spec =
 (* Subcommand: status (replaces alcotest's 'list') *)
 (****************************************************************************)
 
-let short_term : bool Term.t =
+(*
+   Design: the options '-l' and '-a' were chosen for two reasons:
+   - make the status output compact by default;
+   - adopt a similar behavior as the '-l' and '-a' options of 'ls'.
+*)
+let long_term : bool Term.t =
   let info =
-    Arg.info [ "short" ]
-      ~doc:"Report only the status of tests that need attention."
+    Arg.info [ "l"; "long" ]
+      ~doc:"Print details instead of just a one-line summary for each test."
+  in
+  Arg.value (Arg.flag info)
+
+let all_term : bool Term.t =
+  let info =
+    Arg.info [ "a"; "all" ]
+      ~doc:"Report tests in all statuses instead of only the tests that
+            need attention."
+  in
+  Arg.value (Arg.flag info)
+
+let verbose_status_term : bool Term.t =
+  let info =
+    Arg.info [ "v"; "verbose" ]
+      ~doc:"Report the status of the tests with maximum verbosity.
+            This is currently equivalent to '-alw'."
   in
   Arg.value (Arg.flag info)
 
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine filter_by_substring short show_output verbose =
+  let combine all filter_by_substring long show_output verbose =
     let status_output_style : Run.status_output_style =
-      if short then Short else Full
+      if verbose then
+        Long_all
+      else
+        match long, all with
+        | true, true -> Long_all
+        | false, true -> Compact_all
+        | true, false -> Long_important
+        | false, false -> Compact_important
     in
     let show_output = show_output || verbose in
     Status
@@ -168,8 +196,13 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ filter_by_substring_term $ short_term $ show_output_term
-    $ verbose_term)
+    const combine
+    $ all_term
+    $ filter_by_substring_term
+    $ long_term
+    $ show_output_term
+    $ verbose_status_term
+  )
 
 let subcmd_status tests =
   let info = Cmd.info "status" ~doc:status_doc in

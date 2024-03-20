@@ -74,13 +74,15 @@ let test_standard_flow () =
   clear_snapshots ~__LOC__ ();
   test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "run" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status --all --long" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status --short" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "approve -s auto-approve";
   test_subcommand ~__LOC__ "status";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status -v" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status -l" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status -a" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "run";
   section "Delete snapshots but not statuses";
   clear_snapshots ~__LOC__ ();
