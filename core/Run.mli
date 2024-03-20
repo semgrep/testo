@@ -2,7 +2,11 @@
    Filter and run tests
 *)
 
-type status_output_style = Short | Full
+type status_output_style =
+  | Long_all
+  | Compact_all
+  | Long_important
+  | Compact_important
 
 (* Type alias for Alcotest test cases *)
 type 'unit_promise alcotest_test_case =
