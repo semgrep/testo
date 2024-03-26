@@ -47,7 +47,9 @@ type status = T.status = {
 }
 
 type fail_reason = T.fail_reason =
-    Exception | Wrong_output | Exception_and_wrong_output
+  | Exception
+  | Wrong_output
+  | Exception_and_wrong_output
 
 type status_class = T.status_class =
   | PASS
@@ -127,8 +129,7 @@ let update_id (test : _ t) =
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
-let create_gen ?(category = [])
-    ?(checked_output = Ignore_output)
+let create_gen ?(category = []) ?(checked_output = Ignore_output)
     ?(expected_outcome = Should_succeed) ?(normalize = []) ?(skipped = false)
     ?(tags = []) ?(tolerate_chdir = false) mona name func =
   {
@@ -147,15 +148,15 @@ let create_gen ?(category = [])
   }
   |> update_id
 
-let create ?category ?checked_output ?expected_outcome
-    ?normalize ?skipped ?tags ?tolerate_chdir name func =
-  create_gen ?category ?checked_output ?expected_outcome
-    ?normalize ?skipped ?tags ?tolerate_chdir Mona.sync name func
+let create ?category ?checked_output ?expected_outcome ?normalize ?skipped ?tags
+    ?tolerate_chdir name func =
+  create_gen ?category ?checked_output ?expected_outcome ?normalize ?skipped
+    ?tags ?tolerate_chdir Mona.sync name func
 
 let opt option default = Option.value option ~default
 
-let update ?category ?checked_output ?expected_outcome
-    ?func ?normalize ?name ?skipped ?tags ?tolerate_chdir old =
+let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
+    ?skipped ?tags ?tolerate_chdir old =
   {
     id = "";
     internal_full_name = "";
@@ -191,62 +192,65 @@ let mask_line ?(mask = "<MASKED>") ?(after = "") ?(before = "") () =
 let mask_pcre_pattern ?replace pat =
   let re = Re.Pcre.regexp pat in
   let replace =
-    match replace with
-    | None -> (fun _ -> "<MASKED>")
-    | Some replace -> replace
+    match replace with None -> fun _ -> "<MASKED>" | Some replace -> replace
   in
   fun subj ->
     Re.split_full re subj
     |> Helpers.list_map (function
-      | `Text (* unmatched input *) str -> str
-      | `Delim (* match *) groups ->
-          let match_start, match_stop =
-            try Re.Group.offset groups 0
-            with Not_found -> assert false
-          in
-          let group_start, group_stop =
-            try Re.Group.offset groups 1
-            with Not_found -> match_start, match_stop
-          in
-          assert (group_start >= match_start);
-          assert (group_stop <= match_stop);
-          let frag1 =
-            String.sub subj match_start (group_start - match_start) in
-          let to_be_replaced =
-            String.sub subj group_start (group_stop - group_start) in
-          let frag2 =
-            String.sub subj group_stop (match_stop - group_stop) in
-          frag1 ^ replace to_be_replaced ^ frag2
-    )
+         | `Text (* unmatched input *) str -> str
+         | `Delim (* match *) groups ->
+             let match_start, match_stop =
+               try Re.Group.offset groups 0 with Not_found -> assert false
+             in
+             let group_start, group_stop =
+               try Re.Group.offset groups 1
+               with Not_found -> (match_start, match_stop)
+             in
+             assert (group_start >= match_start);
+             assert (group_stop <= match_stop);
+             let frag1 =
+               String.sub subj match_start (group_start - match_start)
+             in
+             let to_be_replaced =
+               String.sub subj group_start (group_stop - group_start)
+             in
+             let frag2 = String.sub subj group_stop (match_stop - group_stop) in
+             frag1 ^ replace to_be_replaced ^ frag2)
     |> String.concat ""
 
 let path_segment_re = Re.Pcre.regexp {|[^\\/]+|}
 
 (* Internal function.
    Replace "/tmp/a/b" with "<TMP>/<MASKED>/<MASKED>" *)
-let default_replace_path ~tmpdir str =
-  let prefix_len = String.length tmpdir in
-  let len = String.length str in
-  assert (prefix_len <= len);
-  let suffix = String.sub str prefix_len (len - prefix_len) in
+(* Note: tmpdir_pat here since tmpdirs can be different paths on the same system *)
+let default_replace_path ~tmpdir_pat str =
+  let rex = Re.Pcre.regexp tmpdir_pat in
+  let suffix = Re.Pcre.substitute ~rex ~subst:(fun _ -> "") str in
   let new_suffix =
-    Re.Pcre.substitute
-      ~rex:path_segment_re
+    Re.Pcre.substitute ~rex:path_segment_re
       ~subst:(fun _seg -> "<MASKED>")
       suffix
   in
   "<TMP>" ^ new_suffix
 
-let mask_temp_paths
-    ?(depth = Some 1)
-    ?replace
-    ?(tmpdir = Filename.get_temp_dir_name ())
-    () =
+let mask_temp_paths ?(depth = Some 1) ?replace
+    ?(tmpdir = Filename.get_temp_dir_name ()) () =
+  (* Some OS's *cough cough MacOS* symlink their $TMPDIR to a different path *)
+  (* This means that if an ocmal program ever uses realpath, they may print a valid *)
+  (* But different temp dir that's not equal to $TMPDIR *)
+  (* So let's include that in the pattern *)
+  let real_tmpdir = Unix.realpath tmpdir in
+  let tmpdir =
+    if String.ends_with ~suffix:Filename.dir_sep tmpdir then
+      String.sub tmpdir 0 (String.length tmpdir - 1)
+    else tmpdir
+  in
   let tmpdir_pat = Re.Pcre.quote tmpdir in
+  let real_tmpdir_pat = Re.Pcre.quote real_tmpdir in
+  let tmpdir_pat = Printf.sprintf "(?:%s|%s)" tmpdir_pat real_tmpdir_pat in
   let suffix_pat =
     match depth with
-    | None ->
-        {|[/\\A-Za-z0-9_.-]*|}
+    | None -> {|[/\\A-Za-z0-9_.-]*|}
     | Some n ->
         if n < 0 then
           invalid_arg
@@ -254,16 +258,12 @@ let mask_temp_paths
         else
           let sep = {|[/\\]+|} in
           let segment = {|[A-Za-z0-9_.-]+|} in
-          let repeat pat =
-            Printf.sprintf "(?:%s){0,%d}" pat n
-          in
+          let repeat pat = Printf.sprintf "(?:%s){0,%d}" pat n in
           repeat (sep ^ segment)
   in
   let pat = tmpdir_pat ^ suffix_pat in
   let replace =
-    match replace with
-    | None -> default_replace_path ~tmpdir
-    | Some f -> f
+    match replace with None -> default_replace_path ~tmpdir_pat | Some f -> f
   in
   mask_pcre_pattern ~replace pat
 
@@ -272,36 +272,31 @@ let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
   fun subj ->
     Re.split_full re subj
     |> Helpers.list_map (function
-      | `Text _ -> mask
-      | `Delim groups ->
-          match Re.Group.get_opt groups 0 with
-          | Some substring -> substring
-          | None -> (* assert false *) ""
-    )
+         | `Text _ -> mask
+         | `Delim groups -> (
+             match Re.Group.get_opt groups 0 with
+             | Some substring -> substring
+             | None -> (* assert false *) ""))
     |> String.concat ""
 
 let mask_not_substrings ?mask substrings =
-  mask_not_pcre_pattern ?mask (
-    (* Sort the substrings by decreasing length so as to give preference to
-       the longest match possible when two of them share a prefix. *)
-    substrings
-    |> List.stable_sort
-      (fun a b -> Int.compare (String.length b) (String.length a))
+  mask_not_pcre_pattern ?mask
+    ((* Sort the substrings by decreasing length so as to give preference to
+        the longest match possible when two of them share a prefix. *)
+     substrings
+    |> List.stable_sort (fun a b ->
+           Int.compare (String.length b) (String.length a))
     |> Helpers.list_map Re.Pcre.quote
-    |> String.concat "|"
-  )
+    |> String.concat "|")
 
-let mask_not_substring ?mask substring =
-  mask_not_substrings ?mask [substring]
+let mask_not_substring ?mask substring = mask_not_substrings ?mask [ substring ]
 
 (* Allow conversion from Lwt to synchronous function *)
 let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
 let has_tag tag test = List.mem tag test.tags
 
 let categorize name (tests : _ list) : _ list =
-  Helpers.list_map
-    (fun x -> update x ~category:(name :: x.category))
-    tests
+  Helpers.list_map (fun x -> update x ~category:(name :: x.category)) tests
 
 let categorize_suites name (tests : _ t list list) : _ t list =
   tests |> Helpers.list_flatten |> categorize name
@@ -319,10 +314,10 @@ let to_alcotest = Run.to_alcotest
 let registered_tests : test list ref = ref []
 let register x = registered_tests := x :: !registered_tests
 
-let test ?category ?checked_output ?expected_outcome
-    ?normalize ?skipped ?tags ?tolerate_chdir name func =
-  create ?category ?checked_output ?expected_outcome
-    ?normalize ?skipped ?tags ?tolerate_chdir name func
+let test ?category ?checked_output ?expected_outcome ?normalize ?skipped ?tags
+    ?tolerate_chdir name func =
+  create ?category ?checked_output ?expected_outcome ?normalize ?skipped ?tags
+    ?tolerate_chdir name func
   |> register
 
 let get_registered_tests () = List.rev !registered_tests
