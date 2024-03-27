@@ -1,10 +1,10 @@
-#! /bin/bash
+#! /usr/bin/env bash
 #
 # Setup script for building and testing the project.
 # Assumes opam is installed.
 #
 set -eu
 
-eval $(opam env)
+eval "$(opam env)"
 opam update
 opam install -y ./testo.opam ./testo-lwt.opam
