@@ -410,6 +410,12 @@ let with_highlight_test ~highlight_test ~title func =
   func ();
   if highlight_test then print_string (Style.horizontal_line ())
 
+let ends_with_newline str =
+  (* not available in ocaml 4.08:
+     String.ends_with ~suffix:"\n" str
+  *)
+  str <> "" && str.[String.length str - 1] = '\n'
+
 let print_status ~highlight_test ~always_show_unchecked_output
     (((test : _ T.test), (status : T.status), sum) as test_with_status)=
   let title = format_one_line_status test_with_status in
@@ -489,7 +495,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
               | _ ->
                   printf "%sLog (%s):\n%s" bullet log_description
                     (Style.quote_multiline_text data);
-                  if not (String.ends_with ~suffix:"\n" data) then
+                  if not (ends_with_newline data) then
                     print_char '\n'
         )));
   flush stdout
