@@ -10,8 +10,6 @@ We want contributions to be easy for outsiders who are not familiar with
 the internals of Testo. We also want contributions to be easy to
 review and accept by the project admins.
 
-If you have an idea about how to make the process, submit an issue.
-
 One-off contributions
 --
 
