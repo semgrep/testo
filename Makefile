@@ -30,4 +30,4 @@ clean:
 .PHONY: opam-release
 opam-release:
 	dune-release tag
-        dune-release bistro
+	dune-release bistro
