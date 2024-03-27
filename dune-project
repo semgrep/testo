@@ -40,6 +40,7 @@ Use this if the tests return Lwt promises and you can't make them synchronous
 by wrapping them in 'Lwt_main.run'.")
   (depends
     (ocaml (>= 4.08.0))
+    lwt
     testo
   )
 )
