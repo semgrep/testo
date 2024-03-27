@@ -7,4 +7,8 @@ set -eu
 
 eval "$(opam env)"
 opam update
-opam install -y ./testo.opam ./testo-lwt.opam
+
+# This should not install 'testo' even though it's a dependency of 'testo-lwt'.
+opam install --deps-only -y \
+  ./testo.opam \
+  ./testo-lwt.opam
