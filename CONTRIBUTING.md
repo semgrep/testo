@@ -1,14 +1,16 @@
 Testo Contribution Guidelines
 ==
 
-This is a collection of guides to help contributors to the Testo project.
+Testo is developed in the open by the OCaml community for the OCaml community.
+
+This document is a collection of guides to facilitate contributions to the project.
 
 Meta Goals
 --
 
 We want contributions to be easy for outsiders who are not familiar with
 the internals of Testo. We also want contributions to be easy to
-review and accept by the project admins.
+review and to approve by the project admins.
 
 One-off contributions
 --
