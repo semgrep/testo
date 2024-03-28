@@ -23,3 +23,11 @@ doc:
 .PHONY: clean
 clean:
 	dune clean
+
+# This is only part of the release process.
+# See complete release instructions in CONTRIBUTING.md.
+#
+.PHONY: opam-release
+opam-release:
+	dune-release tag
+	dune-release bistro

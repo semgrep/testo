@@ -159,8 +159,14 @@ let tests =
       );
     t "alcotest error formatting"
       ~checked_output:Stderr
-      ~normalize:[Testo.mask_line ~after:{|File "tests/Test.ml", line |} ()]
-      test_alcotest_error_formatting
+      ~normalize:[
+        (* In our CI environment for ocaml 4.08, the line
+           "File "tests/Test.ml", line ..." is missing, so we mask it if
+           it exists. *)
+        Testo.mask_pcre_pattern
+          "Alcotest assertion failure((?:\nFile [^\n]*)?)\n"
+      ]
+      test_alcotest_error_formatting;
   ] @ categorized
 
 let () =

@@ -1,6 +1,5 @@
 ASSERT <description>
-Alcotest assertion failure
-File "tests/Test.ml", line <MASKED>
+Alcotest assertion failure<MASKED>
 FAIL <description>
 
    Expected: `"a"'
