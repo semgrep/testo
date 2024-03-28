@@ -5,6 +5,4 @@ PR checklist:
 - [ ] Documentation is up-to-date
 - [ ] A changelog entry was added to `CHANGES.md` for any user-facing change
 
-Check out
-[`CONTRIBUTING.md`](https://github.com/semgrep/testo/blob/main/CONTRIBUTING.md)
-for more details.
+Check out [`CONTRIBUTING.md`](https://github.com/semgrep/testo/blob/main/CONTRIBUTING.md) for more details.
