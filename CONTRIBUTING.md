@@ -14,8 +14,8 @@ One-off contributions
 --
 
 We encourage first-time contributions
-but before making complicated changes, it's best to (open an
-issue)[https://github.com/semgrep/testo/issues] in which you present
+but before making complicated changes, it's best to [open an
+issue](https://github.com/semgrep/testo/issues) in which you present
 your plans. For simple bugs and enhancements, you don't have to file
 an issue first but it's generally a good idea.
 
