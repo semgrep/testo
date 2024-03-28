@@ -41,6 +41,7 @@ let test_mask_pcre_pattern () =
     "<a+>", "xxaxxx<aaa>xx<a>", "xxaxxxAxxA", Some "A";
   ] |> List.iter test_one
 
+(* TODO: test Windows paths *)
 let test_mask_temp_paths () =
   let tmpdir = "tmpdir" in
   let test_one (depth, input_str, expected_result) =
@@ -84,6 +85,28 @@ let test_mask_temp_paths () =
     Some (Some 3), tmp "a/b", "<TMP>/<MASKED>/<MASKED>";
   ] |> List.iter test_one
 
+(* TODO: test Windows paths *)
+let test_mask_exotic_temp_paths () =
+  let test_one (tmpdir, data, expected_masked_data) =
+    let masked_data = Testo.mask_temp_paths ~tmpdir ~depth:(Some 0) () data in
+    Alcotest.(check string) __LOC__ expected_masked_data masked_data
+  in
+  [
+    "/", "/", "<TMP>";
+    "////", "/", "<TMP>";
+    "/", "/a", "<TMP>a";
+    "////", "/a", "<TMP>a";
+    "a", "a", "<TMP>";
+    "a/", "a", "<TMP>";
+    "a////", "a", "<TMP>";
+    "a////", "a/", "<TMP>/";
+    "a////", "a/b", "<TMP>/b";
+    "/a", "/a", "<TMP>";
+    "/a/", "/a", "<TMP>";
+    "/a////", "/a", "<TMP>";
+    "/a////", "/a/", "<TMP>/";
+  ] |> List.iter test_one
+
 let test_alcotest_error_formatting () =
   printf "This alcotest check is expected to fail \
           with nice error formatting.\n%!";
@@ -94,6 +117,16 @@ let test_alcotest_error_formatting () =
     with e -> e
   in
   eprintf "%s%!" (Printexc.to_string exn)
+
+(* For tests that need porting to Windows *)
+let is_windows =
+  Sys.os_type = "Win32"
+
+let windows_todo : Testo.expected_outcome =
+  if is_windows then
+    Should_fail "this test needs to be ported to Windows"
+  else
+    Should_succeed
 
 (*
    The tests marked as "auto-approve" are tests that capture their output
@@ -135,7 +168,12 @@ let tests =
     t ~checked_output:Stdout ~normalize:[ String.lowercase_ascii ] "masked"
       (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;
-    t "mask_temp_paths" test_mask_temp_paths;
+    t "mask_temp_paths"
+      ~expected_outcome:windows_todo
+      test_mask_temp_paths;
+    t "mask exotic temp paths"
+      ~expected_outcome:windows_todo
+      test_mask_exotic_temp_paths;
     t ~checked_output:Stdout
       ~normalize:[Testo.mask_not_substring "water"]
       "check for substring in stdout"
