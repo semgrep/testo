@@ -6,5 +6,5 @@ PR checklist:
 - [ ] A changelog entry was added to `CHANGES.md` for any user-facing change
 
 Check out
-(`CONTRIBUTNG.md`)[https://github.com/semgrep/testo/blob/main/CONTRIBUTNG.md]
+[`CONTRIBUTING.md`](https://github.com/semgrep/testo/blob/main/CONTRIBUTING.md)
 for more details.
