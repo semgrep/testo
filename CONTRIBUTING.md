@@ -16,7 +16,7 @@ One-off contributions
 We encourage first-time contributions
 but before making complicated changes, it's best to [open an
 issue](https://github.com/semgrep/testo/issues) in which you present
-your plans. For simple bugs and enhancements, you don't have to file
+your plans. For simple bugfixes and enhancements, you don't have to file
 an issue first but it's generally a good idea.
 
 Build the project with `make`. Test it with `make test`. Beware that
