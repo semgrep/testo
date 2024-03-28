@@ -237,11 +237,38 @@ let default_replace_path ~tmpdir str =
   in
   "<TMP>" ^ new_suffix
 
+let equal_last_char str char =
+  str <> "" && str.[String.length str - 1] = char
+
+(*
+   Poor man's 'Fpath.rem_empty_seg'
+   We can't use 'String.ends_with' until we accept to require OCaml >= 4.13.
+*)
+let rec remove_trailing_slashes path =
+  if
+    (* don't remove the slash if the path is "/" *)
+    String.length path >= 2
+    &&
+    match Filename.dir_sep with
+    | "/" -> equal_last_char path '/'
+    | "\\" -> equal_last_char path '\\'
+    | _ -> (* are there any platforms with other separators? *) false
+  then
+    remove_trailing_slashes (String.sub path 0 (String.length path - 1))
+  else
+    path
+
 let mask_temp_paths
     ?(depth = Some 1)
     ?replace
     ?(tmpdir = Filename.get_temp_dir_name ())
     () =
+  let tmpdir =
+    if tmpdir = "" then
+      invalid_arg "Testo.mask_temp_paths: empty tmpdir"
+    else
+      remove_trailing_slashes tmpdir
+  in
   let tmpdir_pat = Re.Pcre.quote tmpdir in
   let suffix_pat =
     match depth with
