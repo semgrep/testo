@@ -19,7 +19,7 @@ let t = T.create
 (*
    Invoke an arbitrary shell command.
 *)
-let shell_command ?(expected_exit_code = 0) ~loc command =
+let shell_command ?(expected_exit_code = 0) ~__LOC__:loc command =
   printf "RUN %s\n%!" command;
   let exit_code = Sys.command command in
   if exit_code <> expected_exit_code then
@@ -45,14 +45,15 @@ let section text =
 *)
 let test_subcommand ?expected_exit_code ~__LOC__:loc shell_command_string =
   let command = "./test " ^ shell_command_string in
-  shell_command ?expected_exit_code ~loc command
+  shell_command ?expected_exit_code ~__LOC__:loc command
 
 let clear_status ~__LOC__:loc () =
-  shell_command ~loc "rm -rf _build/testo/status/testo_tests"
+  shell_command ~__LOC__:loc "rm -rf _build/testo/status/testo_tests"
 
 (*
    These are the tests we want to approve/disapprove in the
-   meta tests below.
+   meta tests below and have their snapshots (files holding the expected
+   output) in the default location.
    This is fragile but we don't have a better way right now.
 *)
 let auto_approve_tests = [
@@ -62,11 +63,15 @@ let auto_approve_tests = [
   "02ac0ea4ae90";
 ]
 
+(* Delete snapshots for the tests tagged with "auto-approve" *)
 let clear_snapshots ~__LOC__:loc () =
+  (* snapshots at the default location *)
   auto_approve_tests
   |> List.iter (fun id ->
-    shell_command ~loc ("rm -rf tests/snapshots/testo_tests/" ^ id)
-  )
+    shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_tests/" ^ id)
+  );
+  (* snapshots at a custom location *)
+  shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
 
 let test_standard_flow () =
   section "Clean start";
@@ -95,7 +100,7 @@ let test_standard_flow () =
 
 let failing_test_subcommand ~loc shell_command_string =
   let command = "./failing-test " ^ shell_command_string in
-  shell_command ~loc command
+  shell_command ~__LOC__:loc command
 
 let test_failing_flow_run () = failing_test_subcommand ~loc:__LOC__ "run"
 let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
@@ -126,7 +131,7 @@ let mask_alcotest_output =
 
 let tests =
   [
-    t ~checked_output:Merged_stdout_stderr ~normalize:mask_alcotest_output
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_alcotest_output
       "standard flow" test_standard_flow;
     t "failing flow run"
       ~expected_outcome:
@@ -138,7 +143,7 @@ let tests =
       test_failing_flow_status;
     t "output masking for failing tests"
       ~expected_outcome:(Should_fail "expected to fail")
-      ~checked_output:Stdout
+      ~checked_output:(T.stdout ())
       ~normalize:[ (fun data ->
         if data = "not masked" then "<SUCCESSFULLY MASKED>" else data)
       ]

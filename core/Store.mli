@@ -3,16 +3,16 @@
    Much of this is private to this library.
 *)
 
-val default_expectation_workspace_root : string
-val default_status_workspace_root : string
+val default_expectation_workspace_root : Filename_.t
+val default_status_workspace_root : Filename_.t
 
 (*
    This function must be called exactly once to define where things are
    stored. It doesn't write to the file system.
 *)
 val init_settings :
-  ?expectation_workspace_root:string ->
-  ?status_workspace_root:string ->
+  ?expectation_workspace_root:Filename_.t ->
+  ?status_workspace_root:Filename_.t ->
   project_name:string ->
   unit ->
   unit
@@ -23,19 +23,26 @@ val init_settings :
 val init_workspace : unit -> unit
 
 (*
-   For one kind of captured output, this is the corresponding pair of files.
-   Unchecked output doesn't have a file for expected output.
+   All the data we need to handle the files that contain the captured output
+   for a test after applying all defaults and options.
 *)
-type output_file_pair = {
+type capture_paths = {
+  (* Human-friendly name: "stdout", "stderr", or "stdxxx" *)
+  standard_name : string;
+  (* Human-friendly name: "stdout" or the basename of user-specified file
+     path. *)
   short_name : string;
-  path_to_expected_output : string option;
-  path_to_output : string;
+  (* None if this is file that holds the leftover logs that are not
+     checked against expectations but directed to a file nonetheless. *)
+  path_to_expected_output : Filename_.t option;
+  (* Path to the file where the captured output is redirected. *)
+  path_to_output : Filename_.t;
 }
 
 (*
    For diffing output against expected output
 *)
-val get_output_file_pairs : 'a Types.test -> output_file_pair list
+val capture_paths_of_test : 'a Types.test -> capture_paths list
 
 (*
    Ordinary output that's not compared against expectations.
@@ -48,8 +55,8 @@ val get_unchecked_output : 'a Types.test -> (string * string) option
 (*
    These functions are available after the call to 'init'.
 *)
-val get_status_workspace : unit -> string
-val get_expectation_workspace : unit -> string
+val get_status_workspace : unit -> Filename_.t
+val get_expectation_workspace : unit -> Filename_.t
 val get_status : 'a Types.test -> Types.status
 
 (*

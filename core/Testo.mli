@@ -44,16 +44,17 @@ type expected_output =
 
 type result = { outcome : outcome; captured_output : captured_output }
 
+type missing_files = Types.missing_files = Missing_files of string list
+
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output :
-    (expected_output, string list) Result.t; (** expected output,
-                                                 missing files *)
+    (expected_output, missing_files) Result.t;
 }
 
 type status = {
   expectation : expectation;
-  result : (result, string list) Result.t;
+  result : (result, missing_files) Result.t;
 }
 
 type fail_reason = Exception | Wrong_output | Exception_and_wrong_output
@@ -77,13 +78,30 @@ type status_summary = {
 (** {2 Test creation} *)
 
 (** This type specifies what part of the output of a test (stdout, stderr)
-    should be captured and compared against expectations. *)
-type output_kind =
-  | Ignore_output (** don't capture any output *)
-  | Stdout (** standard output only *)
-  | Stderr (** standard error output only *)
-  | Merged_stdout_stderr (** all output captured as a single file *)
-  | Separate_stdout_stderr (** stdout and stderr captured as separate files *)
+    should be captured and compared against expectations.
+
+    Use the provided functions {!val:stdout}, {!val:stderr}, {!val:stdxxx},
+    and {!val:split_stdout_stderr} to create such an object.
+*)
+type checked_output_kind
+
+(** Create an object of type {!type:checked_output_kind} specifying
+    that the test's standard output must be checked against a reference file.
+*)
+val stdout : ?expected_stdout_path:string -> unit -> checked_output_kind
+
+(** Same as {!val:stdout} but for capturing stderr instead. *)
+val stderr : ?expected_stderr_path:string -> unit -> checked_output_kind
+
+(** Same as {!val:stdout} but for capturing the combined stdout and stderr
+    outputs. *)
+val stdxxx : ?expected_stdxxx_path:string -> unit -> checked_output_kind
+
+(** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
+val split_stdout_stderr :
+  ?expected_stdout_path:string ->
+  ?expected_stderr_path:string ->
+  unit -> checked_output_kind
 
 (** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 module Mona : module type of Mona
@@ -148,7 +166,7 @@ type 'unit_promise t = private {
     (** An optional function to rewrite any output data so as to mask the
         variable parts. *)
 
-  checked_output : output_kind;
+  checked_output : checked_output_kind;
     (** The 'skipped' property causes a test to be skipped by Alcotest but
         still shown as "[SKIP]" rather than being omitted. *)
 
@@ -206,7 +224,7 @@ type 'unit_promise subcommand_result =
 *)
 val create :
   ?category:string list ->
-  ?checked_output:output_kind ->
+  ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?normalize:(string -> string) list ->
   ?skipped:bool ->
@@ -222,7 +240,7 @@ val create :
 *)
 val create_gen :
   ?category:string list ->
-  ?checked_output:output_kind ->
+  ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?normalize:(string -> string) list ->
   ?skipped:bool ->
@@ -240,7 +258,7 @@ val create_gen :
 *)
 val update :
   ?category:string list ->
-  ?checked_output:output_kind ->
+  ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> 'unit_promise) ->
   ?normalize:(string -> string) list ->
@@ -395,7 +413,7 @@ v}
 *)
 val test :
   ?category:string list ->
-  ?checked_output:output_kind ->
+  ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?normalize:(string -> string) list ->
   ?skipped:bool ->

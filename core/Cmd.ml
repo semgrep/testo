@@ -3,6 +3,7 @@
 *)
 
 open Printf
+open Filename_.Operators
 open Cmdliner
 
 (*
@@ -248,8 +249,8 @@ so as to make their latest output the new reference.
 '%s' and the expected test output in the persistent folder '%s'.
 The latter should be kept under version control (git or similar).
 |}
-         (Store.get_status_workspace ())
-         (Store.get_expectation_workspace ()));
+         !!(Store.get_status_workspace ())
+         !!(Store.get_expectation_workspace ()));
   ]
 
 let root_info ~project_name =

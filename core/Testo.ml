@@ -36,14 +36,16 @@ type result = T.result = {
   captured_output : captured_output;
 }
 
+type missing_files = T.missing_files = Missing_files of string list
+
 type expectation = T.expectation = {
   expected_outcome : expected_outcome;
-  expected_output : (expected_output, string list (* missing files *)) Result.t;
+  expected_output : (expected_output, missing_files) Result.t;
 }
 
 type status = T.status = {
   expectation : expectation;
-  result : (result, string list) Result.t;
+  result : (result, missing_files) Result.t;
 }
 
 type fail_reason = T.fail_reason =
@@ -73,12 +75,7 @@ type 'unit_promise subcommand_result = 'unit_promise Cmd.subcommand_result =
 module Mona = Mona
 module Tag = Tag
 
-type output_kind = T.output_kind =
-  | Ignore_output
-  | Stdout
-  | Stderr
-  | Merged_stdout_stderr
-  | Separate_stdout_stderr
+type checked_output_kind = T.checked_output_kind
 
 type 'unit_promise t = 'unit_promise T.test = {
   id : string;
@@ -89,7 +86,7 @@ type 'unit_promise t = 'unit_promise T.test = {
   expected_outcome : expected_outcome;
   tags : Tag.t list;
   normalize : (string -> string) list;
-  checked_output : output_kind;
+  checked_output : checked_output_kind;
   skipped : bool;
   tolerate_chdir : bool;
   m : 'unit_promise Mona.t;
@@ -108,6 +105,29 @@ type 'unit_promise alcotest_test =
 (****************************************************************************)
 (* Conversions *)
 (****************************************************************************)
+
+let stdout ?expected_stdout_path () : T.checked_output_kind =
+  Stdout { expected_output_path =
+             Option.map Filename_.of_string expected_stdout_path }
+
+let stderr ?expected_stderr_path () : T.checked_output_kind =
+  Stdout { expected_output_path =
+             Option.map Filename_.of_string expected_stderr_path }
+
+let stdxxx ?expected_stdxxx_path () : T.checked_output_kind =
+  Stdxxx { expected_output_path =
+             Option.map Filename_.of_string expected_stdxxx_path }
+
+let split_stdout_stderr
+    ?expected_stdout_path
+    ?expected_stderr_path
+    () : T.checked_output_kind =
+  Split_stdout_stderr (
+    { expected_output_path =
+        Option.map Filename_.of_string expected_stdout_path },
+    { expected_output_path =
+        Option.map Filename_.of_string expected_stderr_path }
+  )
 
 (*
    Create an hexadecimal hash that is just long enough to not suffer from
@@ -128,7 +148,7 @@ let update_id (test : _ t) =
   { test with id; internal_full_name }
 
 let create_gen ?(category = [])
-    ?(checked_output = Ignore_output)
+    ?(checked_output = T.Ignore_output)
     ?(expected_outcome = Should_succeed) ?(normalize = []) ?(skipped = false)
     ?(tags = []) ?(tolerate_chdir = false) mona name func =
   {
@@ -353,5 +373,25 @@ let test ?category ?checked_output ?expected_outcome
   |> register
 
 let get_registered_tests () = List.rev !registered_tests
-let interpret_argv_gen = Cmd.interpret_argv
-let interpret_argv = interpret_argv_gen ~mona:Mona.sync
+
+let interpret_argv_gen
+    ?argv
+    ?expectation_workspace_root
+    ?handle_subcommand_result
+    ?status_workspace_root
+    ~mona
+    ~project_name
+    get_tests =
+  Cmd.interpret_argv
+    ?argv
+    ?expectation_workspace_root:
+      (Option.map Filename_.of_string expectation_workspace_root)
+    ?handle_subcommand_result
+    ?status_workspace_root:
+      (Option.map Filename_.of_string status_workspace_root)
+    ~mona
+    ~project_name
+    get_tests
+
+let interpret_argv =
+  interpret_argv_gen ~mona:Mona.sync

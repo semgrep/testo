@@ -3,6 +3,7 @@
 *)
 
 open Printf
+open Filename_.Operators
 module T = Types
 
 type status_output_style =
@@ -262,11 +263,11 @@ let print_exn (test : _ T.test) exn trace =
               (Printexc.to_string exn)
               (Printexc.raw_backtrace_to_string trace)))
 
-let with_print_exn (test : _ T.test) func () =
-  test.m.catch func (fun exn ->
-      let trace = Printexc.get_raw_backtrace () in
-      print_exn test exn trace;
-      Printexc.raise_with_backtrace exn trace)
+let with_print_exn (test : 'unit_promise T.test) func () =
+  test.m.catch func (fun exn trace ->
+    print_exn test exn trace;
+    (Printexc.raise_with_backtrace exn trace : 'unit_promise)
+  )
 
 let with_flip_xfail_outcome (test : _ T.test) func =
   match test.expected_outcome with
@@ -287,7 +288,8 @@ let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
-  func |> with_print_exn test
+  func
+  |> with_print_exn test
   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
@@ -358,7 +360,7 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
        -> use duff? https://github.com/mirage/duff *)
     (* nosemgrep: forbid-exec *)
     Sys.command
-      (sprintf "diff -u '%s' '%s'" path_to_expected_output path_to_output)
+      (sprintf "diff -u '%s' '%s'" !!path_to_expected_output !!path_to_output)
   with
   | 0 -> ()
   | _nonzero ->
@@ -367,13 +369,13 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
 let show_output_details
     (test : _ T.test)
     (sum : T.status_summary)
-    (output_file_pairs : Store.output_file_pair list) =
+    (capture_paths : Store.capture_paths list) =
   let success = success_of_status_summary sum in
-  output_file_pairs
+  capture_paths
   |> List.iter
        (fun
-         ({ short_name; path_to_expected_output; path_to_output } :
-           Store.output_file_pair)
+         ({ short_name; path_to_expected_output; path_to_output; _ } :
+           Store.capture_paths)
        ->
          flush stdout;
          flush stderr;
@@ -389,9 +391,9 @@ let show_output_details
                  show_diff short_name path_to_expected_output path_to_output);
              if success <> OK_but_new then
                printf "%sPath to expected %s: %s\n" bullet short_name
-                 path_to_expected_output);
+                 !!path_to_expected_output);
          printf "%sPath to captured %s: %s%s\n"
-           bullet short_name path_to_output
+           bullet short_name !!path_to_output
            (match Store.get_orig_output_suffix test with
             | Some suffix -> sprintf " [%s]" suffix
             | None -> ""))
@@ -433,33 +435,33 @@ let print_status ~highlight_test ~always_show_unchecked_output
             let text =
               match test.checked_output with
               | Ignore_output -> assert false
-              | Stdout -> "stdout"
-              | Stderr -> "stderr"
-              | Merged_stdout_stderr -> "merged stdout and stderr"
-              | Separate_stdout_stderr -> "separate stdout and stderr"
+              | Stdout _ -> "stdout"
+              | Stderr _ -> "stderr"
+              | Stdxxx _ -> "merged stdout and stderr"
+              | Split_stdout_stderr _ -> "separate stdout and stderr"
             in
             printf "%sChecked output: %s\n" bullet text);
         (* Details about results *)
         (match status.expectation.expected_output with
-        | Error [ path ] ->
+        | Error (Missing_files [ path ]) ->
             print_error
               (sprintf "Missing file containing the expected output: %s" path)
-        | Error paths ->
+        | Error (Missing_files paths) ->
             print_error
               (sprintf "Missing files containing the expected output: %s"
                  (String.concat ", " paths))
         | Ok _expected_output -> (
             match status.result with
-            | Error [ path ] ->
+            | Error (Missing_files [ path ]) ->
                 print_error
                   (sprintf "Missing file containing the test output: %s" path)
-            | Error paths ->
+            | Error (Missing_files paths) ->
                 print_error
                   (sprintf "Missing files containing the test output: %s"
                      (String.concat ", " paths))
             | Ok _ -> ()));
-        let output_file_pairs = Store.get_output_file_pairs test in
-        show_output_details test sum output_file_pairs;
+        let capture_paths = Store.capture_paths_of_test test in
+        show_output_details test sum capture_paths;
         let success = success_of_status_summary sum in
         let show_unchecked_output =
           always_show_unchecked_output

@@ -18,6 +18,7 @@
 *)
 
 open Printf
+open Filename_.Operators (* // / !! *)
 module T = Types
 
 (**************************************************************************)
@@ -29,11 +30,23 @@ module T = Types
    that all library authors should be able to use.
 *)
 
-let list_map f xs = List.rev_map f xs |> List.rev
-let ( // ) a b = if Filename.is_relative b then Filename.concat a b else b
+(* All the data we need to handle the files that contain the captured output
+   for a test after applying all defaults and options. *)
+type capture_paths = {
+  (* Human-friendly name: "stdout", "stderr", or "stdxxx" *)
+  standard_name : string;
+  (* Human-friendly name: "stdout" or the basename of user-specified file
+     path. *)
+  short_name : string;
+  (* None if this is file that holds the leftover logs that are not
+     checked against expectations but directed to a file nonetheless. *)
+  path_to_expected_output : Filename_.t option;
+  (* Path to the file where the captured output is redirected. *)
+  path_to_output : Filename_.t;
+}
 
-(* Return the first error message and drop the other messages in case
-   of an error. *)
+let list_map f xs = List.rev_map f xs |> List.rev
+
 let list_result_of_result_list (xs : ('a, 'b) Result.t list) :
     ('a list, 'b list) Result.t =
   let oks, errs =
@@ -49,28 +62,31 @@ let list_result_of_result_list (xs : ('a, 'b) Result.t list) :
   | errs -> Error errs
 
 let with_file_in path f =
-  if Sys.file_exists path then
+  if Sys.file_exists !!path then
     (* nosemgrep: no-open-in *)
-    let ic = open_in_bin path in
+    let ic = open_in_bin !!path in
     (* nosemgrep: no-fun-protect *)
     Fun.protect ~finally:(fun () -> close_in_noerr ic) (fun () -> Ok (f ic))
   else Error path
 
 let with_file_out path f =
-  let oc = open_out_bin path in
+  let oc = open_out_bin !!path in
   (* nosemgrep: no-fun-protect *)
   Fun.protect ~finally:(fun () -> close_out_noerr oc) (fun () -> f oc)
 
-let read_file path : (string, string (* missing file *)) Result.t =
+let read_file path : (string, Filename_.t (* missing file *)) Result.t =
   with_file_in path (fun ic -> really_input_string ic (in_channel_length ic))
+
+let errmsg_of_missing_file (path : Filename_.t) : string =
+  sprintf "Missing or inaccessible file %s" !!path
 
 let read_file_exn path : string =
   match read_file path with
   | Ok data -> data
-  | Error path -> failwith (sprintf "Missing file %s" path)
+  | Error path -> failwith (errmsg_of_missing_file path)
 
 let write_file path data = with_file_out path (fun oc -> output_string oc data)
-let remove_file path = if Sys.file_exists path then Sys.remove path
+let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
 
 (**************************************************************************)
 (* Global settings *)
@@ -79,12 +95,14 @@ let remove_file path = if Sys.file_exists path then Sys.remove path
 (*
    The status workspace is a temporary folder outside of version control.
 *)
-let default_status_workspace_root = "_build" // "testo" // "status"
+let default_status_workspace_root =
+  Filename_.of_string "_build" / "testo" / "status"
 
 (*
    The expectation workspace is under version control.
 *)
-let default_expectation_workspace_root = "tests" // "snapshots"
+let default_expectation_workspace_root =
+  Filename_.of_string "tests" / "snapshots"
 
 let not_initialized () =
   failwith "Missing initialization call: Testo.init ()"
@@ -116,18 +134,18 @@ let init_settings
     invalid_arg
       "Store.init: status_workspace and expectation_workspace must be \
        different folders.";
-  set_status_workspace (status_workspace_root // project_name);
-  set_expectation_workspace (expectation_workspace_root // project_name)
+  set_status_workspace (status_workspace_root / project_name);
+  set_expectation_workspace (expectation_workspace_root / project_name)
 
 let init_workspace () =
   Helpers.make_dir_if_not_exists ~recursive:true (get_status_workspace ());
   Helpers.make_dir_if_not_exists ~recursive:true (get_expectation_workspace ())
 
 let get_test_status_workspace (test : _ T.test) =
-  get_status_workspace () // test.id
+  get_status_workspace () / test.id
 
 let get_test_expectation_workspace (test : _ T.test) =
-  get_expectation_workspace () // test.id
+  get_expectation_workspace () / test.id
 
 let init_test_workspace test =
   Helpers.make_dir_if_not_exists (get_test_status_workspace test);
@@ -141,10 +159,10 @@ let corrupted_file path =
   failwith
     (sprintf
        "Uh oh, the test framework ran into a corrupted file: %S\n\
-        Remove it and retry." path)
+        Remove it and retry." !!path)
 
 let get_outcome_path (test : _ T.test) =
-  get_test_status_workspace test // "outcome"
+  get_test_status_workspace test / "outcome"
 
 let string_of_outcome (outcome : T.outcome) =
   match outcome with
@@ -162,7 +180,7 @@ let set_outcome (test : _ T.test) outcome =
   outcome |> string_of_outcome |> write_file path
 
 let get_outcome (test : _ T.test) :
-    (T.outcome, string (* missing file *)) Result.t =
+    (T.outcome, Filename_.t (* missing file *)) Result.t =
   let path = get_outcome_path test in
   match read_file path with
   | Ok data -> Ok (outcome_of_string path data)
@@ -184,48 +202,133 @@ let get_orig_output_suffix (test : _ T.test) =
   | [] -> None
   | _ -> Some orig_suffix
 
-let names_of_output (output : T.output_kind) : string list =
-  match output with
-  | Ignore_output -> [ unchecked_filename ]
-  | Stdout -> [ stdout_filename; unchecked_filename ]
-  | Stderr -> [ stderr_filename; unchecked_filename ]
-  | Merged_stdout_stderr -> [ stdxxx_filename ]
-  | Separate_stdout_stderr -> [ stdout_filename; stderr_filename ]
+let get_expected_output_path
+    (test : _ T.test)
+    default_name
+    (options : T.checked_output_options) =
+  match options.expected_output_path with
+  | None ->
+      get_expectation_workspace () / test.id / default_name
+  | Some path ->
+      path
 
-let names_of_checked_output (output : T.output_kind) : string list =
-  match output with
-  | Ignore_output -> []
-  | Stdout -> [ stdout_filename ]
-  | Stderr -> [ stderr_filename ]
-  | Merged_stdout_stderr -> [ stdxxx_filename ]
-  | Separate_stdout_stderr -> [ stdout_filename; stderr_filename ]
-
-let describe_unchecked_output (output : T.output_kind) : string option =
-  match output with
-  | Ignore_output -> Some "stdout, stderr"
-  | Stdout -> Some "stderr"
-  | Stderr -> Some "stdout"
-  | Merged_stdout_stderr -> None
-  | Separate_stdout_stderr -> None
+let short_name_of_checked_output_options
+    default_name (options : T.checked_output_options) =
+  match options.expected_output_path with
+  | None -> default_name
+  | Some path -> Filename_.basename path
 
 let get_output_path (test : _ T.test) filename =
-  get_status_workspace () // test.id // filename
+  get_status_workspace () / test.id / filename
 
-let get_output_paths (test : _ T.test) =
-  test.checked_output |> names_of_output |> list_map (get_output_path test)
+(*
+   Derive the various file paths related to a given test, but excluding
+   unchecked output (logs).
+*)
+let capture_paths_of_test (test : _ T.test) : capture_paths list =
+  let unchecked_paths =
+    {
+      standard_name = unchecked_filename;
+      short_name = unchecked_filename;
+      path_to_expected_output = None;
+      path_to_output =
+        get_output_path test unchecked_filename;
+    }
+  in
+  match test.checked_output with
+  | Ignore_output -> [unchecked_paths]
+  | Stdout options ->
+      [
+        {
+          standard_name = stdout_filename;
+          short_name =
+            short_name_of_checked_output_options
+              stdout_filename options;
+          path_to_expected_output =
+            Some (get_expected_output_path test stdout_filename options);
+          path_to_output =
+            get_output_path test stdout_filename;
+        };
+        unchecked_paths;
+      ]
+  | Stderr options ->
+      [
+        {
+          standard_name = stderr_filename;
+          short_name =
+            short_name_of_checked_output_options
+              stderr_filename options;
+          path_to_expected_output =
+            Some (get_expected_output_path test stderr_filename options);
+          path_to_output =
+            get_output_path test stderr_filename;
+        };
+        unchecked_paths;
+      ]
+  | Stdxxx options ->
+      [
+        {
+          standard_name = stdxxx_filename;
+          short_name =
+            short_name_of_checked_output_options
+              stdxxx_filename options;
+          path_to_expected_output =
+            Some (get_expected_output_path test stdxxx_filename options);
+          path_to_output =
+            get_output_path test stdxxx_filename;
+        }
+      ]
+  | Split_stdout_stderr (stdout_options, stderr_options) ->
+      [
+        {
+          standard_name = stdout_filename;
+          short_name =
+            short_name_of_checked_output_options
+              stdout_filename stdout_options;
+          path_to_expected_output =
+            Some (get_expected_output_path test stdout_filename stdout_options);
+          path_to_output =
+            get_output_path test stdout_filename;
+        };
+        {
+          standard_name = stderr_filename;
+          short_name =
+            short_name_of_checked_output_options
+              stderr_filename stderr_options;
+          path_to_expected_output =
+            Some (get_expected_output_path test stderr_filename stderr_options);
+          path_to_output =
+            get_output_path test stderr_filename;
+        };
+      ]
 
-let get_checked_output_paths (test : _ T.test) =
-  test.checked_output |> names_of_checked_output
-  |> list_map (get_output_path test)
+let describe_unchecked_output (output : T.checked_output_kind) : string option =
+  match output with
+  | Ignore_output -> Some "stdout, stderr"
+  | Stdout _ -> Some "stderr"
+  | Stderr _ -> Some "stdout"
+  | Stdxxx _ -> None
+  | Split_stdout_stderr _ -> None
+
+(* paths to freshly captured output, both checked and unchecked. *)
+let get_output_paths (paths : capture_paths list) =
+  paths
+  |> list_map (fun x -> x.path_to_output)
+
+(* paths to freshly captured output, excluding unchecked output (logs). *)
+let get_checked_output_paths (paths : capture_paths list) =
+  paths
+  |> List.filter (fun x -> x.path_to_expected_output <> None)
+  |> get_output_paths
 
 let get_unchecked_output_path (test : _ T.test) =
   get_output_path test unchecked_filename
 
-let get_output (test : _ T.test) =
-  test |> get_output_paths |> list_map read_file
+let get_output (paths : capture_paths list) =
+  paths |> get_output_paths |> list_map read_file
 
-let get_checked_output (test : _ T.test) =
-  test |> get_checked_output_paths |> list_map read_file
+let get_checked_output (paths : capture_paths list) =
+  paths |> get_checked_output_paths |> list_map read_file
 
 let get_unchecked_output (test : _ T.test) =
   match describe_unchecked_output test.checked_output with
@@ -236,18 +339,20 @@ let get_unchecked_output (test : _ T.test) =
       | Error _cant_read_file -> None)
   | None -> None
 
-let get_expected_output_path (test : _ T.test) filename =
-  get_expectation_workspace () // test.id // filename
+let get_expected_output_paths (paths : capture_paths list) =
+  paths
+  |> List.filter_map (fun x -> x.path_to_expected_output)
 
-let get_expected_output_paths (test : _ T.test) =
-  test.checked_output |> names_of_checked_output
-  |> list_map (get_expected_output_path test)
+let get_expected_output (paths : capture_paths list) =
+  paths
+  |> get_expected_output_paths
+  |> list_map read_file
 
-let get_expected_output (test : _ T.test) =
-  test |> get_expected_output_paths |> list_map read_file
-
-let set_expected_output (test : _ T.test) (data : string list) =
-  let paths = test |> get_expected_output_paths in
+let set_expected_output
+    (test : _ T.test)
+    (capture_paths : capture_paths list)
+    (data : string list) =
+  let paths = capture_paths |> get_expected_output_paths in
   if List.length data <> List.length paths then
     invalid_arg
       (sprintf "Store.set_expected_output: test %s, data:%i, paths:%i" test.name
@@ -255,31 +360,16 @@ let set_expected_output (test : _ T.test) (data : string list) =
   else
     List.iter2
       (fun path data ->
-        Helpers.make_dir_if_not_exists (Filename.dirname path);
-        write_file path data)
+         Helpers.make_dir_if_not_exists (Filename_.dirname path);
+         write_file path data)
       paths data
 
 let clear_expected_output (test : _ T.test) =
-  test |> get_expected_output_paths |> List.iter remove_file
-
-type output_file_pair = {
-  short_name : string;
-  path_to_expected_output : string option;
-  path_to_output : string;
-}
-
-let get_output_file_pairs (test : _ T.test) =
-  test.checked_output |> names_of_output
-  |> Helpers.list_map (fun name ->
-         let path_to_expected_output =
-           if String.equal name unchecked_filename then None
-           else Some (get_expected_output_path test name)
-         in
-         {
-           short_name = name;
-           path_to_expected_output;
-           path_to_output = get_output_path test name;
-         })
+  test
+  |> capture_paths_of_test
+  |> List.iter (fun x ->
+    Option.iter remove_file x.path_to_expected_output
+  )
 
 (**************************************************************************)
 (* Output redirection *)
@@ -313,7 +403,7 @@ let with_redirect_fd ~mona ~from ~to_ func () =
 
 (* Redirect stdout or stderr to a file *)
 let with_redirect_fd_to_file ~mona fd filename func () =
-  let file = Unix.openfile filename [ O_CREAT; O_TRUNC; O_WRONLY ] 0o666 in
+  let file = Unix.openfile !!filename [ O_CREAT; O_TRUNC; O_WRONLY ] 0o666 in
   (* nosemgrep: no-fun-protect *)
   Mona.protect mona
     ~finally:(fun () ->
@@ -359,11 +449,13 @@ let normalize_output (test : 'unit_promise T.test) =
   | None -> ()
   | Some orig_suffix ->
       let rewrite_string = compose_functions_left_to_right test.normalize in
-      get_checked_output_paths test
+      let paths = capture_paths_of_test test in
+      get_checked_output_paths paths
       |> List.iter (fun std_path ->
-             let backup_path = std_path ^ orig_suffix in
-             if Sys.file_exists backup_path then Sys.remove backup_path;
-             Sys.rename std_path backup_path;
+             let backup_path =
+               Filename_.of_string (!!std_path ^ orig_suffix) in
+             if Sys.file_exists !!backup_path then Sys.remove !!backup_path;
+             Sys.rename !!std_path !!backup_path;
              let orig_data = read_file_exn backup_path in
              let normalized_data =
                try rewrite_string orig_data with
@@ -384,31 +476,33 @@ let with_redirect_merged_stdout_stderr ~mona path func =
 let with_output_capture (test : 'unit_promise T.test)
     (func : unit -> 'unit_promise) =
   let mona = test.m in
-  let unchecked_output_path = get_unchecked_output_path test in
+  let capture_paths = capture_paths_of_test test in
   let func =
-    match test.checked_output with
-    | Ignore_output ->
-        with_redirect_merged_stdout_stderr ~mona unchecked_output_path func
-    | Stdout ->
-        with_redirect_to_file ~mona stderr unchecked_output_path
+    match test.checked_output, capture_paths with
+    | Ignore_output, [log_paths] ->
+        with_redirect_merged_stdout_stderr ~mona log_paths.path_to_output func
+    | Stdout _, [paths; log_paths] ->
+        with_redirect_to_file ~mona stderr log_paths.path_to_output
           (with_redirect_to_file ~mona stdout
-             (get_output_path test stdout_filename)
+             paths.path_to_output
              func)
-    | Stderr ->
-        with_redirect_to_file ~mona stdout unchecked_output_path
+    | Stderr _, [paths; log_paths] ->
+        with_redirect_to_file ~mona stdout log_paths.path_to_output
           (with_redirect_to_file ~mona stderr
-             (get_output_path test stderr_filename)
+             paths.path_to_output
              func)
-    | Merged_stdout_stderr ->
+    | Stdxxx _, [paths] ->
         with_redirect_merged_stdout_stderr ~mona
-          (get_output_path test stdxxx_filename)
+          paths.path_to_output
           func
-    | Separate_stdout_stderr ->
+    | Split_stdout_stderr _, [stdout_paths; stderr_paths] ->
         with_redirect_to_file ~mona stdout
-          (get_output_path test stdout_filename)
+          stdout_paths.path_to_output
           (with_redirect_to_file ~mona stderr
-             (get_output_path test stderr_filename)
+             stderr_paths.path_to_output
              func)
+    | _ ->
+        (* bug: invalid combination *) assert false
   in
   fun () ->
     Mona.protect mona
@@ -417,76 +511,109 @@ let with_output_capture (test : 'unit_promise T.test)
         normalize_output test;
         mona.return ())
 
-let with_outcome_capture (test : 'unit_promise T.test) func () =
+let with_outcome_capture (test : 'unit_promise T.test) func
+  : unit -> 'unit_promise =
+  fun () ->
   test.m.catch
     (fun () ->
-      test.m.bind (func ()) (fun res ->
-          set_outcome test Succeeded;
-          test.m.return res))
-    (fun e ->
-      let trace = Printexc.get_raw_backtrace () in
+      test.m.bind (func ())
+        (fun res ->
+           set_outcome test Succeeded;
+           test.m.return res
+        )
+    )
+    (fun e trace ->
       set_outcome test Failed;
-      Printexc.raise_with_backtrace e trace)
+      (Printexc.raise_with_backtrace e trace  : 'unit_promise)
+    )
 
-let with_result_capture (test : 'unit_promise T.test) func () : 'unit_promise =
+(* Subtle: keep this a two-stage invocation:
+   1. Build the 'func' closures. If there's a bug internal to Testo
+      such as a missing path, it should be reported at this time
+      to prevent the error from being caught or swallowed up as part of
+      the test execution.
+   2. Run the test by calling the resulting 'func'. This takes place in
+      a special environment within wrappers. Testo's internal machinery
+      should run as little as possible at this time to avoid mixing up
+      Testo's errors with the test's execution.
+*)
+let with_result_capture (test : 'unit_promise T.test) func
+  : unit -> 'unit_promise =
   init_test_workspace test;
-  let func = with_outcome_capture test (with_output_capture test func) in
-  func ()
+  let func = with_output_capture test func in
+  let func = with_outcome_capture test func in
+  func
 
 (**************************************************************************)
 (* High-level interface *)
 (**************************************************************************)
 
-let captured_output_of_data (kind : T.output_kind) (data : string list) :
+let captured_output_of_data
+    (kind : T.checked_output_kind)
+    (data : string list) :
     T.captured_output =
   match (kind, data) with
   | Ignore_output, [ unchecked ] -> Ignored unchecked
-  | Stdout, [ out; unchecked ] -> Captured_stdout (out, unchecked)
-  | Stderr, [ err; unchecked ] -> Captured_stderr (err, unchecked)
-  | Merged_stdout_stderr, [ data ] -> Captured_merged data
-  | Separate_stdout_stderr, [ out; err ] -> Captured_stdout_stderr (out, err)
-  | ( ( Ignore_output | Stdout | Stderr | Merged_stdout_stderr
-      | Separate_stdout_stderr ),
+  | Stdout _, [ out; unchecked ] -> Captured_stdout (out, unchecked)
+  | Stderr _, [ err; unchecked ] -> Captured_stderr (err, unchecked)
+  | Stdxxx _, [ data ] -> Captured_merged data
+  | Split_stdout_stderr _, [ out; err ] -> Captured_stdout_stderr (out, err)
+  | ( ( Ignore_output | Stdout _ | Stderr _ | Stdxxx _
+      | Split_stdout_stderr _),
       _ ) ->
       assert false
 
-let expected_output_of_data (kind : T.output_kind) (data : string list) :
-    T.expected_output =
+let expected_output_of_data
+    (kind : T.checked_output_kind) (data : string list)
+  : T.expected_output =
   match (kind, data) with
   | Ignore_output, [] -> Ignored
-  | Stdout, [ out ] -> Expected_stdout out
-  | Stderr, [ err ] -> Expected_stderr err
-  | Merged_stdout_stderr, [ data ] -> Expected_merged data
-  | Separate_stdout_stderr, [ out; err ] -> Expected_stdout_stderr (out, err)
-  | ( ( Ignore_output | Stdout | Stderr | Merged_stdout_stderr
-      | Separate_stdout_stderr ),
+  | Stdout _, [ out ] -> Expected_stdout out
+  | Stderr _, [ err ] -> Expected_stderr err
+  | Stdxxx _, [ data ] -> Expected_merged data
+  | Split_stdout_stderr _, [ out; err ] -> Expected_stdout_stderr (out, err)
+  | ( ( Ignore_output | Stdout _ | Stderr _ | Stdxxx _
+      | Split_stdout_stderr _),
       _ ) ->
       assert false
 
-let get_expectation (test : _ T.test) : T.expectation =
+let get_expectation
+    (test : _ T.test)
+    (paths : capture_paths list) : T.expectation =
   let expected_output =
-    test
+    paths
     |> get_expected_output
     |> list_result_of_result_list
-    |> Result.map (expected_output_of_data test.checked_output)
+    |> (function
+      | Ok x -> Ok (expected_output_of_data test.checked_output x)
+      | Error missing_files ->
+          let missing_files = list_map Filename_.to_string missing_files in
+          Error (T.Missing_files missing_files))
   in
   { expected_outcome = test.expected_outcome; expected_output }
 
-let get_result (test : _ T.test) : (T.result, string list) Result.t =
+let get_result (test : _ T.test) (paths : capture_paths list)
+  : (T.result, T.missing_files) Result.t =
   match get_outcome test with
-  | Error missing_file -> Error [ missing_file ]
+  | Error missing_file -> Error (Missing_files [ !!missing_file ])
   | Ok outcome -> (
       let opt_captured_output =
-        test |> get_output |> list_result_of_result_list
+        paths
+        |> get_output
+        |> list_result_of_result_list
         |> Result.map (captured_output_of_data test.checked_output)
       in
       match opt_captured_output with
-      | Error _ as res -> res
-      | Ok captured_output -> Ok { outcome; captured_output })
+      | Error missing_files ->
+          Error (Missing_files (list_map (!!) missing_files))
+      | Ok captured_output ->
+          Ok { outcome; captured_output }
+    )
 
 let get_status (test : _ T.test) : T.status =
-  let expectation = get_expectation test in
-  let result = get_result test in
+  let paths = capture_paths_of_test test in
+  let expectation = get_expectation test paths in
+  let result = get_result test paths in
   { expectation; result }
 
 let fail_reason_of_pair
@@ -540,7 +667,8 @@ was expected to fail by raising an exception.
 The original reason given was:
   %S|}
            test.id reason)
-  | _, Error msg -> Error msg
+  | _, Error missing_file ->
+      Error (errmsg_of_missing_file missing_file)
 
 type changed = Changed | Unchanged
 
@@ -549,21 +677,24 @@ exception Local_error of string
 let approve_new_output (test : _ T.test) : (changed, string) Result.t =
   if test.skipped then Ok Unchanged
   else
+    let paths = capture_paths_of_test test in
     match check_outcome test with
     | Error _ as res -> res
     | Ok () -> (
-        let old_expectation = get_expectation test in
+        let old_expectation = get_expectation test paths in
         clear_expected_output test;
         try
           let data =
-            test
+            paths
             |> get_checked_output
             |> list_map (function
                  | Ok data -> data
-                 | Error msg -> raise (Local_error msg))
+                 | Error missing_file ->
+                     raise (Local_error (errmsg_of_missing_file missing_file))
+            )
           in
-          set_expected_output test data;
-          let new_expectation = get_expectation test in
+          set_expected_output test paths data;
+          let new_expectation = get_expectation test paths in
           let changed =
             if old_expectation = new_expectation then
               Unchanged
