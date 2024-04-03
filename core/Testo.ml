@@ -111,7 +111,7 @@ let stdout ?expected_stdout_path () : T.checked_output_kind =
              Option.map Filename_.of_string expected_stdout_path }
 
 let stderr ?expected_stderr_path () : T.checked_output_kind =
-  Stdout { expected_output_path =
+  Stderr { expected_output_path =
              Option.map Filename_.of_string expected_stderr_path }
 
 let stdxxx ?expected_stdxxx_path () : T.checked_output_kind =

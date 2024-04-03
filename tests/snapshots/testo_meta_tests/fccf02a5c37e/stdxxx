@@ -63,13 +63,11 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [2m• [0mLog (stderr) is empty.
 [33m[RUN][0m   0048917873df [36mauto-approve[0m > [36mcapture stderr[0m...[2K[33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
-[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stdout[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[2m• [0mChecked output: stderr
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stderr[0m
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [33m[RUN][0m   17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m...[2K[33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
 [2m• [0mChecked output: merged stdout and stderr
 [2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/17ec149855c2/stdxxx[0m
@@ -86,13 +84,11 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [2m• [0mLog (stderr) is empty.
 [33m[RUN][0m   8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m...[2K[33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
-[2m• [0mChecked output: stdout
+[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the expected output: tests/custom-snapshots/my-stderr[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [33m[RUN][0m   edebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m...[2K[33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [2m• [0mChecked output: merged stdout and stderr
 [2m• [0m[31mMissing file containing the expected output: tests/custom-snapshots/my-stdxxx[0m
@@ -135,9 +131,9 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [33m[RUN][0m   065cc54b852b [36malcotest error formatting[0m...[2K[32m[PASS]  [0m065cc54b852b [36malcotest error formatting[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/065cc54b852b/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/065cc54b852b/stdout [.orig]
+[2m• [0mChecked output: stderr
+[2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m...[2K[32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -157,13 +153,11 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stdout[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[0m[2m• [0mChecked output: stderr
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stderr[0m
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m                           [2m│[0m
@@ -192,13 +186,11 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the expected output: tests/custom-snapshots/my-stderr[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m        [2m│[0m
@@ -250,13 +242,11 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [2m• [0mLog (stderr) is empty.
 [33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
-[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stdout[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[2m• [0mChecked output: stderr
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stderr[0m
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
 [2m• [0mChecked output: merged stdout and stderr
 [2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/17ec149855c2/stdxxx[0m
@@ -273,13 +263,11 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [2m• [0mLog (stderr) is empty.
 [33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
-[2m• [0mChecked output: stdout
+[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the expected output: tests/custom-snapshots/my-stderr[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [2m• [0mChecked output: merged stdout and stderr
 [2m• [0m[31mMissing file containing the expected output: tests/custom-snapshots/my-stdxxx[0m
@@ -323,9 +311,9 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [32m[PASS]  [0m065cc54b852b [36malcotest error formatting[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/065cc54b852b/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/065cc54b852b/stdout [.orig]
+[2m• [0mChecked output: stderr
+[2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -346,13 +334,11 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stdout[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[0m[2m• [0mChecked output: stderr
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/0048917873df/stderr[0m
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m                           [2m│[0m
@@ -381,13 +367,11 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the expected output: tests/custom-snapshots/my-stderr[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
-[2m• [0mLog (stderr):
- error
- 
+[2m• [0mLog (stdout) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m        [2m│[0m
@@ -462,9 +446,9 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/9c96a5aa8b4b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [33m[MISS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
-[2m• [0mChecked output: stdout
+[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/outcome[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [33m[MISS]  [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
 [2m• [0mChecked output: merged stdout and stderr
@@ -481,9 +465,9 @@ Legend:
 [2m• [0mPath to captured my-stdout: _build/testo/status/testo_tests/25cccdbd5166/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
-[2m• [0mChecked output: stdout
+[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/outcome[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [2m• [0mChecked output: merged stdout and stderr
@@ -533,9 +517,9 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m
-[2m• [0mChecked output: stdout
+[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/065cc54b852b/stdout [.orig]
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
@@ -588,9 +572,9 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/outcome[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -619,9 +603,9 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/outcome[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -705,9 +689,9 @@ Legend:
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/065cc54b852b/stdout [.orig]
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -776,9 +760,9 @@ RUN ./test status -l
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/outcome[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -807,9 +791,9 @@ RUN ./test status -l
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/outcome[0m
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -893,9 +877,9 @@ RUN ./test status -l
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
+[0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/065cc54b852b/stdout [.orig]
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -978,9 +962,9 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/9c96a5aa8b4b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [33m[RUN][0m   0048917873df [36mauto-approve[0m > [36mcapture stderr[0m...[2K[32m[PASS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0048917873df/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0048917873df/stdout
+[2m• [0mChecked output: stderr
+[2m• [0mPath to expected stderr: tests/snapshots/testo_tests/0048917873df/stderr
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [33m[RUN][0m   17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m...[2K[32m[PASS]  [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
 [2m• [0mChecked output: merged stdout and stderr
@@ -998,9 +982,9 @@ Legend:
 [2m• [0mPath to captured my-stdout: _build/testo/status/testo_tests/25cccdbd5166/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [33m[RUN][0m   8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m...[2K[32m[PASS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
-[2m• [0mChecked output: stdout
+[2m• [0mChecked output: stderr
 [2m• [0mPath to expected my-stderr: tests/custom-snapshots/my-stderr
-[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stdout
+[2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [33m[RUN][0m   edebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m...[2K[32m[PASS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [2m• [0mChecked output: merged stdout and stderr
@@ -1045,9 +1029,9 @@ Legend:
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [33m[RUN][0m   065cc54b852b [36malcotest error formatting[0m...[2K[32m[PASS]  [0m065cc54b852b [36malcotest error formatting[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/065cc54b852b/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/065cc54b852b/stdout [.orig]
+[2m• [0mChecked output: stderr
+[2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
+[2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m...[2K[32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
