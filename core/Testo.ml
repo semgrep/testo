@@ -285,7 +285,7 @@ let mask_temp_paths
     () =
   let tmpdir =
     if tmpdir = "" then
-      invalid_arg "Testo.mask_temp_paths: empty tmpdir"
+      Error.invalid_arg ~__LOC__ "Testo.mask_temp_paths: empty tmpdir"
     else
       remove_trailing_slashes tmpdir
   in
@@ -296,7 +296,7 @@ let mask_temp_paths
         {|[/\\A-Za-z0-9_.-]*|}
     | Some n ->
         if n < 0 then
-          invalid_arg
+          Error.invalid_arg ~__LOC__
             "Testo.mask_temp_paths: depth must be (Some <nonzero>) or None"
         else
           let sep = {|[/\\]+|} in

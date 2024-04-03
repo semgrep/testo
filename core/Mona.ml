@@ -15,7 +15,7 @@ type 'unit_promise t = {
 let protect m ~finally func =
   let safe_finally () =
     m.catch finally (fun exn trace ->
-        failwith
+        Error.fail
           (Printf.sprintf
              "Internal error in test framework: exception raised by 'finally': \
               %s\n\

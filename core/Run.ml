@@ -45,7 +45,6 @@ let plural num = if num >= 2 then "s" else ""
    Check that no two tests have the same full name or the same ID.
 *)
 let check_id_uniqueness (tests : _ T.test list) =
-  (* nosemgrep: ocamllint-hashtable-dos *)
   let id_tbl = Hashtbl.create 1000 in
   tests
   |> List.iter (fun (test : _ T.test) ->
@@ -55,9 +54,9 @@ let check_id_uniqueness (tests : _ T.test list) =
          | None -> Hashtbl.add id_tbl id test.internal_full_name
          | Some name0 ->
              if name = name0 then
-               failwith (sprintf "Two tests have the same name: %s" name)
+               Error.fail (sprintf "Two tests have the same name: %s" name)
              else
-               failwith
+               Error.fail
                  (sprintf
                     "Hash collision for two tests with different names:\n\
                     \  %S\n\
@@ -67,6 +66,56 @@ let check_id_uniqueness (tests : _ T.test list) =
                      authors of\n\
                      testo."
                     name0 name id))
+
+(*
+   Check that the user didn't mistakenly reuse the same path for keeping
+   output snapshots since we now support custom paths.
+   Raises an exception.
+*)
+let check_snapshot_uniqueness (tests : _ T.test list) =
+  let path_tbl = Hashtbl.create 1000 in
+  tests
+  |> List.iter (fun (test : _ T.test) ->
+    test
+    |> Store.capture_paths_of_test
+    |> List.iter (fun (paths : Store.capture_paths) ->
+      match paths.path_to_expected_output with
+      | None -> ()
+      | Some path ->
+          (* This may or may not be a custom path. *)
+          let test_name = test.internal_full_name in
+          match Hashtbl.find_opt path_tbl path with
+          | None ->
+              Hashtbl.add path_tbl path test_name
+          | Some test_name0 ->
+              if test_name = test_name0 then
+                Error.fail (
+                  sprintf "\
+A test uses the same snapshot path twice:
+- test name: %S
+- conflicting snapshot path: %s
+Fix it in the test definition.
+"
+                    test_name !!path
+                )
+              else
+                Error.fail (
+                  sprintf "\
+Two different tests use the same snapshot path:
+- first test: %S
+- second test: %S
+- conflicting snapshot path: %s
+"
+                    test_name0
+                    test_name
+                    !!path
+                )
+    )
+  )
+
+let check_test_definitions tests =
+  check_id_uniqueness tests;
+  check_snapshot_uniqueness tests
 
 let string_of_status_summary (sum : T.status_summary) =
   let approval_suffix = if sum.has_expected_output then "" else "*" in
@@ -434,7 +483,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
         | _ ->
             let text =
               match test.checked_output with
-              | Ignore_output -> assert false
+              | Ignore_output -> Error.assert_false ~__LOC__ ()
               | Stdout _ -> "stdout"
               | Stderr _ -> "stderr"
               | Stdxxx _ -> "merged stdout and stderr"
@@ -618,7 +667,7 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 *)
 let list_status ~always_show_unchecked_output ~filter_by_substring
     ~output_style tests =
-  check_id_uniqueness tests;
+  check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
@@ -668,7 +717,7 @@ let run_tests_sequentially ~(mona : _ Mona.t) ~always_show_unchecked_output
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
 let before_run ~filter_by_substring ~lazy_ tests =
   Store.init_workspace ();
-  check_id_uniqueness tests;
+  check_test_definitions tests;
   let tests =
     match lazy_ with
     | false -> tests
@@ -714,7 +763,7 @@ let run_tests ~(mona : _ Mona.t) ~always_show_unchecked_output
 *)
 let approve_output ?filter_by_substring tests =
   Store.init_workspace ();
-  check_id_uniqueness tests;
+  check_test_definitions tests;
   tests
   |> filter ~filter_by_substring
   |> Helpers.list_map Store.approve_new_output

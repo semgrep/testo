@@ -269,7 +269,6 @@ let subcommands test_spec =
 let with_record_backtrace func =
   let original_state = Printexc.backtrace_status () in
   Printexc.record_backtrace true;
-  (* nosemgrep: no-fun-protect *)
   Fun.protect ~finally:(fun () -> Printexc.record_backtrace original_state) func
 
 (*

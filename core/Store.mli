@@ -40,7 +40,8 @@ type capture_paths = {
 }
 
 (*
-   For diffing output against expected output
+   - For diffing output against expected output.
+   - For checking uniqueness of custom storage paths.
 *)
 val capture_paths_of_test : 'a Types.test -> capture_paths list
 

@@ -83,7 +83,7 @@ let errmsg_of_missing_file (path : Filename_.t) : string =
 let read_file_exn path : string =
   match read_file path with
   | Ok data -> data
-  | Error path -> failwith (errmsg_of_missing_file path)
+  | Error path -> Error.fail (errmsg_of_missing_file path)
 
 let write_file path data = with_file_out path (fun oc -> output_string oc data)
 let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
@@ -105,10 +105,10 @@ let default_expectation_workspace_root =
   Filename_.of_string "tests" / "snapshots"
 
 let not_initialized () =
-  failwith "Missing initialization call: Testo.init ()"
+  Error.fail "Missing initialization call: Testo.init ()"
 
 let already_initialized () =
-  failwith "Multiple initialization calls to Testo.init. Keep only one."
+  Error.fail "Multiple initialization calls to Testo.init. Keep only one."
 
 let make_late_init () =
   let var = ref None in
@@ -131,9 +131,13 @@ let init_settings
     ?(expectation_workspace_root = default_expectation_workspace_root)
     ?(status_workspace_root = default_status_workspace_root) ~project_name () =
   if status_workspace_root = expectation_workspace_root then
-    invalid_arg
-      "Store.init: status_workspace and expectation_workspace must be \
-       different folders.";
+    Error.fail
+      (sprintf
+         {|status_workspace and expectation_workspace must be different folders
+but they are both set to the following path:
+  %s|}
+         !!status_workspace_root
+      );
   set_status_workspace (status_workspace_root / project_name);
   set_expectation_workspace (expectation_workspace_root / project_name)
 
@@ -156,7 +160,7 @@ let init_test_workspace test =
 (**************************************************************************)
 
 let corrupted_file path =
-  failwith
+  Error.fail
     (sprintf
        "Uh oh, the test framework ran into a corrupted file: %S\n\
         Remove it and retry." !!path)
@@ -354,8 +358,9 @@ let set_expected_output
     (data : string list) =
   let paths = capture_paths |> get_expected_output_paths in
   if List.length data <> List.length paths then
-    invalid_arg
-      (sprintf "Store.set_expected_output: test %s, data:%i, paths:%i" test.name
+    Error.invalid_arg ~__LOC__
+      (sprintf "Store.set_expected_output: test %s, data:%i, paths:%i"
+         test.name
          (List.length data) (List.length paths))
   else
     List.iter2
@@ -460,7 +465,7 @@ let normalize_output (test : 'unit_promise T.test) =
              let normalized_data =
                try rewrite_string orig_data with
                | e ->
-                   failwith
+                   Error.fail
                      (sprintf
                         "Exception raised by the test's normalize_output \
                          function: %s"
@@ -502,7 +507,7 @@ let with_output_capture (test : 'unit_promise T.test)
              stderr_paths.path_to_output
              func)
     | _ ->
-        (* bug: invalid combination *) assert false
+        (* bug: invalid combination *) Error.assert_false ~__LOC__ ()
   in
   fun () ->
     Mona.protect mona
@@ -561,7 +566,7 @@ let captured_output_of_data
   | ( ( Ignore_output | Stdout _ | Stderr _ | Stdxxx _
       | Split_stdout_stderr _),
       _ ) ->
-      assert false
+      Error.assert_false ~__LOC__ ()
 
 let expected_output_of_data
     (kind : T.checked_output_kind) (data : string list)
@@ -575,7 +580,7 @@ let expected_output_of_data
   | ( ( Ignore_output | Stdout _ | Stderr _ | Stdxxx _
       | Split_stdout_stderr _),
       _ ) ->
-      assert false
+      Error.assert_false ~__LOC__ ()
 
 let get_expectation
     (test : _ T.test)
