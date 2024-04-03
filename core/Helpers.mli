@@ -11,7 +11,7 @@ val list_flatten : 'a list list -> 'a list
 (* Create a directory if it doesn't exist.
    Also create its parents if they don't exist and 'recursive' is true.
 *)
-val make_dir_if_not_exists : ?recursive:bool -> string -> unit
+val make_dir_if_not_exists : ?recursive:bool -> Filename_.t -> unit
 
 val contains_pcre_pattern : string -> (string -> bool)
 

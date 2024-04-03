@@ -143,13 +143,13 @@ let tests =
     t "unchecked stderr" (fun () -> prerr_string "hello\n");
     t "capture stdout"
       ~category:["auto-approve"]
-      ~checked_output:Stdout (fun () -> print_string "hello\n");
+      ~checked_output:(Testo.stdout ()) (fun () -> print_string "hello\n");
     t "capture stderr"
       ~category:["auto-approve"]
-      ~checked_output:Stderr (fun () -> prerr_string "error\n");
+      ~checked_output:(Testo.stderr ()) (fun () -> prerr_string "error\n");
     t "capture stdxxx"
       ~category:["auto-approve"]
-      ~checked_output:Merged_stdout_stderr (fun () ->
+      ~checked_output:(Testo.stdxxx ()) (fun () ->
         print_string "hello\n";
         flush stdout;
         prerr_string "error\n";
@@ -157,7 +157,43 @@ let tests =
         print_string "goodbye\n");
     t "capture stdout and stderr"
       ~category:["auto-approve"]
-      ~checked_output:Separate_stdout_stderr
+      ~checked_output:(Testo.split_stdout_stderr ())
+      (fun () ->
+        print_string "hello\n";
+        prerr_string "error\n");
+    t "capture stdout in custom location"
+      ~category:["auto-approve"]
+      ~checked_output:(
+        Testo.stdout
+          ~expected_stdout_path:"tests/custom-snapshots/my-stdout" ()
+      )
+      (fun () -> print_string "hello\n");
+    t "capture stderr in custom location"
+      ~category:["auto-approve"]
+      ~checked_output:(
+        Testo.stderr
+          ~expected_stderr_path:"tests/custom-snapshots/my-stderr" ()
+      )
+      (fun () -> prerr_string "error\n");
+    t "capture stdxxx in custom location"
+      ~category:["auto-approve"]
+      ~checked_output:(
+        Testo.stdxxx
+          ~expected_stdxxx_path:"tests/custom-snapshots/my-stdxxx" ()
+      )
+      (fun () ->
+        print_string "hello\n";
+        flush stdout;
+        prerr_string "error\n";
+        flush stderr;
+        print_string "goodbye\n");
+    t "capture stdout and stderr in custom location"
+      ~category:["auto-approve"]
+      ~checked_output:(
+        Testo.split_stdout_stderr
+          ~expected_stdout_path:"tests/custom-snapshots/split-stdout"
+          ~expected_stderr_path:"tests/custom-snapshots/split-stderr" ()
+      )
       (fun () ->
         print_string "hello\n";
         prerr_string "error\n");
@@ -165,7 +201,9 @@ let tests =
       (fun () -> failwith "this exception is expected");
     t "skipped" ~skipped:true (fun () -> failwith "this shouldn't happen");
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
-    t ~checked_output:Stdout ~normalize:[ String.lowercase_ascii ] "masked"
+    t ~checked_output:(Testo.stdout ())
+      ~normalize:[ String.lowercase_ascii ]
+      "masked"
       (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;
     t "mask_temp_paths"
@@ -174,21 +212,21 @@ let tests =
     t "mask exotic temp paths"
       ~expected_outcome:windows_todo
       test_mask_exotic_temp_paths;
-    t ~checked_output:Stdout
+    t ~checked_output:(Testo.stdout ())
       ~normalize:[Testo.mask_not_substring "water"]
       "check for substring in stdout"
       (fun () ->
          let random_string = string_of_float (Unix.gettimeofday ()) in
          printf "[%s] water is wet.\n" random_string
       );
-    t ~checked_output:Stdout
+    t ~checked_output:(Testo.stdout ())
       ~normalize:[Testo.mask_not_pcre_pattern "[A-Za-z]+"]
       "check words in stdout"
       (fun () ->
          let random_string = string_of_float (Unix.gettimeofday ()) in
          printf "[%s] water is wet.\n" random_string
       );
-    t ~checked_output:Stdout
+    t ~checked_output:(Testo.stdout ())
       ~normalize:[Testo.mask_not_substrings
                     ["a"; "def"; "defgh"; "efghij"; "z"]]
       "check for substrings in stdout"
@@ -196,7 +234,7 @@ let tests =
          printf "abcdefghijklmnoprstuvwxyz"
       );
     t "alcotest error formatting"
-      ~checked_output:Stderr
+      ~checked_output:(Testo.stderr ())
       ~normalize:[
         (* In our CI environment for ocaml 4.08, the line
            "File "tests/Test.ml", line ..." is missing, so we mask it if

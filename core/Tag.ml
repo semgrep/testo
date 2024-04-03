@@ -25,7 +25,7 @@ let has_valid_tag_syntax =
 
 let check_tag_syntax tag =
   if not (has_valid_tag_syntax tag) then
-    invalid_arg
+    Error.invalid_arg ~__LOC__
       (sprintf
          "Testo.declare_tag: invalid syntax for test tag %S.\n\
           It must be a dot-separated sequence of one or more lowercase \
@@ -42,7 +42,7 @@ let declared_tags : (t, unit) Hashtbl.t =
 let declare tag =
   check_tag_syntax tag;
   if Hashtbl.mem declared_tags tag then
-    invalid_arg
+    Error.invalid_arg ~__LOC__
       (sprintf
          "Testo.declare_tag: tag %S was declared multiple times.\n\
           Each tag must be declared exactly once to avoid accidental conflicts."

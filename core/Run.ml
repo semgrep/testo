@@ -3,6 +3,7 @@
 *)
 
 open Printf
+open Filename_.Operators
 module T = Types
 
 type status_output_style =
@@ -44,7 +45,6 @@ let plural num = if num >= 2 then "s" else ""
    Check that no two tests have the same full name or the same ID.
 *)
 let check_id_uniqueness (tests : _ T.test list) =
-  (* nosemgrep: ocamllint-hashtable-dos *)
   let id_tbl = Hashtbl.create 1000 in
   tests
   |> List.iter (fun (test : _ T.test) ->
@@ -54,9 +54,9 @@ let check_id_uniqueness (tests : _ T.test list) =
          | None -> Hashtbl.add id_tbl id test.internal_full_name
          | Some name0 ->
              if name = name0 then
-               failwith (sprintf "Two tests have the same name: %s" name)
+               Error.fail (sprintf "Two tests have the same name: %s" name)
              else
-               failwith
+               Error.fail
                  (sprintf
                     "Hash collision for two tests with different names:\n\
                     \  %S\n\
@@ -66,6 +66,56 @@ let check_id_uniqueness (tests : _ T.test list) =
                      authors of\n\
                      testo."
                     name0 name id))
+
+(*
+   Check that the user didn't mistakenly reuse the same path for keeping
+   output snapshots since we now support custom paths.
+   Raises an exception.
+*)
+let check_snapshot_uniqueness (tests : _ T.test list) =
+  let path_tbl = Hashtbl.create 1000 in
+  tests
+  |> List.iter (fun (test : _ T.test) ->
+    test
+    |> Store.capture_paths_of_test
+    |> List.iter (fun (paths : Store.capture_paths) ->
+      match paths.path_to_expected_output with
+      | None -> ()
+      | Some path ->
+          (* This may or may not be a custom path. *)
+          let test_name = test.internal_full_name in
+          match Hashtbl.find_opt path_tbl path with
+          | None ->
+              Hashtbl.add path_tbl path test_name
+          | Some test_name0 ->
+              if test_name = test_name0 then
+                Error.fail (
+                  sprintf "\
+A test uses the same snapshot path twice:
+- test name: %S
+- conflicting snapshot path: %s
+Fix it in the test definition.
+"
+                    test_name !!path
+                )
+              else
+                Error.fail (
+                  sprintf "\
+Two different tests use the same snapshot path:
+- first test: %S
+- second test: %S
+- conflicting snapshot path: %s
+"
+                    test_name0
+                    test_name
+                    !!path
+                )
+    )
+  )
+
+let check_test_definitions tests =
+  check_id_uniqueness tests;
+  check_snapshot_uniqueness tests
 
 let string_of_status_summary (sum : T.status_summary) =
   let approval_suffix = if sum.has_expected_output then "" else "*" in
@@ -262,11 +312,11 @@ let print_exn (test : _ T.test) exn trace =
               (Printexc.to_string exn)
               (Printexc.raw_backtrace_to_string trace)))
 
-let with_print_exn (test : _ T.test) func () =
-  test.m.catch func (fun exn ->
-      let trace = Printexc.get_raw_backtrace () in
-      print_exn test exn trace;
-      Printexc.raise_with_backtrace exn trace)
+let with_print_exn (test : 'unit_promise T.test) func () =
+  test.m.catch func (fun exn trace ->
+    print_exn test exn trace;
+    (Printexc.raise_with_backtrace exn trace : 'unit_promise)
+  )
 
 let with_flip_xfail_outcome (test : _ T.test) func =
   match test.expected_outcome with
@@ -287,7 +337,8 @@ let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
-  func |> with_print_exn test
+  func
+  |> with_print_exn test
   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
@@ -358,7 +409,7 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
        -> use duff? https://github.com/mirage/duff *)
     (* nosemgrep: forbid-exec *)
     Sys.command
-      (sprintf "diff -u '%s' '%s'" path_to_expected_output path_to_output)
+      (sprintf "diff -u '%s' '%s'" !!path_to_expected_output !!path_to_output)
   with
   | 0 -> ()
   | _nonzero ->
@@ -367,13 +418,13 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
 let show_output_details
     (test : _ T.test)
     (sum : T.status_summary)
-    (output_file_pairs : Store.output_file_pair list) =
+    (capture_paths : Store.capture_paths list) =
   let success = success_of_status_summary sum in
-  output_file_pairs
+  capture_paths
   |> List.iter
        (fun
-         ({ short_name; path_to_expected_output; path_to_output } :
-           Store.output_file_pair)
+         ({ short_name; path_to_expected_output; path_to_output; _ } :
+           Store.capture_paths)
        ->
          flush stdout;
          flush stderr;
@@ -389,9 +440,9 @@ let show_output_details
                  show_diff short_name path_to_expected_output path_to_output);
              if success <> OK_but_new then
                printf "%sPath to expected %s: %s\n" bullet short_name
-                 path_to_expected_output);
+                 !!path_to_expected_output);
          printf "%sPath to captured %s: %s%s\n"
-           bullet short_name path_to_output
+           bullet short_name !!path_to_output
            (match Store.get_orig_output_suffix test with
             | Some suffix -> sprintf " [%s]" suffix
             | None -> ""))
@@ -432,34 +483,34 @@ let print_status ~highlight_test ~always_show_unchecked_output
         | _ ->
             let text =
               match test.checked_output with
-              | Ignore_output -> assert false
-              | Stdout -> "stdout"
-              | Stderr -> "stderr"
-              | Merged_stdout_stderr -> "merged stdout and stderr"
-              | Separate_stdout_stderr -> "separate stdout and stderr"
+              | Ignore_output -> Error.assert_false ~__LOC__ ()
+              | Stdout _ -> "stdout"
+              | Stderr _ -> "stderr"
+              | Stdxxx _ -> "merged stdout and stderr"
+              | Split_stdout_stderr _ -> "separate stdout and stderr"
             in
             printf "%sChecked output: %s\n" bullet text);
         (* Details about results *)
         (match status.expectation.expected_output with
-        | Error [ path ] ->
+        | Error (Missing_files [ path ]) ->
             print_error
               (sprintf "Missing file containing the expected output: %s" path)
-        | Error paths ->
+        | Error (Missing_files paths) ->
             print_error
               (sprintf "Missing files containing the expected output: %s"
                  (String.concat ", " paths))
         | Ok _expected_output -> (
             match status.result with
-            | Error [ path ] ->
+            | Error (Missing_files [ path ]) ->
                 print_error
                   (sprintf "Missing file containing the test output: %s" path)
-            | Error paths ->
+            | Error (Missing_files paths) ->
                 print_error
                   (sprintf "Missing files containing the test output: %s"
                      (String.concat ", " paths))
             | Ok _ -> ()));
-        let output_file_pairs = Store.get_output_file_pairs test in
-        show_output_details test sum output_file_pairs;
+        let capture_paths = Store.capture_paths_of_test test in
+        show_output_details test sum capture_paths;
         let success = success_of_status_summary sum in
         let show_unchecked_output =
           always_show_unchecked_output
@@ -616,7 +667,7 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 *)
 let list_status ~always_show_unchecked_output ~filter_by_substring
     ~output_style tests =
-  check_id_uniqueness tests;
+  check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
@@ -666,7 +717,7 @@ let run_tests_sequentially ~(mona : _ Mona.t) ~always_show_unchecked_output
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
 let before_run ~filter_by_substring ~lazy_ tests =
   Store.init_workspace ();
-  check_id_uniqueness tests;
+  check_test_definitions tests;
   let tests =
     match lazy_ with
     | false -> tests
@@ -712,7 +763,7 @@ let run_tests ~(mona : _ Mona.t) ~always_show_unchecked_output
 *)
 let approve_output ?filter_by_substring tests =
   Store.init_workspace ();
-  check_id_uniqueness tests;
+  check_test_definitions tests;
   tests
   |> filter ~filter_by_substring
   |> Helpers.list_map Store.approve_new_output

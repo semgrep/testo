@@ -15,7 +15,7 @@ val mona : unit Lwt.t Testo.Mona.t
    See the documentation for Testo.create. *)
 val create :
   ?category:string list ->
-  ?checked_output:Testo.output_kind ->
+  ?checked_output:Testo.checked_output_kind ->
   ?expected_outcome:Testo.expected_outcome ->
   ?normalize:(string -> string) list ->
   ?skipped:bool ->

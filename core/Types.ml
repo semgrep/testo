@@ -39,6 +39,8 @@ type expected_outcome =
   | Should_succeed
   | Should_fail of string (* explains why we expect this test to fail *)
 
+type missing_files = Missing_files of string list
+
 (*
    The expected output is optional so as to allow new tests for which
    there's no expected output yet but there's an expected outcome defined
@@ -46,7 +48,8 @@ type expected_outcome =
 *)
 type expectation = {
   expected_outcome : expected_outcome;
-  expected_output : (expected_output, string list (* missing files *)) Result.t;
+  expected_output :
+    (expected_output, missing_files) Result.t;
 }
 
 (*
@@ -57,7 +60,7 @@ type expectation = {
 *)
 type status = {
   expectation : expectation;
-  result : (result, string list (* missing files *)) Result.t;
+  result : (result, missing_files) Result.t;
 }
 
 type fail_reason = Exception | Wrong_output | Exception_and_wrong_output
@@ -84,13 +87,18 @@ type status_summary = {
   has_expected_output : bool;
 }
 
-(* public *)
-type output_kind =
+type checked_output_options = {
+  (* If specified, this is where the output file will be stored instead
+     of the default location. A relative path is recommended. *)
+  expected_output_path : Filename_.t option;
+}
+
+type checked_output_kind =
   | Ignore_output
-  | Stdout
-  | Stderr
-  | Merged_stdout_stderr
-  | Separate_stdout_stderr
+  | Stdout of checked_output_options
+  | Stderr of checked_output_options
+  | Stdxxx of checked_output_options
+  | Split_stdout_stderr of checked_output_options * checked_output_options
 
 (* public *)
 type 'unit_promise test = {
@@ -109,7 +117,7 @@ type 'unit_promise test = {
   expected_outcome : expected_outcome;
   tags : Tag.t list;
   normalize : (string -> string) list;
-  checked_output : output_kind;
+  checked_output : checked_output_kind;
   skipped : bool;
   tolerate_chdir : bool;
   m : 'unit_promise Mona.t;
