@@ -287,7 +287,8 @@ let mask_temp_paths
     if tmpdir = "" then
       Error.invalid_arg ~__LOC__ "Testo.mask_temp_paths: empty tmpdir"
     else
-      remove_trailing_slashes tmpdir
+      (* Must resolve symlinks via 'Unix.realpath'. *)
+      remove_trailing_slashes tmpdir |> Unix.realpath
   in
   let tmpdir_pat = Re.Pcre.quote tmpdir in
   let suffix_pat =
