@@ -317,7 +317,7 @@ let mask_temp_paths
          pattern to ensure we don't start the match in a middle of a path. *)
       sprintf {|(?:^|%s)|} nonpath_character
     in
-    (* The captured group in parentheses what will get replaced by the
+    (* The captured group in parentheses is what will get replaced by the
        'replace' function. It's a full path. *)
     sprintf "%s(%s%s)"
       not_preceded_by_a_path_character tmpdir_pat suffix_pat
