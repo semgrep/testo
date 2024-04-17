@@ -43,7 +43,8 @@ let test_mask_pcre_pattern () =
 
 (* TODO: test Windows paths *)
 let test_mask_temp_paths () =
-  let tmpdir = "tmpdir" in
+  let tmpdir = "/tmp" in
+  let includes_tmpdir = "/var/tmp/1234" in
   let test_one (depth, input_str, expected_result) =
     printf "depth=%S input_str=%S expected_result=%S\n%!"
       (match depth with
@@ -66,6 +67,8 @@ let test_mask_temp_paths () =
     None, tmp "a-b_12/bcccc", "<TMP>/<MASKED>/bcccc";
     None, " " ^ tmp "a-b_12//bcccc/// ", " <TMP>/<MASKED>//bcccc/// ";
     None, tmp "a" ^ " " ^ tmp "b", "<TMP>/<MASKED> <TMP>/<MASKED>";
+    (* don't mask sub-paths *)
+    None, includes_tmpdir, includes_tmpdir;
     (* no depth limit *)
     Some None, tmpdir, "<TMP>";
     Some None, tmp "", "<TMP>/";

@@ -5,6 +5,7 @@
    Alcotest.
 *)
 
+open Printf
 module T = Types
 
 (****************************************************************************)
@@ -278,6 +279,10 @@ let rec remove_trailing_slashes path =
   else
     path
 
+let path_character_range = {|/\\:A-Za-z0-9_.-|}
+let path_character = "[" ^ path_character_range ^ "]"
+let nonpath_character = "[^" ^ path_character_range ^ "]"
+
 let mask_temp_paths
     ?(depth = Some 1)
     ?replace
@@ -293,7 +298,7 @@ let mask_temp_paths
   let suffix_pat =
     match depth with
     | None ->
-        {|[/\\A-Za-z0-9_.-]*|}
+        sprintf {|%s*|} path_character
     | Some n ->
         if n < 0 then
           Error.invalid_arg ~__LOC__
@@ -306,7 +311,17 @@ let mask_temp_paths
           in
           repeat (sep ^ segment)
   in
-  let pat = tmpdir_pat ^ suffix_pat in
+  let pat =
+    let not_preceded_by_a_path_character =
+      (* ocaml-re doesn't support lookbehind assertions so we match this
+         pattern to ensure we don't start the match in a middle of a path. *)
+      sprintf {|(?:^|%s)|} nonpath_character
+    in
+    (* The captured group in parentheses is what will get replaced by the
+       'replace' function. It's a full path. *)
+    sprintf "%s(%s%s)"
+      not_preceded_by_a_path_character tmpdir_pat suffix_pat
+  in
   let replace =
     match replace with
     | None -> default_replace_path ~tmpdir
