@@ -1,5 +1,5 @@
 (**
-   {0 Test tags}
+   {1 Test tags}
 
    A tag contributes to describing what a test is about in addition to
    the test's name and category. Additionally, it allows for the precise
