@@ -104,15 +104,13 @@ val split_stdout_stderr :
   unit -> checked_output_kind
 
 (** Wrapper allowing for asynchronous test functions (Lwt and such). *)
-module Mona : module type of Mona
+module Promise : module type of Promise
 
 (** The type of tags which can be used to define subsets of tests precisely. *)
 module Tag : module type of Tag
 
 (**
    [t] is the type of a test. A test suite is a flat list of tests.
-   For ordinary tests, the type parameter is [unit]. Type {!type:test}
-   is an alias for [unit t].
 
    A test is at a minimum a name and a test function that raises exceptions
    to signal test failure. It is created with {!create} or other similar
@@ -140,7 +138,7 @@ module Tag : module type of Tag
    test and put it in its own file so we can consult it later. Don't
    hesitate to log a lot during the execution of the test.
 *)
-type 'unit_promise t = private {
+type t = private {
   id : string;
     (** Hash of the full name of the test, computed automatically. *)
 
@@ -155,7 +153,7 @@ type 'unit_promise t = private {
         e.g. ["food"; "fruit"; "kiwi"] *)
 
   name : string;
-  func : unit -> 'unit_promise;
+  func : unit -> unit Promise.t;
 
   (***** Options *****)
   expected_outcome : expected_outcome;
@@ -176,16 +174,9 @@ type 'unit_promise t = private {
 
   tolerate_chdir : bool;
     (** All the tests in a test suite should share this field. *)
-
-  m : 'unit_promise Mona.t;
 }
 
-(** An alias for the type of an ordinary test, i.e. one that returns
-    when it's done rather than one that returns a deferred computation
-    ([Lwt], [Async], etc.). *)
-type test = unit t
-
-type 'unit_promise test_with_status = 'unit_promise t * status * status_summary
+type test_with_status = t * status * status_summary
 
 (**
    The return type of each subcommand.
@@ -193,9 +184,9 @@ type 'unit_promise test_with_status = 'unit_promise t * status * status_summary
    to the JUnit format via the optional [handle_subcommand_result] argument
    of [interpret_argv].
 *)
-type 'unit_promise subcommand_result =
-  | Run_result of 'unit_promise test_with_status list
-  | Status_result of 'unit_promise test_with_status list
+type subcommand_result =
+  | Run_result of test_with_status list
+  | Status_result of test_with_status list
   | Approve_result
 
 (**
@@ -231,25 +222,8 @@ val create :
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
   string ->
-  (unit -> unit) ->
-  unit t
-
-(**
-   Generic version of [create] provided for libraries whose test function
-   returns a promise (Lwt, Async, ...).
-*)
-val create_gen :
-  ?category:string list ->
-  ?checked_output:checked_output_kind ->
-  ?expected_outcome:expected_outcome ->
-  ?normalize:(string -> string) list ->
-  ?skipped:bool ->
-  ?tags:Tag.t list ->
-  ?tolerate_chdir:bool ->
-  'unit_promise Mona.t ->
-  string ->
-  (unit -> 'unit_promise) ->
-  'unit_promise t
+  (unit -> unit Promise.t) ->
+  t
 
 (**
    Update some of the test's fields. This ensures that the test's unique
@@ -260,25 +234,13 @@ val update :
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
-  ?func:(unit -> 'unit_promise) ->
+  ?func:(unit -> unit Promise.t) ->
   ?normalize:(string -> string) list ->
   ?name:string ->
   ?skipped:bool ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
-  'unit_promise t ->
-  'unit_promise t
-
-(**
-   Special case of the [update] function that allows a different type
-   for the new test function. This is useful for converting an Lwt test
-   into a regular one.
-*)
-val update_func :
-  'unit_promise t ->
-  'unit_promise2 Mona.t ->
-  (unit -> 'unit_promise2) ->
-  'unit_promise2 t
+  t -> t
 
 (** {2 Output masking functions}
 
@@ -420,11 +382,11 @@ val test :
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
   string ->
-  (unit -> unit) ->
+  (unit -> unit Promise.t) ->
   unit
 
 (** Recover the list of tests registered with {!val:test}. *)
-val get_registered_tests : unit -> test list
+val get_registered_tests : unit -> t list
 
 (** {2 Categorization and filtering of test suites}
 
@@ -442,7 +404,7 @@ val get_registered_tests : unit -> test list
        categorize "apples" [test_color; test_juiciness]
 v}
 *)
-val categorize : string -> 'a t list -> 'a t list
+val categorize : string -> t list -> t list
 
 (** Variant of {!categorize} that flattens the nested list first.
 
@@ -451,7 +413,7 @@ val categorize : string -> 'a t list -> 'a t list
        categorize_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
 v}
 *)
-val categorize_suites : string -> 'a t list list -> 'a t list
+val categorize_suites : string -> t list list -> t list
 
 (**
    Sort tests by category and name, alphabetically.
@@ -459,20 +421,20 @@ val categorize_suites : string -> 'a t list list -> 'a t list
    Non-ASCII path components are currently sorted by byte order,
    possibly giving unexpected results.
 *)
-val sort : 'a t list -> 'a t list
+val sort : t list -> t list
 
 (** Whether a test has this tag. This is meant for filtering test suites. *)
-val has_tag : Tag.t -> 'a t -> bool
+val has_tag : Tag.t -> t -> bool
 
 (** {2 Conversion to Alcotest test suites} *)
 
 (** A type alias for Alcotest test cases. *)
-type 'unit_promise alcotest_test_case =
-  string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
+type alcotest_test_case =
+  string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 
 (** A type alias for an Alcotest [test]. *)
-type 'unit_promise alcotest_test =
-  string * 'unit_promise alcotest_test_case list
+type alcotest_test =
+  string * alcotest_test_case list
 
 (**
    Export our tests to a list of tests that can run in Alcotest.
@@ -484,7 +446,7 @@ type 'unit_promise alcotest_test =
    This function is provided to facilitate migrations between Alcotest
    and Testo, not for long-term use.
 *)
-val to_alcotest : 'unit_promise t list -> 'unit_promise alcotest_test list
+val to_alcotest : t list -> alcotest_test list
 
 (** {2 Command-line interpretation} *)
 
@@ -512,21 +474,8 @@ val to_alcotest : 'unit_promise t list -> 'unit_promise alcotest_test list
 val interpret_argv :
   ?argv:string array ->
   ?expectation_workspace_root:string ->
-  ?handle_subcommand_result:(int -> unit subcommand_result -> unit) ->
+  ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
   ?status_workspace_root:string ->
   project_name:string ->
-  (unit -> test list) ->
-  unit
-
-(** Generic variant of {!interpret_argv}. It requires an extra argument
-    [mona] that is defined once and for all by a library like
-    [Testo_lwt]. *)
-val interpret_argv_gen :
-  ?argv:string array ->
-  ?expectation_workspace_root:string ->
-  ?handle_subcommand_result:(int -> 'unit_promise subcommand_result -> unit) ->
-  ?status_workspace_root:string ->
-  mona:'unit_promise Mona.t ->
-  project_name:string ->
-  (unit -> 'unit_promise t list) ->
-  'unit_promise
+  (unit -> t list) ->
+  unit Promise.t

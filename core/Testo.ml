@@ -64,44 +64,41 @@ type status_summary = T.status_summary = {
   has_expected_output : bool;
 }
 
-type 'unit_promise test_with_status =
-  'unit_promise T.test * status * status_summary
+type test_with_status =
+  T.test * status * status_summary
 
-type 'unit_promise subcommand_result = 'unit_promise Cmd.subcommand_result =
-  | Run_result of 'unit_promise test_with_status list
-  | Status_result of 'unit_promise test_with_status list
+type subcommand_result = Cmd.subcommand_result =
+  | Run_result of test_with_status list
+  | Status_result of test_with_status list
   | Approve_result
 
 (* export *)
-module Mona = Mona
+module Promise = Promise
 module Tag = Tag
 
 type checked_output_kind = T.checked_output_kind
 
-type 'unit_promise t = 'unit_promise T.test = {
+type t = T.test = {
   id : string;
   internal_full_name : string;
   category : string list;
   name : string;
-  func : unit -> 'unit_promise;
+  func : unit -> unit Promise.t;
   expected_outcome : expected_outcome;
   tags : Tag.t list;
   normalize : (string -> string) list;
   checked_output : checked_output_kind;
   skipped : bool;
   tolerate_chdir : bool;
-  m : 'unit_promise Mona.t;
 }
 
-type test = unit t
-
 (* Polymorphic type alias for an Alcotest's 'test_case'. *)
-type 'unit_promise alcotest_test_case =
-  string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
+type alcotest_test_case =
+  string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 
 (* Polymorphic type alias for an Alcotest's 'test'. *)
-type 'unit_promise alcotest_test =
-  string * 'unit_promise alcotest_test_case list
+type alcotest_test =
+  string * alcotest_test_case list
 
 (****************************************************************************)
 (* Conversions *)
@@ -140,7 +137,7 @@ let split_stdout_stderr
    to having more than a million tests, we can add an option to increase
    the number of bits.
 *)
-let update_id (test : _ t) =
+let update_id (test : t) =
   let internal_full_name = T.recompute_internal_full_name test in
   let md5_hex = internal_full_name |> Digest.string |> Digest.to_hex in
   assert (String.length md5_hex = 32);
@@ -148,10 +145,10 @@ let update_id (test : _ t) =
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
-let create_gen ?(category = [])
+let create ?(category = [])
     ?(checked_output = T.Ignore_output)
     ?(expected_outcome = Should_succeed) ?(normalize = []) ?(skipped = false)
-    ?(tags = []) ?(tolerate_chdir = false) mona name func =
+    ?(tags = []) ?(tolerate_chdir = false) name func =
   {
     id = "";
     internal_full_name = "";
@@ -164,14 +161,8 @@ let create_gen ?(category = [])
     checked_output;
     skipped;
     tolerate_chdir;
-    m = mona;
   }
   |> update_id
-
-let create ?category ?checked_output ?expected_outcome
-    ?normalize ?skipped ?tags ?tolerate_chdir name func =
-  create_gen ?category ?checked_output ?expected_outcome
-    ?normalize ?skipped ?tags ?tolerate_chdir Mona.sync name func
 
 let opt option default = Option.value option ~default
 
@@ -190,7 +181,6 @@ let update ?category ?checked_output ?expected_outcome
     checked_output = opt checked_output old.checked_output;
     skipped = opt skipped old.skipped;
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
-    m = old.m;
   }
   |> update_id
 
@@ -356,8 +346,6 @@ let mask_not_substrings ?mask substrings =
 let mask_not_substring ?mask substring =
   mask_not_substrings ?mask [substring]
 
-(* Allow conversion from Lwt to synchronous function *)
-let update_func (test : 'a t) mona2 func : 'b t = { test with func; m = mona2 }
 let has_tag tag test = List.mem tag test.tags
 
 let categorize name (tests : _ list) : _ list =
@@ -365,20 +353,20 @@ let categorize name (tests : _ list) : _ list =
     (fun x -> update x ~category:(name :: x.category))
     tests
 
-let categorize_suites name (tests : _ t list list) : _ t list =
+let categorize_suites name (tests : t list list) : t list =
   tests |> Helpers.list_flatten |> categorize name
 
 (*
    Sort by category and test name.
 *)
-let sort (tests : _ t list) : _ t list =
+let sort (tests : t list) : t list =
   tests
   |> List.stable_sort (fun a b ->
          let c = compare a.category b.category in
          if c <> 0 then c else String.compare a.name b.name)
 
 let to_alcotest = Run.to_alcotest
-let registered_tests : test list ref = ref []
+let registered_tests : t list ref = ref []
 let register x = registered_tests := x :: !registered_tests
 
 let test ?category ?checked_output ?expected_outcome
@@ -389,12 +377,11 @@ let test ?category ?checked_output ?expected_outcome
 
 let get_registered_tests () = List.rev !registered_tests
 
-let interpret_argv_gen
+let interpret_argv
     ?argv
     ?expectation_workspace_root
     ?handle_subcommand_result
     ?status_workspace_root
-    ~mona
     ~project_name
     get_tests =
   Cmd.interpret_argv
@@ -404,9 +391,5 @@ let interpret_argv_gen
     ?handle_subcommand_result
     ?status_workspace_root:
       (Option.map Filename_.of_string status_workspace_root)
-    ~mona
     ~project_name
     get_tests
-
-let interpret_argv =
-  interpret_argv_gen ~mona:Mona.sync

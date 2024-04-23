@@ -43,7 +43,7 @@ type capture_paths = {
    - For diffing output against expected output.
    - For checking uniqueness of custom storage paths.
 *)
-val capture_paths_of_test : 'a Types.test -> capture_paths list
+val capture_paths_of_test : Types.test -> capture_paths list
 
 (*
    Ordinary output that's not compared against expectations.
@@ -51,14 +51,14 @@ val capture_paths_of_test : 'a Types.test -> capture_paths list
 
    Return a pair (English description, data).
 *)
-val get_unchecked_output : 'a Types.test -> (string * string) option
+val get_unchecked_output : Types.test -> (string * string) option
 
 (*
    These functions are available after the call to 'init'.
 *)
 val get_status_workspace : unit -> Filename_.t
 val get_expectation_workspace : unit -> Filename_.t
-val get_status : 'a Types.test -> Types.status
+val get_status : Types.test -> Types.status
 
 (*
    Summarize the status of a test.
@@ -78,17 +78,17 @@ type changed = Changed | Unchanged
 
    Returns an error message if the test status is not PASS or XFAIL.
 *)
-val approve_new_output : 'a Types.test -> (changed, string) Result.t
+val approve_new_output : Types.test -> (changed, string) Result.t
 
 (*
    If a test is configured to normalize its output, this returns the
    suffix for the backup file holding the original captured output.
 *)
-val get_orig_output_suffix : 'a Types.test -> string option
+val get_orig_output_suffix : Types.test -> string option
 
 (**************************************************************************)
 (* Wrappers for capturing test output *)
 (**************************************************************************)
 
 val with_result_capture :
-  'unit_promise Types.test -> (unit -> 'unit_promise) -> unit -> 'unit_promise
+  Types.test -> (unit -> unit Promise.t) -> unit -> unit Promise.t

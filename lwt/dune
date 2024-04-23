@@ -3,7 +3,9 @@
   (public_name testo-lwt)
   (name testo_lwt)
   (libraries
-    testo
+    alcotest
+    cmdliner
     lwt
+    re
   )
 )
