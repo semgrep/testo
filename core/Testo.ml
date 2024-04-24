@@ -141,7 +141,6 @@ let update_id (test : t) =
   let internal_full_name = T.recompute_internal_full_name test in
   let md5_hex = internal_full_name |> Digest.string |> Digest.to_hex in
   assert (String.length md5_hex = 32);
-  (* nosemgrep: ocamllint-str-first-chars *)
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
@@ -183,6 +182,17 @@ let update ?category ?checked_output ?expected_outcome
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
   }
   |> update_id
+
+(**************************************************************************)
+(* Files and output manipulation *)
+(**************************************************************************)
+
+let with_temp_file = Helpers.with_temp_file
+let with_capture = Store.with_capture
+
+(**************************************************************************)
+(* Output masking *)
+(**************************************************************************)
 
 let mask_line ?(mask = "<MASKED>") ?(after = "") ?(before = "") () =
   let pat =

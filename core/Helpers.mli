@@ -16,3 +16,12 @@ val make_dir_if_not_exists : ?recursive:bool -> Filename_.t -> unit
 val contains_pcre_pattern : string -> (string -> bool)
 
 val contains_substring : string -> (string -> bool)
+
+(* Work with a temporary file, ensuring its eventual deletion. *)
+val with_temp_file :
+  ?contents:string ->
+  ?persist:bool ->
+  ?prefix:string ->
+  ?suffix:string ->
+  ?temp_dir:string ->
+  (string -> 'a Promise.t) -> 'a Promise.t

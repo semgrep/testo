@@ -409,7 +409,6 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
        BusyBox doesn't support '--color' option which is very sad.
        TODO: find a way to show color diffs
        -> use duff? https://github.com/mirage/duff *)
-    (* nosemgrep: forbid-exec *)
     Sys.command
       (sprintf "diff -u '%s' '%s'" !!path_to_expected_output !!path_to_output)
   with
