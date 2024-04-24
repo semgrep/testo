@@ -1,6 +1,10 @@
 #
 # Circle CI configuration. Runs each time we push a new commit to Github.
 #
+
+# The Semgrep config was derived from the example at
+# https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#circleci
+
 version: 2.1
 
 jobs:
@@ -35,9 +39,46 @@ jobs:
           name: Test
           command: opam exec -- make test
 
+  semgrep-full-scan:
+    docker:
+      - image: semgrep/semgrep
+    steps:
+      - checkout
+      - run:
+          name: "Semgrep full scan"
+          command: semgrep ci
+  semgrep-diff-scan:
+    parameters:
+      default_branch:
+        type: string
+        default: main
+    docker:
+      - image: semgrep/semgrep
+    steps:
+      - checkout
+      - run:
+          name: Semgrep diff scan
+          environment:
+            SEMGREP_BASELINE_REF: << parameters.default_branch >>
+          command: semgrep ci
+
 workflows:
   version: 2
   build:
     jobs:
       - build
       - build_legacy
+  semgrep:
+    jobs:
+      - semgrep-full-scan:
+          filters:
+            branches:
+              only: main
+          context:
+            - semgrep
+      - semgrep-diff-scan:
+          filters:
+            branches:
+              ignore: main
+          context:
+            - semgrep
