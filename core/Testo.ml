@@ -142,6 +142,7 @@ let update_id (test : t) =
   let internal_full_name = T.recompute_internal_full_name test in
   let md5_hex = internal_full_name |> Digest.string |> Digest.to_hex in
   assert (String.length md5_hex = 32);
+  (* nosemgrep: ocamllint-str-first-chars *)
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
@@ -293,6 +294,7 @@ let rec remove_trailing_slashes path =
     | "\\" -> equal_last_char path '\\'
     | _ -> (* are there any platforms with other separators? *) false
   then
+    (* nosemgrep: ocamllint-str-first-chars *)
     remove_trailing_slashes (String.sub path 0 (String.length path - 1))
   else
     path
