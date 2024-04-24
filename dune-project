@@ -24,6 +24,7 @@ new subcommands for capturing, checking, and approving the output of tests.")
     (ocaml (>= 4.08.0))
     alcotest
     cmdliner
+    fpath
     re
   )
 )
@@ -38,6 +39,7 @@ by wrapping them in 'Lwt_main.run'.")
     (ocaml (>= 4.08.0))
     alcotest
     cmdliner
+    fpath
     re
     lwt
   )

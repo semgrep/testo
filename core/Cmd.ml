@@ -3,7 +3,7 @@
 *)
 
 open Printf
-open Filename_.Operators
+open Fpath_.Operators
 open Cmdliner
 
 (*

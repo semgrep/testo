@@ -13,6 +13,7 @@ depends: [
   "ocaml" {>= "4.08.0"}
   "alcotest"
   "cmdliner"
+  "fpath"
   "re"
   "odoc" {with-doc}
 ]

@@ -5,6 +5,7 @@
   (libraries
     alcotest
     cmdliner
+    fpath
     lwt
     re
   )

@@ -138,7 +138,7 @@ let test_temporary_files () =
       match !path_ref with
       | None -> assert false
       | Some path ->
-          assert (not (Sys.file_exists path))
+          assert (not (Sys.file_exists (Fpath.to_string path)))
     )
 
 let test_user_output_capture () =
@@ -207,21 +207,21 @@ let tests =
       ~category:["auto-approve"]
       ~checked_output:(
         Testo.stdout
-          ~expected_stdout_path:"tests/custom-snapshots/my-stdout" ()
+          ~expected_stdout_path:(Fpath.v "tests/custom-snapshots/my-stdout") ()
       )
       (fun () -> print_string "hello\n");
     t "capture stderr in custom location"
       ~category:["auto-approve"]
       ~checked_output:(
         Testo.stderr
-          ~expected_stderr_path:"tests/custom-snapshots/my-stderr" ()
+          ~expected_stderr_path:(Fpath.v "tests/custom-snapshots/my-stderr") ()
       )
       (fun () -> prerr_string "error\n");
     t "capture stdxxx in custom location"
       ~category:["auto-approve"]
       ~checked_output:(
         Testo.stdxxx
-          ~expected_stdxxx_path:"tests/custom-snapshots/my-stdxxx" ()
+          ~expected_stdxxx_path:(Fpath.v "tests/custom-snapshots/my-stdxxx") ()
       )
       (fun () ->
         print_string "hello\n";
@@ -233,8 +233,9 @@ let tests =
       ~category:["auto-approve"]
       ~checked_output:(
         Testo.split_stdout_stderr
-          ~expected_stdout_path:"tests/custom-snapshots/split-stdout"
-          ~expected_stderr_path:"tests/custom-snapshots/split-stderr" ()
+          ~expected_stdout_path:(Fpath.v "tests/custom-snapshots/split-stdout")
+          ~expected_stderr_path:(Fpath.v "tests/custom-snapshots/split-stderr")
+          ()
       )
       (fun () ->
         print_string "hello\n";

@@ -39,7 +39,7 @@ type expected_outcome =
   | Should_succeed
   | Should_fail of string (* explains why we expect this test to fail *)
 
-type missing_files = Missing_files of string list
+type missing_files = Missing_files of Fpath.t list
 
 (*
    The expected output is optional so as to allow new tests for which
@@ -90,7 +90,7 @@ type status_summary = {
 type checked_output_options = {
   (* If specified, this is where the output file will be stored instead
      of the default location. A relative path is recommended. *)
-  expected_output_path : Filename_.t option;
+  expected_output_path : Fpath.t option;
 }
 
 type checked_output_kind =

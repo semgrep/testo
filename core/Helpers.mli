@@ -11,14 +11,14 @@ val list_flatten : 'a list list -> 'a list
 (* Create a directory if it doesn't exist.
    Also create its parents if they don't exist and 'recursive' is true.
 *)
-val make_dir_if_not_exists : ?recursive:bool -> Filename_.t -> unit
+val make_dir_if_not_exists : ?recursive:bool -> Fpath.t -> unit
 
 val contains_pcre_pattern : string -> (string -> bool)
 
 val contains_substring : string -> (string -> bool)
 
-val write_file : Filename_.t -> string -> unit
-val read_file : Filename_.t -> string
+val write_file : Fpath.t -> string -> unit
+val read_file : Fpath.t -> string
 
 (* Work with a temporary file, ensuring its eventual deletion. *)
 val with_temp_file :
@@ -26,5 +26,5 @@ val with_temp_file :
   ?persist:bool ->
   ?prefix:string ->
   ?suffix:string ->
-  ?temp_dir:Filename_.t ->
-  (Filename_.t -> 'a Promise.t) -> 'a Promise.t
+  ?temp_dir:Fpath.t ->
+  (Fpath.t -> 'a Promise.t) -> 'a Promise.t

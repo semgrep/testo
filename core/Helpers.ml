@@ -3,7 +3,7 @@
 *)
 
 open Printf
-open Filename_.Operators
+open Fpath_.Operators
 module P = Promise
 
 (* safe version of List.map for ocaml < 5 *)
@@ -13,7 +13,7 @@ let list_map f l = List.rev_map f l |> List.rev
 let list_flatten ll =
   List.fold_left (fun acc l -> List.rev_append l acc) [] ll |> List.rev
 
-let rec make_dir_if_not_exists ?(recursive = false) (dir : Filename_.t) =
+let rec make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
   match (Unix.stat !!dir).st_kind with
   | S_DIR -> ()
   | S_REG
@@ -28,7 +28,7 @@ let rec make_dir_if_not_exists ?(recursive = false) (dir : Filename_.t) =
             testing setup."
            !!dir)
   | exception Unix.Unix_error (ENOENT, _, _) ->
-      let parent = Filename_.dirname dir in
+      let parent = Fpath.parent dir in
       if parent = dir then
         (* dir is something like "." or "/" *)
         Error.fail
@@ -53,7 +53,7 @@ let contains_substring substring =
   contains_pcre_pattern (Re.Pcre.quote substring)
 
 let write_file path data =
-  let oc = open_out_bin (Filename_.to_string path) in
+  let oc = open_out_bin !!path in
   Fun.protect
     (fun () -> output_string oc data)
     ~finally:(fun () -> close_out_noerr oc)

@@ -6,7 +6,6 @@
 *)
 
 open Printf
-open Filename_.Operators
 module T = Types
 
 (****************************************************************************)
@@ -38,7 +37,7 @@ type result = T.result = {
   captured_output : captured_output;
 }
 
-type missing_files = T.missing_files = Missing_files of string list
+type missing_files = T.missing_files = Missing_files of Fpath.t list
 
 type expectation = T.expectation = {
   expected_outcome : expected_outcome;
@@ -106,26 +105,21 @@ type alcotest_test =
 (****************************************************************************)
 
 let stdout ?expected_stdout_path () : T.checked_output_kind =
-  Stdout { expected_output_path =
-             Option.map Filename_.of_string expected_stdout_path }
+  Stdout { expected_output_path = expected_stdout_path }
 
 let stderr ?expected_stderr_path () : T.checked_output_kind =
-  Stderr { expected_output_path =
-             Option.map Filename_.of_string expected_stderr_path }
+  Stderr { expected_output_path = expected_stderr_path }
 
 let stdxxx ?expected_stdxxx_path () : T.checked_output_kind =
-  Stdxxx { expected_output_path =
-             Option.map Filename_.of_string expected_stdxxx_path }
+  Stdxxx { expected_output_path = expected_stdxxx_path }
 
 let split_stdout_stderr
     ?expected_stdout_path
     ?expected_stderr_path
     () : T.checked_output_kind =
   Split_stdout_stderr (
-    { expected_output_path =
-        Option.map Filename_.of_string expected_stdout_path },
-    { expected_output_path =
-        Option.map Filename_.of_string expected_stderr_path }
+    { expected_output_path = expected_stdout_path },
+    { expected_output_path = expected_stderr_path }
   )
 
 (*
@@ -188,23 +182,10 @@ let update ?category ?checked_output ?expected_outcome
 (* Files and output manipulation *)
 (**************************************************************************)
 
-let write_file path data = Helpers.write_file (Filename_.of_string path) data
-let read_file path = Helpers.read_file (Filename_.of_string path)
+let write_file = Helpers.write_file
+let read_file = Helpers.read_file
 
-let with_temp_file
-    ?contents
-    ?persist
-    ?prefix
-    ?suffix
-    ?temp_dir
-    func =
-  Helpers.with_temp_file
-    ?contents
-    ?persist
-    ?prefix
-    ?suffix
-    ?temp_dir:(Option.map Filename_.of_string temp_dir)
-    (fun path -> func !!path)
+let with_temp_file = Helpers.with_temp_file
 
 let with_capture = Store.with_capture
 
@@ -414,10 +395,8 @@ let interpret_argv
     get_tests =
   Cmd.interpret_argv
     ?argv
-    ?expectation_workspace_root:
-      (Option.map Filename_.of_string expectation_workspace_root)
+    ?expectation_workspace_root
     ?handle_subcommand_result
-    ?status_workspace_root:
-      (Option.map Filename_.of_string status_workspace_root)
+    ?status_workspace_root
     ~project_name
     get_tests

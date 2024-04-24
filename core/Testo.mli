@@ -44,7 +44,7 @@ type expected_output =
 
 type result = { outcome : outcome; captured_output : captured_output }
 
-type missing_files = Types.missing_files = Missing_files of string list
+type missing_files = Types.missing_files = Missing_files of Fpath.t list
 
 type expectation = {
   expected_outcome : expected_outcome;
@@ -88,19 +88,19 @@ type checked_output_kind
 (** Create an object of type {!type:checked_output_kind} specifying
     that the test's standard output must be checked against a reference file.
 *)
-val stdout : ?expected_stdout_path:string -> unit -> checked_output_kind
+val stdout : ?expected_stdout_path:Fpath.t -> unit -> checked_output_kind
 
 (** Same as {!val:stdout} but for capturing stderr instead. *)
-val stderr : ?expected_stderr_path:string -> unit -> checked_output_kind
+val stderr : ?expected_stderr_path:Fpath.t -> unit -> checked_output_kind
 
 (** Same as {!val:stdout} but for capturing the combined stdout and stderr
     outputs. *)
-val stdxxx : ?expected_stdxxx_path:string -> unit -> checked_output_kind
+val stdxxx : ?expected_stdxxx_path:Fpath.t -> unit -> checked_output_kind
 
 (** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
 val split_stdout_stderr :
-  ?expected_stdout_path:string ->
-  ?expected_stderr_path:string ->
+  ?expected_stdout_path:Fpath.t ->
+  ?expected_stderr_path:Fpath.t ->
   unit -> checked_output_kind
 
 (** Wrapper allowing for asynchronous test functions (Lwt and such). *)
@@ -249,10 +249,10 @@ val update :
 
     Usage: [write_file path data]
 *)
-val write_file : string -> string -> unit
+val write_file : Fpath.t -> string -> unit
 
 (** Read the contents of a regular file. *)
-val read_file : string -> string
+val read_file : Fpath.t -> string
 
 (** [with_temp_file func] creates a temporary file, passes its path to
     the user-specified function [func], and returns the result.
@@ -280,8 +280,8 @@ val with_temp_file :
   ?persist:bool ->
   ?prefix:string ->
   ?suffix:string ->
-  ?temp_dir:string ->
-  (string -> 'a Promise.t) -> 'a Promise.t
+  ?temp_dir:Fpath.t ->
+  (Fpath.t -> 'a Promise.t) -> 'a Promise.t
 
 (** [with_capture stdout func] evaluates [func ()] while
     capturing the output of the given channel [stdout] as a string. *)
@@ -519,9 +519,9 @@ val to_alcotest : t list -> alcotest_test list
 *)
 val interpret_argv :
   ?argv:string array ->
-  ?expectation_workspace_root:string ->
+  ?expectation_workspace_root:Fpath.t ->
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
-  ?status_workspace_root:string ->
+  ?status_workspace_root:Fpath.t ->
   project_name:string ->
   (unit -> t list) ->
   unit Promise.t
