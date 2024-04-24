@@ -37,21 +37,20 @@ let default_conf =
 *)
 type cmd_conf = Run_tests of conf | Status of conf | Approve of conf
 
-type 'unit_promise subcommand_result =
-  | Run_result of 'unit_promise Types.test_with_status list
-  | Status_result of 'unit_promise Types.test_with_status list
+type subcommand_result =
+  | Run_result of Types.test_with_status list
+  | Status_result of Types.test_with_status list
   | Approve_result
 
-type ('unit_promise, 'continuation_result) test_spec =
-  'unit_promise Mona.t
-  * (unit -> 'unit_promise Types.test list)
-  * (int -> 'unit_promise subcommand_result -> 'continuation_result)
+type 'continuation_result test_spec =
+  (unit -> Types.test list)
+  * (int -> subcommand_result -> 'continuation_result)
 
 (****************************************************************************)
 (* Dispatch subcommands to do real work *)
 (****************************************************************************)
 
-let run_with_conf ((mona, get_tests, handle_subcommand_result) : _ test_spec)
+let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) =
   (*
      The creation of tests can take a while so it's delayed until we
@@ -60,7 +59,7 @@ let run_with_conf ((mona, get_tests, handle_subcommand_result) : _ test_spec)
   let tests = get_tests () in
   match cmd_conf with
   | Run_tests conf ->
-      Run.run_tests ~mona ~always_show_unchecked_output:conf.show_output
+      Run.run_tests ~always_show_unchecked_output:conf.show_output
         ~filter_by_substring:conf.filter_by_substring ~lazy_:conf.lazy_ tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
@@ -283,11 +282,11 @@ let with_record_backtrace func =
 *)
 let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
-    ?status_workspace_root ~mona ~project_name
-    (get_tests : unit -> _ Types.test list) =
+    ?status_workspace_root ~project_name
+    (get_tests : unit -> Types.test list) =
   (* TODO: is there any reason why we shouldn't always record a stack
      backtrace when running tests? *)
-  let test_spec = (mona, get_tests, handle_subcommand_result) in
+  let test_spec = (get_tests, handle_subcommand_result) in
   with_record_backtrace (fun () ->
       Store.init_settings ?expectation_workspace_root ?status_workspace_root
         ~project_name ();

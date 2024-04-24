@@ -101,7 +101,7 @@ type checked_output_kind =
   | Split_stdout_stderr of checked_output_options * checked_output_options
 
 (* public *)
-type 'unit_promise test = {
+type test = {
   (* The ID will be used as a compact key
      for referencing tests in filters and in file names.
      It's a hash of the internal full name. Both must be unique. *)
@@ -112,7 +112,7 @@ type 'unit_promise test = {
   internal_full_name : string;
   category : string list;
   name : string;
-  func : unit -> 'unit_promise;
+  func : unit -> unit Promise.t;
   (* Options *)
   expected_outcome : expected_outcome;
   tags : Tag.t list;
@@ -120,14 +120,13 @@ type 'unit_promise test = {
   checked_output : checked_output_kind;
   skipped : bool;
   tolerate_chdir : bool;
-  m : 'unit_promise Mona.t;
 }
 
-type 'a test_with_status = 'a test * status * status_summary
+type test_with_status = test * status * status_summary
 
 (* TODO: move to a module that has an mli? *)
 (* "path > to > name" *)
-let recompute_internal_full_name (test : _ test) =
+let recompute_internal_full_name (test : test) =
   String.concat " > " (test.category @ [ test.name ])
 
 (*

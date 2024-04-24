@@ -4,7 +4,9 @@
 
 open Printf
 open Filename_.Operators
+open Promise.Operators
 module T = Types
+module P = Promise
 
 type status_output_style =
   | Long_all
@@ -25,11 +27,11 @@ type status_stats = {
 
 type success = OK | OK_but_new | Not_OK of T.fail_reason option
 
-type 'unit_promise alcotest_test_case =
-  string * [ `Quick | `Slow ] * (unit -> 'unit_promise)
+type alcotest_test_case =
+  string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 
-type 'unit_promise alcotest_test =
-  string * 'unit_promise alcotest_test_case list
+type alcotest_test =
+  string * alcotest_test_case list
 
 (* The exit codes used by the built-in test runner. *)
 let exit_success = 0
@@ -44,10 +46,10 @@ let plural num = if num >= 2 then "s" else ""
 (*
    Check that no two tests have the same full name or the same ID.
 *)
-let check_id_uniqueness (tests : _ T.test list) =
+let check_id_uniqueness (tests : T.test list) =
   let id_tbl = Hashtbl.create 1000 in
   tests
-  |> List.iter (fun (test : _ T.test) ->
+  |> List.iter (fun (test : T.test) ->
          let id = test.id in
          let name = test.internal_full_name in
          match Hashtbl.find_opt id_tbl id with
@@ -72,10 +74,10 @@ let check_id_uniqueness (tests : _ T.test list) =
    output snapshots since we now support custom paths.
    Raises an exception.
 *)
-let check_snapshot_uniqueness (tests : _ T.test list) =
+let check_snapshot_uniqueness (tests : T.test list) =
   let path_tbl = Hashtbl.create 1000 in
   tests
-  |> List.iter (fun (test : _ T.test) ->
+  |> List.iter (fun (test : T.test) ->
     test
     |> Store.capture_paths_of_test
     |> List.iter (fun (paths : Store.capture_paths) ->
@@ -163,7 +165,7 @@ let stats_of_tests tests tests_with_status =
     }
   in
   tests_with_status
-  |> List.iter (fun ((test : _ T.test), _status, (sum : T.status_summary)) ->
+  |> List.iter (fun ((test : T.test), _status, (sum : T.status_summary)) ->
     if not test.skipped then (
       (match sum.status_class with
        | MISS -> ()
@@ -180,7 +182,7 @@ let stats_of_tests tests tests_with_status =
   stats
 
 (* Sample output: "", " {foo, bar}" *)
-let format_tags (test : _ T.test) =
+let format_tags (test : T.test) =
   match test.tags with
   | [] -> ""
   | tags ->
@@ -190,7 +192,7 @@ let format_tags (test : _ T.test) =
       in
       sprintf " (%s)" (String.concat " " tags)
 
-let format_title (test : _ T.test) : string =
+let format_title (test : T.test) : string =
   sprintf "%s%s %s" test.id (format_tags test)
     (test.category @ [ test.name ]
     |> Helpers.list_map (Style.color Cyan)
@@ -217,7 +219,7 @@ let group_by_key key_value_list =
   |> List.sort (fun (pos1, _) (pos2, _) -> compare pos1 pos2)
   |> Helpers.list_map snd
 
-let chdir_error (test : _ T.test) =
+let chdir_error (test : T.test) =
   if test.tolerate_chdir then None
   else
     Some
@@ -246,11 +248,11 @@ let chdir_error (test : _ T.test) =
    TODO: add options at test creation time to tolerate the failure to restore
    this or that setting.
 *)
-let protect_globals (test : _ T.test) (func : unit -> 'promise) :
+let protect_globals (test : T.test) (func : unit -> 'promise) :
     unit -> 'promise =
   let protect_global ?error_if_changed get set func () =
     let original_value = get () in
-    Mona.protect test.m
+    P.protect
       ~finally:(fun () ->
         let current_value = get () in
         set original_value;
@@ -258,7 +260,7 @@ let protect_globals (test : _ T.test) (func : unit -> 'promise) :
         | Some err_msg_func when current_value <> original_value ->
             Alcotest.fail (err_msg_func original_value current_value)
         | _ -> ());
-        test.m.return ())
+        P.return ())
       func
   in
   func
@@ -268,10 +270,10 @@ let protect_globals (test : _ T.test) (func : unit -> 'promise) :
 
 (* TODO: simplify and run this directly without Alcotest.run *)
 let to_alcotest_gen
-    ~(wrap_test_function : 'a T.test -> (unit -> 'a) -> unit -> 'a)
-    (tests : 'a T.test list) : _ list =
+    ~(wrap_test_function : T.test -> (unit -> 'a) -> unit -> 'a)
+    (tests : T.test list) : _ list =
   tests
-  |> Helpers.list_map (fun (test : _ T.test) ->
+  |> Helpers.list_map (fun (test : T.test) ->
          let suite_name =
            match test.category with
            | [] -> test.name
@@ -297,7 +299,7 @@ let to_alcotest_gen
          (suite_name, (test.name, `Quick, func)))
   |> group_by_key
 
-let print_exn (test : _ T.test) exn trace =
+let print_exn (test : T.test) exn trace =
   match test.expected_outcome with
   | Should_succeed ->
       prerr_string
@@ -312,26 +314,26 @@ let print_exn (test : _ T.test) exn trace =
               (Printexc.to_string exn)
               (Printexc.raw_backtrace_to_string trace)))
 
-let with_print_exn (test : 'unit_promise T.test) func () =
-  test.m.catch func (fun exn trace ->
+let with_print_exn (test : T.test) func () =
+  P.catch func (fun exn trace ->
     print_exn test exn trace;
-    (Printexc.raise_with_backtrace exn trace : 'unit_promise)
+    (Printexc.raise_with_backtrace exn trace : unit Promise.t)
   )
 
-let with_flip_xfail_outcome (test : _ T.test) func =
+let with_flip_xfail_outcome (test : T.test) func =
   match test.expected_outcome with
   | Should_succeed -> func
   | Should_fail _reason ->
       fun () ->
-        test.m.catch
+        P.catch
           (fun () ->
-            test.m.bind (func ()) (fun () ->
-                Alcotest.fail "XPASS: This test failed to raise an exception"))
+            func () >>= fun () ->
+            Alcotest.fail "XPASS: This test failed to raise an exception")
           (fun exn trace ->
             eprintf "XFAIL: As expected, an exception was raised: %s\n%s\n"
               (Printexc.to_string exn)
               (Printexc.raw_backtrace_to_string trace);
-            test.m.return ())
+            P.return ())
 
 let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
@@ -360,7 +362,7 @@ let filter ~filter_by_substring tests =
     | Some sub ->
         let contains_sub = Helpers.contains_substring sub in
         tests
-        |> List.filter (fun (test : _ T.test) ->
+        |> List.filter (fun (test : T.test) ->
                contains_sub test.internal_full_name
                || contains_sub test.id)
   in
@@ -391,7 +393,7 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
       eprintf "%s%s\n%!" error_str msg;
       exit_failure
 
-let is_important_status ((test : _ T.test), _status, (sum : T.status_summary)) =
+let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
   (not test.skipped)
   && ((not sum.has_expected_output)
      ||
@@ -416,7 +418,7 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
       printf "%sCaptured %s differs from expectation.\n" bullet output_kind
 
 let show_output_details
-    (test : _ T.test)
+    (test : T.test)
     (sum : T.status_summary)
     (capture_paths : Store.capture_paths list) =
   let success = success_of_status_summary sum in
@@ -449,7 +451,7 @@ let show_output_details
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
 
-let format_one_line_status ((test : _ T.test), (_status : T.status), sum) =
+let format_one_line_status ((test : T.test), (_status : T.status), sum) =
   sprintf "%s%s" (format_status_summary sum) (format_title test)
 
 let print_one_line_status test_with_status =
@@ -468,7 +470,7 @@ let ends_with_newline str =
   str <> "" && str.[String.length str - 1] = '\n'
 
 let print_status ~highlight_test ~always_show_unchecked_output
-    (((test : _ T.test), (status : T.status), sum) as test_with_status)=
+    (((test : T.test), (status : T.status), sum) as test_with_status) =
   let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
       if (* Details about expectations *)
@@ -561,7 +563,7 @@ let print_statuses ~highlight_test ~always_show_unchecked_output
 *)
 let is_overall_success statuses =
   statuses
-  |> List.for_all (fun ((test : _ T.test), _status, sum) ->
+  |> List.for_all (fun ((test : T.test), _status, sum) ->
     test.skipped
     || (match sum |> success_of_status_summary with
       | OK -> true
@@ -685,34 +687,34 @@ let list_status ~always_show_unchecked_output ~filter_by_substring
   in
   (exit_code, tests_with_status)
 
-let run_tests_sequentially ~(mona : _ Mona.t) ~always_show_unchecked_output
-    (tests : 'unit_promise T.test list) : 'unit_promise =
+let run_tests_sequentially ~always_show_unchecked_output
+    (tests : T.test list) : 'unit_promise =
   List.fold_left
-    (fun previous (test : _ T.test) ->
+    (fun previous (test : T.test) ->
       let test_func : unit -> 'unit_promise =
         wrap_test_function ~with_storage:true ~flip_xfail_outcome:false test
           test.func
       in
-      mona.bind previous (fun () ->
-          if test.skipped then (
-            printf "%s%s\n%!"
-              (Style.left_col (Style.color Yellow "[SKIP]"))
-              (format_title test);
-            mona.return ())
-          else (
-            printf "%s%s...%!"
-              (Style.left_col (Style.color Yellow "[RUN]"))
-              (format_title test);
-            mona.bind
-              (mona.catch test_func (fun _exn _trace -> mona.return ()))
-              (fun () ->
-                (* Erase RUN line *)
-                printf "\027[2K\r";
-                get_test_with_status test
-                |> print_status ~highlight_test:false
-                     ~always_show_unchecked_output;
-                mona.return ()))))
-    (mona.return ()) tests
+      previous >>= fun () ->
+      if test.skipped then (
+        printf "%s%s\n%!"
+          (Style.left_col (Style.color Yellow "[SKIP]"))
+          (format_title test);
+        P.return ()
+      )
+      else (
+        printf "%s%s...%!"
+          (Style.left_col (Style.color Yellow "[RUN]"))
+          (format_title test);
+        P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
+        (* Erase RUN line *)
+        printf "\027[2K\r";
+        get_test_with_status test
+        |> print_status ~highlight_test:false
+          ~always_show_unchecked_output;
+        P.return ())
+    )
+    (P.return ()) tests
 
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
 let before_run ~filter_by_substring ~lazy_ tests =
@@ -741,19 +743,18 @@ let after_run ~always_show_unchecked_output tests selected_tests =
 (*
    Entry point for the 'run' subcommand
 *)
-let run_tests ~(mona : _ Mona.t) ~always_show_unchecked_output
+let run_tests ~always_show_unchecked_output
     ~filter_by_substring ~lazy_ tests cont =
   let selected_tests = before_run ~filter_by_substring ~lazy_ tests in
-  mona.bind
-    (run_tests_sequentially ~mona ~always_show_unchecked_output selected_tests)
-    (fun () ->
-      let exit_code, tests_with_status =
-        after_run ~always_show_unchecked_output tests selected_tests
-      in
-      cont exit_code tests_with_status |> ignore;
-      (* The continuation 'cont' should exit but otherwise we exit once
-         it's done. *)
-      exit exit_code)
+  (run_tests_sequentially ~always_show_unchecked_output selected_tests
+   >>= fun () ->
+   let exit_code, tests_with_status =
+     after_run ~always_show_unchecked_output tests selected_tests
+   in
+   cont exit_code tests_with_status |> ignore;
+   (* The continuation 'cont' should exit but otherwise we exit once
+      it's done. *)
+   exit exit_code)
   |> ignore;
   (* shouldn't be reached if 'bind' does what it's supposed to *)
   exit exit_success

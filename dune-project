@@ -4,10 +4,6 @@
 
 ; Generate the opam files used to install dependencies.
 ;
-; 'dune build' (+ early interruption) is sufficient to trigger an update
-; of the opam files.
-; TODO: find the minimum command for this and add it as a pre-commit hook.
-;
 (generate_opam_files)
 
 ; Default attributes of opam packages
@@ -20,7 +16,7 @@
 
 (package
   (name testo)
-  (synopsis "Extension of the Alcotest library")
+  (synopsis "Test framework for OCaml")
   (description "\
 Testo extends the functionality of the Alcotest library by providing
 new subcommands for capturing, checking, and approving the output of tests.")
@@ -34,13 +30,15 @@ new subcommands for capturing, checking, and approving the output of tests.")
 
 (package
   (name testo-lwt)
-  (synopsis "Extension of the Alcotest library for Lwt")
+  (synopsis "Test framework for OCaml, Lwt variant")
   (description "\
 Use this if the tests return Lwt promises and you can't make them synchronous
 by wrapping them in 'Lwt_main.run'.")
   (depends
     (ocaml (>= 4.08.0))
+    alcotest
+    cmdliner
+    re
     lwt
-    testo
   )
 )
