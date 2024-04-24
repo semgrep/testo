@@ -4,6 +4,7 @@
 
 open Printf
 open Filename_.Operators
+module P = Promise
 
 (* safe version of List.map for ocaml < 5 *)
 let list_map f l = List.rev_map f l |> List.rev
@@ -50,3 +51,41 @@ let contains_pcre_pattern pat =
 
 let contains_substring substring =
   contains_pcre_pattern (Re.Pcre.quote substring)
+
+let write_file path data =
+  let oc = open_out_bin (Filename_.to_string path) in
+  Fun.protect
+    (fun () -> output_string oc data)
+    ~finally:(fun () -> close_out_noerr oc)
+
+let read_file path =
+  let ic = open_in_bin !!path in
+  Fun.protect
+    (fun () ->
+       (* This fails for named pipes *)
+       let len = in_channel_length ic in
+       really_input_string ic len
+    )
+    ~finally:(fun () -> close_in_noerr ic)
+
+let with_temp_file
+    ?contents
+    ?(persist = false)
+    ?(prefix = "testo-")
+    ?(suffix = "")
+    ?temp_dir
+    func =
+  let path = Filename_.temp_file ?temp_dir prefix suffix in
+  P.protect
+    (fun () ->
+       (match contents with
+        | None -> ()
+        | Some data -> write_file path data
+       );
+       func path
+    )
+    ~finally:(fun () ->
+      if not persist then
+        Sys.remove !!path;
+      P.return ()
+    )

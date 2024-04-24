@@ -17,6 +17,7 @@ val dirname : t -> t
 val is_relative : t -> bool
 val concat : t -> t -> t
 val dir_sep : string
+val temp_file : ?temp_dir:t -> string -> string -> t
 
 (* Extensions *)
 module Operators : sig

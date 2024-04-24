@@ -36,7 +36,6 @@ let check_tag_syntax tag =
 
 (* no duplicates are allowed *)
 let declared_tags : (t, unit) Hashtbl.t =
-  (* nosemgrep: ocamllint-hashtable-dos *)
   Hashtbl.create 100
 
 let declare tag =

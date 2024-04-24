@@ -87,6 +87,14 @@ val approve_new_output : Types.test -> (changed, string) Result.t
 val get_orig_output_suffix : Types.test -> string option
 
 (**************************************************************************)
+(* User-facing utilities *)
+(**************************************************************************)
+
+(* Capture stdout or stderr as a string. *)
+val with_capture :
+  out_channel -> (unit -> 'a Promise.t) -> ('a * string) Promise.t
+
+(**************************************************************************)
 (* Wrappers for capturing test output *)
 (**************************************************************************)
 

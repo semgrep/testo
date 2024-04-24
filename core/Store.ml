@@ -65,15 +65,12 @@ let list_result_of_result_list (xs : ('a, 'b) Result.t list) :
 
 let with_file_in path f =
   if Sys.file_exists !!path then
-    (* nosemgrep: no-open-in *)
     let ic = open_in_bin !!path in
-    (* nosemgrep: no-fun-protect *)
     Fun.protect ~finally:(fun () -> close_in_noerr ic) (fun () -> Ok (f ic))
   else Error path
 
 let with_file_out path f =
   let oc = open_out_bin !!path in
-  (* nosemgrep: no-fun-protect *)
   Fun.protect ~finally:(fun () -> close_out_noerr oc) (fun () -> f oc)
 
 let read_file path : (string, Filename_.t (* missing file *)) Result.t =
@@ -423,7 +420,6 @@ let with_redirect ~from ~to_ func () =
   let to_fd = Unix.descr_of_out_channel to_ in
   with_redirect_fd ~from:from_fd ~to_:to_fd
     (fun () ->
-      (* nosemgrep: no-fun-protect *)
       P.protect
         ~finally:(fun () ->
           flush from;
@@ -437,9 +433,20 @@ let with_redirect_to_file from filename func () =
   let from_fd = Unix.descr_of_out_channel from in
   with_redirect_fd_to_file from_fd filename
     (fun () ->
-      (* nosemgrep: no-fun-protect *)
-      Fun.protect ~finally:(fun () -> flush from) func)
+      P.protect
+        ~finally:(fun () ->
+          flush from;
+          P.return ())
+        func)
     ()
+
+(* This is offered directly to users. *)
+let with_capture from func =
+  Helpers.with_temp_file ~suffix:".out" (fun path ->
+    with_redirect_to_file from path func () >>= fun res ->
+    let output = read_file_exn path in
+    P.return (res, output)
+  )
 
 (* Apply functions to the data as a pipeline, from left to right. *)
 let compose_functions_left_to_right funcs x =

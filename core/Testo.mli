@@ -242,6 +242,52 @@ val update :
   ?tolerate_chdir:bool ->
   t -> t
 
+(** {2 Temporary files and output redirection} *)
+
+(** Write data to a regular file. Create the file if it doesn't exist.
+    Erase any existing data.
+
+    Usage: [write_file path data]
+*)
+val write_file : string -> string -> unit
+
+(** Read the contents of a regular file. *)
+val read_file : string -> string
+
+(** [with_temp_file func] creates a temporary file, passes its path to
+    the user-specified function [func], and returns the result.
+    The temporary file is deleted when [func] terminates, even if it
+    raises an exception.
+
+    Options:
+{ul
+    {- [contents]: data to write to the file. If unspecified, the file is
+                   created empty.}
+    {- [persist]: if true, the temporary file is not deleted when done as
+                  is normally the case. This intended for a user to inspect
+                  the file when debugging.}
+    {- [prefix]: prefix for the temporary file name. The default is
+                 ["testo-"].}
+    {- [suffix]: a suffix to append to the temporary file name. The default
+                 is empty.}
+    {- [temp_dir]: the path to the folder where the temporary file must
+                   be created. The default is the system default returned
+                   by [Filename.get_temp_dir_name ()].}
+}
+*)
+val with_temp_file :
+  ?contents:string ->
+  ?persist:bool ->
+  ?prefix:string ->
+  ?suffix:string ->
+  ?temp_dir:string ->
+  (string -> 'a Promise.t) -> 'a Promise.t
+
+(** [with_capture stdout func] evaluates [func ()] while
+    capturing the output of the given channel [stdout] as a string. *)
+val with_capture :
+  out_channel -> (unit -> 'a Promise.t) -> ('a * string) Promise.t
+
 (** {2 Output masking functions}
 
    Functions with the [mask_] prefix are string replacement
