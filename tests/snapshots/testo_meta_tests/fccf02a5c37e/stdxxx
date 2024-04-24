@@ -31,6 +31,8 @@ RUN ./test status
 [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
 [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m
+[33m[MISS]  [0mafc104393bac [36mtemporary files[0m
+[33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
@@ -135,6 +137,13 @@ Legend:
 [2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[33m[RUN][0m   afc104393bac [36mtemporary files[0m...[2K[32m[PASS]  [0mafc104393bac [36mtemporary files[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
+[33m[RUN][0m   1f85f39d5e9a [36muser output capture[0m...[2K[32m[PASS]  [0m1f85f39d5e9a [36muser output capture[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m...[2K[32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [33m[RUN][0m   ec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m...[2K[32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
@@ -207,8 +216,8 @@ Legend:
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-27/27 selected tests:
-  26 successful (25 pass, 1 xfail)
+29/29 selected tests:
+  28 successful (27 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 8 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -315,6 +324,13 @@ Legend:
 [2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[32m[PASS]  [0mafc104393bac [36mtemporary files[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
+[32m[PASS]  [0m1f85f39d5e9a [36muser output capture[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
@@ -388,8 +404,8 @@ Legend:
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-27/27 selected tests:
-  26 successful (25 pass, 1 xfail)
+29/29 selected tests:
+  28 successful (27 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 8 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -521,6 +537,14 @@ Legend:
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[33m[MISS]  [0mafc104393bac [36mtemporary files[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
+[33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -695,6 +719,20 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mafc104393bac [36mtemporary files[0m                                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m                                     [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
@@ -712,10 +750,10 @@ Legend:
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-27/27 selected tests:
+29/29 selected tests:
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-26 new tests
+28 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -l
@@ -883,6 +921,20 @@ RUN ./test status -l
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mafc104393bac [36mtemporary files[0m                                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m                                     [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
@@ -900,10 +952,10 @@ RUN ./test status -l
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-27/27 selected tests:
+29/29 selected tests:
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-26 new tests
+28 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -a
@@ -931,6 +983,8 @@ RUN ./test status -a
 [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
 [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m
+[33m[MISS]  [0mafc104393bac [36mtemporary files[0m
+[33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
@@ -1033,14 +1087,21 @@ Legend:
 [2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[33m[RUN][0m   afc104393bac [36mtemporary files[0m...[2K[32m[PASS]  [0mafc104393bac [36mtemporary files[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
+[33m[RUN][0m   1f85f39d5e9a [36muser output capture[0m...[2K[32m[PASS]  [0m1f85f39d5e9a [36muser output capture[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m...[2K[32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [33m[RUN][0m   ec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m...[2K[32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [33m[RUN][0m   b8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m...[2K[32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
-27/27 selected tests:
-  26 successful (25 pass, 1 xfail)
+29/29 selected tests:
+  28 successful (27 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
 <handling result before exiting>
