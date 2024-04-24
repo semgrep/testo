@@ -470,7 +470,7 @@ let ends_with_newline str =
   str <> "" && str.[String.length str - 1] = '\n'
 
 let print_status ~highlight_test ~always_show_unchecked_output
-    (((test : T.test), (status : T.status), sum) as test_with_status)=
+    (((test : T.test), (status : T.status), sum) as test_with_status) =
   let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
       if (* Details about expectations *)
