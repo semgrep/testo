@@ -443,7 +443,6 @@ let with_redirect_to_file from filename func () =
 (* This is offered directly to users. *)
 let with_capture from func =
   Helpers.with_temp_file ~suffix:".out" (fun path ->
-    let path = Filename_.of_string path in
     with_redirect_to_file from path func () >>= fun res ->
     let output = read_file_exn path in
     P.return (res, output)

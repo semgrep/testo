@@ -6,6 +6,7 @@
 *)
 
 open Printf
+open Filename_.Operators
 module T = Types
 
 (****************************************************************************)
@@ -187,7 +188,24 @@ let update ?category ?checked_output ?expected_outcome
 (* Files and output manipulation *)
 (**************************************************************************)
 
-let with_temp_file = Helpers.with_temp_file
+let write_file path data = Helpers.write_file (Filename_.of_string path) data
+let read_file path = Helpers.read_file (Filename_.of_string path)
+
+let with_temp_file
+    ?contents
+    ?persist
+    ?prefix
+    ?suffix
+    ?temp_dir
+    func =
+  Helpers.with_temp_file
+    ?contents
+    ?persist
+    ?prefix
+    ?suffix
+    ?temp_dir:(Option.map Filename_.of_string temp_dir)
+    (fun path -> func !!path)
+
 let with_capture = Store.with_capture
 
 (**************************************************************************)

@@ -121,6 +121,45 @@ let test_alcotest_error_formatting () =
   in
   eprintf "%s%!" (Printexc.to_string exn)
 
+let test_temporary_files () =
+  let path_ref = ref None in
+  try
+    Testo.with_temp_file ~contents:"hello" (fun path ->
+      path_ref := Some path;
+      let data = Testo.read_file path in
+      Alcotest.(check string) "file contents" "hello" data;
+      Testo.write_file path "";
+      let data = Testo.read_file path in
+      Alcotest.(check string) "empty file contents" "" data;
+      raise Exit |> ignore
+    );
+    assert false
+  with Exit -> (
+      match !path_ref with
+      | None -> assert false
+      | Some path ->
+          assert (not (Sys.file_exists path))
+    )
+
+let test_user_output_capture () =
+  let result, capture =
+    Testo.with_capture stdout (fun () ->
+      print_string "hello";
+      42
+    )
+  in
+  Alcotest.(check string) "captured stdout" "hello" capture;
+  Alcotest.(check int) "result" 42 result;
+  (* capture to snapshot file *)
+  print_string "snapshot data\n";
+  (* more capture from the same channel *)
+  let (), capture2 =
+    Testo.with_capture stdout (fun () ->
+      print_string "wow"
+    )
+  in
+  Alcotest.(check string) "more captured stdout" "wow" capture2
+
 (* For tests that need porting to Windows *)
 let is_windows =
   Sys.os_type = "Win32"
@@ -246,6 +285,10 @@ let tests =
           "Alcotest assertion failure((?:\nFile [^\n]*)?)\n"
       ]
       test_alcotest_error_formatting;
+    t "temporary files" test_temporary_files;
+    t "user output capture"
+      ~checked_output:(Testo.stdout ())
+      test_user_output_capture;
   ] @ categorized
 
 let () =

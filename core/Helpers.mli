@@ -17,11 +17,14 @@ val contains_pcre_pattern : string -> (string -> bool)
 
 val contains_substring : string -> (string -> bool)
 
+val write_file : Filename_.t -> string -> unit
+val read_file : Filename_.t -> string
+
 (* Work with a temporary file, ensuring its eventual deletion. *)
 val with_temp_file :
   ?contents:string ->
   ?persist:bool ->
   ?prefix:string ->
   ?suffix:string ->
-  ?temp_dir:string ->
-  (string -> 'a Promise.t) -> 'a Promise.t
+  ?temp_dir:Filename_.t ->
+  (Filename_.t -> 'a Promise.t) -> 'a Promise.t

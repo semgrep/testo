@@ -244,6 +244,16 @@ val update :
 
 (** {2 Temporary files and output redirection} *)
 
+(** Write data to a regular file. Create the file if it doesn't exist.
+    Erase any existing data.
+
+    Usage: [write_file path data]
+*)
+val write_file : string -> string -> unit
+
+(** Read the contents of a regular file. *)
+val read_file : string -> string
+
 (** [with_temp_file func] creates a temporary file, passes its path to
     the user-specified function [func], and returns the result.
     The temporary file is deleted when [func] terminates, even if it
