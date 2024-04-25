@@ -160,10 +160,29 @@ let write_name_file (test : T.test) =
   let contents = test.internal_full_name ^ "\n" in
   Helpers.write_file (get_name_file_path test) contents
 
+let must_create_expectation_workspace_for_test (test : T.test) =
+  let uses_internal_storage (x : T.checked_output_options) =
+    match x.expected_output_path with
+    | None -> true
+    | Some _user_provided_path -> false
+  in
+  match test.checked_output with
+  | Ignore_output -> false
+  | Stdout options
+  | Stderr options
+  | Stdxxx options -> uses_internal_storage options
+  | Split_stdout_stderr (options1, options2) ->
+      uses_internal_storage options1
+      || uses_internal_storage options2
+
 let init_test_workspace test =
   Helpers.make_dir_if_not_exists (get_test_status_workspace test);
-  Helpers.make_dir_if_not_exists (get_test_expectation_workspace test);
-  write_name_file test
+  (* Don't create a folder and a 'name' file if no snapshots are going to
+     be stored there. *)
+  if must_create_expectation_workspace_for_test test then (
+    Helpers.make_dir_if_not_exists (get_test_expectation_workspace test);
+    write_name_file test
+  )
 
 (**************************************************************************)
 (* Read/write data *)
