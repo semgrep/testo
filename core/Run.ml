@@ -730,6 +730,7 @@ let run_tests_sequentially ~always_show_unchecked_output
         get_test_with_status test
         |> print_status ~highlight_test:false
           ~always_show_unchecked_output;
+        Store.write_info_file test;
         P.return ())
     )
     (P.return ()) tests

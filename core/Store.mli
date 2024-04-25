@@ -93,6 +93,10 @@ val find_dead_snapshots : Types.test list -> Filename_.t list
 (* Delete any file or folder reported by 'find_dead_snapshots' *)
 val delete_dead_snapshots : Types.test list -> unit
 
+(* Write a human-readable text file containing the test name
+   and possibly more. *)
+val write_info_file : Types.test -> unit
+
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)

@@ -150,6 +150,9 @@ let get_test_status_workspace (test : T.test) =
 let get_test_expectation_workspace (test : T.test) =
   get_expectation_workspace () / test.id
 
+let get_test_info_path (test : T.test) =
+  get_test_expectation_workspace test / "info.txt"
+
 let init_test_workspace test =
   Helpers.make_dir_if_not_exists (get_test_status_workspace test);
   Helpers.make_dir_if_not_exists (get_test_expectation_workspace test)
@@ -393,6 +396,15 @@ let find_dead_snapshots tests =
 let delete_dead_snapshots tests =
   let unknown_files = find_dead_snapshots tests in
   List.iter Helpers.remove_file_or_dir unknown_files
+
+let write_info_file (test : T.test) =
+  (* The format of this file is subject to change as hinted by the
+     '.txt' extension. *)
+  let contents =
+    sprintf "%s %s\n"
+      test.id test.internal_full_name
+  in
+  Helpers.write_file (get_test_info_path test) contents
 
 (**************************************************************************)
 (* Output redirection *)
