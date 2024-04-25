@@ -258,6 +258,8 @@ let protect_globals (test : T.test) (func : unit -> 'promise) :
         set original_value;
         (match error_if_changed with
         | Some err_msg_func when current_value <> original_value ->
+            (* TODO: use our own exception instead of depending on Alcotest
+               just for this? *)
             Alcotest.fail (err_msg_func original_value current_value)
         | _ -> ());
         P.return ())
