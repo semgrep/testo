@@ -375,6 +375,25 @@ let clear_expected_output (test : T.test) =
     Option.iter remove_file x.path_to_expected_output
   )
 
+(*
+   Identify snapshot folders (expected output) that don't belong to any
+   test in the current test suite.
+*)
+let find_dead_snapshots tests =
+  let folder = get_expectation_workspace () in
+  let names = Helpers.list_files folder in
+  let names_tbl = Hashtbl.create 1000 in
+  List.iter (fun name -> Hashtbl.replace names_tbl name ()) names;
+  List.iter (fun (test : T.test) ->
+    Hashtbl.remove names_tbl test.id
+  ) tests;
+  let unknown_names = List.filter (Hashtbl.mem names_tbl) names in
+  Helpers.list_map (fun name -> folder / name) unknown_names
+
+let delete_dead_snapshots tests =
+  let unknown_files = find_dead_snapshots tests in
+  List.iter Helpers.remove_file_or_dir unknown_files
+
 (**************************************************************************)
 (* Output redirection *)
 (**************************************************************************)

@@ -86,6 +86,13 @@ val approve_new_output : Types.test -> (changed, string) Result.t
 *)
 val get_orig_output_suffix : Types.test -> string option
 
+(* Identify any file or folder in the snapshot folder that doesn't
+   belong to a test in the list. *)
+val find_dead_snapshots : Types.test list -> Filename_.t list
+
+(* Delete any file or folder reported by 'find_dead_snapshots' *)
+val delete_dead_snapshots : Types.test list -> unit
+
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)

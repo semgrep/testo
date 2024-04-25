@@ -41,7 +41,10 @@ let exit_failure = 1
 let bullet = Style.color Faint "• "
 
 (* For appending an 's' at the end for words in messages *)
-let plural num = if num >= 2 then "s" else ""
+let if_plural num s = if num >= 2 then s else ""
+
+(* For appending an 's' to conjugated verbs in messages *)
+let if_singular num s = if num <= 1 then s else ""
 
 (*
    Check that no two tests have the same full name or the same ID.
@@ -382,7 +385,9 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
   );
   let changed = !changed in
   let error_messages = List.rev !error_messages in
-  printf "Expected output changed for %i test%s.\n%!" changed (plural changed);
+  printf "Expected output changed for %i test%s.\n%!"
+    changed
+    (if_plural changed "s");
   match error_messages with
   | [] -> exit_success
   | xs ->
@@ -624,24 +629,36 @@ let print_long_status ~always_show_unchecked_output tests_with_status =
       print_statuses ~highlight_test:false ~always_show_unchecked_output
         tests_with_status
 
+let report_dead_snapshots all_tests =
+  let dead_snapshots = Store.find_dead_snapshots all_tests in
+  let n = List.length dead_snapshots in
+  if n > 0 then (
+    printf "%i folder%s no longer belong%s to any test and can be removed:\n"
+      n (if_plural n "s") (if_singular n "s");
+    List.iter (fun path ->
+      printf "  %s\n" !!path
+    ) dead_snapshots
+  )
+
 let print_status_summary tests tests_with_status =
+  report_dead_snapshots tests;
   let stats = stats_of_tests tests tests_with_status in
   let overall_success = is_overall_success tests_with_status in
   printf
     "%i/%i selected test%s:\n\
     \  %i successful (%i pass, %i xfail)\n\
     \  %i unsuccessful (%i fail, %i xpass)\n"
-    stats.selected_tests stats.total_tests (plural stats.total_tests)
+    stats.selected_tests stats.total_tests (if_plural stats.total_tests "s")
     (!(stats.pass) + !(stats.xfail))
     !(stats.pass) !(stats.xfail)
     (!(stats.fail) + !(stats.xpass))
     !(stats.fail) !(stats.xpass);
   if !(stats.miss) > 0 then
-    printf "%i new test%s\n" !(stats.miss) (plural !(stats.miss));
+    printf "%i new test%s\n" !(stats.miss) (if_plural !(stats.miss) "s");
   if !(stats.needs_approval) > 0 then
     printf "%i test%s whose output needs first-time approval\n"
       !(stats.needs_approval)
-      (plural !(stats.needs_approval));
+      (if_plural !(stats.needs_approval) "s");
   printf "overall status: %s\n"
     (if overall_success then Style.color Green "success"
      else Style.color Red "failure");
