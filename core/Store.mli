@@ -86,16 +86,22 @@ val approve_new_output : Types.test -> (changed, string) Result.t
 *)
 val get_orig_output_suffix : Types.test -> string option
 
-(* Identify any file or folder in the snapshot folder that doesn't
-   belong to a test in the list. *)
-val find_dead_snapshots : Types.test list -> Filename_.t list
+type dead_snapshot = {
+  dir_or_junk_file: Fpath.t;
+  test_name: string option;
+}
 
-(* Delete any file or folder reported by 'find_dead_snapshots' *)
+(*
+   Identify any file or folder in the snapshot folder that doesn't
+   belong to a test in the list. The name of the test is returned alongside
+   the test's folder if possible.
+   Folders that contain only the test name are removed silently.
+*)
+val find_dead_snapshots : Types.test list -> dead_snapshot list
+
+(* Delete any file or folder reported by 'find_dead_snapshots'
+   and looks well-formed (i.e. contains a 'name' file). *)
 val delete_dead_snapshots : Types.test list -> unit
-
-(* Write a human-readable text file containing the test name
-   and possibly more. *)
-val write_info_file : Types.test -> unit
 
 (**************************************************************************)
 (* User-facing utilities *)

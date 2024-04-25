@@ -76,7 +76,8 @@ let rec remove_file_or_dir path =
          path
          |> list_files
          |> list_map (fun name -> path / name)
-         |> List.iter remove_file_or_dir
+         |> List.iter remove_file_or_dir;
+         Unix.rmdir !!path
     | S_REG
     | S_CHR
     | S_BLK

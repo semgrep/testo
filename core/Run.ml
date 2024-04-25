@@ -633,10 +633,16 @@ let report_dead_snapshots all_tests =
   let dead_snapshots = Store.find_dead_snapshots all_tests in
   let n = List.length dead_snapshots in
   if n > 0 then (
-    printf "%i folder%s no longer belong%s to any test and can be removed:\n"
+    printf "\
+%i folder%s no longer belong%s to the test suite and can be removed:\n"
       n (if_plural n "s") (if_singular n "s");
-    List.iter (fun path ->
-      printf "  %s\n" !!path
+    List.iter (fun (x : Store.dead_snapshot) ->
+      let msg =
+        match x.test_name with
+        | None -> "??"
+        | Some name -> name
+      in
+      printf "  %s %s\n" !!(x.dir_or_junk_file) msg
     ) dead_snapshots
   )
 
@@ -730,7 +736,6 @@ let run_tests_sequentially ~always_show_unchecked_output
         get_test_with_status test
         |> print_status ~highlight_test:false
           ~always_show_unchecked_output;
-        Store.write_info_file test;
         P.return ())
     )
     (P.return ()) tests
