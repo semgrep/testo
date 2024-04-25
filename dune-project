@@ -22,6 +22,9 @@ Testo extends the functionality of the Alcotest library by providing
 new subcommands for capturing, checking, and approving the output of tests.")
   (depends
     (ocaml (>= 4.08.0))
+    ; Alcotest is needed by the functions that export a test suite to
+    ; Alcotest. If this dependency is a problem, we could create a separate
+    ; package for this functionality.
     alcotest
     cmdliner
     fpath
@@ -34,8 +37,9 @@ new subcommands for capturing, checking, and approving the output of tests.")
   (synopsis "Test framework for OCaml, Lwt variant")
   (description "\
 Use this if the tests return Lwt promises and you can't make them synchronous
-by wrapping them in 'Lwt_main.run'.")
+because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
   (depends
+    ; Same dependencies as 'testo' above plus Lwt
     (ocaml (>= 4.08.0))
     alcotest
     cmdliner
