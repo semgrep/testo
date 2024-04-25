@@ -12,3 +12,15 @@ module Operators : sig
 end
 
 val to_string_list : Fpath.t list -> string list
+
+(* Same as Filename.dirname:
+
+   /a/b -> /a
+   /a/b/ -> /a
+   /a -> /
+   a -> .
+   / -> / (!)
+   . -> . (!)
+   /a/.. -> /a (!)
+*)
+val dirname : Fpath.t -> Fpath.t

@@ -4,6 +4,8 @@
 
 open Printf
 
+let ( !! ) = Fpath.to_string
+
 (* We should consider a shorter name for this library. *)
 let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
@@ -43,8 +45,8 @@ let test_mask_pcre_pattern () =
 
 (* TODO: test Windows paths *)
 let test_mask_temp_paths () =
-  let tmpdir = "/tmp" in
-  let includes_tmpdir = "/var/tmp/1234" in
+  let temp_dir = Fpath.v "/tmp" in
+  let includes_temp_dir = "/var/tmp/1234" in
   let test_one (depth, input_str, expected_result) =
     printf "depth=%S input_str=%S expected_result=%S\n%!"
       (match depth with
@@ -53,12 +55,12 @@ let test_mask_temp_paths () =
        | None -> "default")
       input_str
       expected_result;
-    let res = Testo.mask_temp_paths ?depth ~tmpdir () input_str in
+    let res = Testo.mask_temp_paths ?depth ~temp_dir () input_str in
     Alcotest.(check string) __LOC__ expected_result res
   in
-  let tmp rel_path = sprintf "%s/%s" tmpdir rel_path in
+  let tmp rel_path = sprintf "%s/%s" !!temp_dir rel_path in
   [
-    None, tmpdir, "<TMP>";
+    None, !!temp_dir, "<TMP>";
     None, tmp "", "<TMP>/";
     None, tmp "a", "<TMP>/<MASKED>";
     None, tmp "a/", "<TMP>/<MASKED>/";
@@ -68,18 +70,18 @@ let test_mask_temp_paths () =
     None, " " ^ tmp "a-b_12//bcccc/// ", " <TMP>/<MASKED>//bcccc/// ";
     None, tmp "a" ^ " " ^ tmp "b", "<TMP>/<MASKED> <TMP>/<MASKED>";
     (* don't mask sub-paths *)
-    None, includes_tmpdir, includes_tmpdir;
+    None, includes_temp_dir, includes_temp_dir;
     (* no depth limit *)
-    Some None, tmpdir, "<TMP>";
+    Some None, !!temp_dir, "<TMP>";
     Some None, tmp "", "<TMP>/";
     Some None, tmp "a/b/c/d/e",
     "<TMP>/<MASKED>/<MASKED>/<MASKED>/<MASKED>/<MASKED>";
     (* default: None <=> Some (Some 1) *)
-    Some (Some 1), tmpdir, "<TMP>";
+    Some (Some 1), !!temp_dir, "<TMP>";
     Some (Some 1), tmp "", "<TMP>/";
     Some (Some 1), tmp "a/b", "<TMP>/<MASKED>/b";
     (* mask only /tmp or /tmp/ *)
-    Some (Some 0), tmpdir, "<TMP>";
+    Some (Some 0), !!temp_dir, "<TMP>";
     Some (Some 0), tmp "", "<TMP>/";
     Some (Some 0), tmp "a/b", "<TMP>/a/b";
     (* mask up to 3 segments after /tmp *)
@@ -90,9 +92,17 @@ let test_mask_temp_paths () =
 
 (* TODO: test Windows paths *)
 let test_mask_exotic_temp_paths () =
-  let test_one (tmpdir, data, expected_masked_data) =
-    let masked_data = Testo.mask_temp_paths ~tmpdir ~depth:(Some 0) () data in
-    Alcotest.(check string) __LOC__ expected_masked_data masked_data
+  let test_one (temp_dir, data, expected_masked_data) =
+    let masked_data =
+      Testo.mask_temp_paths
+        ~temp_dir:(Fpath.v temp_dir)
+        ~depth:(Some 0)
+        ()
+        data
+    in
+    Alcotest.(check string)
+      (sprintf "temp dir %S" temp_dir)
+      expected_masked_data masked_data
   in
   [
     "/", "/", "<TMP>";

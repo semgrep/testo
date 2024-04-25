@@ -6,6 +6,7 @@
 *)
 
 open Printf
+open Fpath_.Operators
 module T = Types
 
 (****************************************************************************)
@@ -244,8 +245,8 @@ let path_segment_re = Re.Pcre.regexp {|[^\\/]+|}
 
 (* Internal function.
    Replace "/tmp/a/b" with "<TMP>/<MASKED>/<MASKED>" *)
-let default_replace_path ~tmpdir str =
-  let prefix_len = String.length tmpdir in
+let default_replace_path ~temp_dir str =
+  let prefix_len = String.length !!temp_dir in
   let len = String.length str in
   assert (prefix_len <= len);
   let suffix = String.sub str prefix_len (len - prefix_len) in
@@ -257,27 +258,6 @@ let default_replace_path ~tmpdir str =
   in
   "<TMP>" ^ new_suffix
 
-let equal_last_char str char =
-  str <> "" && str.[String.length str - 1] = char
-
-(*
-   Poor man's 'Fpath.rem_empty_seg'
-   We can't use 'String.ends_with' until we accept to require OCaml >= 4.13.
-*)
-let rec remove_trailing_slashes path =
-  if
-    (* don't remove the slash if the path is "/" *)
-    String.length path >= 2
-    &&
-    match Filename.dir_sep with
-    | "/" -> equal_last_char path '/'
-    | "\\" -> equal_last_char path '\\'
-    | _ -> (* are there any platforms with other separators? *) false
-  then
-    remove_trailing_slashes (String.sub path 0 (String.length path - 1))
-  else
-    path
-
 let path_character_range = {|/\\:A-Za-z0-9_.-|}
 let path_character = "[" ^ path_character_range ^ "]"
 let nonpath_character = "[^" ^ path_character_range ^ "]"
@@ -285,15 +265,10 @@ let nonpath_character = "[^" ^ path_character_range ^ "]"
 let mask_temp_paths
     ?(depth = Some 1)
     ?replace
-    ?(tmpdir = Filename.get_temp_dir_name ())
+    ?(temp_dir = Filename_.get_temp_dir_name ())
     () =
-  let tmpdir =
-    if tmpdir = "" then
-      Error.invalid_arg ~__LOC__ "Testo.mask_temp_paths: empty tmpdir"
-    else
-      remove_trailing_slashes tmpdir
-  in
-  let tmpdir_pat = Re.Pcre.quote tmpdir in
+  let temp_dir = Fpath.rem_empty_seg temp_dir in
+  let temp_dir_pat = Re.Pcre.quote !!temp_dir in
   let suffix_pat =
     match depth with
     | None ->
@@ -319,11 +294,11 @@ let mask_temp_paths
     (* The captured group in parentheses is what will get replaced by the
        'replace' function. It's a full path. *)
     sprintf "%s(%s%s)"
-      not_preceded_by_a_path_character tmpdir_pat suffix_pat
+      not_preceded_by_a_path_character temp_dir_pat suffix_pat
   in
   let replace =
     match replace with
-    | None -> default_replace_path ~tmpdir
+    | None -> default_replace_path ~temp_dir
     | Some f -> f
   in
   mask_pcre_pattern ~replace pat

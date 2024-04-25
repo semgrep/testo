@@ -362,14 +362,14 @@ val mask_pcre_pattern :
                path. Use [Some 0] to mask only [/tmp] or equivalent.}
    {- [replace]: function that determines what to replace the matched path
                with.}
-   {- [tmpdir]: the path to the temporary folder to use instead of the
-                system default.}
+   {- [temp_dir]: the path to the temporary folder to use instead of the
+                  system default.}
 }
 *)
 val mask_temp_paths :
   ?depth:int option ->
   ?replace:(string -> string) ->
-  ?tmpdir:string ->
+  ?temp_dir:Fpath.t ->
   unit -> (string -> string)
 
 (**

@@ -364,7 +364,7 @@ let set_expected_output
   else
     List.iter2
       (fun path data ->
-         Helpers.make_dir_if_not_exists path;
+         Helpers.make_dir_if_not_exists (Fpath.parent path);
          write_file path data)
       paths data
 
