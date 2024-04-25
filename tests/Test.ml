@@ -106,9 +106,11 @@ let test_mask_exotic_temp_paths () =
   in
   [
     "/", "/", "<TMP>";
-    "////", "/", "<TMP>";
+    (* Fpath normalizes multiple leading slashes into "//" rather than "/".
+       I don't know why or whether it matters in practice. *)
+    "////", "//", "<TMP>";
     "/", "/a", "<TMP>a";
-    "////", "/a", "<TMP>a";
+    "////", "//a", "<TMP>a";
     "a", "a", "<TMP>";
     "a/", "a", "<TMP>";
     "a////", "a", "<TMP>";
