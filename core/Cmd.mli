@@ -19,9 +19,9 @@ type subcommand_result =
 *)
 val interpret_argv :
   ?argv:string array ->
-  ?expectation_workspace_root:Filename_.t ->
+  ?expectation_workspace_root:Fpath.t ->
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
-  ?status_workspace_root:Filename_.t ->
+  ?status_workspace_root:Fpath.t ->
   project_name:string ->
   (unit -> Types.test list) ->
   unit Promise.t

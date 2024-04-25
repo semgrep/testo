@@ -3,7 +3,7 @@
 *)
 
 open Printf
-open Filename_.Operators
+open Fpath_.Operators
 open Promise.Operators
 module T = Types
 module P = Promise
@@ -497,20 +497,20 @@ let print_status ~highlight_test ~always_show_unchecked_output
         (match status.expectation.expected_output with
         | Error (Missing_files [ path ]) ->
             print_error
-              (sprintf "Missing file containing the expected output: %s" path)
+              (sprintf "Missing file containing the expected output: %s" !!path)
         | Error (Missing_files paths) ->
             print_error
               (sprintf "Missing files containing the expected output: %s"
-                 (String.concat ", " paths))
+                 (String.concat ", " (Fpath_.to_string_list paths)))
         | Ok _expected_output -> (
             match status.result with
             | Error (Missing_files [ path ]) ->
                 print_error
-                  (sprintf "Missing file containing the test output: %s" path)
+                  (sprintf "Missing file containing the test output: %s" !!path)
             | Error (Missing_files paths) ->
                 print_error
                   (sprintf "Missing files containing the test output: %s"
-                     (String.concat ", " paths))
+                     (String.concat ", " (Fpath_.to_string_list paths)))
             | Ok _ -> ()));
         let capture_paths = Store.capture_paths_of_test test in
         show_output_details test sum capture_paths;

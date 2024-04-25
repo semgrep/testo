@@ -3,16 +3,16 @@
    Much of this is private to this library.
 *)
 
-val default_expectation_workspace_root : Filename_.t
-val default_status_workspace_root : Filename_.t
+val default_expectation_workspace_root : Fpath.t
+val default_status_workspace_root : Fpath.t
 
 (*
    This function must be called exactly once to define where things are
    stored. It doesn't write to the file system.
 *)
 val init_settings :
-  ?expectation_workspace_root:Filename_.t ->
-  ?status_workspace_root:Filename_.t ->
+  ?expectation_workspace_root:Fpath.t ->
+  ?status_workspace_root:Fpath.t ->
   project_name:string ->
   unit ->
   unit
@@ -34,9 +34,9 @@ type capture_paths = {
   short_name : string;
   (* None if this is file that holds the leftover logs that are not
      checked against expectations but directed to a file nonetheless. *)
-  path_to_expected_output : Filename_.t option;
+  path_to_expected_output : Fpath.t option;
   (* Path to the file where the captured output is redirected. *)
-  path_to_output : Filename_.t;
+  path_to_output : Fpath.t;
 }
 
 (*
@@ -56,8 +56,8 @@ val get_unchecked_output : Types.test -> (string * string) option
 (*
    These functions are available after the call to 'init'.
 *)
-val get_status_workspace : unit -> Filename_.t
-val get_expectation_workspace : unit -> Filename_.t
+val get_status_workspace : unit -> Fpath.t
+val get_expectation_workspace : unit -> Fpath.t
 val get_status : Types.test -> Types.status
 
 (*

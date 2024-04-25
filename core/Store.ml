@@ -18,7 +18,7 @@
 *)
 
 open Printf
-open Filename_.Operators (* // / !! *)
+open Fpath_.Operators (* // / !! *)
 open Promise.Operators (* >>= *)
 module T = Types
 module P = Promise
@@ -42,9 +42,9 @@ type capture_paths = {
   short_name : string;
   (* None if this is file that holds the leftover logs that are not
      checked against expectations but directed to a file nonetheless. *)
-  path_to_expected_output : Filename_.t option;
+  path_to_expected_output : Fpath.t option;
   (* Path to the file where the captured output is redirected. *)
-  path_to_output : Filename_.t;
+  path_to_output : Fpath.t;
 }
 
 let list_map f xs = List.rev_map f xs |> List.rev
@@ -73,10 +73,10 @@ let with_file_out path f =
   let oc = open_out_bin !!path in
   Fun.protect ~finally:(fun () -> close_out_noerr oc) (fun () -> f oc)
 
-let read_file path : (string, Filename_.t (* missing file *)) Result.t =
+let read_file path : (string, Fpath.t (* missing file *)) Result.t =
   with_file_in path (fun ic -> really_input_string ic (in_channel_length ic))
 
-let errmsg_of_missing_file (path : Filename_.t) : string =
+let errmsg_of_missing_file (path : Fpath.t) : string =
   sprintf "Missing or inaccessible file %s" !!path
 
 let read_file_exn path : string =
@@ -95,13 +95,13 @@ let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
    The status workspace is a temporary folder outside of version control.
 *)
 let default_status_workspace_root =
-  Filename_.of_string "_build" / "testo" / "status"
+  Fpath.v "_build" / "testo" / "status"
 
 (*
    The expectation workspace is under version control.
 *)
 let default_expectation_workspace_root =
-  Filename_.of_string "tests" / "snapshots"
+  Fpath.v "tests" / "snapshots"
 
 let not_initialized () =
   Error.fail "Missing initialization call: Testo.init ()"
@@ -183,7 +183,7 @@ let set_outcome (test : T.test) outcome =
   outcome |> string_of_outcome |> write_file path
 
 let get_outcome (test : T.test) :
-    (T.outcome, Filename_.t (* missing file *)) Result.t =
+    (T.outcome, Fpath.t (* missing file *)) Result.t =
   let path = get_outcome_path test in
   match read_file path with
   | Ok data -> Ok (outcome_of_string path data)
@@ -219,7 +219,7 @@ let short_name_of_checked_output_options
     default_name (options : T.checked_output_options) =
   match options.expected_output_path with
   | None -> default_name
-  | Some path -> Filename_.basename path
+  | Some path -> Fpath.basename path
 
 let get_output_path (test : T.test) filename =
   get_status_workspace () / test.id / filename
@@ -364,7 +364,7 @@ let set_expected_output
   else
     List.iter2
       (fun path data ->
-         Helpers.make_dir_if_not_exists (Filename_.dirname path);
+         Helpers.make_dir_if_not_exists (Fpath.parent path);
          write_file path data)
       paths data
 
@@ -464,7 +464,7 @@ let normalize_output (test : T.test) =
       get_checked_output_paths paths
       |> List.iter (fun std_path ->
              let backup_path =
-               Filename_.of_string (!!std_path ^ orig_suffix) in
+               Fpath.v (!!std_path ^ orig_suffix) in
              if Sys.file_exists !!backup_path then Sys.remove !!backup_path;
              Sys.rename !!std_path !!backup_path;
              let orig_data = read_file_exn backup_path in
@@ -595,7 +595,6 @@ let get_expectation
     |> (function
       | Ok x -> Ok (expected_output_of_data test.checked_output x)
       | Error missing_files ->
-          let missing_files = list_map Filename_.to_string missing_files in
           Error (T.Missing_files missing_files))
   in
   { expected_outcome = test.expected_outcome; expected_output }
@@ -603,7 +602,7 @@ let get_expectation
 let get_result (test : T.test) (paths : capture_paths list)
   : (T.result, T.missing_files) Result.t =
   match get_outcome test with
-  | Error missing_file -> Error (Missing_files [ !!missing_file ])
+  | Error missing_file -> Error (Missing_files [ missing_file ])
   | Ok outcome -> (
       let opt_captured_output =
         paths
@@ -613,7 +612,7 @@ let get_result (test : T.test) (paths : capture_paths list)
       in
       match opt_captured_output with
       | Error missing_files ->
-          Error (Missing_files (list_map (!!) missing_files))
+          Error (Missing_files missing_files)
       | Ok captured_output ->
           Ok { outcome; captured_output }
     )

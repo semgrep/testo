@@ -3,7 +3,7 @@
 *)
 
 open Printf
-open Filename_.Operators
+open Fpath_.Operators
 module P = Promise
 
 (* safe version of List.map for ocaml < 5 *)
@@ -13,37 +13,45 @@ let list_map f l = List.rev_map f l |> List.rev
 let list_flatten ll =
   List.fold_left (fun acc l -> List.rev_append l acc) [] ll |> List.rev
 
-let rec make_dir_if_not_exists ?(recursive = false) (dir : Filename_.t) =
-  match (Unix.stat !!dir).st_kind with
-  | S_DIR -> ()
-  | S_REG
-  | S_CHR
-  | S_BLK
-  | S_LNK
-  | S_FIFO
-  | S_SOCK ->
-      Error.fail
-        (sprintf
-           "File %S already exists but is not a folder as required by the \
-            testing setup."
-           !!dir)
-  | exception Unix.Unix_error (ENOENT, _, _) ->
-      let parent = Filename_.dirname dir in
-      if parent = dir then
-        (* dir is something like "." or "/" *)
+let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
+  let rec mkdir dir =
+    match (Unix.stat !!dir).st_kind with
+    | S_DIR -> ()
+    | S_REG
+    | S_CHR
+    | S_BLK
+    | S_LNK
+    | S_FIFO
+    | S_SOCK ->
         Error.fail
           (sprintf
-             "Folder %S doesn't exist and has no parent that we could create."
+             "File %S already exists but is not a folder as required by the \
+              testing setup."
              !!dir)
-      else if recursive then (
-        make_dir_if_not_exists ~recursive parent;
-        Unix.mkdir !!dir 0o777)
-      else if Sys.file_exists !!parent then
-        Unix.mkdir !!dir 0o777
-      else
-        Error.fail
-          (sprintf "The parent folder of %S doesn't exist (current folder: %S)"
-             !!dir (Sys.getcwd ()))
+    | exception Unix.Unix_error (ENOENT, _, _) ->
+        let parent = Fpath_.dirname dir in
+        if parent = dir then
+          (* dir is something like "." or "/" *)
+          Error.fail
+            (sprintf
+               "Folder %S doesn't exist and has no parent that we could create."
+               !!dir)
+        else if recursive then (
+          mkdir parent;
+          Unix.mkdir !!dir 0o777
+        )
+        else if Sys.file_exists !!parent then
+          Unix.mkdir !!dir 0o777
+        else
+          Error.fail
+            (sprintf
+               "The parent folder of %S doesn't exist (current folder: %S)"
+               !!dir (Sys.getcwd ()))
+  in
+  dir
+  |> Fpath.normalize
+  |> Fpath.rem_empty_seg
+  |> mkdir
 
 let contains_pcre_pattern pat =
   let rex = Re.Pcre.regexp pat in
@@ -53,7 +61,7 @@ let contains_substring substring =
   contains_pcre_pattern (Re.Pcre.quote substring)
 
 let write_file path data =
-  let oc = open_out_bin (Filename_.to_string path) in
+  let oc = open_out_bin !!path in
   Fun.protect
     (fun () -> output_string oc data)
     ~finally:(fun () -> close_out_noerr oc)

@@ -6,7 +6,7 @@
 *)
 
 open Printf
-open Filename_.Operators
+open Fpath_.Operators
 module T = Types
 
 (****************************************************************************)
@@ -38,7 +38,7 @@ type result = T.result = {
   captured_output : captured_output;
 }
 
-type missing_files = T.missing_files = Missing_files of string list
+type missing_files = T.missing_files = Missing_files of Fpath.t list
 
 type expectation = T.expectation = {
   expected_outcome : expected_outcome;
@@ -106,26 +106,21 @@ type alcotest_test =
 (****************************************************************************)
 
 let stdout ?expected_stdout_path () : T.checked_output_kind =
-  Stdout { expected_output_path =
-             Option.map Filename_.of_string expected_stdout_path }
+  Stdout { expected_output_path = expected_stdout_path }
 
 let stderr ?expected_stderr_path () : T.checked_output_kind =
-  Stderr { expected_output_path =
-             Option.map Filename_.of_string expected_stderr_path }
+  Stderr { expected_output_path = expected_stderr_path }
 
 let stdxxx ?expected_stdxxx_path () : T.checked_output_kind =
-  Stdxxx { expected_output_path =
-             Option.map Filename_.of_string expected_stdxxx_path }
+  Stdxxx { expected_output_path = expected_stdxxx_path }
 
 let split_stdout_stderr
     ?expected_stdout_path
     ?expected_stderr_path
     () : T.checked_output_kind =
   Split_stdout_stderr (
-    { expected_output_path =
-        Option.map Filename_.of_string expected_stdout_path },
-    { expected_output_path =
-        Option.map Filename_.of_string expected_stderr_path }
+    { expected_output_path = expected_stdout_path },
+    { expected_output_path = expected_stderr_path }
   )
 
 (*
@@ -189,23 +184,10 @@ let update ?category ?checked_output ?expected_outcome
 (* Files and output manipulation *)
 (**************************************************************************)
 
-let write_file path data = Helpers.write_file (Filename_.of_string path) data
-let read_file path = Helpers.read_file (Filename_.of_string path)
+let write_file = Helpers.write_file
+let read_file = Helpers.read_file
 
-let with_temp_file
-    ?contents
-    ?persist
-    ?prefix
-    ?suffix
-    ?temp_dir
-    func =
-  Helpers.with_temp_file
-    ?contents
-    ?persist
-    ?prefix
-    ?suffix
-    ?temp_dir:(Option.map Filename_.of_string temp_dir)
-    (fun path -> func !!path)
+let with_temp_file = Helpers.with_temp_file
 
 let with_capture = Store.with_capture
 
@@ -264,8 +246,8 @@ let path_segment_re = Re.Pcre.regexp {|[^\\/]+|}
 
 (* Internal function.
    Replace "/tmp/a/b" with "<TMP>/<MASKED>/<MASKED>" *)
-let default_replace_path ~tmpdir str =
-  let prefix_len = String.length tmpdir in
+let default_replace_path ~temp_dir str =
+  let prefix_len = String.length !!temp_dir in
   let len = String.length str in
   assert (prefix_len <= len);
   let suffix = String.sub str prefix_len (len - prefix_len) in
@@ -277,28 +259,6 @@ let default_replace_path ~tmpdir str =
   in
   "<TMP>" ^ new_suffix
 
-let equal_last_char str char =
-  str <> "" && str.[String.length str - 1] = char
-
-(*
-   Poor man's 'Fpath.rem_empty_seg'
-   We can't use 'String.ends_with' until we accept to require OCaml >= 4.13.
-*)
-let rec remove_trailing_slashes path =
-  if
-    (* don't remove the slash if the path is "/" *)
-    String.length path >= 2
-    &&
-    match Filename.dir_sep with
-    | "/" -> equal_last_char path '/'
-    | "\\" -> equal_last_char path '\\'
-    | _ -> (* are there any platforms with other separators? *) false
-  then
-    (* nosemgrep: ocamllint-str-first-chars *)
-    remove_trailing_slashes (String.sub path 0 (String.length path - 1))
-  else
-    path
-
 let path_character_range = {|/\\:A-Za-z0-9_.-|}
 let path_character = "[" ^ path_character_range ^ "]"
 let nonpath_character = "[^" ^ path_character_range ^ "]"
@@ -306,15 +266,10 @@ let nonpath_character = "[^" ^ path_character_range ^ "]"
 let mask_temp_paths
     ?(depth = Some 1)
     ?replace
-    ?(tmpdir = Filename.get_temp_dir_name ())
+    ?(temp_dir = Filename_.get_temp_dir_name ())
     () =
-  let tmpdir =
-    if tmpdir = "" then
-      Error.invalid_arg ~__LOC__ "Testo.mask_temp_paths: empty tmpdir"
-    else
-      remove_trailing_slashes tmpdir
-  in
-  let tmpdir_pat = Re.Pcre.quote tmpdir in
+  let temp_dir = Fpath.rem_empty_seg temp_dir in
+  let temp_dir_pat = Re.Pcre.quote !!temp_dir in
   let suffix_pat =
     match depth with
     | None ->
@@ -340,11 +295,11 @@ let mask_temp_paths
     (* The captured group in parentheses is what will get replaced by the
        'replace' function. It's a full path. *)
     sprintf "%s(%s%s)"
-      not_preceded_by_a_path_character tmpdir_pat suffix_pat
+      not_preceded_by_a_path_character temp_dir_pat suffix_pat
   in
   let replace =
     match replace with
-    | None -> default_replace_path ~tmpdir
+    | None -> default_replace_path ~temp_dir
     | Some f -> f
   in
   mask_pcre_pattern ~replace pat
@@ -416,10 +371,8 @@ let interpret_argv
     get_tests =
   Cmd.interpret_argv
     ?argv
-    ?expectation_workspace_root:
-      (Option.map Filename_.of_string expectation_workspace_root)
+    ?expectation_workspace_root
     ?handle_subcommand_result
-    ?status_workspace_root:
-      (Option.map Filename_.of_string status_workspace_root)
+    ?status_workspace_root
     ~project_name
     get_tests

@@ -27,6 +27,7 @@ new subcommands for capturing, checking, and approving the output of tests.")
     ; package for this functionality.
     alcotest
     cmdliner
+    fpath
     re
   )
 )
@@ -42,6 +43,7 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     (ocaml (>= 4.08.0))
     alcotest
     cmdliner
+    fpath
     re
     lwt
   )
