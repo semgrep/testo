@@ -240,6 +240,9 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [2m• [0mLog (stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/junk ??
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
 32/32 selected tests:
   1 skipped
   31 successful (30 pass, 1 xfail)
@@ -448,6 +451,9 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [2m• [0mLog (stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/junk ??
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
 32/32 selected tests:
   1 skipped
   31 successful (30 pass, 1 xfail)
@@ -827,6 +833,9 @@ Legend:
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/junk ??
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
 32/32 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
@@ -1050,6 +1059,9 @@ RUN ./test status -l
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/junk ??
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
 32/32 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
@@ -1211,6 +1223,9 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [33m[RUN][0m   57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m...[2K[32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/junk ??
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
 32/32 selected tests:
   1 skipped
   31 successful (30 pass, 1 xfail)
