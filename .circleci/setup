@@ -9,6 +9,8 @@ eval "$(opam env)"
 opam update
 
 # This should not install 'testo' even though it's a dependency of 'testo-lwt'.
-opam install --deps-only -y \
+# Pass '-y' to 'setup' to answer 'yes' to all questions from opam.
+opam install --deps-only "$@" \
+  ./testo-util.opam \
   ./testo.opam \
   ./testo-lwt.opam

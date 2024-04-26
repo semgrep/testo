@@ -16,7 +16,7 @@
 
 (package
   (name testo-util)
-  (synopsis "Modules shared by testo, testo-lwt, etc.")
+  (synopsis "Modules shared by testo, testo-lwt, etc")
   (description "\
 Testo is a test framework for OCaml.")
   (depends

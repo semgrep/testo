@@ -6,6 +6,11 @@
 build:
 	dune build .
 
+# Install opam dependencies
+.PHONY: setup
+setup:
+	./.circleci/setup
+
 .PHONY: test
 test: build
 	./meta-test
