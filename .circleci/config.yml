@@ -31,7 +31,7 @@ jobs:
       - checkout
       - run:
           name: Install dependencies
-          command: ./.circleci/setup
+          command: ./.circleci/setup -y
       - run:
           name: Build
           command: opam exec -- make
