@@ -69,10 +69,6 @@ let with_file_in path f =
     Fun.protect ~finally:(fun () -> close_in_noerr ic) (fun () -> Ok (f ic))
   else Error path
 
-let with_file_out path f =
-  let oc = open_out_bin !!path in
-  Fun.protect ~finally:(fun () -> close_out_noerr oc) (fun () -> f oc)
-
 let read_file path : (string, Fpath.t (* missing file *)) Result.t =
   with_file_in path (fun ic -> really_input_string ic (in_channel_length ic))
 
@@ -84,7 +80,6 @@ let read_file_exn path : string =
   | Ok data -> data
   | Error path -> Error.fail (errmsg_of_missing_file path)
 
-let write_file path data = with_file_out path (fun oc -> output_string oc data)
 let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
 
 (**************************************************************************)
@@ -150,9 +145,47 @@ let get_test_status_workspace (test : T.test) =
 let get_test_expectation_workspace (test : T.test) =
   get_expectation_workspace () / test.id
 
+let name_file_name = "name"
+
+let get_name_file_path_from_dir dir =
+  dir / name_file_name
+
+let get_name_file_path (test : T.test) =
+  get_name_file_path_from_dir (get_test_expectation_workspace test)
+
+(* This is for reviewing snapshot folders that are no longer associated
+   with any test because their ID changed or they were removed from the
+   test suite. *)
+let write_name_file (test : T.test) =
+  let contents = test.internal_full_name ^ "\n" in
+  Helpers.write_file (get_name_file_path test) contents
+
+let must_create_expectation_workspace_for_test (test : T.test) =
+  let uses_internal_storage (x : T.checked_output_options) =
+    match x.expected_output_path with
+    | None -> true
+    | Some _user_provided_path -> false
+  in
+  match test.checked_output with
+  | Ignore_output -> false
+  | Stdout options
+  | Stderr options
+  | Stdxxx options -> uses_internal_storage options
+  | Split_stdout_stderr (options1, options2) ->
+      uses_internal_storage options1
+      || uses_internal_storage options2
+
+let init_expectation_workspace test =
+  (* Don't create a folder and a 'name' file if no snapshots are going to
+     be stored there. *)
+  if must_create_expectation_workspace_for_test test then (
+    Helpers.make_dir_if_not_exists (get_test_expectation_workspace test);
+    write_name_file test
+  )
+
 let init_test_workspace test =
   Helpers.make_dir_if_not_exists (get_test_status_workspace test);
-  Helpers.make_dir_if_not_exists (get_test_expectation_workspace test)
+  init_expectation_workspace test
 
 (**************************************************************************)
 (* Read/write data *)
@@ -180,7 +213,7 @@ let outcome_of_string path data : T.outcome =
 
 let set_outcome (test : T.test) outcome =
   let path = get_outcome_path test in
-  outcome |> string_of_outcome |> write_file path
+  outcome |> string_of_outcome |> Helpers.write_file path
 
 let get_outcome (test : T.test) :
     (T.outcome, Fpath.t (* missing file *)) Result.t =
@@ -361,12 +394,13 @@ let set_expected_output
       (sprintf "Store.set_expected_output: test %s, data:%i, paths:%i"
          test.name
          (List.length data) (List.length paths))
-  else
+  else (
+    init_expectation_workspace test;
     List.iter2
       (fun path data ->
-         Helpers.make_dir_if_not_exists (Fpath.parent path);
-         write_file path data)
+         Helpers.write_file path data)
       paths data
+  )
 
 let clear_expected_output (test : T.test) =
   test
@@ -374,6 +408,63 @@ let clear_expected_output (test : T.test) =
   |> List.iter (fun x ->
     Option.iter remove_file x.path_to_expected_output
   )
+
+let read_name_file ~dir =
+  let name_file_path = get_name_file_path_from_dir dir in
+  if Sys.file_exists !!name_file_path then
+    let contents = Helpers.read_file name_file_path in
+    let len = String.length contents in
+    if len > 0 && contents.[len-1] = '\n' then
+      Some (String.sub contents 0 (len-1))
+    else
+      (* malformed contents: must be LF-terminated *)
+      None
+  else
+    (* missing file *)
+    None
+
+type dead_snapshot = {
+  dir_or_junk_file: Fpath.t;
+  test_name: string option;
+}
+
+(*
+   Identify snapshot folders (expected output) that don't belong to any
+   test in the current test suite.
+*)
+let find_dead_snapshots tests : dead_snapshot list =
+  let folder = get_expectation_workspace () in
+  let names = Helpers.list_files folder in
+  let names_tbl = Hashtbl.create 1000 in
+  List.iter (fun name -> Hashtbl.replace names_tbl name ()) names;
+  List.iter (fun (test : T.test) ->
+    Hashtbl.remove names_tbl test.id
+  ) tests;
+  let unknown_names = List.filter (Hashtbl.mem names_tbl) names in
+  List.filter_map (fun name ->
+    let dir = folder / name in
+    let test_name, is_empty =
+      match read_name_file ~dir with
+      | None -> None, false
+      | Some _ as test_name ->
+          let other_data_files =
+            dir
+            |> Helpers.list_files
+            |> List.filter (fun fname -> fname <> name_file_name)
+          in
+          test_name, (other_data_files = [])
+    in
+    if is_empty then (
+      (* remove silently a folder that contains no critical data *)
+      Helpers.remove_file_or_dir dir;
+      None
+    )
+    else
+      Some {
+      dir_or_junk_file = dir;
+      test_name;
+    }
+  ) unknown_names
 
 (**************************************************************************)
 (* Output redirection *)
@@ -477,7 +568,7 @@ let normalize_output (test : T.test) =
                          function: %s"
                         (Printexc.to_string e))
              in
-             write_file std_path normalized_data)
+             Helpers.write_file std_path normalized_data)
 
 let with_redirect_merged_stdout_stderr path func =
   (* redirect stderr to stdout, then redirect stdout to stdxxx file *)

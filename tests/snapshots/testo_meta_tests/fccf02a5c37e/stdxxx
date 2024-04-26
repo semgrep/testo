@@ -6,6 +6,9 @@ RUN rm -rf tests/snapshots/testo_tests/9c96a5aa8b4b
 RUN rm -rf tests/snapshots/testo_tests/0048917873df
 RUN rm -rf tests/snapshots/testo_tests/17ec149855c2
 RUN rm -rf tests/snapshots/testo_tests/02ac0ea4ae90
+RUN rm -rf tests/snapshots/testo_tests/f66d12950c64
+RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
+RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
 RUN ./test status
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
@@ -36,6 +39,9 @@ RUN ./test status
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
+[33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
+[33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
+[33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 <handling result before exiting>
 RUN ./test run
 Legend:
@@ -150,6 +156,16 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [33m[RUN][0m   b8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m...[2K[32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
+[33m[RUN][0m   f66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m...[2K[33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/f66d12950c64/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[2m• [0mLog (stderr) is empty.
+[33m[RUN][0m   caadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m...[2K[32m[PASS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
+[33m[RUN][0m   57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m...[2K[32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -216,10 +232,23 @@ Legend:
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-29/29 selected tests:
-  28 successful (27 pass, 1 xfail)
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/f66d12950c64/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[2m• [0mLog (stderr) is empty.
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+32/32 selected tests:
+  1 skipped
+  31 successful (30 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-8 tests whose output needs first-time approval
+9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status --all --long
@@ -337,6 +366,16 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
+[33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/f66d12950c64/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[2m• [0mLog (stderr) is empty.
+[32m[PASS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
+[32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
@@ -404,10 +443,23 @@ Legend:
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-29/29 selected tests:
-  28 successful (27 pass, 1 xfail)
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the expected output: tests/snapshots/testo_tests/f66d12950c64/stdout[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[2m• [0mLog (stderr) is empty.
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+32/32 selected tests:
+  1 skipped
+  31 successful (30 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-8 tests whose output needs first-time approval
+9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status
@@ -419,9 +471,10 @@ RUN ./test status
 [33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[PASS*] [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 <handling result before exiting>
 RUN ./test approve -s auto-approve
-Expected output changed for 8 tests.
+Expected output changed for 9 tests.
 <handling result before exiting>
 RUN ./test status
 <handling result before exiting>
@@ -554,6 +607,17 @@ Legend:
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
+[33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
+[33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
@@ -750,10 +814,34 @@ Legend:
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-29/29 selected tests:
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m  [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌────────────────────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m [2m│[0m
+[2m└────────────────────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+32/32 selected tests:
+  1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-28 new tests
+31 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -l
@@ -952,10 +1040,34 @@ RUN ./test status -l
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-29/29 selected tests:
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m  [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌────────────────────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m [2m│[0m
+[2m└────────────────────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+32/32 selected tests:
+  1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-28 new tests
+31 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -a
@@ -988,6 +1100,9 @@ RUN ./test status -a
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
+[33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
+[33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
+[33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 <handling result before exiting>
 RUN ./test run
 Legend:
@@ -1100,8 +1215,21 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [33m[RUN][0m   b8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m...[2K[32m[PASS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
-29/29 selected tests:
-  28 successful (27 pass, 1 xfail)
+[33m[RUN][0m   f66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m...[2K[32m[PASS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
+[33m[RUN][0m   caadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m...[2K[32m[PASS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
+[33m[RUN][0m   57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m...[2K[32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+32/32 selected tests:
+  1 skipped
+  31 successful (30 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
 <handling result before exiting>
@@ -1112,6 +1240,9 @@ RUN rm -rf tests/snapshots/testo_tests/9c96a5aa8b4b
 RUN rm -rf tests/snapshots/testo_tests/0048917873df
 RUN rm -rf tests/snapshots/testo_tests/17ec149855c2
 RUN rm -rf tests/snapshots/testo_tests/02ac0ea4ae90
+RUN rm -rf tests/snapshots/testo_tests/f66d12950c64
+RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
+RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
 RUN ./test status
 [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m
@@ -1122,7 +1253,8 @@ RUN ./test status
 [33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[PASS*] [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 <handling result before exiting>
 RUN ./test approve -s auto-approve
-Expected output changed for 8 tests.
+Expected output changed for 9 tests.
 <handling result before exiting>

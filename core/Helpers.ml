@@ -53,6 +53,39 @@ let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
   |> Fpath.rem_empty_seg
   |> mkdir
 
+let list_files dir =
+  let names = ref [] in
+  let dir = Unix.opendir !!dir in
+  Fun.protect
+    (fun () ->
+       try
+         while true do
+           match Unix.readdir dir with
+           | "." | ".." -> ()
+           | name -> names := name :: !names
+         done
+       with End_of_file -> ()
+    )
+    ~finally:(fun () -> Unix.closedir dir);
+  List.sort String.compare !names
+
+let rec remove_file_or_dir path =
+  if Sys.file_exists !!path then
+    match (Unix.stat !!path).st_kind with
+    | S_DIR ->
+         path
+         |> list_files
+         |> list_map (fun name -> path / name)
+         |> List.iter remove_file_or_dir;
+         Unix.rmdir !!path
+    | S_REG
+    | S_CHR
+    | S_BLK
+    | S_LNK
+    | S_FIFO
+    | S_SOCK ->
+        Sys.remove !!path
+
 let contains_pcre_pattern pat =
   let rex = Re.Pcre.regexp pat in
   fun str -> Re.execp rex str

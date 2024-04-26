@@ -17,6 +17,7 @@ type status_output_style =
 type status_stats = {
   total_tests : int;
   selected_tests : int;
+  skipped_tests : int ref;
   pass : int ref;
   fail : int ref;
   xfail : int ref;
@@ -41,7 +42,10 @@ let exit_failure = 1
 let bullet = Style.color Faint "• "
 
 (* For appending an 's' at the end for words in messages *)
-let plural num = if num >= 2 then "s" else ""
+let if_plural num s = if num >= 2 then s else ""
+
+(* For appending an 's' to conjugated verbs in messages *)
+let if_singular num s = if num <= 1 then s else ""
 
 (*
    Check that no two tests have the same full name or the same ID.
@@ -156,6 +160,7 @@ let stats_of_tests tests tests_with_status =
     {
       total_tests = List.length tests;
       selected_tests = List.length tests_with_status;
+      skipped_tests = ref 0;
       pass = ref 0;
       fail = ref 0;
       xfail = ref 0;
@@ -166,7 +171,9 @@ let stats_of_tests tests tests_with_status =
   in
   tests_with_status
   |> List.iter (fun ((test : T.test), _status, (sum : T.status_summary)) ->
-    if not test.skipped then (
+    if test.skipped then
+      incr stats.skipped_tests
+    else (
       (match sum.status_class with
        | MISS -> ()
        | _ -> if not sum.has_expected_output then incr stats.needs_approval);
@@ -382,7 +389,9 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
   );
   let changed = !changed in
   let error_messages = List.rev !error_messages in
-  printf "Expected output changed for %i test%s.\n%!" changed (plural changed);
+  printf "Expected output changed for %i test%s.\n%!"
+    changed
+    (if_plural changed "s");
   match error_messages with
   | [] -> exit_success
   | xs ->
@@ -624,24 +633,43 @@ let print_long_status ~always_show_unchecked_output tests_with_status =
       print_statuses ~highlight_test:false ~always_show_unchecked_output
         tests_with_status
 
+let report_dead_snapshots all_tests =
+  let dead_snapshots = Store.find_dead_snapshots all_tests in
+  let n = List.length dead_snapshots in
+  if n > 0 then (
+    printf "\
+%i folder%s no longer belong%s to the test suite and can be removed:\n"
+      n (if_plural n "s") (if_singular n "s");
+    List.iter (fun (x : Store.dead_snapshot) ->
+      let msg =
+        match x.test_name with
+        | None -> "??"
+        | Some name -> name
+      in
+      printf "  %s %s\n" !!(x.dir_or_junk_file) msg
+    ) dead_snapshots
+  )
+
 let print_status_summary tests tests_with_status =
+  report_dead_snapshots tests;
   let stats = stats_of_tests tests tests_with_status in
   let overall_success = is_overall_success tests_with_status in
-  printf
-    "%i/%i selected test%s:\n\
-    \  %i successful (%i pass, %i xfail)\n\
-    \  %i unsuccessful (%i fail, %i xpass)\n"
-    stats.selected_tests stats.total_tests (plural stats.total_tests)
+  printf "%i/%i selected test%s:\n"
+    stats.selected_tests stats.total_tests (if_plural stats.total_tests "s");
+  if !(stats.skipped_tests) > 0 then
+    printf "  %i skipped\n" !(stats.skipped_tests);
+  printf "  %i successful (%i pass, %i xfail)\n"
     (!(stats.pass) + !(stats.xfail))
-    !(stats.pass) !(stats.xfail)
+    !(stats.pass) !(stats.xfail);
+  printf "  %i unsuccessful (%i fail, %i xpass)\n"
     (!(stats.fail) + !(stats.xpass))
     !(stats.fail) !(stats.xpass);
   if !(stats.miss) > 0 then
-    printf "%i new test%s\n" !(stats.miss) (plural !(stats.miss));
+    printf "%i new test%s\n" !(stats.miss) (if_plural !(stats.miss) "s");
   if !(stats.needs_approval) > 0 then
     printf "%i test%s whose output needs first-time approval\n"
       !(stats.needs_approval)
-      (plural !(stats.needs_approval));
+      (if_plural !(stats.needs_approval) "s");
   printf "overall status: %s\n"
     (if overall_success then Style.color Green "success"
      else Style.color Red "failure");

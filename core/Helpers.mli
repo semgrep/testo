@@ -13,6 +13,13 @@ val list_flatten : 'a list list -> 'a list
 *)
 val make_dir_if_not_exists : ?recursive:bool -> Fpath.t -> unit
 
+(* List files in a folder, returning them as a list of names.
+   Files are sorted alphabetically and don't include "." or "..". *)
+val list_files : Fpath.t -> string list
+
+(* Delete files recursively *)
+val remove_file_or_dir : Fpath.t -> unit
+
 val contains_pcre_pattern : string -> (string -> bool)
 
 val contains_substring : string -> (string -> bool)
