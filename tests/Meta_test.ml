@@ -61,6 +61,11 @@ let auto_approve_tests = [
   "0048917873df";
   "17ec149855c2";
   "02ac0ea4ae90";
+
+  (* auto-approve > internal files > create name file *)
+  "f66d12950c64";
+  (* auto-approve > internal files > don't create name file *)
+  "caadabfd495c";
 ]
 
 (* Delete snapshots for the tests tagged with "auto-approve" *)

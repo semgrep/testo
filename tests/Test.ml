@@ -25,7 +25,7 @@ let categorized =
   Testo.categorize_suites "biohazard" [fruit_tests; animal_tests]
 
 let test_internal_files =
-  let category = ["internal files"] in
+  let category = ["auto-approve"; "internal files"] in
   let test_create_name_file =
     t "create name file"
       ~checked_output:(Testo.stdout ())
