@@ -56,6 +56,8 @@ let test_internal_files =
            Alcotest.fail ("File should not exist: " ^ !!missing_dir_path)
       )
   in
+  (* Don't recategorize these tests as it changes their ID and will break
+     the last test. *)
   [
     test_create_name_file;
     test_dont_create_name_file;
