@@ -175,14 +175,17 @@ let must_create_expectation_workspace_for_test (test : T.test) =
       uses_internal_storage options1
       || uses_internal_storage options2
 
-let init_test_workspace test =
-  Helpers.make_dir_if_not_exists (get_test_status_workspace test);
+let init_expectation_workspace test =
   (* Don't create a folder and a 'name' file if no snapshots are going to
      be stored there. *)
   if must_create_expectation_workspace_for_test test then (
     Helpers.make_dir_if_not_exists (get_test_expectation_workspace test);
     write_name_file test
   )
+
+let init_test_workspace test =
+  Helpers.make_dir_if_not_exists (get_test_status_workspace test);
+  init_expectation_workspace test
 
 (**************************************************************************)
 (* Read/write data *)
@@ -391,12 +394,13 @@ let set_expected_output
       (sprintf "Store.set_expected_output: test %s, data:%i, paths:%i"
          test.name
          (List.length data) (List.length paths))
-  else
+  else (
+    init_expectation_workspace test;
     List.iter2
       (fun path data ->
-         Helpers.make_dir_if_not_exists (Fpath.parent path);
          Helpers.write_file path data)
       paths data
+  )
 
 let clear_expected_output (test : T.test) =
   test
@@ -461,17 +465,6 @@ let find_dead_snapshots tests : dead_snapshot list =
       test_name;
     }
   ) unknown_names
-
-let delete_dead_snapshots tests =
-  let unknown_files = find_dead_snapshots tests in
-  List.iter (fun (x : dead_snapshot) ->
-    match x.test_name with
-    | None ->
-        eprintf "Not removing unexpected file or folder: %s\n"
-          !!(x.dir_or_junk_file)
-    | Some _name ->
-        Helpers.remove_file_or_dir x.dir_or_junk_file
-  ) unknown_files
 
 (**************************************************************************)
 (* Output redirection *)

@@ -99,10 +99,6 @@ type dead_snapshot = {
 *)
 val find_dead_snapshots : Types.test list -> dead_snapshot list
 
-(* Delete any file or folder reported by 'find_dead_snapshots'
-   and looks well-formed (i.e. contains a 'name' file). *)
-val delete_dead_snapshots : Types.test list -> unit
-
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)
