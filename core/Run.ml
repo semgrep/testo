@@ -17,6 +17,7 @@ type status_output_style =
 type status_stats = {
   total_tests : int;
   selected_tests : int;
+  skipped_tests : int ref;
   pass : int ref;
   fail : int ref;
   xfail : int ref;
@@ -159,6 +160,7 @@ let stats_of_tests tests tests_with_status =
     {
       total_tests = List.length tests;
       selected_tests = List.length tests_with_status;
+      skipped_tests = ref 0;
       pass = ref 0;
       fail = ref 0;
       xfail = ref 0;
@@ -169,7 +171,9 @@ let stats_of_tests tests tests_with_status =
   in
   tests_with_status
   |> List.iter (fun ((test : T.test), _status, (sum : T.status_summary)) ->
-    if not test.skipped then (
+    if test.skipped then
+      incr stats.skipped_tests
+    else (
       (match sum.status_class with
        | MISS -> ()
        | _ -> if not sum.has_expected_output then incr stats.needs_approval);
@@ -650,13 +654,14 @@ let print_status_summary tests tests_with_status =
   report_dead_snapshots tests;
   let stats = stats_of_tests tests tests_with_status in
   let overall_success = is_overall_success tests_with_status in
-  printf
-    "%i/%i selected test%s:\n\
-    \  %i successful (%i pass, %i xfail)\n\
-    \  %i unsuccessful (%i fail, %i xpass)\n"
-    stats.selected_tests stats.total_tests (if_plural stats.total_tests "s")
+  printf "%i/%i selected test%s:\n"
+    stats.selected_tests stats.total_tests (if_plural stats.total_tests "s");
+  if !(stats.skipped_tests) > 0 then
+    printf "  %i skipped\n" !(stats.skipped_tests);
+  printf "  %i successful (%i pass, %i xfail)\n"
     (!(stats.pass) + !(stats.xfail))
-    !(stats.pass) !(stats.xfail)
+    !(stats.pass) !(stats.xfail);
+  printf "  %i unsuccessful (%i fail, %i xpass)\n"
     (!(stats.fail) + !(stats.xpass))
     !(stats.fail) !(stats.xpass);
   if !(stats.miss) > 0 then
