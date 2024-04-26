@@ -8,6 +8,7 @@ RUN rm -rf tests/snapshots/testo_tests/17ec149855c2
 RUN rm -rf tests/snapshots/testo_tests/02ac0ea4ae90
 RUN rm -rf tests/snapshots/testo_tests/f66d12950c64
 RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
+RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
 RUN ./test status
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
@@ -1241,6 +1242,7 @@ RUN rm -rf tests/snapshots/testo_tests/17ec149855c2
 RUN rm -rf tests/snapshots/testo_tests/02ac0ea4ae90
 RUN rm -rf tests/snapshots/testo_tests/f66d12950c64
 RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
+RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
 RUN ./test status
 [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m

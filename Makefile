@@ -23,6 +23,7 @@ doc:
 .PHONY: clean
 clean:
 	dune clean
+	rm -rf tests/custom-snapshots/
 
 # This is only part of the release process.
 # See complete release instructions in CONTRIBUTING.md.

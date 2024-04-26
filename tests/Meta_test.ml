@@ -76,6 +76,7 @@ let clear_snapshots ~__LOC__:loc () =
     shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_tests/" ^ id)
   );
   (* snapshots at a custom location *)
+  shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
 
 let test_standard_flow () =
