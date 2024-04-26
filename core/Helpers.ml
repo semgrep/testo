@@ -4,6 +4,7 @@
 
 open Printf
 open Fpath_.Operators
+open Testo_util
 module P = Promise
 
 (* safe version of List.map for ocaml < 5 *)

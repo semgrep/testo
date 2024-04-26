@@ -5,6 +5,7 @@
 open Printf
 open Fpath_.Operators
 open Promise.Operators
+open Testo_util
 module T = Types
 module P = Promise
 

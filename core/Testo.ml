@@ -7,6 +7,7 @@
 
 open Printf
 open Fpath_.Operators
+open Testo_util
 module T = Types
 
 (****************************************************************************)

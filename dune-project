@@ -15,11 +15,22 @@
 ; Opam packages
 
 (package
+  (name testo-util)
+  (synopsis "Modules shared by testo, testo-lwt, etc.")
+  (description "\
+Testo is a test framework for OCaml.")
+  (depends
+    (ocaml (>= 4.08.0))
+    fpath
+  )
+)
+
+(package
   (name testo)
   (synopsis "Test framework for OCaml")
   (description "\
-Testo extends the functionality of the Alcotest library by providing
-new subcommands for capturing, checking, and approving the output of tests.")
+Testo is a test framework for OCaml providing new subcommands for capturing,
+checking, and approving the output of tests.")
   (depends
     (ocaml (>= 4.08.0))
     ; Alcotest is needed by the functions that export a test suite to
@@ -29,6 +40,7 @@ new subcommands for capturing, checking, and approving the output of tests.")
     cmdliner
     fpath
     re
+    testo-util
   )
 )
 
@@ -39,12 +51,13 @@ new subcommands for capturing, checking, and approving the output of tests.")
 Use this if the tests return Lwt promises and you can't make them synchronous
 because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
   (depends
-    ; Same dependencies as 'testo' above plus Lwt
+    lwt
+    ; Same direct dependencies as 'testo' above
     (ocaml (>= 4.08.0))
     alcotest
     cmdliner
     fpath
     re
-    lwt
+    testo-util
   )
 )
