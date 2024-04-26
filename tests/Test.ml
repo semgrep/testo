@@ -5,6 +5,7 @@
 open Printf
 
 let ( !! ) = Fpath.to_string
+let ( / ) = Fpath.( / )
 
 (* We should consider a shorter name for this library. *)
 let t = Testo.create
@@ -22,6 +23,45 @@ let animal_tests =
 
 let categorized =
   Testo.categorize_suites "biohazard" [fruit_tests; animal_tests]
+
+let test_internal_files =
+  let category = ["internal files"] in
+  let test_create_name_file =
+    t "create name file"
+      ~checked_output:(Testo.stdout ())
+      ~category
+      (fun () -> ())
+  in
+  let test_dont_create_name_file =
+    t "don't create name file"
+      ~category
+      (fun () -> ())
+  in
+  let snapshot_dir_path (test : Testo.t) =
+    Fpath.v "tests/snapshots/testo_tests" / test.id
+  in
+  let test_check_name_files =
+    (* This test depends on previous tests. Don't try this at home. *)
+    t "check for name file in previous tests"
+      ~category
+      (fun () ->
+         let name_file_path =
+           snapshot_dir_path test_create_name_file / "name" in
+         if not (Sys.file_exists !!name_file_path) then
+           Alcotest.fail ("Missing file: " ^ !!name_file_path);
+         let missing_dir_path =
+           snapshot_dir_path test_dont_create_name_file
+         in
+         if Sys.file_exists !!missing_dir_path then
+           Alcotest.fail ("File should not exist: " ^ !!missing_dir_path)
+      )
+  in
+  [
+    test_create_name_file;
+    test_dont_create_name_file;
+    (* must run after the two tests above *)
+    test_check_name_files;
+  ]
 
 let test_mask_pcre_pattern () =
   let test_one (pat, subj, expected_result, mask) =
@@ -302,7 +342,7 @@ let tests =
     t "user output capture"
       ~checked_output:(Testo.stdout ())
       test_user_output_capture;
-  ] @ categorized
+  ] @ categorized @ test_internal_files
 
 let () =
   Testo.interpret_argv ~project_name:"testo_tests"
