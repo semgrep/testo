@@ -115,7 +115,7 @@ type test = {
   func : unit -> unit Promise.t;
   (* Options *)
   expected_outcome : expected_outcome;
-  tags : Tag.t list;
+  tags : Testo_util.Tag.t list;
   normalize : (string -> string) list;
   checked_output : checked_output_kind;
   skipped : bool;

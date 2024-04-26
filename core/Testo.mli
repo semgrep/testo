@@ -107,7 +107,7 @@ val split_stdout_stderr :
 module Promise : module type of Promise
 
 (** The type of tags which can be used to define subsets of tests precisely. *)
-module Tag : module type of Tag
+module Tag : module type of Testo_util.Tag
 
 (**
    [t] is the type of a test. A test suite is a flat list of tests.

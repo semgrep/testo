@@ -3,6 +3,7 @@
 *)
 
 open Printf
+open Testo_util
 open Fpath_.Operators
 open Cmdliner
 

@@ -6,6 +6,7 @@
 *)
 
 open Printf
+open Testo_util
 open Fpath_.Operators
 module T = Types
 
@@ -187,7 +188,7 @@ let update ?category ?checked_output ?expected_outcome
 let write_file = Helpers.write_file
 let read_file = Helpers.read_file
 
-let with_temp_file = Helpers.with_temp_file
+let with_temp_file = Temp_file.with_temp_file
 
 let with_capture = Store.with_capture
 

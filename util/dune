@@ -1,0 +1,9 @@
+; Modules used by Testo, Testo_lwt, etc. without duplication
+(library
+  (public_name testo-util)
+  (name testo_util)
+  (libraries
+    fpath
+    re
+  )
+)
