@@ -4,8 +4,6 @@
 
 open Printf
 open Fpath_.Operators
-open Testo_util
-module P = Promise
 
 (* safe version of List.map for ocaml < 5 *)
 let list_map f l = List.rev_map f l |> List.rev
@@ -109,25 +107,3 @@ let read_file path =
        really_input_string ic len
     )
     ~finally:(fun () -> close_in_noerr ic)
-
-let with_temp_file
-    ?contents
-    ?(persist = false)
-    ?(prefix = "testo-")
-    ?(suffix = "")
-    ?temp_dir
-    func =
-  let path = Filename_.temp_file ?temp_dir prefix suffix in
-  P.protect
-    (fun () ->
-       (match contents with
-        | None -> ()
-        | Some data -> write_file path data
-       );
-       func path
-    )
-    ~finally:(fun () ->
-      if not persist then
-        Sys.remove !!path;
-      P.return ()
-    )
