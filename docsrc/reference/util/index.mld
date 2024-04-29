@@ -1,0 +1,5 @@
+{0 Testo_util}
+
+This is a collection of modules used by [Testo] and [Testo_lwt].
+Users should not use [Testo_util] directly. For example, a user may
+reference [Testo.Tag] but not [Testo_util.Tag].
