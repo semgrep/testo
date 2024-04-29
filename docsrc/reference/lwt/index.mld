@@ -1,8 +1,10 @@
 {0 Testo_lwt}
 
 This the {!Testo_lwt} module provided by the [testo-lwt] library and
-Opam package. It adds support to {!Testo} for test functions that are Lwt
-promises of type [unit -> unit Lwt.t].
+Opam package. It adds support to [Testo] for test functions that return
+Lwt promises of type [unit Lwt.t] instead of returning [unit].
+{!Testo_lwt}'s interface is otherwise identical to [Testo].
 
-It is recommended only if you use Lwt but your environment doesn't support
-running [Lwt_run.main] to turn a promise into a synchronous computation.
+Using {!Testo_lwt} is recommended only if you use Lwt but your environment
+doesn't support running [Lwt_run.main] to turn a promise into a synchronous
+computation.
