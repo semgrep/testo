@@ -51,7 +51,6 @@ EOF
 
 let test_hello =
   Testo.create "hello"
-    ~checked_output:(Testo.stdout ())
     (fun () -> print_endline "hello!")
 
 let tests = [

@@ -1,0 +1,2 @@
+; Ignore the demo project created by the tutorial
+(data_only_dirs my_project)
