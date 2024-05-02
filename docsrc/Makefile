@@ -33,6 +33,11 @@ build:
 	rm -rf $(DOCROOT)/reference
 	cp -a ../_build/default/_doc/_html $(DOCROOT)/reference
 
+# Check that the tutorial's sample code works
+.PHONY: test
+test:
+	cd tutorial && ./run-tutorial
+
 $(DOCROOT)/index.html: index.md Makefile
 	$(CONVERT_MARKDOWN_TO_HTML) $< -o $@
 
