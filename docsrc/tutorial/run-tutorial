@@ -1,0 +1,75 @@
+#! /usr/bin/env bash
+#
+# Script that performs the steps described in the Testo tutorial
+#
+set -eu
+
+workspace=my_project
+
+# Clean up
+rm -rf "$workspace"
+
+# Create an empty dune/git project
+dune init project my_project
+(
+  cd my_project
+  rm -rf test
+  git init
+
+  # Make git ignore '_build/' (used by both dune and testo)
+  echo _build >> .gitignore
+
+  # Add all the other files
+  git add .
+  git commit -m "First commit"
+
+  # Install testo as a git submodule
+  git submodule add https://github.com/semgrep/testo.git
+
+  # Create the './test' symlink
+  ln -s _build/default/tests/test.exe test
+
+  # Initialize the tests/ folder
+  mkdir -p tests
+  (
+    cd tests
+    cat > dune <<EOF
+; Build the test executable for our project
+(executable
+ (name test)
+ (modules Test)
+ (libraries
+    testo
+ )
+)
+EOF
+    cat > Test.ml <<EOF
+(*
+   The entry point for the 'test' program that runs the suite of OCaml
+   tests for <this project>.
+*)
+
+let test_hello =
+  Testo.create "hello"
+    (fun () -> print_endline "hello!")
+
+let tests = [
+  test_hello;
+]
+
+let () =
+  Testo.interpret_argv
+    ~project_name:"my_project"
+    (fun () -> tests)
+EOF
+  )
+
+  # Add the new files to git:
+  git add .
+
+  # Build the project
+  dune build --root=.
+
+  # Run the tests!
+  ./test
+)

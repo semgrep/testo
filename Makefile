@@ -24,6 +24,7 @@ retest: build
 .PHONY: doc
 doc:
 	$(MAKE) -C docsrc
+	$(MAKE) -C docsrc test
 
 .PHONY: clean
 clean:

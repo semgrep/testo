@@ -7,6 +7,7 @@
 
 version: 2.1
 
+# TODO: check that the docs are up-to-date (requires odoc and pandoc)
 jobs:
   build:
     docker:

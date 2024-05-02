@@ -17,6 +17,194 @@
 <header id="title-block-header">
 <h1 class="title">Testo tutorial</h1>
 </header>
-<p>Coming soon!</p>
+<h2 id="introduction">Introduction</h2>
+<p>Testo is a test framework for OCaml. Like with OUnit or Alcotest, the user writes a collection of tests. A test consists of a name and an OCaml test function to run, with some options. If the test function returns, the test is considered successful but if it raises an exception, it is considered failed.</p>
+<p>The test suite is compiled into a test executable with a fancy command-line interface provided by the Testo library.</p>
+<h2 id="main-features">Main features</h2>
+<ul>
+<li>Most tests can be defined by providing only a name and a function of type <code>unit -&gt; unit</code>.</li>
+<li>Tests can be assigned nested categories of arbitrary depth but are conveniently handled as a single flat list.</li>
+<li>Tests that are expected to fail (“XFAIL”) can be marked as such. This allows writing tests ahead of feature implementation or bug fixes.</li>
+<li>Supports output snapshots, i.e. capturing stdout or stderr from a test and comparing it with a reference file.</li>
+<li>Reviewing previous test outcomes can done without rerunning the tests.</li>
+<li>Provides various utilities for capturing stdout or stderr, and masking variable parts of test output such as temporary file paths.</li>
+<li>Support for tests that return Lwt promises.</li>
+</ul>
+<p>XFAIL outcomes and snapshot files are two features borrowed from Pytest that would have required massive changes in Alcotest and led to the creation of a new project.</p>
+<h2 id="should-i-use-testo">Should I use Testo?</h2>
+<p>Testo was designed to support older OCaml versions starting from 4.08 and to be maintained by the community of users. It is being used to test <a href="https://github.com/semgrep/semgrep">Semgrep</a> which has about 5000 OCaml tests, most of which were originally migrated from Alcotest. Check out the <a href="https://github.com/semgrep/testo/issues">known missing features</a> to see if anything critical to you is missing.</p>
+<h2 id="getting-started">Getting started</h2>
+<h3 id="install-the-testo-library">Install the <code>testo</code> library</h3>
+<p>🚧 <del>Install <code>testo</code> with Opam using <code>opam install testo</code></del> For now, we recommend using <code>testo</code> as a git submodule. Dune will pick it up and build it as part of your project like an ordinary library.</p>
+<h3 id="set-up-your-project">Set up your project</h3>
+<p>The folder <code>tests/snapshots/</code> will be used by Testo to store test snapshots to be tracked by your favorite version control system (git, …). Storing other test data under <code>tests/</code> is encouraged as long as you let Testo manage <code>tests/snapshots/</code>.</p>
+<h3 id="write-a-test-executable">Write a test executable</h3>
+<p>The test executable can be placed anywhere in your Dune project. We recommend having only one such program if possible and calling it <code>test</code>. In this tutorial, we’ll put it in the <code>tests/</code> folder.</p>
+<p>We are going to create the following folders and files:</p>
+<ul>
+<li><code>tests/Test.ml</code>: the entry point of the <code>test</code> program</li>
+<li><code>tests/dune</code>: the Dune file that defines how to build the test executable</li>
+<li><code>tests/snapshots/</code>: created and managed by Testo, under version control</li>
+<li><code>test</code>: a symbolic link to <code>_build/default/tests/test.exe</code></li>
+</ul>
+<p>Create the following <code>tests/dune</code> whose job is to build an ordinary executable named <code>test</code>:</p>
+<pre><code>; Build the test executable for our project
+(executable
+ (name test)
+ (modules Test)
+ (libraries
+    testo
+ )
+)</code></pre>
+<p>We recommend running the test program always from the project root so as to reference any files using paths relative to the project root. Create the symbolic link that will allow us to call the test program directly from the project root:</p>
+<pre><code>$ ln -s _build/default/tests/test.exe test</code></pre>
+<p>If you already have a <code>test</code> file or folder, you may pick another name for the Testo program, it doesn’t matter. The examples in this tutorial assume <code>./test</code> calls our Testo-based test program.</p>
+<p>The last part of this setup is to write the OCaml file <code>tests/Test.ml</code>. Let’s use this:</p>
+<pre><code>(*
+   The entry point for the &#39;test&#39; program that runs the suite of OCaml
+   tests for &lt;this project&gt;.
+*)
+
+let test_hello =
+  Testo.create &quot;hello&quot;
+    (fun () -&gt; print_endline &quot;hello!&quot;)
+
+let tests = [
+  test_hello;
+]
+
+let () =
+  Testo.interpret_argv
+    ~project_name:&quot;my_project&quot;
+    (fun () -&gt; tests)</code></pre>
+<h3 id="check-your-setup">Check your setup</h3>
+<p>From the project root, build your project as usual with Dune:</p>
+<pre><code>$ dune build</code></pre>
+<p>If everything went according to plan, running the test program with <code>--help</code> will list the subcommands supported by <code>./test</code>:</p>
+<pre><code>$ ./test --help
+TEST(1)                           Test Manual                          TEST(1)
+
+
+
+NAME
+       test - run tests for my_project
+
+SYNOPSIS
+       test [COMMAND] …
+
+DESCRIPTION
+
+...
+
+COMMANDS
+       approve [--filter-substring=SUBSTRING] [OPTION]…
+           approve new test output
+
+       run [OPTION]…
+           run the tests
+
+       status [OPTION]…
+           show test status
+</code></pre>
+<p>Let’s run our test suite with <code>./test run</code> or just <code>./test</code>:</p>
+<pre><code>$ ./test
+Legend:
+• [PASS]: a successful test that was expected to succeed (good);
+• [FAIL]: a failing test that was expected to succeed (needs fixing);
+• [XFAIL]: a failing test that was expected to fail (tolerated failure);
+• [XPASS]: a successful test that was expected to fail (progress?).
+• [MISS]: a test that never ran;
+• [SKIP]: a test that is always skipped but kept around for some reason;
+• [xxxx*]: a new test for which there&#39;s no expected output yet.
+  In this case, you should review the test output and run the &#39;approve&#39;
+  subcommand once you&#39;re satisfied with the output.
+[PASS]  5d41402abc4b hello
+• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+1/1 selected test:
+  1 successful (1 pass, 0 xfail)
+  0 unsuccessful (0 fail, 0 xpass)
+overall status: success</code></pre>
+<p>The script <a href="https://github.com/semgrep/testo/blob/main/docsrc/tutorial/run-tutorial">run-tutorial</a> runs all the steps above to create a sample <code>my_test</code> project.</p>
+<p>Congratulations, the “hello” test passed!</p>
+<p>… but did it, though? Did it output <code>hello!</code> like it was supposed to? The output from <code>./test</code> gives us the path to the captured log:</p>
+<pre><code>$ cat _build/testo/status/my_project/5d41402abc4b/log
+hello!</code></pre>
+<p>The test was successful because it didn’t raised any exception, not because it printed <code>hello!</code> correctly.</p>
+<h3 id="make-the-test-check-its-output">Make the test check its output</h3>
+<p>To enforce that our test prints what it’s supposed to, we’re going to specify that we want to capture the standard output (stdout) produced by the test and compare it against a reference. If the output of the test changes in the future, it will be detected and reported as a test failure.</p>
+<p>First, let’s modify the “hello” test to check stdout by specifying the <code>checked_output</code> option:</p>
+<pre><code>let test_hello =
+  Testo.create &quot;hello&quot;
+    ~checked_output:(Testo.stdout ())
+    (fun () -&gt; print_endline &quot;hello!&quot;)
+</code></pre>
+<p>Running <code>./test</code> with the updated code reports a failure and tells us that something’s missing:</p>
+<pre><code>...
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [PASS*] 5d41402abc4b hello                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+• Checked output: stdout
+• Missing file containing the expected output: tests/snapshots/my_project/5d41402abc4b/stdout
+• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
+• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+• Log (stderr) is empty.
+────────────────────────────────────────────────────────────────────────────────
+1/1 selected test:
+  1 successful (1 pass, 0 xfail)
+  0 unsuccessful (0 fail, 0 xpass)
+1 test whose output needs first-time approval
+overall status: failure</code></pre>
+<p>This was expected since we don’t have a reference output for our test. First, we’re going to check that the captured output is what we were expecting:</p>
+<pre><code>$ cat _build/testo/status/my_project/5d41402abc4b/stdout
+hello!</code></pre>
+<p>Note that at any time, we can get a summary of the tests that need attention using <code>./test status</code>, without having to re-run the tests:</p>
+<pre><code>$ ./test status
+[PASS*] 5d41402abc4b hello</code></pre>
+<p>We can see details with the <code>-l</code> (“long output”) option:</p>
+<pre><code>┌──────────────────────────────────────────────────────────────────────────────┐
+│ [PASS*] 5d41402abc4b hello                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+• Checked output: stdout
+• Missing file containing the expected output: tests/snapshots/my_project/5d41402abc4b/stdout
+• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
+• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+• Log (stderr) is empty.
+────────────────────────────────────────────────────────────────────────────────
+1/1 selected test:
+  1 successful (1 pass, 0 xfail)
+  0 unsuccessful (0 fail, 0 xpass)
+1 test whose output needs first-time approval
+overall status: failure</code></pre>
+<p>Then, we’re going to approve this output and make it the reference snapshot with <code>./test approve</code>:</p>
+<pre><code>$ ./test approve
+Expected output changed for 1 test.</code></pre>
+<p>Let’s check the new status:</p>
+<pre><code>$ ./test status</code></pre>
+<p>Nothing is printed because all the tests passed and are in the best state possible. To see the full list of tests, use <code>-a</code> (“all”):</p>
+<pre><code>$ ./test status -a
+[PASS]  5d41402abc4b hello</code></pre>
+<p>Now, there should be a snapshot file somewhere in our file system. Git shows us that <code>tests/snapshots</code> was created:</p>
+<pre><code>$ git status
+...
+Untracked files:
+  (use &quot;git add &lt;file&gt;...&quot; to include in what will be committed)
+    tests/snapshots/</code></pre>
+<p>The snapshot files are organized as follows:</p>
+<pre><code>$ tree tests/snapshots/
+tests/snapshots/
+└── my_project
+    └── 5d41402abc4b
+        ├── name
+        └── stdout
+
+2 directories, 2 files</code></pre>
+<p>The path to the captured output for our test is <code>tests/snapshots/my_project/5d41402abc4b/stdout</code>, as shown in the original test output:</p>
+<pre><code>$ cat tests/snapshots/my_project/5d41402abc4b/stdout
+hello!</code></pre>
+<p>Add the <code>snapshots/</code> folder to the git repository:</p>
+<pre><code>$ git add tests/snapshots
+$ git commit -m &#39;Add test snapshots&#39;</code></pre>
+<h3 id="whats-next">What’s next?</h3>
+<p>You’re now ready to use Testo. To discover more functionality, explore our <a href="../howtos">how-tos</a> and consult the <a href="../reference">reference API</a> for technical details.</p>
 </body>
 </html>
