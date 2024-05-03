@@ -21,12 +21,15 @@ HTML = \
 # get a uniform style.
 CONVERT_MARKDOWN_TO_HTML = \
   pandoc -t html5 --standalone \
-    --css=$(WWWROOT)/reference/odoc.support/odoc.css
+    --toc \
+    --css=$(WWWROOT)/reference/odoc.support/odoc.css \
+    --css=$(WWWROOT)/generic.css
 
 .PHONY: build
 build:
 	# Markdown source -> HTML
 	$(MAKE) $(HTML)
+	cp generic.css $(DOCROOT)/
 	# OCaml source -> HTML
 	# We need to run 'dune build @doc' from the project root. Why?
 	(cd .. && dune build @doc)

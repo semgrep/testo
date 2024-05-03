@@ -12,11 +12,27 @@
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
   <link rel="stylesheet" href="/testo/reference/odoc.support/odoc.css" />
+  <link rel="stylesheet" href="/testo/generic.css" />
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">Testo tutorial</h1>
 </header>
+<nav id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#main-features">Main features</a></li>
+<li><a href="#should-i-use-testo">Should I use Testo?</a></li>
+<li><a href="#getting-started">Getting started</a><ul>
+<li><a href="#install-the-testo-library">Install the <code>testo</code> library</a></li>
+<li><a href="#set-up-your-project">Set up your project</a></li>
+<li><a href="#write-a-test-executable">Write a test executable</a></li>
+<li><a href="#check-your-setup">Check your setup</a></li>
+<li><a href="#make-the-test-check-its-output">Make the test check its output</a></li>
+<li><a href="#whats-next">What’s next?</a></li>
+</ul></li>
+</ul>
+</nav>
 <h2 id="introduction">Introduction</h2>
 <p>Testo is a test framework for OCaml. Like with OUnit or Alcotest, the user writes a collection of tests. A test consists of a name and an OCaml test function to run, with some options. If the test function returns, the test is considered successful but if it raises an exception, it is considered failed.</p>
 <p>The test suite is compiled into a test executable with a fancy command-line interface provided by the Testo library.</p>

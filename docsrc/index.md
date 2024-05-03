@@ -2,6 +2,6 @@
 
 Testo is a test framework for OCaml.
 
-* [Tutorial](tutorial)
+* [Getting started](tutorial)
 * 🚧 [Howtos](howtos)
 * [Reference](reference/testo/Testo/)
