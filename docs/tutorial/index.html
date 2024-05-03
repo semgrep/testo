@@ -12,11 +12,28 @@
       div.column{display: inline-block; vertical-align: top; width: 50%;}
   </style>
   <link rel="stylesheet" href="/testo/reference/odoc.support/odoc.css" />
+  <link rel="stylesheet" href="/testo/generic.css" />
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">Testo tutorial</h1>
 </header>
+<nav id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#main-features">Main features</a></li>
+<li><a href="#should-i-use-testo">Should I use Testo?</a></li>
+<li><a href="#getting-started">Getting started</a><ul>
+<li><a href="#install-the-testo-library">Install the <code>testo</code> library</a></li>
+<li><a href="#set-up-your-project">Set up your project</a></li>
+<li><a href="#write-a-test-executable">Write a test executable</a></li>
+<li><a href="#check-your-setup">Check your setup</a></li>
+<li><a href="#make-the-test-check-its-output">Make the test check its output</a></li>
+<li><a href="#when-a-test-fails">When a test fails</a></li>
+</ul></li>
+<li><a href="#whats-next">What’s next?</a></li>
+</ul>
+</nav>
 <h2 id="introduction">Introduction</h2>
 <p>Testo is a test framework for OCaml. Like with OUnit or Alcotest, the user writes a collection of tests. A test consists of a name and an OCaml test function to run, with some options. If the test function returns, the test is considered successful but if it raises an exception, it is considered failed.</p>
 <p>The test suite is compiled into a test executable with a fancy command-line interface provided by the Testo library.</p>
@@ -37,6 +54,7 @@
 <h3 id="install-the-testo-library">Install the <code>testo</code> library</h3>
 <p>🚧 <del>Install <code>testo</code> with Opam using <code>opam install testo</code></del> For now, we recommend using <code>testo</code> as a git submodule. Dune will pick it up and build it as part of your project like an ordinary library.</p>
 <h3 id="set-up-your-project">Set up your project</h3>
+<p>At this stage, you need an OCaml project that uses Dune and Git. If you don’t have one, you can download and run the <a href="https://github.com/semgrep/testo/blob/main/docsrc/tutorial/run-tutorial">test script</a> which will create one for you and will run some of the steps below.</p>
 <p>The folder <code>tests/snapshots/</code> will be used by Testo to store test snapshots to be tracked by your favorite version control system (git, …). Storing other test data under <code>tests/</code> is encouraged as long as you let Testo manage <code>tests/snapshots/</code>.</p>
 <h3 id="write-a-test-executable">Write a test executable</h3>
 <p>The test executable can be placed anywhere in your Dune project. We recommend having only one such program if possible and calling it <code>test</code>. In this tutorial, we’ll put it in the <code>tests/</code> folder.</p>
@@ -136,8 +154,7 @@ hello!</code></pre>
 <pre><code>let test_hello =
   Testo.create &quot;hello&quot;
     ~checked_output:(Testo.stdout ())
-    (fun () -&gt; print_endline &quot;hello!&quot;)
-</code></pre>
+    (fun () -&gt; print_endline &quot;hello!&quot;)</code></pre>
 <p>Running <code>./test</code> with the updated code reports a failure and tells us that something’s missing:</p>
 <pre><code>...
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -204,7 +221,40 @@ hello!</code></pre>
 <p>Add the <code>snapshots/</code> folder to the git repository:</p>
 <pre><code>$ git add tests/snapshots
 $ git commit -m &#39;Add test snapshots&#39;</code></pre>
-<h3 id="whats-next">What’s next?</h3>
+<h3 id="when-a-test-fails">When a test fails</h3>
+<p>Let’s make our test function print <code>hello, world!</code> instead of <code>hello</code> to see what happens:</p>
+<pre><code>let test_hello =
+  Testo.create &quot;hello&quot;
+    ~checked_output:(Testo.stdout ())
+    (fun () -&gt; print_endline &quot;hello, world!&quot;)</code></pre>
+<p>Recompile and re-run <code>./test</code>:</p>
+<pre><code>$ dune build
+$ ./test
+...
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [FAIL]  5d41402abc4b hello                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+• Checked output: stdout
+--- tests/snapshots/my_project/5d41402abc4b/stdout  2024-05-02 18:06:06.863630709 -0700
++++ _build/testo/status/my_project/5d41402abc4b/stdout  2024-05-02 18:06:13.391623357 -0700
+@@ -1 +1 @@
+-hello!
++hello, world!
+• Captured stdout differs from expectation.
+• Path to expected stdout: tests/snapshots/my_project/5d41402abc4b/stdout
+• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
+• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+• Log (stderr) is empty.
+────────────────────────────────────────────────────────────────────────────────
+1/1 selected test:
+  0 successful (0 pass, 0 xfail)
+  1 unsuccessful (1 fail, 0 xpass)
+overall status: failure</code></pre>
+<p>The diff between the expected output and the new output is shown as</p>
+<pre><code>-hello!
++hello, world!</code></pre>
+<p>If the new output is correct, run <code>./test approve</code>. Otherwise, edit your source code until you’re satisfied with the new output.</p>
+<h2 id="whats-next">What’s next?</h2>
 <p>You’re now ready to use Testo. To discover more functionality, explore our <a href="../howtos">how-tos</a> and consult the <a href="../reference">reference API</a> for technical details.</p>
 </body>
 </html>

@@ -55,6 +55,11 @@ it up and build it as part of your project like an ordinary library.
 
 ### Set up your project
 
+At this stage, you need an OCaml project that uses Dune and Git. If
+you don't have one, you can download and run the
+[test script](https://github.com/semgrep/testo/blob/main/docsrc/tutorial/run-tutorial)
+which will create one for you and will run some of the steps below.
+
 The folder `tests/snapshots/` will be used by Testo to
 store test snapshots to be tracked by your favorite version
 control system (git, ...). Storing other test data under `tests/` is
@@ -215,7 +220,6 @@ let test_hello =
   Testo.create "hello"
     ~checked_output:(Testo.stdout ())
     (fun () -> print_endline "hello!")
-
 ```
 
 Running `./test` with the updated code reports a failure and tells us
@@ -327,7 +331,53 @@ $ git add tests/snapshots
 $ git commit -m 'Add test snapshots'
 ```
 
-### What's next?
+### When a test fails
+
+Let's make our test function print `hello, world!` instead of
+`hello` to see what happens:
+```
+let test_hello =
+  Testo.create "hello"
+    ~checked_output:(Testo.stdout ())
+    (fun () -> print_endline "hello, world!")
+```
+
+Recompile and re-run `./test`:
+```
+$ dune build
+$ ./test
+...
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [FAIL]  5d41402abc4b hello                                                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+• Checked output: stdout
+--- tests/snapshots/my_project/5d41402abc4b/stdout	2024-05-02 18:06:06.863630709 -0700
++++ _build/testo/status/my_project/5d41402abc4b/stdout	2024-05-02 18:06:13.391623357 -0700
+@@ -1 +1 @@
+-hello!
++hello, world!
+• Captured stdout differs from expectation.
+• Path to expected stdout: tests/snapshots/my_project/5d41402abc4b/stdout
+• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
+• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+• Log (stderr) is empty.
+────────────────────────────────────────────────────────────────────────────────
+1/1 selected test:
+  0 successful (0 pass, 0 xfail)
+  1 unsuccessful (1 fail, 0 xpass)
+overall status: failure
+```
+
+The diff between the expected output and the new output is shown as
+```
+-hello!
++hello, world!
+```
+
+If the new output is correct, run `./test approve`. Otherwise, edit
+your source code until you're satisfied with the new output.
+
+## What's next?
 
 You're now ready to use Testo. To discover more functionality, explore our
 [how-tos](../howtos) and consult the [reference API](../reference)
