@@ -18,3 +18,7 @@ pre {
   padding: 10px;
   white-space: pre-wrap;
 }
+
+:not(pre) > code {
+  background-color: #f6f8fa;
+}
