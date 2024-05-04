@@ -3,34 +3,44 @@
 Introduction
 --
 
-Testo is a test framework for OCaml. Like with OUnit or Alcotest, the
+[Testo](https://github.com/semgrep/testo)
+is a test framework for [OCaml](https://ocaml.org/). Like with
+[OUnit](https://github.com/gildor478/ounit) or
+[Alcotest](https://github.com/mirage/alcotest), the
 user writes a collection of tests. A test consists of a name and an
 OCaml test function to run, with some options. If the test function returns,
 the test is considered successful but if it raises an exception, it
 is considered failed.
 
-The test suite is compiled into a test executable with a fancy
-command-line interface provided by the Testo library.
+The test suite is compiled into a test executable with
+a command-line interface provided by the Testo library. The test
+executable is called manually or by CI jobs to run tests and review
+the results.
 
 Main features
 --
 
 * Most tests can be defined by providing only a name and a function of
   type `unit -> unit`.
-* Tests can be assigned nested categories of arbitrary depth
-  but are conveniently handled as a single flat list.
+* Tests can be placed into categories, subcategories, etc.
+  to make it easier to work with groups of related tests.
+* Tests can be tagged so as to select groups of tests independently
+  from hierarchical categories.
+* A test suite is always a flat list of tests regardless of categories
+  or tags.
 * Tests that are expected to fail ("XFAIL") can be marked as such. This
   allows writing tests ahead of feature implementation or bug fixes.
 * Supports output snapshots, i.e. capturing stdout or stderr from a
   test and comparing it with a reference file.
-* Reviewing previous test outcomes can done without rerunning the
+* Reviewing previous test outcomes can be done without rerunning the
   tests.
 * Provides various utilities for capturing stdout or stderr, and
   masking variable parts of test output such as temporary file paths.
 * Support for tests that return Lwt promises.
 
 XFAIL outcomes and snapshot files are two features borrowed from
-Pytest that would have required massive changes in Alcotest and led to
+[Pytest](https://docs.pytest.org/)
+that would have required massive changes in Alcotest and led to
 the creation of a new project.
 
 Should I use Testo?
@@ -49,7 +59,8 @@ Getting started
 
 ### Install the `testo` library
 
-🚧 ~~Install `testo` with Opam using `opam install testo`~~ For
+🚧 ~~Install `testo` with [Opam](https://opam.ocaml.org/)
+using `opam install testo`~~ We'll be providing an Opam package soon. For
 now, we recommend using `testo` as a git submodule. Dune will pick
 it up and build it as part of your project like an ordinary library.
 
@@ -163,7 +174,7 @@ COMMANDS
 
        status [OPTION]…
            show test status
-
+...
 ```
 
 Let's run our test suite with `./test run` or just `./test`:
@@ -207,91 +218,176 @@ because it printed `hello!` correctly.
 
 ### Make the test check its output
 
-To enforce that our test prints what it's supposed to, we're going to
-specify that we want to capture the standard output (stdout) produced
-by the test and compare it against a reference. If the output of the
-test changes in the future, it will be detected and reported as a test
-failure.
-
-First, let's modify the "hello" test to check stdout by specifying the
-`checked_output` option:
+The output of our test is `hello!\n` which is short and simple. To
+check this, we'll use the `Testo.with_capture` function to turn the
+standard output into a string. Then, we'll compare it against the
+expected string. This is done by wrapping the original test function
+as follows:
 ```
 let test_hello =
   Testo.create "hello"
-    ~checked_output:(Testo.stdout ())
-    (fun () -> print_endline "hello!")
+    (fun () ->
+      let res =
+        Testo.with_capture stdout
+          (fun () -> print_endline "hello!")
+      in
+      assert (res = "hello!\n")
+    )
 ```
 
-Running `./test` with the updated code reports a failure and tells us
-that something's missing:
+Try it and check that the test fails if the expectation is different
+from the actual output.
+
+### What if a test's output is very long?
+
+Say we want to check the help page printed by a program. As an
+exercise, let's use `dune --help`. The standard output takes multiple
+screens and is cumbersome to copy-paste and escape correctly due to
+the presence of special characters:
+
+```
+$ dune --help
+DUNE(1)                           Dune Manual                          DUNE(1)
+
+
+
+NAME
+       dune - composable build system for OCaml
+
+SYNOPSIS
+...
+```
+
+It wouldn't be convenient to store this as a double-quoted string in
+our OCaml test. Testo allows capturing stdout or stderr as a file or
+"snapshot" that will serve as a reference for future runs. This is
+done with the `~checked_output` option as follows:
+```
+let test_dune_help =
+  Testo.create "dune help"
+    ~checked_output:(Testo.stdout ())
+    (fun () -> Sys.command "dune --help" |> ignore)
+```
+
+After adding this test to the suite, your test suite should look like
+this:
+```
+let tests = [
+  test_hello;
+  test_dune_help;
+]
+```
+
+Running `./test` with the updated code almost works but reports a
+failure and tells us that something's missing:
 ```
 ...
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ [PASS*] 5d41402abc4b hello                                                   │
+│ [PASS*] 06e03989d7ca dune help                                               │
 └──────────────────────────────────────────────────────────────────────────────┘
 • Checked output: stdout
-• Missing file containing the expected output: tests/snapshots/my_project/5d41402abc4b/stdout
-• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
-• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+• Missing file containing the expected output: tests/snapshots/my_project/06e03989d7ca/stdout
+• Path to captured stdout: _build/testo/status/my_project/06e03989d7ca/stdout
+• Path to captured log: _build/testo/status/my_project/06e03989d7ca/log
 • Log (stderr) is empty.
 ────────────────────────────────────────────────────────────────────────────────
-1/1 selected test:
-  1 successful (1 pass, 0 xfail)
+2/2 selected tests:
+  2 successful (2 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 test whose output needs first-time approval
 overall status: failure
 ```
 
+The status `PASS*` means that the test passed but some user action is needed.
 This was expected since we don't have a reference output for our test.
 First, we're going to check that the captured output is what we were
 expecting:
 ```
-$ cat _build/testo/status/my_project/5d41402abc4b/stdout
-hello!
+$ less _build/testo/status/my_project/06e03989d7ca/stdout
+DUNE(1)                           Dune Manual                          DUNE(1)
+
+
+
+NAME
+       dune - composable build system for OCaml
+...
 ```
 
-Note that at any time, we can get a summary of the tests that need
-attention using `./test status`, without having to re-run the tests:
+It looks good. Note that at any time, we can get a summary of the
+tests that need attention using `./test status`, without having to
+re-run the tests:
 ```
 $ ./test status
-[PASS*] 5d41402abc4b hello
+[PASS*] 06e03989d7ca dune help
+```
+
+Listing all the tests requires `-a`:
+```
+$ ./test status -a
+[PASS]  5d41402abc4b hello
+[PASS*] 06e03989d7ca dune help
+```
+
+Selecting tests can be done with `./test -s`. It searches for a substring
+e.g. `dune`:
+
+```
+$ ./test status -a -s dune
+[PASS*] 06e03989d7ca dune help
+```
+
+The test ID can be used to select a single test:
+```
+$ ./test status -a -s 5d41402abc4b
+[PASS]  5d41402abc4b hello
 ```
 
 We can see details with the `-l` ("long output") option:
 ```
+$ ./test status -l
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│ [PASS*] 5d41402abc4b hello                                                   │
+│ [PASS*] 06e03989d7ca dune help                                               │
 └──────────────────────────────────────────────────────────────────────────────┘
 • Checked output: stdout
-• Missing file containing the expected output: tests/snapshots/my_project/5d41402abc4b/stdout
-• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
-• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
+• Missing file containing the expected output: tests/snapshots/my_project/06e03989d7ca/stdout
+• Path to captured stdout: _build/testo/status/my_project/06e03989d7ca/stdout
+• Path to captured log: _build/testo/status/my_project/06e03989d7ca/log
 • Log (stderr) is empty.
 ────────────────────────────────────────────────────────────────────────────────
-1/1 selected test:
-  1 successful (1 pass, 0 xfail)
+2/2 selected tests:
+  2 successful (2 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 1 test whose output needs first-time approval
 overall status: failure
 ```
 
-Then, we're going to approve this output and make it the reference
+Let's approve the output of "dune help" and make it the reference
 snapshot with `./test approve`:
 ```
 $ ./test approve
 Expected output changed for 1 test.
 ```
 
+In practice, we might have several tests requiring approval.
+To approve a specific test rather than all of them, use `-s`:
+```
+$ ./test approve -s 06e03989d7ca
+Expected output changed for 1 test.
+```
+
 Let's check the new status:
 ```
 $ ./test status
+$ echo $?  # check the process exit status
+0
 ```
 
-Nothing is printed because all the tests passed and are in the best
-state possible. To see the full list of tests, use `-a` ("all"):
+An exit status of 0 indicates a full success. This is confirmed by
+listing all the tests:
 ```
 $ ./test status -a
 [PASS]  5d41402abc4b hello
+[PASS]  06e03989d7ca dune help
 ```
 
 Now, there should be a snapshot file somewhere in our file system.
@@ -304,80 +400,62 @@ Untracked files:
 	tests/snapshots/
 ```
 
-The snapshot files are organized as follows:
+The test files are organized as follows:
 ```
-$ tree tests/snapshots/
-tests/snapshots/
-└── my_project
-    └── 5d41402abc4b
-        ├── name
-        └── stdout
+$ tree tests/
+tests/
+├── dune
+├── snapshots
+│   └── my_project
+│       └── 06e03989d7ca
+│           ├── name
+│           └── stdout
+└── Test.ml
 
-2 directories, 2 files
+3 directories, 4 files
 ```
 
 The path to the captured output for our test is
-`tests/snapshots/my_project/5d41402abc4b/stdout`, as shown in the
-original test output:
+`tests/snapshots/my_project/06e03989d7ca/stdout`, as shown in the
+original test output.
 
+It would be nicer to have the snapshot file with a good name,
+say `dune-help.txt` next to the test code. This is done by passing
+the relevant option to `Testo.stdout`:
 ```
-$ cat tests/snapshots/my_project/5d41402abc4b/stdout
-hello!
+let test_dune_help =
+  Testo.create "dune help"
+    ~checked_output:
+      (Testo.stdout
+        ~expected_stdout_path:(Fpath.v "tests/dune-help.txt") ())
+    (fun () -> Sys.command "dune --help" |> ignore)
 ```
 
-Add the `snapshots/` folder to the git repository:
+Re-running everything gives us the following file tree:
 ```
-$ git add tests/snapshots
-$ git commit -m 'Add test snapshots'
+tests/
+├── dune
+├── dune-help.txt
+├── snapshots
+│   └── my_project
+└── Test.ml
+```
+
+All these files including the snapshots should be tracked by git:
+```
+$ git add tests/
+$ git commit -m 'Add tests'
 ```
 
 ### When a test fails
 
-Let's make our test function print `hello, world!` instead of
-`hello` to see what happens:
-```
-let test_hello =
-  Testo.create "hello"
-    ~checked_output:(Testo.stdout ())
-    (fun () -> print_endline "hello, world!")
-```
+Check what happens if you replace the command `dune --help` with
+`dune build --help` in `Test.ml`.
+The "dune help" test should fail and you should see a diff against the
+expected output.
 
-Recompile and re-run `./test`:
-```
-$ dune build
-$ ./test
-...
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ [FAIL]  5d41402abc4b hello                                                   │
-└──────────────────────────────────────────────────────────────────────────────┘
-• Checked output: stdout
---- tests/snapshots/my_project/5d41402abc4b/stdout	2024-05-02 18:06:06.863630709 -0700
-+++ _build/testo/status/my_project/5d41402abc4b/stdout	2024-05-02 18:06:13.391623357 -0700
-@@ -1 +1 @@
--hello!
-+hello, world!
-• Captured stdout differs from expectation.
-• Path to expected stdout: tests/snapshots/my_project/5d41402abc4b/stdout
-• Path to captured stdout: _build/testo/status/my_project/5d41402abc4b/stdout
-• Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
-• Log (stderr) is empty.
-────────────────────────────────────────────────────────────────────────────────
-1/1 selected test:
-  0 successful (0 pass, 0 xfail)
-  1 unsuccessful (1 fail, 0 xpass)
-overall status: failure
-```
-
-The diff between the expected output and the new output is shown as
-```
--hello!
-+hello, world!
-```
-
-If the new output is correct, run `./test approve`. Otherwise, edit
-your source code until you're satisfied with the new output.
-
-## What's next?
+What's next?
+--
 
 You're now ready to use Testo. To discover more functionality, explore our
 [how-tos](../howtos) and consult the [reference API](../reference)
