@@ -1,9 +1,19 @@
 % Testo howtos
 
+<!-- note to authors:
+We don't have automatic validation of the code snippets shown here.
+It's a good idea to check that your code at least compiles.
+For this, you may want to use `dune utop` and paste your code in it.
+-->
+
+For getting started with [Testo](https://github.com/semgrep/testo)
+and discovering the basics, make sure to read the
+[tutorial](../tutorial) first.
+
 How to write an assertion (without resorting to an extra library)?
 --
 
-A simple solution is to use the built-in `assert`:
+A simple solution is to use the built-in `assert` construct:
 
 ```
 let test_addition =
@@ -12,7 +22,7 @@ let test_addition =
       let res = 1 + 1 in
       assert (res = 2);
       let res = 2 + 2 in
-      assert (res = 4);
+      assert (res = 4)
     )
 ```
 
@@ -38,7 +48,7 @@ let test_addition =
         assert (res = expected_result)
       in
       add 1 1 2;
-      add 2 2 4;
+      add 2 2 4
     )
 ```
 
@@ -177,11 +187,6 @@ let test_something =
     (fun () -> ...)
 ```
 
-How to work on failed tests?
---
-
-🚧
-
 How to write tests for Lwt, Async or other kinds of promises?
 --
 
@@ -218,9 +223,11 @@ issue](https://github.com/semgrep/testo/issues/73).
 How to export test output to JUnit?
 --
 
-🚧 not implemented, see https://github.com/semgrep/testo/issues/14
+🚧 not implemented,
+see [Issue #14](https://github.com/semgrep/testo/issues/14).
 
 How to run tests in parallel?
 --
 
-🚧 not implemented, see https://github.com/semgrep/testo/issues/8
+🚧 not implemented,
+see [Issue #8](https://github.com/semgrep/testo/issues/8).

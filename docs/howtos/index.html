@@ -24,21 +24,26 @@
 <li><a href="#how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How to write an assertion for a value of a simple type with Alcotest?</a></li>
 <li><a href="#how-to-write-an-assertion-for-a-custom-type">How to write an assertion for a custom type?</a></li>
 <li><a href="#how-to-write-tests-ahead-of-time">How to write tests ahead of time?</a></li>
-<li><a href="#how-to-work-on-failed-tests">How to work on failed tests?</a></li>
 <li><a href="#how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</a></li>
 <li><a href="#how-to-export-test-output-to-junit">How to export test output to JUnit?</a></li>
 <li><a href="#how-to-run-tests-in-parallel">How to run tests in parallel?</a></li>
 </ul>
 </nav>
+<!-- note to authors:
+We don't have automatic validation of the code snippets shown here.
+It's a good idea to check that your code at least compiles.
+For this, you may want to use `dune utop` and paste your code in it.
+-->
+<p>For getting started with <a href="https://github.com/semgrep/testo">Testo</a> and discovering the basics, make sure to read the <a href="../tutorial">tutorial</a> first.</p>
 <h2 id="how-to-write-an-assertion-without-resorting-to-an-extra-library">How to write an assertion (without resorting to an extra library)?</h2>
-<p>A simple solution is to use the built-in <code>assert</code>:</p>
+<p>A simple solution is to use the built-in <code>assert</code> construct:</p>
 <pre><code>let test_addition =
   Testo.create &quot;addition&quot;
     (fun () -&gt;
       let res = 1 + 1 in
       assert (res = 2);
       let res = 2 + 2 in
-      assert (res = 4);
+      assert (res = 4)
     )</code></pre>
 <p>When such a test fails, the location of the <code>assert ...</code> expression is shown to the user. The advantage over using a dedicated function like <code>Alcotest.check</code> is that it’s a little quicker to write and simpler to understand. The main disadvantage is that the expected and actual values are not printed. In this case, it’s best for the test to print enough information about the condition being tested e.g.</p>
 <pre><code>open Printf
@@ -53,7 +58,7 @@ let test_addition =
         assert (res = expected_result)
       in
       add 1 1 2;
-      add 2 2 4;
+      add 2 2 4
     )</code></pre>
 <p>In case of a failure, the test’s output will be shown to the user.</p>
 <h2 id="how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How to write an assertion for a value of a simple type with Alcotest?</h2>
@@ -128,8 +133,6 @@ let test_something =
     &quot;something&quot;
     ~skipped:is_windows
     (fun () -&gt; ...)</code></pre>
-<h2 id="how-to-work-on-failed-tests">How to work on failed tests?</h2>
-<p>🚧</p>
 <h2 id="how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</h2>
 <p>The simplest way is to start and stop the event loop within each test. With <code>Lwt</code>, this is normally done with <code>Lwt_main.run</code>:</p>
 <pre><code>(* Generic higher-level function that converts a asynchronous
@@ -147,8 +150,8 @@ let tests = [
 <p>On some platforms such as a JavaScript runtime, there is no equivalent of <code>Lwt_main.run</code>. For these cases, we provide the library <code>testo-lwt</code>. It exposes a <a href="https://semgrep.github.io/testo/reference/testo-lwt/index.html"><code>Testo_lwt</code> module</a> whose interface is almost identical to <code>Testo</code> except that test functions have type <code>unit -&gt; unit Lwt.t</code> instead of <code>unit -&gt; unit</code>.</p>
 <p>For the Async library, we don’t provide <code>testo-async</code> but it should be straightforward to add. Check the status of the <a href="https://github.com/semgrep/testo/issues/73">corresponding GitHub issue</a>.</p>
 <h2 id="how-to-export-test-output-to-junit">How to export test output to JUnit?</h2>
-<p>🚧 not implemented, see https://github.com/semgrep/testo/issues/14</p>
+<p>🚧 not implemented, see <a href="https://github.com/semgrep/testo/issues/14">Issue #14</a>.</p>
 <h2 id="how-to-run-tests-in-parallel">How to run tests in parallel?</h2>
-<p>🚧 not implemented, see https://github.com/semgrep/testo/issues/8</p>
+<p>🚧 not implemented, see <a href="https://github.com/semgrep/testo/issues/8">Issue #8</a>.</p>
 </body>
 </html>
