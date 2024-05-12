@@ -12,11 +12,12 @@ depends: [
   "dune" {>= "3.7"}
   "lwt"
   "ocaml" {>= "4.08.0"}
-  "alcotest"
+  "alcotest" {with-test}
   "cmdliner"
   "fpath"
   "re"
   "testo-util"
+  "unix"
   "odoc" {with-doc}
 ]
 build: [

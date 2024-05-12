@@ -3,10 +3,10 @@
   (public_name testo)
   (name testo)
   (libraries
-    alcotest
     cmdliner
     fpath
     re
     testo-util
+    unix
   )
 )

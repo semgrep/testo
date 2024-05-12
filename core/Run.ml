@@ -61,9 +61,10 @@ let check_id_uniqueness (tests : T.test list) =
          | None -> Hashtbl.add id_tbl id test.internal_full_name
          | Some name0 ->
              if name = name0 then
-               Error.fail (sprintf "Two tests have the same name: %s" name)
+               Error.user_error
+                 (sprintf "Two tests have the same name: %s" name)
              else
-               Error.fail
+               Error.user_error
                  (sprintf
                     "Hash collision for two tests with different names:\n\
                     \  %S\n\
@@ -96,7 +97,7 @@ let check_snapshot_uniqueness (tests : T.test list) =
               Hashtbl.add path_tbl path test_name
           | Some test_name0 ->
               if test_name = test_name0 then
-                Error.fail (
+                Error.user_error (
                   sprintf "\
 A test uses the same snapshot path twice:
 - test name: %S
@@ -106,7 +107,7 @@ Fix it in the test definition.
                     test_name !!path
                 )
               else
-                Error.fail (
+                Error.user_error (
                   sprintf "\
 Two different tests use the same snapshot path:
 - first test: %S
@@ -266,9 +267,8 @@ let protect_globals (test : T.test) (func : unit -> 'promise) :
         set original_value;
         (match error_if_changed with
         | Some err_msg_func when current_value <> original_value ->
-            (* TODO: use our own exception instead of depending on Alcotest
-               just for this? *)
-            Alcotest.fail (err_msg_func original_value current_value)
+            Error.fail_test
+              (err_msg_func original_value current_value)
         | _ -> ());
         P.return ())
       func
@@ -278,8 +278,8 @@ let protect_globals (test : T.test) (func : unit -> 'promise) :
   |> protect_global Printexc.backtrace_status Printexc.record_backtrace
 (* TODO: more universal settings to protect? *)
 
-(* TODO: simplify and run this directly without Alcotest.run *)
 let to_alcotest_gen
+    ~(alcotest_skip : unit -> _)
     ~(wrap_test_function : T.test -> (unit -> 'a) -> unit -> 'a)
     (tests : T.test list) : _ list =
   tests
@@ -299,11 +299,18 @@ let to_alcotest_gen
          in
          let func =
            (*
-         A "skipped" test is marked as skipped in Alcotest's run output
-         and leaves no trace such that Testo thinks it never ran.
-       *)
-           if test.skipped then Alcotest.skip
-           else wrap_test_function test test.func
+              A "skipped" test is marked as skipped in Alcotest's run output
+              and leaves no trace such that Testo thinks it never ran.
+           *)
+           if test.skipped then (
+             fun () ->
+               alcotest_skip () |> ignore;
+               Error.user_error "\
+The function 'alcotest_skip' passed to 'Testo.to_alcotest' didn't raise
+an exception as expected. 'Testo.to_alcotest' should be called with
+'~alcotest_skip:Alcotest.skip'."
+           )
+           else (wrap_test_function test test.func : unit -> _)
          in
          (* This is the format expected by Alcotest: *)
          (suite_name, (test.name, `Quick, func)))
@@ -338,7 +345,7 @@ let with_flip_xfail_outcome (test : T.test) func =
         P.catch
           (fun () ->
             func () >>= fun () ->
-            Alcotest.fail "XPASS: This test failed to raise an exception")
+            Error.fail_test "XPASS: This test failed to raise an exception")
           (fun exn trace ->
             eprintf "XFAIL: As expected, an exception was raised: %s\n%s\n"
               (Printexc.to_string exn)
@@ -355,15 +362,19 @@ let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
 
-let to_alcotest_internal ~with_storage ~flip_xfail_outcome tests =
+let to_alcotest_internal
+    ~alcotest_skip ~with_storage ~flip_xfail_outcome tests =
   to_alcotest_gen
+    ~alcotest_skip
     ~wrap_test_function:(wrap_test_function ~with_storage ~flip_xfail_outcome)
     tests
 
 (* Exported versions that exposes a plain Alcotest test suite that doesn't
    write test statuses and prints "OK" for XFAIL statuses. *)
-let to_alcotest tests =
-  to_alcotest_internal ~with_storage:false ~flip_xfail_outcome:true tests
+let to_alcotest ~alcotest_skip tests =
+  to_alcotest_internal
+    ~alcotest_skip
+    ~with_storage:false ~flip_xfail_outcome:true tests
 
 let filter ~filter_by_substring tests =
   let tests =

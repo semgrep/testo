@@ -18,6 +18,7 @@ type alcotest_test =
 
 (* See comments in the public interface Testo.mli *)
 val to_alcotest :
+  alcotest_skip:(unit -> _) ->
   Types.test list -> alcotest_test list
 
 val run_tests :

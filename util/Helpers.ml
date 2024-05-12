@@ -22,7 +22,7 @@ let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
     | S_LNK
     | S_FIFO
     | S_SOCK ->
-        Error.fail
+        Error.user_error
           (sprintf
              "File %S already exists but is not a folder as required by the \
               testing setup."
@@ -31,7 +31,7 @@ let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
         let parent = Fpath_.dirname dir in
         if parent = dir then
           (* dir is something like "." or "/" *)
-          Error.fail
+          Error.user_error
             (sprintf
                "Folder %S doesn't exist and has no parent that we could create."
                !!dir)
@@ -42,7 +42,7 @@ let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
         else if Sys.file_exists !!parent then
           Unix.mkdir !!dir 0o777
         else
-          Error.fail
+          Error.user_error
             (sprintf
                "The parent folder of %S doesn't exist (current folder: %S)"
                !!dir (Sys.getcwd ()))

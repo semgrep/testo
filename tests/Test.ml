@@ -48,12 +48,12 @@ let test_internal_files =
          let name_file_path =
            snapshot_dir_path test_create_name_file / "name" in
          if not (Sys.file_exists !!name_file_path) then
-           Alcotest.fail ("Missing file: " ^ !!name_file_path);
+           Testo.fail ("Missing file: " ^ !!name_file_path);
          let missing_dir_path =
            snapshot_dir_path test_dont_create_name_file
          in
          if Sys.file_exists !!missing_dir_path then
-           Alcotest.fail ("File should not exist: " ^ !!missing_dir_path)
+           Testo.fail ("File should not exist: " ^ !!missing_dir_path)
       )
   in
   (* Don't recategorize these tests as it changes their ID and would break

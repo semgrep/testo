@@ -7,7 +7,7 @@ let t = Testo.create
 
 let failing_function () =
   print_endline "<something being printed by the test>";
-  raise (Failure "oh no, I'm failing")
+  Testo.fail "oh no, I'm failing"
 
 let tests =
   [

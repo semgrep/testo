@@ -22,6 +22,7 @@ Testo is a test framework for OCaml.")
   (depends
     (ocaml (>= 4.08.0))
     fpath
+    unix
   )
 )
 
@@ -33,14 +34,12 @@ Testo is a test framework for OCaml providing new subcommands for capturing,
 checking, and approving the output of tests.")
   (depends
     (ocaml (>= 4.08.0))
-    ; Alcotest is needed by the functions that export a test suite to
-    ; Alcotest. If this dependency is a problem, we could create a separate
-    ; package for this functionality.
-    alcotest
+    (alcotest :with-test)
     cmdliner
     fpath
     re
     testo-util
+    unix
   )
 )
 
@@ -54,10 +53,11 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     lwt
     ; Same direct dependencies as 'testo' above
     (ocaml (>= 4.08.0))
-    alcotest
+    (alcotest :with-test)
     cmdliner
     fpath
     re
     testo-util
+    unix
   )
 )

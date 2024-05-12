@@ -79,7 +79,7 @@ let errmsg_of_missing_file (path : Fpath.t) : string =
 let read_file_exn path : string =
   match read_file path with
   | Ok data -> data
-  | Error path -> Error.fail (errmsg_of_missing_file path)
+  | Error path -> Error.user_error (errmsg_of_missing_file path)
 
 let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
 
@@ -100,10 +100,10 @@ let default_expectation_workspace_root =
   Fpath.v "tests" / "snapshots"
 
 let not_initialized () =
-  Error.fail "Missing initialization call: Testo.init ()"
+  Error.user_error "Missing initialization call: Testo.init ()"
 
 let already_initialized () =
-  Error.fail "Multiple initialization calls to Testo.init. Keep only one."
+  Error.user_error "Multiple initialization calls to Testo.init. Keep only one."
 
 let make_late_init () =
   let var = ref None in
@@ -126,7 +126,7 @@ let init_settings
     ?(expectation_workspace_root = default_expectation_workspace_root)
     ?(status_workspace_root = default_status_workspace_root) ~project_name () =
   if status_workspace_root = expectation_workspace_root then
-    Error.fail
+    Error.user_error
       (sprintf
          {|status_workspace and expectation_workspace must be different folders
 but they are both set to the following path:
@@ -193,7 +193,7 @@ let init_test_workspace test =
 (**************************************************************************)
 
 let corrupted_file path =
-  Error.fail
+  Error.user_error
     (sprintf
        "Uh oh, the test framework ran into a corrupted file: %S\n\
         Remove it and retry." !!path)
@@ -563,7 +563,7 @@ let normalize_output (test : T.test) =
              let normalized_data =
                try rewrite_string orig_data with
                | e ->
-                   Error.fail
+                   Error.user_error
                      (sprintf
                         "Exception raised by the test's normalize_output \
                          function: %s"
