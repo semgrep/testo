@@ -3,7 +3,7 @@
 <!-- note to authors:
 We don't have automatic validation of the code snippets shown here.
 It's a good idea to check that your code at least compiles.
-For this, you may want to use `dune utop` and paste your code in it.
+For this, you may want to use `dune utop` and paste your code into it.
 -->
 
 For getting started with [Testo](https://github.com/semgrep/testo)
