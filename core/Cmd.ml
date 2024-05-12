@@ -53,6 +53,10 @@ type 'continuation_result test_spec =
 (* Dispatch subcommands to do real work *)
 (****************************************************************************)
 
+let fatal_error msg =
+  eprintf "Error: %s\n%!" msg;
+  exit 1
+
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) =
   (*
@@ -107,7 +111,7 @@ let check_tag filter_by_tag =
     match Tag.of_string_opt str with
     | Some tag -> tag
     | None ->
-        failwith (sprintf "Unknown or misspelled tag: %s" str)
+        fatal_error (sprintf "Unknown or misspelled tag: %s" str)
   )
 
 (* This option currently supports only one tag. In the future, we might
