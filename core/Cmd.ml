@@ -14,6 +14,7 @@ open Cmdliner
 type conf = {
   (* All subcommands *)
   filter_by_substring : string option;
+  filter_by_tag : Tag.t option;
   (* Run and Status *)
   show_output : bool;
   (* Status *)
@@ -25,6 +26,7 @@ type conf = {
 let default_conf =
   {
     filter_by_substring = None;
+    filter_by_tag = None;
     show_output = false;
     status_output_style = Compact_important;
     lazy_ = false;
@@ -61,19 +63,25 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   match cmd_conf with
   | Run_tests conf ->
       Run.run_tests ~always_show_unchecked_output:conf.show_output
-        ~filter_by_substring:conf.filter_by_substring ~lazy_:conf.lazy_ tests
+        ~filter_by_substring:conf.filter_by_substring
+        ~filter_by_tag:conf.filter_by_tag
+        ~lazy_:conf.lazy_ tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
       let exit_code, tests_with_status =
         Run.list_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
+          ~filter_by_tag:conf.filter_by_tag
           ~output_style:conf.status_output_style tests
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
       let exit_code =
-        Run.approve_output ?filter_by_substring:conf.filter_by_substring tests
+        Run.approve_output
+          ?filter_by_substring:conf.filter_by_substring
+          ?filter_by_tag:conf.filter_by_tag
+          tests
       in
       handle_subcommand_result exit_code Approve_result
 
@@ -89,7 +97,29 @@ let filter_by_substring_term : string option Term.t =
     Arg.info
       [ "s"; "filter-substring" ]
       ~docv:"SUBSTRING"
-      ~doc:"Select tests whose description contains SUBSTRING."
+      ~doc:"Select tests whose description contains $(docv)."
+  in
+  Arg.value (Arg.opt (Arg.some Arg.string) None info)
+
+let check_tag filter_by_tag =
+  filter_by_tag
+  |> Option.map (fun str ->
+    match Tag.of_string_opt str with
+    | Some tag -> tag
+    | None ->
+        failwith (sprintf "Unknown or misspelled tag: %s" str)
+  )
+
+(* This option currently supports only one tag. In the future, we might
+   want to support boolean queries e.g. '-t "lang.python and not todo"' *)
+let filter_by_tag_term : string option Term.t =
+  let info =
+    Arg.info
+      [ "t"; "filter-tag" ]
+      ~docv:"TAG"
+      ~doc:"Select tests tagged with $(docv). Filtering by tag is generally \
+            more robust than selecting tests by text contained in their \
+            name with '-s'."
   in
   Arg.value (Arg.opt (Arg.some Arg.string) None info)
 
@@ -127,13 +157,23 @@ let lazy_term : bool Term.t =
 let run_doc = "run the tests"
 
 let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
-  let combine filter_by_substring lazy_ show_output verbose =
+  let combine filter_by_substring filter_by_tag lazy_ show_output verbose =
     let show_output = show_output || verbose in
-    Run_tests { default_conf with filter_by_substring; lazy_; show_output }
+    Run_tests {
+      default_conf with
+      filter_by_substring;
+      filter_by_tag = check_tag filter_by_tag;
+      lazy_;
+      show_output
+    }
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ filter_by_substring_term $ lazy_term $ show_output_term
+    const combine
+    $ filter_by_substring_term
+    $ filter_by_tag_term
+    $ lazy_term
+    $ show_output_term
     $ verbose_run_term)
 
 let subcmd_run test_spec =
@@ -175,7 +215,7 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all filter_by_substring long show_output verbose =
+  let combine all filter_by_substring filter_by_tag long show_output verbose =
     let status_output_style : Run.status_output_style =
       if verbose then
         Long_all
@@ -191,6 +231,7 @@ let subcmd_status_term tests : unit Term.t =
       {
         default_conf with
         filter_by_substring;
+        filter_by_tag = check_tag filter_by_tag;
         show_output;
         status_output_style;
       }
@@ -200,6 +241,7 @@ let subcmd_status_term tests : unit Term.t =
     const combine
     $ all_term
     $ filter_by_substring_term
+    $ filter_by_tag_term
     $ long_term
     $ show_output_term
     $ verbose_status_term

@@ -365,18 +365,39 @@ let to_alcotest_internal ~with_storage ~flip_xfail_outcome tests =
 let to_alcotest tests =
   to_alcotest_internal ~with_storage:false ~flip_xfail_outcome:true tests
 
-let filter ~filter_by_substring tests =
-  let tests =
+let filter ~filter_by_substring ~filter_by_tag tests =
+  let filter_sub =
     match filter_by_substring with
-    | None -> tests
+    | None -> None
     | Some sub ->
         let contains_sub = Helpers.contains_substring sub in
-        tests
-        |> List.filter (fun (test : T.test) ->
-               contains_sub test.internal_full_name
-               || contains_sub test.id)
+        Some (fun (test : T.test) ->
+          contains_sub test.internal_full_name
+          || contains_sub test.id
+        )
   in
-  tests
+  let filter_tag =
+    match filter_by_tag with
+    | None -> None
+    | Some tag ->
+        Some (fun (test : T.test) ->
+          List.exists (Tag.equal tag) test.tags
+        )
+  in
+  let filters =
+    [
+      filter_sub;
+      filter_tag;
+    ]
+    |> List.filter_map (fun x -> x)
+  in
+  match filters with
+  | [] -> tests
+  | _ ->
+      tests
+      |> List.filter (fun test ->
+        List.for_all (fun filter -> filter test) filters
+      )
 
 (* Returns an exit code *)
 let print_errors (xs : (Store.changed, string) Result.t list) : int =
@@ -697,10 +718,13 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the status subcommand
 *)
-let list_status ~always_show_unchecked_output ~filter_by_substring
+let list_status
+    ~always_show_unchecked_output
+    ~filter_by_substring
+    ~filter_by_tag
     ~output_style tests =
   check_test_definitions tests;
-  let selected_tests = filter ~filter_by_substring tests in
+  let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
@@ -747,7 +771,7 @@ let run_tests_sequentially ~always_show_unchecked_output
     (P.return ()) tests
 
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
-let before_run ~filter_by_substring ~lazy_ tests =
+let before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests =
   Store.init_workspace ();
   check_test_definitions tests;
   let tests =
@@ -760,7 +784,7 @@ let before_run ~filter_by_substring ~lazy_ tests =
         |> Helpers.list_map (fun (test, _, _) -> test)
   in
   print_status_introduction ();
-  filter ~filter_by_substring tests
+  filter ~filter_by_substring ~filter_by_tag tests
 
 (* Run this after a run or Lwt run. *)
 let after_run ~always_show_unchecked_output tests selected_tests =
@@ -774,8 +798,11 @@ let after_run ~always_show_unchecked_output tests selected_tests =
    Entry point for the 'run' subcommand
 *)
 let run_tests ~always_show_unchecked_output
-    ~filter_by_substring ~lazy_ tests cont =
-  let selected_tests = before_run ~filter_by_substring ~lazy_ tests in
+    ~filter_by_substring
+    ~filter_by_tag
+    ~lazy_ tests cont =
+  let selected_tests =
+    before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests in
   (run_tests_sequentially ~always_show_unchecked_output selected_tests
    >>= fun () ->
    let exit_code, tests_with_status =
@@ -792,10 +819,13 @@ let run_tests ~always_show_unchecked_output
 (*
    Entry point for the 'approve' subcommand
 *)
-let approve_output ?filter_by_substring tests =
+let approve_output
+    ?filter_by_substring
+    ?filter_by_tag
+    tests =
   Store.init_workspace ();
   check_test_definitions tests;
   tests
-  |> filter ~filter_by_substring
+  |> filter ~filter_by_substring ~filter_by_tag
   |> Helpers.list_map Store.approve_new_output
   |> print_errors

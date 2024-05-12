@@ -33,6 +33,9 @@ val equal : t -> t -> bool
 (** Convert the tag back to the original string. *)
 val to_string : t -> string
 
+(** Convert a tag from a string, failing is the tag wasn't declared. *)
+val of_string_opt : string -> t option
+
 (** Convert the tag to human-readable form (which happens to be the same as
     the original string). *)
 val show : t -> string

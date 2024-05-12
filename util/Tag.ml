@@ -38,6 +38,12 @@ let check_tag_syntax tag =
 let declared_tags : (t, unit) Hashtbl.t =
   Hashtbl.create 100
 
+let of_string_opt str =
+  if Hashtbl.mem declared_tags str then
+    Some str
+  else
+    None
+
 let declare tag =
   check_tag_syntax tag;
   if Hashtbl.mem declared_tags tag then
