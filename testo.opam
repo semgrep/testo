@@ -16,7 +16,6 @@ depends: [
   "fpath"
   "re"
   "testo-util"
-  "unix"
   "odoc" {with-doc}
 ]
 build: [

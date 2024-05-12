@@ -10,7 +10,6 @@ depends: [
   "dune" {>= "3.7"}
   "ocaml" {>= "4.08.0"}
   "fpath"
-  "unix"
   "odoc" {with-doc}
 ]
 build: [

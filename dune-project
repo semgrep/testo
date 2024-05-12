@@ -22,7 +22,6 @@ Testo is a test framework for OCaml.")
   (depends
     (ocaml (>= 4.08.0))
     fpath
-    unix
   )
 )
 
@@ -39,7 +38,6 @@ checking, and approving the output of tests.")
     fpath
     re
     testo-util
-    unix
   )
 )
 
@@ -58,6 +56,5 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     fpath
     re
     testo-util
-    unix
   )
 )
