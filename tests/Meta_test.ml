@@ -89,6 +89,7 @@ let test_standard_flow () =
   test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "approve -s auto-approve";
   test_subcommand ~__LOC__ "status";
+  test_subcommand ~__LOC__ "status -a -t testin" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "status -a -t testing";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
