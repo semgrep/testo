@@ -478,6 +478,11 @@ Expected output changed for 9 tests.
 <handling result before exiting>
 RUN ./test status
 <handling result before exiting>
+RUN ./test status -a -t testin
+Error: Unknown or misspelled tag: testin
+RUN ./test status -a -t testing
+[32m[PASS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
+<handling result before exiting>
 #####################################################################
 # Delete statuses but not snapshots
 #####################################################################

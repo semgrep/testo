@@ -24,6 +24,7 @@ val to_alcotest :
 val run_tests :
   always_show_unchecked_output:bool ->
   filter_by_substring:string option ->
+  filter_by_tag:Testo_util.Tag.t option ->
   lazy_:bool ->
   Types.test list ->
   (int -> Types.test_with_status list -> _) ->
@@ -35,9 +36,12 @@ val run_tests :
 val list_status :
   always_show_unchecked_output:bool ->
   filter_by_substring:string option ->
+  filter_by_tag:Testo_util.Tag.t option ->
   output_style:status_output_style ->
   Types.test list ->
   int * Types.test_with_status list
 
 val approve_output :
-  ?filter_by_substring:string -> Types.test list -> int
+  ?filter_by_substring:string ->
+  ?filter_by_tag:Testo_util.Tag.t ->
+  Types.test list -> int
