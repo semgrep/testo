@@ -242,6 +242,24 @@ val update :
   ?tolerate_chdir:bool ->
   t -> t
 
+(** {2 Assertions and exceptions}
+
+    Signaling a test failure is done by raising an exception.
+    You may raise any exception to signal a test failure.
+
+    At this time, Testo doesn't provide advanced functions for checking
+    a result against an expected value and printing these values nicely.
+    For these, you may want to use `Alcotest.check` from the
+    [alcotest] library.
+*)
+
+(** The exception raised by {!fail} *)
+exception Test_failure of string
+
+(** Raise the {!Test_failure} exception with a message indicating
+    the reason for the failure. *)
+val fail : string -> unit
+
 (** {2 Temporary files and output redirection} *)
 
 (** Write data to a regular file. Create the file if it doesn't exist.
@@ -490,9 +508,13 @@ type alcotest_test =
    fail to raise an exception (XPASS) will be shown as failed by Alcotest.
 
    This function is provided to facilitate migrations between Alcotest
-   and Testo, not for long-term use.
+   and Testo, not for long-term use. It is independent of the Alcotest library
+   except for the [Alcotest.skip] function that must be provided
+   via the [alcotest_skip] argument.
+
+   Usage: [Testo.to_alcotest ~alcotest_skip:Alcotest.skip tests]
 *)
-val to_alcotest : t list -> alcotest_test list
+val to_alcotest : alcotest_skip:(unit -> _) -> t list -> alcotest_test list
 
 (** {2 Command-line interpretation} *)
 

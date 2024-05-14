@@ -3,11 +3,11 @@
   (public_name testo-lwt)
   (name testo_lwt)
   (libraries
-    alcotest
     cmdliner
     fpath
     lwt
     re
     testo-util
+    unix
   )
 )

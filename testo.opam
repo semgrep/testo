@@ -11,7 +11,7 @@ bug-reports: "https://github.com/semgrep/testo/issues"
 depends: [
   "dune" {>= "3.7"}
   "ocaml" {>= "4.08.0"}
-  "alcotest"
+  "alcotest" {with-test}
   "cmdliner"
   "fpath"
   "re"

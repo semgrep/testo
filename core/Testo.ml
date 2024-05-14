@@ -181,6 +181,12 @@ let update ?category ?checked_output ?expected_outcome
   }
   |> update_id
 
+exception Test_failure = Testo_util.Error.Test_failure
+
+(* 'Testo.fail' is unambiguous to the user, no need to call it
+   'Testo.fail_test'. *)
+let fail = Testo_util.Error.fail_test
+
 (**************************************************************************)
 (* Files and output manipulation *)
 (**************************************************************************)
