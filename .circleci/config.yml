@@ -23,7 +23,7 @@ jobs:
           command: ./scripts/dev-setup-all-platforms -y
       - run:
           name: Lint
-          command: .local/bin/pre-commit run
+          command: pre-commit run
       - run:
           name: Build
           command: opam exec -- make
