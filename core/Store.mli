@@ -86,10 +86,7 @@ val approve_new_output : Types.test -> (changed, string) Result.t
 *)
 val get_orig_output_suffix : Types.test -> string option
 
-type dead_snapshot = {
-  dir_or_junk_file: Fpath.t;
-  test_name: string option;
-}
+type dead_snapshot = { dir_or_junk_file : Fpath.t; test_name : string option }
 
 (*
    Identify any file or folder in the snapshot folder that doesn't

@@ -22,7 +22,7 @@ exception User_error of string
 
    This exception is for any error that is not the user's fault.
 *)
-exception Internal_error of { loc: string; msg: string }
+exception Internal_error of { loc : string; msg : string }
 
 (* Raise the 'Test_failure' exception. *)
 val fail_test : string -> 'a

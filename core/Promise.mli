@@ -6,10 +6,7 @@ type 'a t = 'a Monad.t
 
 val return : 'a -> 'a t
 val bind : 'a t -> ('a -> 'b t) -> 'b t
-val catch :
-  (unit -> 'a t) ->
-  (exn -> Printexc.raw_backtrace -> 'a t) ->
-  'a t
+val catch : (unit -> 'a t) -> (exn -> Printexc.raw_backtrace -> 'a t) -> 'a t
 
 module Operators : sig
   (* The bind operator *)
@@ -17,7 +14,4 @@ module Operators : sig
 end
 
 (* Generalized version of 'Fun.protect' *)
-val protect :
-  (unit -> 'a t) ->
-  finally:(unit -> unit t) ->
-  'a t
+val protect : (unit -> 'a t) -> finally:(unit -> unit t) -> 'a t

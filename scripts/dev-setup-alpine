@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+#
+# Setup script for installing dependencies for Alpine Linux.
+#
+set -eu
+
+sudo apk add py3-pip
+pip install pre-commit
+
+# hmmm
+src=$HOME/.local/bin/pre-commit
+sudo ln -s "$src" /usr/local/bin/

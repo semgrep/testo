@@ -16,8 +16,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: ./.circleci/setup -y
+          name: Install OS-specific dependencies
+          command: ./scripts/dev-setup-alpine
+      - run:
+          name: Install OS-independent dependencies
+          command: ./scripts/dev-setup-all-platforms -y
+      - run:
+          name: Lint
+          command: pre-commit run
       - run:
           name: Build
           command: opam exec -- make
@@ -31,8 +37,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install OS-specific dependencies
+          command: ./scripts/dev-setup-alpine
+      - run:
           name: Install dependencies
-          command: ./.circleci/setup -y
+          command: ./scripts/dev-setup-all-platforms -y
       - run:
           name: Build
           command: opam exec -- make

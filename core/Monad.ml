@@ -11,7 +11,7 @@ let return x = x
 let bind x func = func x
 
 let catch func handler =
-  try func ()
-  with exn ->
-    let trace = Printexc.get_raw_backtrace () in
-    handler exn trace
+  try func () with
+  | exn ->
+      let trace = Printexc.get_raw_backtrace () in
+      handler exn trace

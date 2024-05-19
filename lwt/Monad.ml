@@ -9,7 +9,6 @@ let bind = Lwt.bind
 
 let catch func handler =
   Lwt.catch func (fun exn ->
-    (* TODO: need to capture the stack trace earlier? How? *)
-    let trace = Printexc.get_raw_backtrace () in
-    handler exn trace
-  )
+      (* TODO: need to capture the stack trace earlier? How? *)
+      let trace = Printexc.get_raw_backtrace () in
+      handler exn trace)

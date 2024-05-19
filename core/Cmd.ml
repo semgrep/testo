@@ -46,8 +46,7 @@ type subcommand_result =
   | Approve_result
 
 type 'continuation_result test_spec =
-  (unit -> Types.test list)
-  * (int -> subcommand_result -> 'continuation_result)
+  (unit -> Types.test list) * (int -> subcommand_result -> 'continuation_result)
 
 (****************************************************************************)
 (* Dispatch subcommands to do real work *)
@@ -68,8 +67,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   | Run_tests conf ->
       Run.run_tests ~always_show_unchecked_output:conf.show_output
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag
-        ~lazy_:conf.lazy_ tests
+        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
@@ -82,10 +80,8 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
       let exit_code =
-        Run.approve_output
-          ?filter_by_substring:conf.filter_by_substring
-          ?filter_by_tag:conf.filter_by_tag
-          tests
+        Run.approve_output ?filter_by_substring:conf.filter_by_substring
+          ?filter_by_tag:conf.filter_by_tag tests
       in
       handle_subcommand_result exit_code Approve_result
 
@@ -100,30 +96,26 @@ let filter_by_substring_term : string option Term.t =
   let info =
     Arg.info
       [ "s"; "filter-substring" ]
-      ~docv:"SUBSTRING"
-      ~doc:"Select tests whose description contains $(docv)."
+      ~docv:"SUBSTRING" ~doc:"Select tests whose description contains $(docv)."
   in
   Arg.value (Arg.opt (Arg.some Arg.string) None info)
 
 let check_tag filter_by_tag =
   filter_by_tag
   |> Option.map (fun str ->
-    match Tag.of_string_opt str with
-    | Some tag -> tag
-    | None ->
-        fatal_error (sprintf "Unknown or misspelled tag: %s" str)
-  )
+         match Tag.of_string_opt str with
+         | Some tag -> tag
+         | None -> fatal_error (sprintf "Unknown or misspelled tag: %s" str))
 
 (* This option currently supports only one tag. In the future, we might
    want to support boolean queries e.g. '-t "lang.python and not todo"' *)
 let filter_by_tag_term : string option Term.t =
   let info =
-    Arg.info
-      [ "t"; "filter-tag" ]
-      ~docv:"TAG"
-      ~doc:"Select tests tagged with $(docv). Filtering by tag is generally \
-            more robust than selecting tests by text contained in their \
-            name with '-s'."
+    Arg.info [ "t"; "filter-tag" ] ~docv:"TAG"
+      ~doc:
+        "Select tests tagged with $(docv). Filtering by tag is generally more \
+         robust than selecting tests by text contained in their name with \
+         '-s'."
   in
   Arg.value (Arg.opt (Arg.some Arg.string) None info)
 
@@ -163,22 +155,19 @@ let run_doc = "run the tests"
 let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
   let combine filter_by_substring filter_by_tag lazy_ show_output verbose =
     let show_output = show_output || verbose in
-    Run_tests {
-      default_conf with
-      filter_by_substring;
-      filter_by_tag = check_tag filter_by_tag;
-      lazy_;
-      show_output
-    }
+    Run_tests
+      {
+        default_conf with
+        filter_by_substring;
+        filter_by_tag = check_tag filter_by_tag;
+        lazy_;
+        show_output;
+      }
     |> run_with_conf test_spec
   in
   Term.(
-    const combine
-    $ filter_by_substring_term
-    $ filter_by_tag_term
-    $ lazy_term
-    $ show_output_term
-    $ verbose_run_term)
+    const combine $ filter_by_substring_term $ filter_by_tag_term $ lazy_term
+    $ show_output_term $ verbose_run_term)
 
 let subcmd_run test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
@@ -203,16 +192,18 @@ let long_term : bool Term.t =
 let all_term : bool Term.t =
   let info =
     Arg.info [ "a"; "all" ]
-      ~doc:"Report tests in all statuses instead of only the tests that
-            need attention."
+      ~doc:
+        "Report tests in all statuses instead of only the tests that\n\
+        \            need attention."
   in
   Arg.value (Arg.flag info)
 
 let verbose_status_term : bool Term.t =
   let info =
     Arg.info [ "v"; "verbose" ]
-      ~doc:"Report the status of the tests with maximum verbosity.
-            This is currently equivalent to '-alw'."
+      ~doc:
+        "Report the status of the tests with maximum verbosity.\n\
+        \            This is currently equivalent to '-alw'."
   in
   Arg.value (Arg.flag info)
 
@@ -221,10 +212,9 @@ let status_doc = "show test status"
 let subcmd_status_term tests : unit Term.t =
   let combine all filter_by_substring filter_by_tag long show_output verbose =
     let status_output_style : Run.status_output_style =
-      if verbose then
-        Long_all
+      if verbose then Long_all
       else
-        match long, all with
+        match (long, all) with
         | true, true -> Long_all
         | false, true -> Compact_all
         | true, false -> Long_important
@@ -242,14 +232,8 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine
-    $ all_term
-    $ filter_by_substring_term
-    $ filter_by_tag_term
-    $ long_term
-    $ show_output_term
-    $ verbose_status_term
-  )
+    const combine $ all_term $ filter_by_substring_term $ filter_by_tag_term
+    $ long_term $ show_output_term $ verbose_status_term)
 
 let subcmd_status tests =
   let info = Cmd.info "status" ~doc:status_doc in
@@ -329,8 +313,7 @@ let with_record_backtrace func =
 *)
 let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
-    ?status_workspace_root ~project_name
-    (get_tests : unit -> Types.test list) =
+    ?status_workspace_root ~project_name (get_tests : unit -> Types.test list) =
   (* TODO: is there any reason why we shouldn't always record a stack
      backtrace when running tests? *)
   let test_spec = (get_tests, handle_subcommand_result) in

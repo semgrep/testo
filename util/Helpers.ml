@@ -37,34 +37,31 @@ let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
                !!dir)
         else if recursive then (
           mkdir parent;
-          Unix.mkdir !!dir 0o777
-        )
-        else if Sys.file_exists !!parent then
-          Unix.mkdir !!dir 0o777
+          Unix.mkdir !!dir 0o777)
+        else if Sys.file_exists !!parent then Unix.mkdir !!dir 0o777
         else
           Error.user_error
             (sprintf
                "The parent folder of %S doesn't exist (current folder: %S)"
                !!dir (Sys.getcwd ()))
   in
-  dir
-  |> Fpath.normalize
-  |> Fpath.rem_empty_seg
-  |> mkdir
+  dir |> Fpath.normalize |> Fpath.rem_empty_seg |> mkdir
 
 let list_files dir =
   let names = ref [] in
   let dir = Unix.opendir !!dir in
   Fun.protect
     (fun () ->
-       try
-         while true do
-           match Unix.readdir dir with
-           | "." | ".." -> ()
-           | name -> names := name :: !names
-         done
-       with End_of_file -> ()
-    )
+      try
+        while true do
+          match Unix.readdir dir with
+          | "."
+          | ".." ->
+              ()
+          | name -> names := name :: !names
+        done
+      with
+      | End_of_file -> ())
     ~finally:(fun () -> Unix.closedir dir);
   List.sort String.compare !names
 
@@ -72,11 +69,10 @@ let rec remove_file_or_dir path =
   if Sys.file_exists !!path then
     match (Unix.stat !!path).st_kind with
     | S_DIR ->
-         path
-         |> list_files
-         |> list_map (fun name -> path / name)
-         |> List.iter remove_file_or_dir;
-         Unix.rmdir !!path
+        path |> list_files
+        |> list_map (fun name -> path / name)
+        |> List.iter remove_file_or_dir;
+        Unix.rmdir !!path
     | S_REG
     | S_CHR
     | S_BLK
@@ -102,8 +98,7 @@ let read_file path =
   let ic = open_in_bin !!path in
   Fun.protect
     (fun () ->
-       (* This fails for named pipes *)
-       let len = in_channel_length ic in
-       really_input_string ic len
-    )
+      (* This fails for named pipes *)
+      let len = in_channel_length ic in
+      really_input_string ic len)
     ~finally:(fun () -> close_in_noerr ic)

@@ -28,12 +28,8 @@ type status_stats = {
 }
 
 type success = OK | OK_but_new | Not_OK of T.fail_reason option
-
-type alcotest_test_case =
-  string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
-
-type alcotest_test =
-  string * alcotest_test_case list
+type alcotest_test_case = string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
+type alcotest_test = string * alcotest_test_case list
 
 (* The exit codes used by the built-in test runner. *)
 let exit_success = 0
@@ -84,42 +80,32 @@ let check_snapshot_uniqueness (tests : T.test list) =
   let path_tbl = Hashtbl.create 1000 in
   tests
   |> List.iter (fun (test : T.test) ->
-    test
-    |> Store.capture_paths_of_test
-    |> List.iter (fun (paths : Store.capture_paths) ->
-      match paths.path_to_expected_output with
-      | None -> ()
-      | Some path ->
-          (* This may or may not be a custom path. *)
-          let test_name = test.internal_full_name in
-          match Hashtbl.find_opt path_tbl path with
-          | None ->
-              Hashtbl.add path_tbl path test_name
-          | Some test_name0 ->
-              if test_name = test_name0 then
-                Error.user_error (
-                  sprintf "\
-A test uses the same snapshot path twice:
-- test name: %S
-- conflicting snapshot path: %s
-Fix it in the test definition.
-"
-                    test_name !!path
-                )
-              else
-                Error.user_error (
-                  sprintf "\
-Two different tests use the same snapshot path:
-- first test: %S
-- second test: %S
-- conflicting snapshot path: %s
-"
-                    test_name0
-                    test_name
-                    !!path
-                )
-    )
-  )
+         test |> Store.capture_paths_of_test
+         |> List.iter (fun (paths : Store.capture_paths) ->
+                match paths.path_to_expected_output with
+                | None -> ()
+                | Some path -> (
+                    (* This may or may not be a custom path. *)
+                    let test_name = test.internal_full_name in
+                    match Hashtbl.find_opt path_tbl path with
+                    | None -> Hashtbl.add path_tbl path test_name
+                    | Some test_name0 ->
+                        if test_name = test_name0 then
+                          Error.user_error
+                            (sprintf
+                               "A test uses the same snapshot path twice:\n\
+                                - test name: %S\n\
+                                - conflicting snapshot path: %s\n\
+                                Fix it in the test definition.\n"
+                               test_name !!path)
+                        else
+                          Error.user_error
+                            (sprintf
+                               "Two different tests use the same snapshot path:\n\
+                                - first test: %S\n\
+                                - second test: %S\n\
+                                - conflicting snapshot path: %s\n"
+                               test_name0 test_name !!path))))
 
 let check_test_definitions tests =
   check_id_uniqueness tests;
@@ -173,21 +159,18 @@ let stats_of_tests tests tests_with_status =
   in
   tests_with_status
   |> List.iter (fun ((test : T.test), _status, (sum : T.status_summary)) ->
-    if test.skipped then
-      incr stats.skipped_tests
-    else (
-      (match sum.status_class with
-       | MISS -> ()
-       | _ -> if not sum.has_expected_output then incr stats.needs_approval);
-      incr
-        (match sum.status_class with
-         | PASS -> stats.pass
-         | FAIL _ -> stats.fail
-         | XFAIL _ -> stats.xfail
-         | XPASS -> stats.xpass
-         | MISS -> stats.miss)
-    )
-  );
+         if test.skipped then incr stats.skipped_tests
+         else (
+           (match sum.status_class with
+           | MISS -> ()
+           | _ -> if not sum.has_expected_output then incr stats.needs_approval);
+           incr
+             (match sum.status_class with
+             | PASS -> stats.pass
+             | FAIL _ -> stats.fail
+             | XFAIL _ -> stats.xfail
+             | XPASS -> stats.xpass
+             | MISS -> stats.miss)));
   stats
 
 (* Sample output: "", " {foo, bar}" *)
@@ -257,8 +240,8 @@ let chdir_error (test : T.test) =
    TODO: add options at test creation time to tolerate the failure to restore
    this or that setting.
 *)
-let protect_globals (test : T.test) (func : unit -> 'promise) :
-    unit -> 'promise =
+let protect_globals (test : T.test) (func : unit -> 'promise) : unit -> 'promise
+    =
   let protect_global ?error_if_changed get set func () =
     let original_value = get () in
     P.protect
@@ -267,8 +250,7 @@ let protect_globals (test : T.test) (func : unit -> 'promise) :
         set original_value;
         (match error_if_changed with
         | Some err_msg_func when current_value <> original_value ->
-            Error.fail_test
-              (err_msg_func original_value current_value)
+            Error.fail_test (err_msg_func original_value current_value)
         | _ -> ());
         P.return ())
       func
@@ -278,8 +260,7 @@ let protect_globals (test : T.test) (func : unit -> 'promise) :
   |> protect_global Printexc.backtrace_status Printexc.record_backtrace
 (* TODO: more universal settings to protect? *)
 
-let to_alcotest_gen
-    ~(alcotest_skip : unit -> _)
+let to_alcotest_gen ~(alcotest_skip : unit -> _)
     ~(wrap_test_function : T.test -> (unit -> 'a) -> unit -> 'a)
     (tests : T.test list) : _ list =
   tests
@@ -302,14 +283,14 @@ let to_alcotest_gen
               A "skipped" test is marked as skipped in Alcotest's run output
               and leaves no trace such that Testo thinks it never ran.
            *)
-           if test.skipped then (
-             fun () ->
-               alcotest_skip () |> ignore;
-               Error.user_error "\
-The function 'alcotest_skip' passed to 'Testo.to_alcotest' didn't raise
-an exception as expected. 'Testo.to_alcotest' should be called with
-'~alcotest_skip:Alcotest.skip'."
-           )
+           if test.skipped then (fun () ->
+             alcotest_skip () |> ignore;
+             Error.user_error
+               "The function 'alcotest_skip' passed to 'Testo.to_alcotest' \
+                didn't raise\n\
+                an exception as expected. 'Testo.to_alcotest' should be called \
+                with\n\
+                '~alcotest_skip:Alcotest.skip'.")
            else (wrap_test_function test test.func : unit -> _)
          in
          (* This is the format expected by Alcotest: *)
@@ -333,9 +314,8 @@ let print_exn (test : T.test) exn trace =
 
 let with_print_exn (test : T.test) func () =
   P.catch func (fun exn trace ->
-    print_exn test exn trace;
-    (Printexc.raise_with_backtrace exn trace : unit Promise.t)
-  )
+      print_exn test exn trace;
+      (Printexc.raise_with_backtrace exn trace : unit Promise.t))
 
 let with_flip_xfail_outcome (test : T.test) func =
   match test.expected_outcome with
@@ -356,25 +336,22 @@ let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
-  func
-  |> with_print_exn test
+  func |> with_print_exn test
   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
 
-let to_alcotest_internal
-    ~alcotest_skip ~with_storage ~flip_xfail_outcome tests =
-  to_alcotest_gen
-    ~alcotest_skip
+let to_alcotest_internal ~alcotest_skip ~with_storage ~flip_xfail_outcome tests
+    =
+  to_alcotest_gen ~alcotest_skip
     ~wrap_test_function:(wrap_test_function ~with_storage ~flip_xfail_outcome)
     tests
 
 (* Exported versions that exposes a plain Alcotest test suite that doesn't
    write test statuses and prints "OK" for XFAIL statuses. *)
 let to_alcotest ~alcotest_skip tests =
-  to_alcotest_internal
-    ~alcotest_skip
-    ~with_storage:false ~flip_xfail_outcome:true tests
+  to_alcotest_internal ~alcotest_skip ~with_storage:false
+    ~flip_xfail_outcome:true tests
 
 let filter ~filter_by_substring ~filter_by_tag tests =
   let filter_sub =
@@ -382,33 +359,23 @@ let filter ~filter_by_substring ~filter_by_tag tests =
     | None -> None
     | Some sub ->
         let contains_sub = Helpers.contains_substring sub in
-        Some (fun (test : T.test) ->
-          contains_sub test.internal_full_name
-          || contains_sub test.id
-        )
+        Some
+          (fun (test : T.test) ->
+            contains_sub test.internal_full_name || contains_sub test.id)
   in
   let filter_tag =
     match filter_by_tag with
     | None -> None
     | Some tag ->
-        Some (fun (test : T.test) ->
-          List.exists (Tag.equal tag) test.tags
-        )
+        Some (fun (test : T.test) -> List.exists (Tag.equal tag) test.tags)
   in
-  let filters =
-    [
-      filter_sub;
-      filter_tag;
-    ]
-    |> List.filter_map (fun x -> x)
-  in
+  let filters = [ filter_sub; filter_tag ] |> List.filter_map (fun x -> x) in
   match filters with
   | [] -> tests
   | _ ->
       tests
       |> List.filter (fun test ->
-        List.for_all (fun filter -> filter test) filters
-      )
+             List.for_all (fun filter -> filter test) filters)
 
 (* Returns an exit code *)
 let print_errors (xs : (Store.changed, string) Result.t list) : int =
@@ -416,14 +383,12 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
   let error_messages = ref [] in
   xs
   |> List.iter (function
-    | Ok Store.Changed -> incr changed
-    | Ok Store.Unchanged -> ()
-    | Error msg -> error_messages := msg :: !error_messages
-  );
+       | Ok Store.Changed -> incr changed
+       | Ok Store.Unchanged -> ()
+       | Error msg -> error_messages := msg :: !error_messages);
   let changed = !changed in
   let error_messages = List.rev !error_messages in
-  printf "Expected output changed for %i test%s.\n%!"
-    changed
+  printf "Expected output changed for %i test%s.\n%!" changed
     (if_plural changed "s");
   match error_messages with
   | [] -> exit_success
@@ -460,9 +425,7 @@ let show_diff (output_kind : string) path_to_expected_output path_to_output =
   | _nonzero ->
       printf "%sCaptured %s differs from expectation.\n" bullet output_kind
 
-let show_output_details
-    (test : T.test)
-    (sum : T.status_summary)
+let show_output_details (test : T.test) (sum : T.status_summary)
     (capture_paths : Store.capture_paths list) =
   let success = success_of_status_summary sum in
   capture_paths
@@ -486,11 +449,11 @@ let show_output_details
              if success <> OK_but_new then
                printf "%sPath to expected %s: %s\n" bullet short_name
                  !!path_to_expected_output);
-         printf "%sPath to captured %s: %s%s\n"
-           bullet short_name !!path_to_output
+         printf "%sPath to captured %s: %s%s\n" bullet short_name
+           !!path_to_output
            (match Store.get_orig_output_suffix test with
-            | Some suffix -> sprintf " [%s]" suffix
-            | None -> ""))
+           | Some suffix -> sprintf " [%s]" suffix
+           | None -> ""))
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
 
@@ -521,8 +484,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
       else (
         (match status.expectation.expected_outcome with
         | Should_succeed -> ()
-        | Should_fail reason ->
-            printf "%sExpected to fail: %s\n" bullet reason);
+        | Should_fail reason -> printf "%sExpected to fail: %s\n" bullet reason);
         (match test.checked_output with
         | Ignore_output -> ()
         | _ ->
@@ -559,41 +521,35 @@ let print_status ~highlight_test ~always_show_unchecked_output
         let success = success_of_status_summary sum in
         let show_unchecked_output =
           always_show_unchecked_output
-          || (match success with
-            | OK -> false
-            | OK_but_new -> true
-            | Not_OK _ -> true)
+          ||
+          match success with
+          | OK -> false
+          | OK_but_new -> true
+          | Not_OK _ -> true
         in
         (* TODO: show the checked output to be approved? *)
-        if show_unchecked_output then (
+        if show_unchecked_output then
           match Store.get_unchecked_output test with
-          | None ->
-              (match success with
-               | OK ->
-                   ()
-               | OK_but_new ->
-                   ()
-               | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
-                   printf "%sFailed due to an exception. \
-                           See captured output.\n"
-                     bullet
-               | Not_OK (Some Wrong_output) ->
-                   printf "%sFailed due to wrong output.\n" bullet
-               | Not_OK None ->
-                   printf "%sSucceded when it should have failed. \
-                           See captured output.\n"
-                     bullet
-              )
-          | Some (log_description, data) ->
+          | None -> (
+              match success with
+              | OK -> ()
+              | OK_but_new -> ()
+              | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
+                  printf "%sFailed due to an exception. See captured output.\n"
+                    bullet
+              | Not_OK (Some Wrong_output) ->
+                  printf "%sFailed due to wrong output.\n" bullet
+              | Not_OK None ->
+                  printf
+                    "%sSucceded when it should have failed. See captured output.\n"
+                    bullet)
+          | Some (log_description, data) -> (
               match data with
-              | "" ->
-                  printf "%sLog (%s) is empty.\n" bullet log_description
+              | "" -> printf "%sLog (%s) is empty.\n" bullet log_description
               | _ ->
                   printf "%sLog (%s):\n%s" bullet log_description
                     (Style.quote_multiline_text data);
-                  if not (ends_with_newline data) then
-                    print_char '\n'
-        )));
+                  if not (ends_with_newline data) then print_char '\n')));
   flush stdout
 
 let print_statuses ~highlight_test ~always_show_unchecked_output
@@ -607,12 +563,12 @@ let print_statuses ~highlight_test ~always_show_unchecked_output
 let is_overall_success statuses =
   statuses
   |> List.for_all (fun ((test : T.test), _status, sum) ->
-    test.skipped
-    || (match sum |> success_of_status_summary with
-      | OK -> true
-      | OK_but_new -> false
-      | Not_OK _ -> false)
-  )
+         test.skipped
+         ||
+         match sum |> success_of_status_summary with
+         | OK -> true
+         | OK_but_new -> false
+         | Not_OK _ -> false)
 
 (*
    Status output:
@@ -643,10 +599,8 @@ let print_status_introduction () =
 
 let print_compact_status ?(important = false) tests_with_status =
   let tests_with_status =
-    if important then
-      List.filter is_important_status tests_with_status
-    else
-      tests_with_status
+    if important then List.filter is_important_status tests_with_status
+    else tests_with_status
   in
   List.iter print_one_line_status tests_with_status;
   if is_overall_success tests_with_status then exit_success else exit_failure
@@ -670,25 +624,25 @@ let report_dead_snapshots all_tests =
   let dead_snapshots = Store.find_dead_snapshots all_tests in
   let n = List.length dead_snapshots in
   if n > 0 then (
-    printf "\
-%i folder%s no longer belong%s to the test suite and can be removed:\n"
-      n (if_plural n "s") (if_singular n "s");
-    List.iter (fun (x : Store.dead_snapshot) ->
-      let msg =
-        match x.test_name with
-        | None -> "??"
-        | Some name -> name
-      in
-      printf "  %s %s\n" !!(x.dir_or_junk_file) msg
-    ) dead_snapshots
-  )
+    printf
+      "%i folder%s no longer belong%s to the test suite and can be removed:\n" n
+      (if_plural n "s") (if_singular n "s");
+    List.iter
+      (fun (x : Store.dead_snapshot) ->
+        let msg =
+          match x.test_name with
+          | None -> "??"
+          | Some name -> name
+        in
+        printf "  %s %s\n" !!(x.dir_or_junk_file) msg)
+      dead_snapshots)
 
 let print_status_summary tests tests_with_status =
   report_dead_snapshots tests;
   let stats = stats_of_tests tests tests_with_status in
   let overall_success = is_overall_success tests_with_status in
-  printf "%i/%i selected test%s:\n"
-    stats.selected_tests stats.total_tests (if_plural stats.total_tests "s");
+  printf "%i/%i selected test%s:\n" stats.selected_tests stats.total_tests
+    (if_plural stats.total_tests "s");
   if !(stats.skipped_tests) > 0 then
     printf "  %i skipped\n" !(stats.skipped_tests);
   printf "  %i successful (%i pass, %i xfail)\n"
@@ -729,31 +683,25 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the status subcommand
 *)
-let list_status
-    ~always_show_unchecked_output
-    ~filter_by_substring
-    ~filter_by_tag
-    ~output_style tests =
+let list_status ~always_show_unchecked_output ~filter_by_substring
+    ~filter_by_tag ~output_style tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
     | Long_all ->
-        print_full_status
-          ~always_show_unchecked_output tests tests_with_status
+        print_full_status ~always_show_unchecked_output tests tests_with_status
     | Long_important ->
-        print_short_status
-          ~always_show_unchecked_output tests tests_with_status
-    | Compact_all ->
-        print_compact_status tests_with_status
+        print_short_status ~always_show_unchecked_output tests tests_with_status
+    | Compact_all -> print_compact_status tests_with_status
     | Compact_important ->
         print_compact_status ~important:true tests_with_status
   in
   (exit_code, tests_with_status)
 
-let run_tests_sequentially ~always_show_unchecked_output
-    (tests : T.test list) : 'unit_promise =
+let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
+    'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
       let test_func : unit -> 'unit_promise =
@@ -765,8 +713,7 @@ let run_tests_sequentially ~always_show_unchecked_output
         printf "%s%s\n%!"
           (Style.left_col (Style.color Yellow "[SKIP]"))
           (format_title test);
-        P.return ()
-      )
+        P.return ())
       else (
         printf "%s%s...%!"
           (Style.left_col (Style.color Yellow "[RUN]"))
@@ -775,10 +722,8 @@ let run_tests_sequentially ~always_show_unchecked_output
         (* Erase RUN line *)
         printf "\027[2K\r";
         get_test_with_status test
-        |> print_status ~highlight_test:false
-          ~always_show_unchecked_output;
-        P.return ())
-    )
+        |> print_status ~highlight_test:false ~always_show_unchecked_output;
+        P.return ()))
     (P.return ()) tests
 
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
@@ -808,21 +753,20 @@ let after_run ~always_show_unchecked_output tests selected_tests =
 (*
    Entry point for the 'run' subcommand
 *)
-let run_tests ~always_show_unchecked_output
-    ~filter_by_substring
-    ~filter_by_tag
+let run_tests ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
     ~lazy_ tests cont =
   let selected_tests =
-    before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests in
-  (run_tests_sequentially ~always_show_unchecked_output selected_tests
-   >>= fun () ->
-   let exit_code, tests_with_status =
-     after_run ~always_show_unchecked_output tests selected_tests
-   in
-   cont exit_code tests_with_status |> ignore;
-   (* The continuation 'cont' should exit but otherwise we exit once
-      it's done. *)
-   exit exit_code)
+    before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests
+  in
+  run_tests_sequentially ~always_show_unchecked_output selected_tests
+  >>= (fun () ->
+        let exit_code, tests_with_status =
+          after_run ~always_show_unchecked_output tests selected_tests
+        in
+        cont exit_code tests_with_status |> ignore;
+        (* The continuation 'cont' should exit but otherwise we exit once
+           it's done. *)
+        exit exit_code)
   |> ignore;
   (* shouldn't be reached if 'bind' does what it's supposed to *)
   exit exit_success
@@ -830,10 +774,7 @@ let run_tests ~always_show_unchecked_output
 (*
    Entry point for the 'approve' subcommand
 *)
-let approve_output
-    ?filter_by_substring
-    ?filter_by_tag
-    tests =
+let approve_output ?filter_by_substring ?filter_by_tag tests =
   Store.init_workspace ();
   check_test_definitions tests;
   tests

@@ -6,10 +6,12 @@
 build:
 	dune build .
 
-# Install opam dependencies
+# Install opam dependencies. This requires pre-commit which requires
+# Python. See scripts/dev-setup-alpine for an example of how to install
+# pre-commit.
 .PHONY: setup
 setup:
-	./.circleci/setup
+	./scripts/dev-setup-all-platforms
 
 .PHONY: test
 test: build

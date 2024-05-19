@@ -23,10 +23,9 @@ let shell_command ?(expected_exit_code = 0) ~__LOC__:loc command =
   printf "RUN %s\n%!" command;
   let exit_code = Sys.command command in
   if exit_code <> expected_exit_code then
-    failwith (
-      sprintf "%s:\nCommand '%s' exited with code %i but code %i was expected."
-        loc command exit_code expected_exit_code
-    )
+    failwith
+      (sprintf "%s:\nCommand '%s' exited with code %i but code %i was expected."
+         loc command exit_code expected_exit_code)
 
 let section text =
   printf
@@ -56,25 +55,24 @@ let clear_status ~__LOC__:loc () =
    output) in the default location.
    This is fragile but we don't have a better way right now.
 *)
-let auto_approve_tests = [
-  "9c96a5aa8b4b";
-  "0048917873df";
-  "17ec149855c2";
-  "02ac0ea4ae90";
-
-  (* auto-approve > internal files > create name file *)
-  "f66d12950c64";
-  (* auto-approve > internal files > don't create name file *)
-  "caadabfd495c";
-]
+let auto_approve_tests =
+  [
+    "9c96a5aa8b4b";
+    "0048917873df";
+    "17ec149855c2";
+    "02ac0ea4ae90";
+    (* auto-approve > internal files > create name file *)
+    "f66d12950c64";
+    (* auto-approve > internal files > don't create name file *)
+    "caadabfd495c";
+  ]
 
 (* Delete snapshots for the tests tagged with "auto-approve" *)
 let clear_snapshots ~__LOC__:loc () =
   (* snapshots at the default location *)
   auto_approve_tests
   |> List.iter (fun id ->
-    shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_tests/" ^ id)
-  );
+         shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_tests/" ^ id));
   (* snapshots at a custom location *)
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
@@ -152,14 +150,14 @@ let tests =
     t "output masking for failing tests"
       ~expected_outcome:(Should_fail "expected to fail")
       ~checked_output:(T.stdout ())
-      ~normalize:[ (fun data ->
-        if data = "not masked" then "<SUCCESSFULLY MASKED>" else data)
-      ]
+      ~normalize:
+        [
+          (fun data ->
+            if data = "not masked" then "<SUCCESSFULLY MASKED>" else data);
+        ]
       (fun () ->
-         print_string "not masked";
-         failwith "this exception is expected");
+        print_string "not masked";
+        failwith "this exception is expected");
   ]
 
-let () =
-  Testo.interpret_argv ~project_name:"testo_meta_tests" (fun () ->
-      tests)
+let () = Testo.interpret_argv ~project_name:"testo_meta_tests" (fun () -> tests)
