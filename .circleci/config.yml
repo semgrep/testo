@@ -17,7 +17,7 @@ jobs:
       - checkout
       - run:
           name: Install OS-specific dependencies
-          command: ./scripts/dev-setup-alpine -y
+          command: ./scripts/dev-setup-alpine
       - run:
           name: Install OS-independent dependencies
           command: ./scripts/dev-setup-all-platforms -y
@@ -38,7 +38,7 @@ jobs:
       - checkout
       - run:
           name: Install OS-specific dependencies
-          command: ./scripts/dev-setup-alpine -y
+          command: ./scripts/dev-setup-alpine
       - run:
           name: Install dependencies
           command: ./scripts/dev-setup-all-platforms -y
