@@ -8,5 +8,5 @@ sudo apk add py3-pip
 pip install pre-commit
 
 # hmmm
-src=$(pwd)/.local/bin/pre-commit
+src=$HOME/.local/bin/pre-commit
 sudo ln -s "$src" /usr/local/bin/
