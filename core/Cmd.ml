@@ -13,6 +13,7 @@ open Cmdliner
 *)
 type conf = {
   (* All subcommands *)
+  color : Style.color_setting;
   filter_by_substring : string option;
   filter_by_tag : Tag.t option;
   (* Run and Status *)
@@ -25,6 +26,7 @@ type conf = {
 
 let default_conf =
   {
+    color = Style.Auto;
     filter_by_substring = None;
     filter_by_tag = None;
     show_output = false;
@@ -66,21 +68,22 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   match cmd_conf with
   | Run_tests conf ->
       Run.run_tests ~always_show_unchecked_output:conf.show_output
-        ~filter_by_substring:conf.filter_by_substring
+        ~color:conf.color ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
       let exit_code, tests_with_status =
         Run.list_status ~always_show_unchecked_output:conf.show_output
-          ~filter_by_substring:conf.filter_by_substring
+          ~color:conf.color ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
           ~output_style:conf.status_output_style tests
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
       let exit_code =
-        Run.approve_output ?filter_by_substring:conf.filter_by_substring
+        Run.approve_output ~color:conf.color
+          ?filter_by_substring:conf.filter_by_substring
           ?filter_by_tag:conf.filter_by_tag tests
       in
       handle_subcommand_result exit_code Approve_result
@@ -91,6 +94,19 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
 (*
    Some of the command-line options are shared among subcommands.
 *)
+
+let color_term : Style.color_setting Term.t =
+  let info =
+    Arg.info [ "color" ] ~docv:"VAL"
+      ~doc:
+        "Whether to output colors. $(docv) must be one of 'auto', 'on', or \
+         'off'. 'auto' means that the best behavior is chosen automatically \
+         based on terminal settings and is the default"
+  in
+  Arg.value
+    (Arg.opt
+       (Arg.enum [ ("auto", Style.Auto); ("on", On); ("off", Off) ])
+       Auto info)
 
 let filter_by_substring_term : string option Term.t =
   let info =
@@ -153,11 +169,13 @@ let lazy_term : bool Term.t =
 let run_doc = "run the tests"
 
 let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
-  let combine filter_by_substring filter_by_tag lazy_ show_output verbose =
+  let combine color filter_by_substring filter_by_tag lazy_ show_output verbose
+      =
     let show_output = show_output || verbose in
     Run_tests
       {
         default_conf with
+        color;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
         lazy_;
@@ -166,8 +184,8 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ filter_by_substring_term $ filter_by_tag_term $ lazy_term
-    $ show_output_term $ verbose_run_term)
+    const combine $ color_term $ filter_by_substring_term $ filter_by_tag_term
+    $ lazy_term $ show_output_term $ verbose_run_term)
 
 let subcmd_run test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
@@ -210,7 +228,8 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all filter_by_substring filter_by_tag long show_output verbose =
+  let combine all color filter_by_substring filter_by_tag long show_output
+      verbose =
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -224,6 +243,7 @@ let subcmd_status_term tests : unit Term.t =
     Status
       {
         default_conf with
+        color;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
         show_output;
@@ -232,8 +252,8 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ filter_by_substring_term $ filter_by_tag_term
-    $ long_term $ show_output_term $ verbose_status_term)
+    const combine $ all_term $ color_term $ filter_by_substring_term
+    $ filter_by_tag_term $ long_term $ show_output_term $ verbose_status_term)
 
 let subcmd_status tests =
   let info = Cmd.info "status" ~doc:status_doc in
@@ -246,10 +266,18 @@ let subcmd_status tests =
 let approve_doc = "approve new test output"
 
 let subcmd_approve_term tests : unit Term.t =
-  let combine filter_by_substring =
-    Approve { default_conf with filter_by_substring } |> run_with_conf tests
+  let combine color filter_by_substring filter_by_tag =
+    Approve
+      {
+        default_conf with
+        color;
+        filter_by_substring;
+        filter_by_tag = check_tag filter_by_tag;
+      }
+    |> run_with_conf tests
   in
-  Term.(const combine $ filter_by_substring_term)
+  Term.(
+    const combine $ color_term $ filter_by_substring_term $ filter_by_tag_term)
 
 let subcmd_approve tests =
   let info = Cmd.info "approve" ~doc:approve_doc in

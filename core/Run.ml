@@ -412,14 +412,25 @@ let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
      | Not_OK _ ->
          true)
 
+(* Quote a file path with single quotes or fail if it contains single quotes.
+   This should work for Bash and Powershell. *)
+let quote_file_path path =
+  if String.contains !!path '\'' then
+    Error.user_error
+      (sprintf
+         "For simplicity of implementation, file paths containing single \
+          quotes are not supported: %s"
+         !!path)
+  else sprintf "'%s'" !!path
+
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
   match
     (* Warning: the implementation of 'diff' (which is it?) available on
-       BusyBox doesn't support '--color' option which is very sad.
-       TODO: find a way to show color diffs
-       -> use duff? https://github.com/mirage/duff *)
+       BusyBox doesn't support '--color' option which is very sad. *)
     Sys.command
-      (sprintf "diff -u '%s' '%s'" !!path_to_expected_output !!path_to_output)
+      (sprintf "diff -u %s %s"
+         (quote_file_path path_to_expected_output)
+         (quote_file_path path_to_output))
   with
   | 0 -> ()
   | _nonzero ->
@@ -683,7 +694,7 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the status subcommand
 *)
-let list_status ~always_show_unchecked_output ~filter_by_substring
+let list_status ~always_show_unchecked_output ~color:_TODO ~filter_by_substring
     ~filter_by_tag ~output_style tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
@@ -753,8 +764,8 @@ let after_run ~always_show_unchecked_output tests selected_tests =
 (*
    Entry point for the 'run' subcommand
 *)
-let run_tests ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~lazy_ tests cont =
+let run_tests ~always_show_unchecked_output ~color:_TODO ~filter_by_substring
+    ~filter_by_tag ~lazy_ tests cont =
   let selected_tests =
     before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests
   in
@@ -774,7 +785,7 @@ let run_tests ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
 (*
    Entry point for the 'approve' subcommand
 *)
-let approve_output ?filter_by_substring ?filter_by_tag tests =
+let approve_output ?filter_by_substring ?filter_by_tag ~color:_TODO tests =
   Store.init_workspace ();
   check_test_definitions tests;
   tests

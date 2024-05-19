@@ -2,6 +2,7 @@
    Text highlighting
 *)
 
+type color_setting = On | Off | Auto
 type color = Default | Red | Green | Yellow | Cyan | Bold | Faint
 
 val color : color -> string -> string

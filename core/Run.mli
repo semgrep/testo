@@ -20,6 +20,7 @@ val to_alcotest :
 
 val run_tests :
   always_show_unchecked_output:bool ->
+  color:Testo_util.Style.color_setting ->
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
   lazy_:bool ->
@@ -32,6 +33,7 @@ val run_tests :
    (PASS or XFAIL). *)
 val list_status :
   always_show_unchecked_output:bool ->
+  color:Testo_util.Style.color_setting ->
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
   output_style:status_output_style ->
@@ -41,5 +43,6 @@ val list_status :
 val approve_output :
   ?filter_by_substring:string ->
   ?filter_by_tag:Testo_util.Tag.t ->
+  color:Testo_util.Style.color_setting ->
   Types.test list ->
   int

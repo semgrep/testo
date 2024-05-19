@@ -4,6 +4,7 @@
 
 open Printf
 
+type color_setting = On | Off | Auto
 type color = Default | Red | Green | Yellow | Cyan | Bold | Faint
 
 let ansi_code_of_style = function
