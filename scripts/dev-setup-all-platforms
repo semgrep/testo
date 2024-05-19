@@ -15,3 +15,6 @@ opam install --deps-only "$@" \
   ./testo.opam \
   ./testo-lwt.opam \
   ocamlformat
+
+# Install pre-commit hooks. See https://pre-commit.com/
+pre-commit install
