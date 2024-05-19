@@ -13,4 +13,5 @@ opam update
 opam install --deps-only "$@" \
   ./testo-util.opam \
   ./testo.opam \
-  ./testo-lwt.opam
+  ./testo-lwt.opam \
+  ocamlformat

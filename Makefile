@@ -9,7 +9,9 @@ build:
 # Install opam dependencies
 .PHONY: setup
 setup:
-	./.circleci/setup
+	./scripts/dev-setup-all-platforms
+	# dev only:
+	pre-commit install
 
 .PHONY: test
 test: build

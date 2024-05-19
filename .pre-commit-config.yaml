@@ -1,0 +1,12 @@
+repos:
+- repo: local
+  hooks:
+  # ocamlformat is configured locally with '.ocamlformat'.
+  # ocamlformat must be installed locally e.g. with 'opam install ocamlformat'.
+  - id: ocamlformat
+    name: ocamlformat
+    description: Reformat OCaml code
+    entry: ocamlformat
+    language: system
+    files: "\\.mli?$"
+    args: ["-i"]

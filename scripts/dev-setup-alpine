@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+#
+# Setup script for installing dependencies for Alpine Linux.
+#
+set -eu
+
+apk add py3-pip
+pip install pre-commit
