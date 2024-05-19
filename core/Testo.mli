@@ -24,32 +24,30 @@
 
 type expected_outcome =
   | Should_succeed
-  | Should_fail of string (** explains why we expect this test to fail *)
+  | Should_fail of string  (** explains why we expect this test to fail *)
 
 type outcome = Succeeded | Failed
 
 type captured_output =
-  | Ignored of string (** unchecked combined output *)
-  | Captured_stdout of string * string (** stdout, unchecked output *)
-  | Captured_stderr of string * string (** stderr, unchecked output *)
-  | Captured_stdout_stderr of string * string (** stdout, stderr *)
-  | Captured_merged of string (** combined output *)
+  | Ignored of string  (** unchecked combined output *)
+  | Captured_stdout of string * string  (** stdout, unchecked output *)
+  | Captured_stderr of string * string  (** stderr, unchecked output *)
+  | Captured_stdout_stderr of string * string  (** stdout, stderr *)
+  | Captured_merged of string  (** combined output *)
 
 type expected_output =
   | Ignored
   | Expected_stdout of string
   | Expected_stderr of string
-  | Expected_stdout_stderr of string * string (** stdout, stderr *)
-  | Expected_merged of string (** combined output *)
+  | Expected_stdout_stderr of string * string  (** stdout, stderr *)
+  | Expected_merged of string  (** combined output *)
 
 type result = { outcome : outcome; captured_output : captured_output }
-
 type missing_files = Types.missing_files = Missing_files of Fpath.t list
 
 type expectation = {
   expected_outcome : expected_outcome;
-  expected_output :
-    (expected_output, missing_files) Result.t;
+  expected_output : (expected_output, missing_files) Result.t;
 }
 
 type status = {
@@ -77,38 +75,67 @@ type status_summary = {
 
 (** {2 Test creation} *)
 
+type checked_output_kind
 (** This type specifies what part of the output of a test (stdout, stderr)
     should be captured and compared against expectations.
 
     Use the provided functions {!val:stdout}, {!val:stderr}, {!val:stdxxx},
     and {!val:split_stdout_stderr} to create such an object.
 *)
-type checked_output_kind
 
+val stdout : ?expected_stdout_path:Fpath.t -> unit -> checked_output_kind
 (** Create an object of type {!type:checked_output_kind} specifying
     that the test's standard output must be checked against a reference file.
 *)
-val stdout : ?expected_stdout_path:Fpath.t -> unit -> checked_output_kind
 
-(** Same as {!val:stdout} but for capturing stderr instead. *)
 val stderr : ?expected_stderr_path:Fpath.t -> unit -> checked_output_kind
+(** Same as {!val:stdout} but for capturing stderr instead. *)
 
+val stdxxx : ?expected_stdxxx_path:Fpath.t -> unit -> checked_output_kind
 (** Same as {!val:stdout} but for capturing the combined stdout and stderr
     outputs. *)
-val stdxxx : ?expected_stdxxx_path:Fpath.t -> unit -> checked_output_kind
 
-(** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
 val split_stdout_stderr :
   ?expected_stdout_path:Fpath.t ->
   ?expected_stderr_path:Fpath.t ->
-  unit -> checked_output_kind
+  unit ->
+  checked_output_kind
+(** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
 
-(** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 module Promise : module type of Promise
+(** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 
-(** The type of tags which can be used to define subsets of tests precisely. *)
 module Tag : module type of Testo_util.Tag
+(** The type of tags which can be used to define subsets of tests precisely. *)
 
+type t = private {
+  id : string;
+      (** Hash of the full name of the test, computed automatically. *)
+  internal_full_name : string;
+      (** Full name of the test, derived automatically from category and name. *)
+  category : string list;
+      (** Categories are made for organizing tests as a tree which is useful
+        for display and filtering. A new category is created typically when
+        grouping multiple test suites into one with 'categorize_suites'
+        or when assigning a category to a list of tests with 'categorize'.
+        e.g. ["food"; "fruit"; "kiwi"] *)
+  name : string;
+  func : unit -> unit Promise.t;
+  (***** Options *****)
+  expected_outcome : expected_outcome;
+  tags : Tag.t list;  (** Tags must be declared once using 'create_tag'. *)
+  normalize : (string -> string) list;
+      (** An optional function to rewrite any output data so as to mask the
+        variable parts. *)
+  checked_output : checked_output_kind;
+      (** The 'skipped' property causes a test to be skipped by Alcotest but
+        still shown as "[SKIP]" rather than being omitted. *)
+  skipped : bool;
+      (** If the test function changes the current directory without restoring
+        it, it's an error unless this flag is set. *)
+  tolerate_chdir : bool;
+      (** All the tests in a test suite should share this field. *)
+}
 (**
    [t] is the type of a test. A test suite is a flat list of tests.
 
@@ -138,43 +165,6 @@ module Tag : module type of Testo_util.Tag
    test and put it in its own file so we can consult it later. Don't
    hesitate to log a lot during the execution of the test.
 *)
-type t = private {
-  id : string;
-    (** Hash of the full name of the test, computed automatically. *)
-
-  internal_full_name : string;
-    (** Full name of the test, derived automatically from category and name. *)
-
-  category : string list;
-    (** Categories are made for organizing tests as a tree which is useful
-        for display and filtering. A new category is created typically when
-        grouping multiple test suites into one with 'categorize_suites'
-        or when assigning a category to a list of tests with 'categorize'.
-        e.g. ["food"; "fruit"; "kiwi"] *)
-
-  name : string;
-  func : unit -> unit Promise.t;
-
-  (***** Options *****)
-  expected_outcome : expected_outcome;
-  tags : Tag.t list;
-    (** Tags must be declared once using 'create_tag'. *)
-
-  normalize : (string -> string) list;
-    (** An optional function to rewrite any output data so as to mask the
-        variable parts. *)
-
-  checked_output : checked_output_kind;
-    (** The 'skipped' property causes a test to be skipped by Alcotest but
-        still shown as "[SKIP]" rather than being omitted. *)
-
-  skipped : bool;
-    (** If the test function changes the current directory without restoring
-        it, it's an error unless this flag is set. *)
-
-  tolerate_chdir : bool;
-    (** All the tests in a test suite should share this field. *)
-}
 
 type test_with_status = t * status * status_summary
 
@@ -189,6 +179,17 @@ type subcommand_result =
   | Status_result of test_with_status list
   | Approve_result
 
+val create :
+  ?category:string list ->
+  ?checked_output:checked_output_kind ->
+  ?expected_outcome:expected_outcome ->
+  ?normalize:(string -> string) list ->
+  ?skipped:bool ->
+  ?tags:Tag.t list ->
+  ?tolerate_chdir:bool ->
+  string ->
+  (unit -> unit Promise.t) ->
+  t
 (**
    Create a test to appear in a test suite.
 
@@ -213,23 +214,7 @@ type subcommand_result =
       a test regardless of this setting.}
 }
 *)
-val create :
-  ?category:string list ->
-  ?checked_output:checked_output_kind ->
-  ?expected_outcome:expected_outcome ->
-  ?normalize:(string -> string) list ->
-  ?skipped:bool ->
-  ?tags:Tag.t list ->
-  ?tolerate_chdir:bool ->
-  string ->
-  (unit -> unit Promise.t) ->
-  t
 
-(**
-   Update some of the test's fields. This ensures that the test's unique
-   identifier {!field:id} is recomputed correctly. When specified, an
-   optional property will replace the previous value.
-*)
 val update :
   ?category:string list ->
   ?checked_output:checked_output_kind ->
@@ -240,7 +225,13 @@ val update :
   ?skipped:bool ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
-  t -> t
+  t ->
+  t
+(**
+   Update some of the test's fields. This ensures that the test's unique
+   identifier {!field:id} is recomputed correctly. When specified, an
+   optional property will replace the previous value.
+*)
 
 (** {2 Assertions and exceptions}
 
@@ -253,25 +244,33 @@ val update :
     [alcotest] library.
 *)
 
-(** The exception raised by {!fail} *)
 exception Test_failure of string
+(** The exception raised by {!fail} *)
 
+val fail : string -> unit
 (** Raise the {!Test_failure} exception with a message indicating
     the reason for the failure. *)
-val fail : string -> unit
 
 (** {2 Temporary files and output redirection} *)
 
+val write_file : Fpath.t -> string -> unit
 (** Write data to a regular file. Create the file if it doesn't exist.
     Erase any existing data.
 
     Usage: [write_file path data]
 *)
-val write_file : Fpath.t -> string -> unit
 
-(** Read the contents of a regular file. *)
 val read_file : Fpath.t -> string
+(** Read the contents of a regular file. *)
 
+val with_temp_file :
+  ?contents:string ->
+  ?persist:bool ->
+  ?prefix:string ->
+  ?suffix:string ->
+  ?temp_dir:Fpath.t ->
+  (Fpath.t -> 'a Promise.t) ->
+  'a Promise.t
 (** [with_temp_file func] creates a temporary file, passes its path to
     the user-specified function [func], and returns the result.
     The temporary file is deleted when [func] terminates, even if it
@@ -293,18 +292,11 @@ val read_file : Fpath.t -> string
                    by [Filename.get_temp_dir_name ()].}
 }
 *)
-val with_temp_file :
-  ?contents:string ->
-  ?persist:bool ->
-  ?prefix:string ->
-  ?suffix:string ->
-  ?temp_dir:Fpath.t ->
-  (Fpath.t -> 'a Promise.t) -> 'a Promise.t
 
-(** [with_capture stdout func] evaluates [func ()] while
-    capturing the output of the given channel [stdout] as a string. *)
 val with_capture :
   out_channel -> (unit -> 'a Promise.t) -> ('a * string) Promise.t
+(** [with_capture stdout func] evaluates [func ()] while
+    capturing the output of the given channel [stdout] as a string. *)
 
 (** {2 Output masking functions}
 
@@ -319,6 +311,8 @@ val with_capture :
    such as passwords or secret keys from being stored in the local file system.
 *)
 
+val mask_line :
+  ?mask:string -> ?after:string -> ?before:string -> unit -> string -> string
 (** Mask partially each line that contains [before] or [after].
 
     If both [after] and [before] are specified, they must occur in that
@@ -330,9 +324,9 @@ val with_capture :
     For example, [(mask_line ~after:"time:" ()) "London time: 10:15,\nBlah"]
     produces ["London time:<MASKED>\nBlah"].
 *)
-val mask_line :
-  ?mask:string -> ?after:string -> ?before:string -> unit -> (string -> string)
 
+val mask_pcre_pattern :
+  ?replace:(string -> string) -> string -> string -> string
 (**
    Mask all occurrences of this PCRE pattern. The syntax is limited to
    what the ocaml-re library supports.
@@ -354,10 +348,14 @@ v}
        = "xxx <X> xxx"
 v}
 *)
-val mask_pcre_pattern :
-  ?replace:(string -> string) ->
-  string -> (string -> string)
 
+val mask_temp_paths :
+  ?depth:int option ->
+  ?replace:(string -> string) ->
+  ?temp_dir:Fpath.t ->
+  unit ->
+  string ->
+  string
 (**
    Mask strings that look like temporary file paths. This is useful in the
    following cases:
@@ -384,19 +382,15 @@ val mask_pcre_pattern :
                   system default.}
 }
 *)
-val mask_temp_paths :
-  ?depth:int option ->
-  ?replace:(string -> string) ->
-  ?temp_dir:Fpath.t ->
-  unit -> (string -> string)
 
+val mask_not_substring : ?mask:string -> string -> string -> string
 (**
    Keep the given substring and mask everything else.
    This is for tests that only care about a particular substring being
    present in the output.
 *)
-val mask_not_substring : ?mask:string -> string -> (string -> string)
 
+val mask_not_substrings : ?mask:string -> string list -> string -> string
 (** Keep all the given substrings and mask everything else.
 
    In case of overlaps between matching substrings, priority is given
@@ -412,16 +406,26 @@ val mask_not_substring : ?mask:string -> string -> (string -> string)
       [water] is a longer match than [wat] starting at the same position.}
 }
 *)
-val mask_not_substrings : ?mask:string -> string list -> (string -> string)
 
+val mask_not_pcre_pattern : ?mask:string -> string -> string -> string
 (**
    Keep the substrings that match the given PCRE pattern and mask
    everything else.
 *)
-val mask_not_pcre_pattern : ?mask:string -> string -> (string -> string)
 
 (** {2 Inline tests} *)
 
+val test :
+  ?category:string list ->
+  ?checked_output:checked_output_kind ->
+  ?expected_outcome:expected_outcome ->
+  ?normalize:(string -> string) list ->
+  ?skipped:bool ->
+  ?tags:Tag.t list ->
+  ?tolerate_chdir:bool ->
+  string ->
+  (unit -> unit Promise.t) ->
+  unit
 (** Add a test to the global test suite that can be recovered with
     {!get_registered_tests}.
 
@@ -437,20 +441,9 @@ val mask_not_pcre_pattern : ?mask:string -> string -> (string -> string)
      )
 v}
 *)
-val test :
-  ?category:string list ->
-  ?checked_output:checked_output_kind ->
-  ?expected_outcome:expected_outcome ->
-  ?normalize:(string -> string) list ->
-  ?skipped:bool ->
-  ?tags:Tag.t list ->
-  ?tolerate_chdir:bool ->
-  string ->
-  (unit -> unit Promise.t) ->
-  unit
 
-(** Recover the list of tests registered with {!val:test}. *)
 val get_registered_tests : unit -> t list
+(** Recover the list of tests registered with {!val:test}. *)
 
 (** {2 Categorization and filtering of test suites}
 
@@ -459,6 +452,7 @@ val get_registered_tests : unit -> t list
     be exported as a tree if desired.
 *)
 
+val categorize : string -> t list -> t list
 (**
    Put a list of tests into a parent category.
 
@@ -468,8 +462,8 @@ val get_registered_tests : unit -> t list
        categorize "apples" [test_color; test_juiciness]
 v}
 *)
-val categorize : string -> t list -> t list
 
+val categorize_suites : string -> t list list -> t list
 (** Variant of {!categorize} that flattens the nested list first.
 
 {v
@@ -477,29 +471,27 @@ val categorize : string -> t list -> t list
        categorize_suites "fruit" [apple_tests; banana_tests; strawberry_tests]
 v}
 *)
-val categorize_suites : string -> t list list -> t list
 
+val sort : t list -> t list
 (**
    Sort tests by category and name, alphabetically.
 
    Non-ASCII path components are currently sorted by byte order,
    possibly giving unexpected results.
 *)
-val sort : t list -> t list
 
-(** Whether a test has this tag. This is meant for filtering test suites. *)
 val has_tag : Tag.t -> t -> bool
+(** Whether a test has this tag. This is meant for filtering test suites. *)
 
 (** {2 Conversion to Alcotest test suites} *)
 
+type alcotest_test_case = string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 (** A type alias for Alcotest test cases. *)
-type alcotest_test_case =
-  string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 
+type alcotest_test = string * alcotest_test_case list
 (** A type alias for an Alcotest [test]. *)
-type alcotest_test =
-  string * alcotest_test_case list
 
+val to_alcotest : alcotest_skip:(unit -> _) -> t list -> alcotest_test list
 (**
    Export our tests to a list of tests that can run in Alcotest.
    This removes the ability to store test outcomes or to check the test output
@@ -514,10 +506,17 @@ type alcotest_test =
 
    Usage: [Testo.to_alcotest ~alcotest_skip:Alcotest.skip tests]
 *)
-val to_alcotest : alcotest_skip:(unit -> _) -> t list -> alcotest_test list
 
 (** {2 Command-line interpretation} *)
 
+val interpret_argv :
+  ?argv:string array ->
+  ?expectation_workspace_root:Fpath.t ->
+  ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
+  ?status_workspace_root:Fpath.t ->
+  project_name:string ->
+  (unit -> t list) ->
+  unit Promise.t
 (**
    Launch the command-line interface. It provides subcommands for running
    the tests, for checking test statuses, and for approving
@@ -539,11 +538,3 @@ val to_alcotest : alcotest_skip:(unit -> _) -> t list -> alcotest_test list
       and used as a folder name for storing test results.}
 }
 *)
-val interpret_argv :
-  ?argv:string array ->
-  ?expectation_workspace_root:Fpath.t ->
-  ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
-  ?status_workspace_root:Fpath.t ->
-  project_name:string ->
-  (unit -> t list) ->
-  unit Promise.t

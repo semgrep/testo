@@ -9,17 +9,14 @@ type status_output_style =
   | Compact_important
 
 (* Type alias for Alcotest test cases *)
-type alcotest_test_case =
-  string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
+type alcotest_test_case = string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 
 (* Type alias for an Alcotest 'test'. *)
-type alcotest_test =
-  string * alcotest_test_case list
+type alcotest_test = string * alcotest_test_case list
 
 (* See comments in the public interface Testo.mli *)
 val to_alcotest :
-  alcotest_skip:(unit -> _) ->
-  Types.test list -> alcotest_test list
+  alcotest_skip:(unit -> _) -> Types.test list -> alcotest_test list
 
 val run_tests :
   always_show_unchecked_output:bool ->
@@ -44,4 +41,5 @@ val list_status :
 val approve_output :
   ?filter_by_substring:string ->
   ?filter_by_tag:Testo_util.Tag.t ->
-  Types.test list -> int
+  Types.test list ->
+  int

@@ -19,10 +19,7 @@ val list_files : Fpath.t -> string list
 
 (* Delete files recursively *)
 val remove_file_or_dir : Fpath.t -> unit
-
-val contains_pcre_pattern : string -> (string -> bool)
-
-val contains_substring : string -> (string -> bool)
-
+val contains_pcre_pattern : string -> string -> bool
+val contains_substring : string -> string -> bool
 val write_file : Fpath.t -> string -> unit
 val read_file : Fpath.t -> string

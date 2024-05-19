@@ -25,12 +25,10 @@ cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
 non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 |});
     t "missing snapshot" ~checked_output:(Testo.stdout ()) (fun () -> ());
-    t "doesn't contain substring"
-      ~checked_output:(Testo.stdout ())
-      ~normalize:[Testo.mask_not_substring "water"]
+    t "doesn't contain substring" ~checked_output:(Testo.stdout ())
+      ~normalize:[ Testo.mask_not_substring "water" ]
       (fun () -> print_string "fire");
   ]
 
 let () =
-  Testo.interpret_argv ~project_name:"testo_failing_tests"
-    (fun () -> tests)
+  Testo.interpret_argv ~project_name:"testo_failing_tests" (fun () -> tests)

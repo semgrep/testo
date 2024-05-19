@@ -48,8 +48,7 @@ type missing_files = Missing_files of Fpath.t list
 *)
 type expectation = {
   expected_outcome : expected_outcome;
-  expected_output :
-    (expected_output, missing_files) Result.t;
+  expected_output : (expected_output, missing_files) Result.t;
 }
 
 (*

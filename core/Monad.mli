@@ -28,7 +28,4 @@ val bind : 'a t -> ('a -> 'b t) -> 'b t
    or raised during later computations leading to the resolution
    of the promise.
 *)
-val catch :
-  (unit -> 'a t) ->
-  (exn -> Printexc.raw_backtrace -> 'a t) ->
-  'a t
+val catch : (unit -> 'a t) -> (exn -> Printexc.raw_backtrace -> 'a t) -> 'a t

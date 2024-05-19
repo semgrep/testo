@@ -5,4 +5,5 @@ val with_temp_file :
   ?prefix:string ->
   ?suffix:string ->
   ?temp_dir:Fpath.t ->
-  (Fpath.t -> 'a Promise.t) -> 'a Promise.t
+  (Fpath.t -> 'a Promise.t) ->
+  'a Promise.t
