@@ -413,17 +413,10 @@ let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
          true)
 
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
-  match
-    (* Warning: the implementation of 'diff' (which is it?) available on
-       BusyBox doesn't support '--color' option which is very sad.
-       TODO: find a way to show color diffs
-       -> use duff? https://github.com/mirage/duff *)
-    Sys.command
-      (sprintf "diff -u '%s' '%s'" !!path_to_expected_output !!path_to_output)
-  with
-  | 0 -> ()
-  | _nonzero ->
-      printf "%sCaptured %s differs from expectation.\n" bullet output_kind
+  let equal, diffs = Diff.files path_to_expected_output path_to_output in
+  if not equal then
+    printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
+      diffs
 
 let show_output_details (test : T.test) (sum : T.status_summary)
     (capture_paths : Store.capture_paths list) =

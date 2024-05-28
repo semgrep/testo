@@ -19,6 +19,8 @@ let color color str =
   Printf.sprintf "\027[%sm%s\027[%sm" (ansi_code_of_style color) str
     (ansi_code_of_style Default)
 
+let opt_color cond color_ str = if cond then color color_ str else str
+
 (* Remove formatting. It's a bit ugly but convenient to
    compute the length of a sequence of characters. *)
 let strip =

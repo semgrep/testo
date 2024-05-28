@@ -22,6 +22,7 @@ Testo is a test framework for OCaml.")
   (depends
     (ocaml (>= 4.08.0))
     fpath
+    simple-diff
   )
 )
 

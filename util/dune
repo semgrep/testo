@@ -5,6 +5,7 @@
   (libraries
     fpath
     re
+    simple-diff
     unix
   )
 )
