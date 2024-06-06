@@ -1,0 +1,8 @@
+; Test program for testo-diff. It doesn't use Testo to as to keep things
+; simple and modular.
+(executable
+ (name test)
+ (libraries
+   testo-diff
+ )
+)

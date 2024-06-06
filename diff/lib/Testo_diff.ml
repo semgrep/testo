@@ -15,6 +15,9 @@ module type S = sig
   type t = diff list
 
   val get_diff : item array -> item array -> t
+
+  val recover_input : t -> item array * item array
+  (** Recover the original input passed to {!get_diff}. *)
 end
 
 module Make (Item : Comparable) = struct
@@ -117,4 +120,31 @@ module Make (Item : Comparable) = struct
           get_diff old_lines_presubseq new_lines_presubseq
           @ [ Equal unchanged_lines ]
           @ get_diff old_lines_postsubseq new_lines_postsubseq
+
+  let recover_old_input diffs =
+    List.fold_left
+      (fun acc diff ->
+        match diff with
+        | Deleted x
+        | Equal x ->
+            x :: acc
+        | Added _ -> acc)
+      [] diffs
+    |> List.rev |> Array.concat
+
+  let recover_new_input diffs =
+    List.fold_left
+      (fun acc diff ->
+        match diff with
+        | Added x
+        | Equal x ->
+            x :: acc
+        | Deleted _ -> acc)
+      [] diffs
+    |> List.rev |> Array.concat
+
+  (* This is intended for tests, that's why we return arrays like in the
+     original input even though lists are usually more convenient for
+     the user. *)
+  let recover_input diffs = (recover_old_input diffs, recover_new_input diffs)
 end

@@ -1,4 +1,5 @@
-; Extension of the Alcotest library
+; Main library, exposes a single module named 'Testo' and hides
+; the other modules.
 (library
   (public_name testo)
   (name testo)

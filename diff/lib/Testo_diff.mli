@@ -32,6 +32,9 @@ module type S = sig
 
   val get_diff : item array -> item array -> t
   (** Returns a list of diffs between two arrays *)
+
+  val recover_input : t -> item array * item array
+  (** Recover the original input passed to {!get_diff}. *)
 end
 
 module Make (Item : Comparable) : S with type item = Item.t
