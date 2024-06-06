@@ -1,3 +1,11 @@
+(*
+   Translated to OCaml by Gabriel Jaldon from the Python implementation
+   by Paul Butler
+
+   Python source:
+   https://github.com/paulgb/simplediff/blob/master/python/simplediff/__init__.py
+*)
+
 module type Comparable = sig
   type t
 
@@ -59,13 +67,13 @@ module Make (Item : Comparable) = struct
      and new versions. *)
   let get_longest_subsequence old_lines new_lines =
     let old_values_counter = map_counter old_lines in
-    let overlap = Hashtbl.create 5000 in
     let sub_start_old = ref 0 in
     let sub_start_new = ref 0 in
     let longest_subsequence = ref 0 in
 
     Array.iteri
       (fun new_index new_value ->
+        let overlap = Hashtbl.create (Array.length new_lines) in
         let indices =
           try CounterMap.find new_value old_values_counter with
           | Not_found -> []
