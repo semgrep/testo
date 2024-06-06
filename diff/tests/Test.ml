@@ -46,6 +46,8 @@ let main () =
   tests
   |> List.iter (fun (name, test_func) ->
          try test_func () with
-         | e -> eprintf "*** Test %s failed: %s\n%!" name (Printexc.to_string e))
+         | e ->
+             eprintf "*** Test %s failed: %s\n%!" name (Printexc.to_string e);
+             exit 1)
 
 let () = main ()
