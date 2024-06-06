@@ -35,19 +35,43 @@ let roundtrip a b () =
 let tests =
   [
     ("empty", roundtrip [||] [||]);
+    ("add one", roundtrip [||] [| "a" |]);
+    ("delete one", roundtrip [| "a" |] [||]);
+    ("replace one", roundtrip [| "a" |] [| "b" |]);
     ("one line", roundtrip [| "a" |] [| "a" |]);
     ("two lines", roundtrip [| "a"; "b" |] [| "a"; "b" |]);
-    ("diffs 1", roundtrip [| "a" |] [| "b" |]);
-    ("diffs 2", roundtrip [| "a"; "c" |] [| "a"; "b"; "c" |]);
+    ("add first", roundtrip [| "b" |] [| "a"; "b" |]);
+    ("add last", roundtrip [| "a" |] [| "a"; "b" |]);
+    ("delete first", roundtrip [| "a"; "b" |] [| "b" |]);
+    ("delete last", roundtrip [| "a"; "b" |] [| "a" |]);
+    ("add inside", roundtrip [| "a"; "c" |] [| "a"; "b"; "c" |]);
+    ("delete inside", roundtrip [| "a"; "b"; "c" |] [| "a"; "c" |]);
   ]
 
 (* Who needs a test framework anyway? *)
 let main () =
-  tests
-  |> List.iter (fun (name, test_func) ->
-         try test_func () with
-         | e ->
-             eprintf "*** Test %s failed: %s\n%!" name (Printexc.to_string e);
-             exit 1)
+  let failed =
+    tests
+    |> List.fold_left
+         (fun failed (name, test_func) ->
+           printf "### TEST %s ###\n%!" name;
+           try
+             test_func ();
+             failed
+           with
+           | e ->
+               eprintf "*** Test %S failed: %s\n%!" name (Printexc.to_string e);
+               name :: failed)
+         []
+    |> List.rev
+  in
+  match failed with
+  | [] -> ()
+  | failed ->
+      eprintf "*** The following tests failed:\n%s%!"
+        (failed
+        |> List.map (fun name -> sprintf "  - %s\n" name)
+        |> String.concat "");
+      exit 1
 
 let () = main ()
