@@ -5,7 +5,7 @@ description: """
 Use this if the tests return Lwt promises and you can't make them synchronous
 because 'Lwt_main.run' is not supported by your platform e.g. JavaScript."""
 maintainer: ["Martin Jambon" "OCaml community"]
-authors: ["Martin Jambon"]
+authors: ["Martin Jambon" "Gabriel Jaldon"]
 homepage: "https://github.com/semgrep/testo"
 bug-reports: "https://github.com/semgrep/testo/issues"
 depends: [

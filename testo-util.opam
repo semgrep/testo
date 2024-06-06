@@ -3,14 +3,14 @@ opam-version: "2.0"
 synopsis: "Modules shared by testo, testo-lwt, etc"
 description: "Testo is a test framework for OCaml."
 maintainer: ["Martin Jambon" "OCaml community"]
-authors: ["Martin Jambon"]
+authors: ["Martin Jambon" "Gabriel Jaldon"]
 homepage: "https://github.com/semgrep/testo"
 bug-reports: "https://github.com/semgrep/testo/issues"
 depends: [
   "dune" {>= "3.7"}
   "ocaml" {>= "4.08.0"}
   "fpath"
-  "simple-diff"
+  "testo-diff"
   "odoc" {with-doc}
 ]
 build: [

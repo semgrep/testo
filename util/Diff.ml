@@ -7,7 +7,7 @@
 
 open Printf
 open Fpath_.Operators
-module Diff = Simple_diff.Make (String)
+module Diff = Testo_diff.Make (String)
 
 type diff = Diff.diff
 
@@ -25,14 +25,6 @@ type hunk = {
 
 let read_lines path =
   path |> Helpers.read_file |> String.split_on_char '\n' |> Array.of_list
-
-(*
-         type diff =
-      | Deleted of item array
-      | Added of item array
-      | Equal of item array
-
-*)
 
 (* Minimum number of lines of context to show before or after a deletion
    or an insertion when possible *)
