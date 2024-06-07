@@ -66,6 +66,7 @@ module Make (Item : Comparable) = struct
      subsequence and the starting index for the longest subsequence in the old
      and new versions. *)
   let get_longest_subsequence old_lines new_lines =
+    let prev_overlap = ref (Hashtbl.create 0) in
     let old_values_counter = map_counter old_lines in
     let sub_start_old = ref 0 in
     let sub_start_new = ref 0 in
@@ -73,15 +74,15 @@ module Make (Item : Comparable) = struct
 
     Array.iteri
       (fun new_index new_value ->
-        let overlap = Hashtbl.create (Array.length new_lines) in
         let indices =
           try CounterMap.find new_value old_values_counter with
           | Not_found -> []
         in
+        let overlap = Hashtbl.create 100 in
         List.iter
           (fun old_index ->
             let prev_subsequence =
-              try Hashtbl.find overlap (old_index - 1) with
+              try Hashtbl.find !prev_overlap (old_index - 1) with
               | Not_found -> 0
             in
             let new_subsequence = prev_subsequence + 1 in
@@ -91,7 +92,8 @@ module Make (Item : Comparable) = struct
               sub_start_old := old_index - new_subsequence + 1;
               sub_start_new := new_index - new_subsequence + 1;
               longest_subsequence := new_subsequence))
-          indices)
+          indices;
+        prev_overlap := overlap)
       new_lines;
 
     {
