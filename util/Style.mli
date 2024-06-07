@@ -6,6 +6,9 @@ type color = Default | Red | Green | Yellow | Cyan | Bold | Faint
 
 val color : color -> string -> string
 
+(* Add color iff the condition is true *)
+val opt_color : bool -> color -> string -> string
+
 (*
    Turn a string containing no newlines into a framed string.
    The result is LF-terminated.

@@ -24,6 +24,7 @@ RUN ./test status
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [33m[MISS]  [0m91a3c9030236 [36mchdir[0m
 [33m[MISS]  [0ma3e1a604f579 [36mmasked[0m
@@ -106,6 +107,11 @@ Legend:
 [2m• [0m[31mMissing files containing the expected output: tests/custom-snapshots/split-stdout, tests/custom-snapshots/split-stderr[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m...[2K[32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [33m[RUN][0m   85349a4a9157 [36mxfail[0m...[2K[32m[XFAIL] [0m85349a4a9157 [36mxfail[0m
 [2m• [0mExpected to fail: raises exception on purpose
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/85349a4a9157/log
@@ -244,9 +250,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-32/32 selected tests:
+33/33 selected tests:
   1 skipped
-  31 successful (30 pass, 1 xfail)
+  32 successful (31 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -315,6 +321,11 @@ Legend:
 [2m• [0m[31mMissing files containing the expected output: tests/custom-snapshots/split-stdout, tests/custom-snapshots/split-stderr[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [32m[XFAIL] [0m85349a4a9157 [36mxfail[0m
 [2m• [0mExpected to fail: raises exception on purpose
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/85349a4a9157/log
@@ -455,9 +466,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-32/32 selected tests:
+33/33 selected tests:
   1 skipped
-  31 successful (30 pass, 1 xfail)
+  32 successful (31 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -476,12 +487,89 @@ RUN ./test status
 RUN ./test approve -s auto-approve
 Expected output changed for 9 tests.
 <handling result before exiting>
+RUN ./test approve -s environment-sensitive
+Expected output changed for 0 test.
+<handling result before exiting>
 RUN ./test status
 <handling result before exiting>
 RUN ./test status -a -t testin
 Error: Unknown or misspelled tag: testin
 RUN ./test status -a -t testing
 [32m[PASS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
+<handling result before exiting>
+RUN ./test run -s environment-sensitive
+Legend:
+[2m• [0m[PASS]: a successful test that was expected to succeed (good);
+[2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
+[2m• [0m[XFAIL]: a failing test that was expected to fail (tolerated failure);
+[2m• [0m[XPASS]: a successful test that was expected to fail (progress?).
+[2m• [0m[MISS]: a test that never ran;
+[2m• [0m[SKIP]: a test that is always skipped but kept around for some reason;
+[2m• [0m[xxxx*]: a new test for which there's no expected output yet.
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+[33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m...[2K[31m[FAIL]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
+[2m• [0mChecked output: stdout
+[2m• [0mCaptured stdout differs from expectation:
+[1m--- tests/snapshots/testo_tests/5eff5d8ffb2b/stdout[0m
+[1m+++ _build/testo/status/testo_tests/5eff5d8ffb2b/stdout[0m
+[36m@@ -1,3 +1,3 @@[0m
+Checking if the environment variable TESTO_TEST is set:
+[31m-TESTO_TEST is empty or unset.[0m
+[32m+TESTO_TEST is set to "hello".[0m
+
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
+[2m• [0mLog (stderr) is empty.
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [31m[FAIL]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0mCaptured stdout differs from expectation:
+[1m--- tests/snapshots/testo_tests/5eff5d8ffb2b/stdout[0m
+[1m+++ _build/testo/status/testo_tests/5eff5d8ffb2b/stdout[0m
+[36m@@ -1,3 +1,3 @@[0m
+Checking if the environment variable TESTO_TEST is set:
+[31m-TESTO_TEST is empty or unset.[0m
+[32m+TESTO_TEST is set to "hello".[0m
+
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
+[2m• [0mLog (stderr) is empty.
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+1/33 selected tests:
+  0 successful (0 pass, 0 xfail)
+  1 unsuccessful (1 fail, 0 xpass)
+overall status: [31mfailure[0m
+<handling result before exiting>
+RUN ./test run -s environment-sensitive
+Legend:
+[2m• [0m[PASS]: a successful test that was expected to succeed (good);
+[2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
+[2m• [0m[XFAIL]: a failing test that was expected to fail (tolerated failure);
+[2m• [0m[XPASS]: a successful test that was expected to fail (progress?).
+[2m• [0m[MISS]: a test that never ran;
+[2m• [0m[SKIP]: a test that is always skipped but kept around for some reason;
+[2m• [0m[xxxx*]: a new test for which there's no expected output yet.
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+[33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m...[2K[32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
+2 folders no longer belong to the test suite and can be removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+1/33 selected tests:
+  1 successful (1 pass, 0 xfail)
+  0 unsuccessful (0 fail, 0 xpass)
+overall status: [32msuccess[0m
 <handling result before exiting>
 #####################################################################
 # Delete statuses but not snapshots
@@ -552,6 +640,11 @@ Legend:
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/outcome[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [2m• [0mExpected to fail: raises exception on purpose
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/outcome[0m
@@ -717,6 +810,14 @@ Legend:
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m85349a4a9157 [36mxfail[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: raises exception on purpose
@@ -842,11 +943,11 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-32/32 selected tests:
+33/33 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-31 new tests
+32 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -l
@@ -943,6 +1044,14 @@ RUN ./test status -l
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/outcome[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m85349a4a9157 [36mxfail[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: raises exception on purpose
@@ -1068,11 +1177,11 @@ RUN ./test status -l
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-32/32 selected tests:
+33/33 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-31 new tests
+32 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -a
@@ -1089,6 +1198,7 @@ RUN ./test status -a
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [33m[MISS]  [0me52e279299e9 [36mskipped[0m
 [33m[MISS]  [0m91a3c9030236 [36mchdir[0m
@@ -1170,6 +1280,11 @@ Legend:
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to expected split-stderr: tests/custom-snapshots/split-stderr
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m...[2K[32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [33m[RUN][0m   85349a4a9157 [36mxfail[0m...[2K[32m[XFAIL] [0m85349a4a9157 [36mxfail[0m
 [2m• [0mExpected to fail: raises exception on purpose
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/85349a4a9157/log
@@ -1232,9 +1347,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-32/32 selected tests:
+33/33 selected tests:
   1 skipped
-  31 successful (30 pass, 1 xfail)
+  32 successful (31 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
 <handling result before exiting>

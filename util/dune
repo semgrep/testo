@@ -5,6 +5,7 @@
   (libraries
     fpath
     re
+    testo-diff
     unix
   )
 )

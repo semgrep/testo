@@ -1,0 +1,7 @@
+; Compute file diffs
+(library
+  (public_name testo-diff)
+  (name testo_diff)
+  (libraries
+  )
+)

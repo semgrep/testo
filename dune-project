@@ -10,9 +10,26 @@
 (source (github semgrep/testo))
 (homepage "https://github.com/semgrep/testo")
 (maintainers "Martin Jambon" "OCaml community")
-(authors "Martin Jambon")
+(authors
+  "Martin Jambon"
+  "Gabriel Jaldon"
+)
 
 ; Opam packages
+
+(package
+  (name testo-diff)
+  (synopsis "Pure-OCaml diff implementation")
+  (description "\
+This is a pure-OCaml implementation for computing line-by-line diffs.
+The current implementation uses an algorithm similar to gestalt pattern
+matching ported to OCaml by Gabriel Jaldon from Paul Butler's
+Python implementation.
+See https://github.com/paulgb/simplediff")
+  (depends
+    (ocaml (>= 4.08.0))
+  )
+)
 
 (package
   (name testo-util)
@@ -22,6 +39,7 @@ Testo is a test framework for OCaml.")
   (depends
     (ocaml (>= 4.08.0))
     fpath
+    testo-diff
   )
 )
 
