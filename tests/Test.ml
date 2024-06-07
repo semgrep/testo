@@ -263,6 +263,18 @@ let tests =
       (fun () ->
         print_string "hello\n";
         prerr_string "error\n");
+    t
+      "environment-sensitive"
+      (* We use an environment variable to make the output of the test
+         change without editing the code for the test. This allows us to
+         check that Testo's diff output looks right. *)
+      ~checked_output:(Testo.stdout ()) (fun () ->
+        printf "Checking if the environment variable TESTO_TEST is set:\n";
+        match Unix.getenv "TESTO_TEST" with
+        | ""
+        | (exception Not_found) ->
+            printf "TESTO_TEST is empty or unset.\n"
+        | str -> printf "TESTO_TEST is set to %S.\n" str);
     t "xfail" ~expected_outcome:(Should_fail "raises exception on purpose")
       (fun () -> failwith "this exception is expected");
     t "skipped" ~skipped:true (fun () -> failwith "this shouldn't happen");

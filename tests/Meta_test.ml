@@ -27,6 +27,21 @@ let shell_command ?(expected_exit_code = 0) ~__LOC__:loc command =
       (sprintf "%s:\nCommand '%s' exited with code %i but code %i was expected."
          loc command exit_code expected_exit_code)
 
+let setenv k opt_value =
+  match opt_value with
+  | None ->
+      (* uh, how do we really unset an environment variable? *)
+      Unix.putenv k ""
+  | Some v -> Unix.putenv k v
+
+let with_env (k, tmp_value) func =
+  let old_value =
+    try Some (Unix.getenv k) with
+    | Not_found -> None
+  in
+  setenv k tmp_value;
+  Fun.protect func ~finally:(fun () -> setenv k old_value)
+
 let section text =
   printf
     {|#####################################################################
@@ -86,9 +101,17 @@ let test_standard_flow () =
   test_subcommand ~__LOC__ "status --all --long" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "approve -s auto-approve";
+  test_subcommand ~__LOC__ "approve -s environment-sensitive";
   test_subcommand ~__LOC__ "status";
   test_subcommand ~__LOC__ "status -a -t testin" ~expected_exit_code:1;
   test_subcommand ~__LOC__ "status -a -t testing";
+  (* Modify the output of the test named 'environment-sensitive'
+     by setting an environment variable it consults, simulating a bug *)
+  with_env ("TESTO_TEST", Some "hello") (fun () ->
+      test_subcommand ~__LOC__ "run -s environment-sensitive"
+        ~expected_exit_code:1);
+  (* "Fix the bug" in test 'environment-sensitive' *)
+  test_subcommand ~__LOC__ "run -s environment-sensitive";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
   test_subcommand ~__LOC__ "status -v" ~expected_exit_code:1;
