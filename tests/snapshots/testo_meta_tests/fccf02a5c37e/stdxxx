@@ -247,6 +247,15 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [2m• [0mLog (stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m
+[33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
+[33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
+[33m[PASS*] [0m02ac0ea4ae90 [36mauto-approve[0m > [36mcapture stdout and stderr[0m
+[33m[PASS*] [0m25cccdbd5166 [36mauto-approve[0m > [36mcapture stdout in custom location[0m
+[33m[PASS*] [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
+[33m[PASS*] [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
+[33m[PASS*] [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
@@ -539,6 +548,7 @@ Checking if the environment variable TESTO_TEST is set:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [2m• [0mLog (stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[31m[FAIL]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
