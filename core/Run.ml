@@ -590,6 +590,11 @@ let print_status_introduction () =
 |}
     bullet bullet bullet bullet bullet bullet bullet
 
+(*
+   Print one status line per test
+
+   'important': report only tests that need attention
+*)
 let print_compact_status ?(important = false) tests_with_status =
   let tests_with_status =
     if important then List.filter is_important_status tests_with_status
@@ -655,7 +660,7 @@ let print_status_summary tests tests_with_status =
      else Style.color Red "failure");
   if overall_success then exit_success else exit_failure
 
-let print_full_status ~always_show_unchecked_output tests tests_with_status =
+let print_all_statuses ~always_show_unchecked_output tests tests_with_status =
   print_status_introduction ();
   print_newline ();
   print_long_status ~always_show_unchecked_output tests_with_status;
@@ -663,7 +668,9 @@ let print_full_status ~always_show_unchecked_output tests tests_with_status =
   print_short_status ~always_show_unchecked_output tests_with_status;
   print_status_summary tests tests_with_status
 
-let print_short_status ~always_show_unchecked_output tests tests_with_status =
+let print_important_statuses ~always_show_unchecked_output tests
+    tests_with_status =
+  (* Print details about each test that needs attention *)
   print_short_status ~always_show_unchecked_output tests_with_status;
   print_status_summary tests tests_with_status
 
@@ -674,19 +681,20 @@ let get_test_with_status test =
 let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 
 (*
-   Entry point for the status subcommand
+   Entry point for the 'status' subcommand
 *)
-let list_status ~always_show_unchecked_output ~filter_by_substring
-    ~filter_by_tag ~output_style tests =
+let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
+    ~output_style tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
     | Long_all ->
-        print_full_status ~always_show_unchecked_output tests tests_with_status
+        print_all_statuses ~always_show_unchecked_output tests tests_with_status
     | Long_important ->
-        print_short_status ~always_show_unchecked_output tests tests_with_status
+        print_important_statuses ~always_show_unchecked_output tests
+          tests_with_status
     | Compact_all -> print_compact_status tests_with_status
     | Compact_important ->
         print_compact_status ~important:true tests_with_status
@@ -739,14 +747,18 @@ let before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests =
 let after_run ~always_show_unchecked_output tests selected_tests =
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
-    print_short_status ~always_show_unchecked_output tests tests_with_status
+    (* Print details about each test that needs attention *)
+    print_short_status ~always_show_unchecked_output tests_with_status;
+    (* Print one line per test that needs attention *)
+    print_compact_status ~important:true tests_with_status |> ignore;
+    print_status_summary tests tests_with_status
   in
   (exit_code, tests_with_status)
 
 (*
    Entry point for the 'run' subcommand
 *)
-let run_tests ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
+let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
     ~lazy_ tests cont =
   let selected_tests =
     before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests
@@ -767,7 +779,7 @@ let run_tests ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
 (*
    Entry point for the 'approve' subcommand
 *)
-let approve_output ?filter_by_substring ?filter_by_tag tests =
+let cmd_approve ?filter_by_substring ?filter_by_tag tests =
   Store.init_workspace ();
   check_test_definitions tests;
   tests

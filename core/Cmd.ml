@@ -65,14 +65,14 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   let tests = get_tests () in
   match cmd_conf with
   | Run_tests conf ->
-      Run.run_tests ~always_show_unchecked_output:conf.show_output
+      Run.cmd_run ~always_show_unchecked_output:conf.show_output
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
       let exit_code, tests_with_status =
-        Run.list_status ~always_show_unchecked_output:conf.show_output
+        Run.cmd_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
           ~output_style:conf.status_output_style tests
@@ -80,7 +80,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
       let exit_code =
-        Run.approve_output ?filter_by_substring:conf.filter_by_substring
+        Run.cmd_approve ?filter_by_substring:conf.filter_by_substring
           ?filter_by_tag:conf.filter_by_tag tests
       in
       handle_subcommand_result exit_code Approve_result
