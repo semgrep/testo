@@ -20,7 +20,7 @@ dune init project my_project
   echo _build >> .gitignore
 
   # Install testo as a git submodule
-  git submodule add https://github.com/semgrep/testo.git
+  git submodule add --depth=1 https://github.com/semgrep/testo.git
 
   # Create the './test' symlink
   ln -s _build/default/tests/test.exe test
@@ -53,14 +53,14 @@ let test_hello =
   Testo.create "hello"
     (fun () -> print_endline "hello!")
 
-let tests = [
+let tests _env = [
   test_hello;
 ]
 
 let () =
   Testo.interpret_argv
     ~project_name:"my_project"
-    (fun () -> tests)
+    tests
 EOF
   )
 
