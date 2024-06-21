@@ -169,6 +169,9 @@ let () =
   Testo.interpret_argv
     ~project_name:&quot;foo&quot;
     tests</code></pre>
+<p>Passing multiple key/value pairs is done with multiple <code>-e</code> or <code>--env</code> options:</p>
+<pre><code>$ ./test run -e conf=etc/special-foo.conf -e foo=bar
+...</code></pre>
 <h2 id="how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</h2>
 <p>The simplest way is to start and stop the event loop within each test. With <code>Lwt</code>, this is normally done with <code>Lwt_main.run</code>:</p>
 <pre><code>(* Generic higher-level function that converts a asynchronous

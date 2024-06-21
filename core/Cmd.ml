@@ -166,7 +166,8 @@ let env_term : (string * string) list Term.t =
          KEY must be an alphanumeric identifier of the form \
          [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for \
          passing arbitrary runtime settings to the test suite is offered as a \
-         safer alternative to environment variables."
+         safer alternative to environment variables. Multiple -e/--env options \
+         are supported in the same command, each defining one key/value pair."
   in
   Arg.value (Arg.opt_all env_conv [] info)
 

@@ -249,6 +249,14 @@ let () =
     tests
 ```
 
+Passing multiple key/value pairs is done with multiple `-e` or `--env`
+options:
+
+```
+$ ./test run -e conf=etc/special-foo.conf -e foo=bar
+...
+```
+
 How to write tests for Lwt, Async or other kinds of promises?
 --
 
