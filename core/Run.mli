@@ -18,7 +18,7 @@ type alcotest_test = string * alcotest_test_case list
 val to_alcotest :
   alcotest_skip:(unit -> _) -> Types.test list -> alcotest_test list
 
-val run_tests :
+val cmd_run :
   always_show_unchecked_output:bool ->
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
@@ -30,7 +30,7 @@ val run_tests :
 (* Print the status of each test.
    Return a non-zero exit status if any of the tests is not a success
    (PASS or XFAIL). *)
-val list_status :
+val cmd_status :
   always_show_unchecked_output:bool ->
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
@@ -38,7 +38,7 @@ val list_status :
   Types.test list ->
   int * Types.test_with_status list
 
-val approve_output :
+val cmd_approve :
   ?filter_by_substring:string ->
   ?filter_by_tag:Testo_util.Tag.t ->
   Types.test list ->
