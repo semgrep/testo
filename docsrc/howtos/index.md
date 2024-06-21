@@ -187,6 +187,68 @@ let test_something =
     (fun () -> ...)
 ```
 
+How to pass arbitrary options to the test program?
+--
+
+For example, the tests may need to read a configuration file whose
+path isn't fixed, or maybe we want to see what happens
+when we change some settings.
+
+One solution is to set an environment variable in the shell or parent
+process of the test program. However, environment variables are not
+great for the following reasons:
+
+* Environment variables can easily leak into child processes in which
+  these variables shouldn't be set, or worse it can result in passing
+  sensitive data that shouldn't be accessed by other processes.
+* Environment variables are hard to track.
+  They affect the program's behavior but their existence is not
+  obvious because they don't necessarily appear on the command line.
+
+To avoid these issues and make parameters explicit, Testo provides a
+`--env` (or `-e`) option that allows passing key/value pairs when
+invoking the test program. Consult `--help` for guidance:
+
+```
+$ ./test --help
+...
+       -e KEY=VALUE, --env=KEY=VALUE
+           Pass a key/value pair to the function that creates the test suite.
+           KEY must be an alphanumeric identifier of the form
+           [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for
+           passing arbitrary runtime settings to the test suite is offered as
+           a safer alternative to environment variables.
+```
+
+Suppose we want to pass the path `etc/special-foo.conf` to the test
+program. We would invoke it as follows:
+
+```
+$ ./test run --env conf=etc/special-foo.conf
+...
+```
+
+The part of the OCaml program that produces the list of tests would
+consult the `conf` variable as follows:
+
+```
+let tests env : Testo.t list =
+  let config_path =
+    match List.assoc_opt "conf" env with
+    | None -> "foo.conf" (* default *)
+    | Some path -> path
+  in
+  [
+    Testo.create ...;
+    ...
+  ]
+
+let () =
+  Testo.interpret_argv
+    ~project_name:"foo"
+    tests
+```
+
 How to write tests for Lwt, Async or other kinds of promises?
 --
 
