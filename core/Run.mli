@@ -39,7 +39,7 @@ val cmd_status :
   int * Types.test_with_status list
 
 val cmd_approve :
-  ?filter_by_substring:string ->
-  ?filter_by_tag:Testo_util.Tag.t ->
+  filter_by_substring:string option ->
+  filter_by_tag:Testo_util.Tag.t option ->
   Types.test list ->
   int

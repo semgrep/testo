@@ -90,14 +90,14 @@ let test_hello =
   Testo.create &quot;hello&quot;
     (fun () -&gt; print_endline &quot;hello!&quot;)
 
-let tests = [
+let tests _env = [
   test_hello;
 ]
 
 let () =
   Testo.interpret_argv
     ~project_name:&quot;my_project&quot;
-    (fun () -&gt; tests)</code></pre>
+    tests</code></pre>
 <h3 id="check-your-setup">Check your setup</h3>
 <p>From the project root, build your project as usual with Dune:</p>
 <pre><code>$ dune build</code></pre>

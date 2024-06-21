@@ -24,6 +24,7 @@
 <li><a href="#how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How to write an assertion for a value of a simple type with Alcotest?</a></li>
 <li><a href="#how-to-write-an-assertion-for-a-custom-type">How to write an assertion for a custom type?</a></li>
 <li><a href="#how-to-write-tests-ahead-of-time">How to write tests ahead of time?</a></li>
+<li><a href="#how-to-pass-arbitrary-options-to-the-test-program">How to pass arbitrary options to the test program?</a></li>
 <li><a href="#how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</a></li>
 <li><a href="#how-to-export-test-output-to-junit">How to export test output to JUnit?</a></li>
 <li><a href="#how-to-run-tests-in-parallel">How to run tests in parallel?</a></li>
@@ -133,6 +134,44 @@ let test_something =
     &quot;something&quot;
     ~skipped:is_windows
     (fun () -&gt; ...)</code></pre>
+<h2 id="how-to-pass-arbitrary-options-to-the-test-program">How to pass arbitrary options to the test program?</h2>
+<p>For example, the tests may need to read a configuration file whose path isn’t fixed, or maybe we want to see what happens when we change some settings.</p>
+<p>One solution is to set an environment variable in the shell or parent process of the test program. However, environment variables are not great for the following reasons:</p>
+<ul>
+<li>Environment variables can easily leak into child processes in which these variables shouldn’t be set, or worse it can result in passing sensitive data that shouldn’t be accessed by other processes.</li>
+<li>Environment variables are hard to track. They affect the program’s behavior but their existence is not obvious because they don’t necessarily appear on the command line.</li>
+</ul>
+<p>To avoid these issues and make parameters explicit, Testo provides a <code>--env</code> (or <code>-e</code>) option that allows passing key/value pairs when invoking the test program. Consult <code>--help</code> for guidance:</p>
+<pre><code>$ ./test --help
+...
+       -e KEY=VALUE, --env=KEY=VALUE
+           Pass a key/value pair to the function that creates the test suite.
+           KEY must be an alphanumeric identifier of the form
+           [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for
+           passing arbitrary runtime settings to the test suite is offered as
+           a safer alternative to environment variables.</code></pre>
+<p>Suppose we want to pass the path <code>etc/special-foo.conf</code> to the test program. We would invoke it as follows:</p>
+<pre><code>$ ./test run --env conf=etc/special-foo.conf
+...</code></pre>
+<p>The part of the OCaml program that produces the list of tests would consult the <code>conf</code> variable as follows:</p>
+<pre><code>let tests env : Testo.t list =
+  let config_path =
+    match List.assoc_opt &quot;conf&quot; env with
+    | None -&gt; &quot;foo.conf&quot; (* default *)
+    | Some path -&gt; path
+  in
+  [
+    Testo.create ...;
+    ...
+  ]
+
+let () =
+  Testo.interpret_argv
+    ~project_name:&quot;foo&quot;
+    tests</code></pre>
+<p>Passing multiple key/value pairs is done with multiple <code>-e</code> or <code>--env</code> options:</p>
+<pre><code>$ ./test run -e conf=etc/special-foo.conf -e foo=bar
+...</code></pre>
 <h2 id="how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</h2>
 <p>The simplest way is to start and stop the event loop within each test. With <code>Lwt</code>, this is normally done with <code>Lwt_main.run</code>:</p>
 <pre><code>(* Generic higher-level function that converts a asynchronous

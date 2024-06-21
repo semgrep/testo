@@ -515,15 +515,27 @@ val interpret_argv :
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
   ?status_workspace_root:Fpath.t ->
   project_name:string ->
-  (unit -> t list) ->
+  ((string * string) list -> t list) ->
   unit Promise.t
 (**
    Launch the command-line interface. It provides subcommands for running
    the tests, for checking test statuses, and for approving
    new output.
 
-   Return value: exit code reflecting overall success or failure (0 or 1),
-   and subcommand-specific data for export to JUnit or similar.
+   A simple call is of the form
+   [interpret_argv ~project_name:"my project" create_tests]
+   where [create_tests] is the user-defined function that produces the
+   test suite. [create_tests] gets called as [create_tests env] where [env]
+   is the list of key/value pairs specified on the command line with
+   [-e KEY1=VALUE1 -e KEY2=VALUE2 ...]. It gives an opportunity to
+   parametrize the tests or to even ignore some tests. Note however that
+   in general, it is preferable for [create_tests] to always produce the
+   same list of tests regardless of the parameters passed to the program.
+   For skipping a test without making it invisible, use [create ~skipped:true].
+   For running a test that is expected to fail, use
+   [create ~expected_outcome:(Should_fail "reason")].
+   For filtering tests in other ways, use tags or search by substring.
+   See {!create} and the command-line help available with [--help].
 
 {ul
    {- [argv]: command line to parse. Defaults to [Sys.argv].}

@@ -9,7 +9,7 @@ let failing_function () =
   print_endline "<something being printed by the test>";
   Testo.fail "oh no, I'm failing"
 
-let tests =
+let tests _env =
   [
     t "failing" failing_function;
     t "failing to fail" ~expected_outcome:(Should_fail "<reasons>") (fun () ->
@@ -30,5 +30,4 @@ non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
       (fun () -> print_string "fire");
   ]
 
-let () =
-  Testo.interpret_argv ~project_name:"testo_failing_tests" (fun () -> tests)
+let () = Testo.interpret_argv ~project_name:"testo_failing_tests" tests

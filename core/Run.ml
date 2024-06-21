@@ -779,7 +779,7 @@ let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
 (*
    Entry point for the 'approve' subcommand
 *)
-let cmd_approve ?filter_by_substring ?filter_by_tag tests =
+let cmd_approve ~filter_by_substring ~filter_by_tag tests =
   Store.init_workspace ();
   check_test_definitions tests;
   tests
