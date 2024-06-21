@@ -57,8 +57,11 @@ let section text =
 (*
    Invoke the pre-build test program.
 *)
-let test_subcommand ?expected_exit_code ~__LOC__:loc shell_command_string =
-  let command = "./test " ^ shell_command_string in
+let test_subcommand ?expected_exit_code ~__LOC__:loc subcommand_name
+    shell_command_args =
+  let command =
+    sprintf "./test %s -e foo=bar %s" subcommand_name shell_command_args
+  in
   shell_command ?expected_exit_code ~__LOC__:loc command
 
 let clear_status ~__LOC__:loc () =
@@ -96,32 +99,35 @@ let test_standard_flow () =
   section "Clean start";
   clear_status ~__LOC__ ();
   clear_snapshots ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "run" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status --all --long" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve -s auto-approve";
-  test_subcommand ~__LOC__ "approve -s environment-sensitive";
-  test_subcommand ~__LOC__ "status";
-  test_subcommand ~__LOC__ "status -a -t testin" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status -a -t testing";
+  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "run" "" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status" "--all --long" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "approve" "-s auto-approve";
+  test_subcommand ~__LOC__ "approve" "-s environment-sensitive";
+  test_subcommand ~__LOC__ "status" "";
+  test_subcommand ~__LOC__ "status" "--env A_b123=xxx";
+  test_subcommand ~__LOC__ "status" "-e novalue" ~expected_exit_code:124;
+  test_subcommand ~__LOC__ "status" "-e b@d_key=42" ~expected_exit_code:124;
+  test_subcommand ~__LOC__ "status" "-a -t testin" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status" "-a -t testing";
   (* Modify the output of the test named 'environment-sensitive'
      by setting an environment variable it consults, simulating a bug *)
   with_env ("TESTO_TEST", Some "hello") (fun () ->
-      test_subcommand ~__LOC__ "run -s environment-sensitive"
+      test_subcommand ~__LOC__ "run" "-s environment-sensitive"
         ~expected_exit_code:1);
   (* "Fix the bug" in test 'environment-sensitive' *)
-  test_subcommand ~__LOC__ "run -s environment-sensitive";
+  test_subcommand ~__LOC__ "run" "-s environment-sensitive";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
-  test_subcommand ~__LOC__ "status -v" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status -l" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status -a" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "run";
+  test_subcommand ~__LOC__ "status" "-v" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status" "-l" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "status" "-a" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "run" "";
   section "Delete snapshots but not statuses";
   clear_snapshots ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve -s auto-approve"
+  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
+  test_subcommand ~__LOC__ "approve" "-s auto-approve"
 
 (*****************************************************************************)
 (* Exercise the failing test suite *)
@@ -183,4 +189,5 @@ let tests =
         failwith "this exception is expected");
   ]
 
-let () = Testo.interpret_argv ~project_name:"testo_meta_tests" (fun () -> tests)
+let () =
+  Testo.interpret_argv ~project_name:"testo_meta_tests" (fun _env -> tests)

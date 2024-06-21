@@ -15,7 +15,7 @@ type subcommand_result =
 
    Usage:
 
-     Cmd.interpret_argv tests |> exit
+     Cmd.interpret_argv (fun env -> tests)
 *)
 val interpret_argv :
   ?argv:string array ->
@@ -23,5 +23,5 @@ val interpret_argv :
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
   ?status_workspace_root:Fpath.t ->
   project_name:string ->
-  (unit -> Types.test list) ->
+  ((string * string) list -> Types.test list) ->
   unit Promise.t

@@ -15,6 +15,7 @@ type conf = {
   (* All subcommands *)
   filter_by_substring : string option;
   filter_by_tag : Tag.t option;
+  env : (string * string) list;
   (* Run and Status *)
   show_output : bool;
   (* Status *)
@@ -27,6 +28,7 @@ let default_conf =
   {
     filter_by_substring = None;
     filter_by_tag = None;
+    env = [];
     show_output = false;
     status_output_style = Compact_important;
     lazy_ = false;
@@ -46,7 +48,8 @@ type subcommand_result =
   | Approve_result
 
 type 'continuation_result test_spec =
-  (unit -> Types.test list) * (int -> subcommand_result -> 'continuation_result)
+  ((string * string) list -> Types.test list)
+  * (int -> subcommand_result -> 'continuation_result)
 
 (****************************************************************************)
 (* Dispatch subcommands to do real work *)
@@ -62,12 +65,11 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
      The creation of tests can take a while so it's delayed until we
      really need the tests. This makes '--help' fast.
   *)
-  let tests = get_tests () in
   match cmd_conf with
   | Run_tests conf ->
       Run.cmd_run ~always_show_unchecked_output:conf.show_output
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ tests
+        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ (get_tests conf.env)
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
@@ -75,13 +77,13 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
         Run.cmd_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
-          ~output_style:conf.status_output_style tests
+          ~output_style:conf.status_output_style (get_tests conf.env)
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
       let exit_code =
-        Run.cmd_approve ?filter_by_substring:conf.filter_by_substring
-          ?filter_by_tag:conf.filter_by_tag tests
+        Run.cmd_approve ~filter_by_substring:conf.filter_by_substring
+          ~filter_by_tag:conf.filter_by_tag (get_tests conf.env)
       in
       handle_subcommand_result exit_code Approve_result
 
@@ -139,6 +141,35 @@ let verbose_run_term : bool Term.t =
   in
   Arg.value (Arg.flag info)
 
+(* Converter for arguments of the form KEY=VALUE *)
+let env_conv =
+  let key_re = Re.Pcre.regexp {|\A[A-Za-z_][A-Za-z_0-9]*\z|} in
+  let error str = Error (sprintf "Malformed KEY=VALUE pair: %s" str) in
+  let parse str =
+    match String.index_opt str '=' with
+    | None -> error str
+    | Some pos ->
+        let key = String.sub str 0 pos in
+        if not (Re.Pcre.pmatch ~rex:key_re key) then error str
+        else
+          let value = String.sub str (pos + 1) (String.length str - pos - 1) in
+          Ok (key, value)
+  in
+  let print fmt (key, value) = Format.fprintf fmt "%s=%s" key value in
+  Arg.conv' ~docv:"KEY=VALUE" (parse, print)
+
+let env_term : (string * string) list Term.t =
+  let info =
+    Arg.info [ "e"; "env" ] ~docv:"KEY=VALUE"
+      ~doc:
+        "Pass a key/value pair to the function that creates the test suite. \
+         KEY must be an alphanumeric identifier of the form \
+         [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for \
+         passing arbitrary runtime settings to the test suite is offered as a \
+         safer alternative to environment variables."
+  in
+  Arg.value (Arg.opt_all env_conv [] info)
+
 (****************************************************************************)
 (* Subcommand: run (replaces alcotest's 'test') *)
 (****************************************************************************)
@@ -153,11 +184,12 @@ let lazy_term : bool Term.t =
 let run_doc = "run the tests"
 
 let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
-  let combine filter_by_substring filter_by_tag lazy_ show_output verbose =
+  let combine env filter_by_substring filter_by_tag lazy_ show_output verbose =
     let show_output = show_output || verbose in
     Run_tests
       {
         default_conf with
+        env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
         lazy_;
@@ -166,8 +198,8 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ filter_by_substring_term $ filter_by_tag_term $ lazy_term
-    $ show_output_term $ verbose_run_term)
+    const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term
+    $ lazy_term $ show_output_term $ verbose_run_term)
 
 let subcmd_run test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
@@ -210,7 +242,8 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all filter_by_substring filter_by_tag long show_output verbose =
+  let combine all env filter_by_substring filter_by_tag long show_output verbose
+      =
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -224,6 +257,7 @@ let subcmd_status_term tests : unit Term.t =
     Status
       {
         default_conf with
+        env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
         show_output;
@@ -232,8 +266,8 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ filter_by_substring_term $ filter_by_tag_term
-    $ long_term $ show_output_term $ verbose_status_term)
+    const combine $ all_term $ env_term $ filter_by_substring_term
+    $ filter_by_tag_term $ long_term $ show_output_term $ verbose_status_term)
 
 let subcmd_status tests =
   let info = Cmd.info "status" ~doc:status_doc in
@@ -246,10 +280,18 @@ let subcmd_status tests =
 let approve_doc = "approve new test output"
 
 let subcmd_approve_term tests : unit Term.t =
-  let combine filter_by_substring =
-    Approve { default_conf with filter_by_substring } |> run_with_conf tests
+  let combine env filter_by_substring filter_by_tag =
+    Approve
+      {
+        default_conf with
+        env;
+        filter_by_substring;
+        filter_by_tag = check_tag filter_by_tag;
+      }
+    |> run_with_conf tests
   in
-  Term.(const combine $ filter_by_substring_term)
+  Term.(
+    const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term)
 
 let subcmd_approve tests =
   let info = Cmd.info "approve" ~doc:approve_doc in
@@ -313,7 +355,8 @@ let with_record_backtrace func =
 *)
 let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
-    ?status_workspace_root ~project_name (get_tests : unit -> Types.test list) =
+    ?status_workspace_root ~project_name
+    (get_tests : (string * string) list -> Types.test list) =
   (* TODO: is there any reason why we shouldn't always record a stack
      backtrace when running tests? *)
   let test_spec = (get_tests, handle_subcommand_result) in

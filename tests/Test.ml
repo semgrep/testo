@@ -208,7 +208,7 @@ let windows_todo : Testo.expected_outcome =
    Normal tests should not be auto-approved since it would defeat the purpose
    of approval.
 *)
-let tests =
+let tests env =
   [
     t "simple" (fun () -> ());
     t "tags" ~tags:[ testing_tag; tags_tag ] (fun () -> ());
@@ -315,6 +315,12 @@ let tests =
     t "temporary files" test_temporary_files;
     t "user output capture" ~checked_output:(Testo.stdout ())
       test_user_output_capture;
+    t "require '--env foo=bar'" (fun () ->
+        match List.assoc_opt "foo" env with
+        | None -> Alcotest.fail "Missing option: -e foo=bar"
+        | Some "bar" -> ()
+        | Some other ->
+            Alcotest.fail (sprintf "Invalid value for variable foo: %S" other));
   ]
   @ categorized @ test_internal_files
 
@@ -323,4 +329,4 @@ let () =
     ~handle_subcommand_result:(fun exit_code _ ->
       print_endline "<handling result before exiting>";
       exit exit_code)
-    (fun () -> tests)
+    tests

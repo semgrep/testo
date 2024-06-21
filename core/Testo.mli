@@ -515,7 +515,7 @@ val interpret_argv :
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
   ?status_workspace_root:Fpath.t ->
   project_name:string ->
-  (unit -> t list) ->
+  ((string * string) list -> t list) ->
   unit Promise.t
 (**
    Launch the command-line interface. It provides subcommands for running
