@@ -44,6 +44,20 @@ RUN ./test status -e foo=bar
 [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
 [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
+[33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
+[33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
+[33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
+[33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
+[33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
+[33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
+[33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
+[33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
+[33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
+[33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
+[33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
+[33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
+[33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
+[33m[MISS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar 
 Legend:
@@ -175,6 +189,34 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [33m[RUN][0m   57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m...[2K[32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+[33m[RUN][0m   4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m...[2K[32m[PASS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
+[33m[RUN][0m   2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m...[2K[32m[PASS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
+[33m[RUN][0m   5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m...[2K[32m[PASS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
+[33m[RUN][0m   69942982f070 [36mSlice[0m > [36mshort 1/5[0m...[2K[32m[PASS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
+[33m[RUN][0m   c7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m...[2K[32m[PASS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
+[33m[RUN][0m   880486950fd4 [36mSlice[0m > [36mshort 4/5[0m...[2K[32m[PASS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
+[33m[RUN][0m   c7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m...[2K[32m[PASS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
+[33m[RUN][0m   c248034012cb [36mSlice[0m > [36meven 1/3[0m...[2K[32m[PASS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
+[33m[RUN][0m   b0f035899167 [36mSlice[0m > [36meven 2/3[0m...[2K[32m[PASS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
+[33m[RUN][0m   89fe151186d4 [36mSlice[0m > [36meven 3/3[0m...[2K[32m[PASS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
+[33m[RUN][0m   5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m...[2K[32m[PASS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
+[33m[RUN][0m   913605e2d932 [36mSlice[0m > [36mlong 2/3[0m...[2K[32m[PASS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
+[33m[RUN][0m   6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m...[2K[32m[PASS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
+[33m[RUN][0m   c9bf97cbaabc [36mSlice[0m > [36mchained[0m...[2K[32m[PASS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c9bf97cbaabc/log
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -262,9 +304,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-34/34 selected tests:
+48/48 selected tests:
   1 skipped
-  33 successful (32 pass, 1 xfail)
+  47 successful (46 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -401,6 +443,34 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+[32m[PASS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
+[32m[PASS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
+[32m[PASS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
+[32m[PASS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
+[32m[PASS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
+[32m[PASS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
+[32m[PASS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
+[32m[PASS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
+[32m[PASS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
+[32m[PASS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
+[32m[PASS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
+[32m[PASS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
+[32m[PASS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
+[32m[PASS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c9bf97cbaabc/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
@@ -480,9 +550,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-34/34 selected tests:
+48/48 selected tests:
   1 skipped
-  33 successful (32 pass, 1 xfail)
+  47 successful (46 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -567,7 +637,7 @@ Checking if the environment variable TESTO_TEST is set:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/34 selected tests:
+1/48 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -591,7 +661,7 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/34 selected tests:
+1/48 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -744,6 +814,48 @@ Legend:
 [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+[33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
+[33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
+[33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
+[33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
+[33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
+[33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
+[33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
+[33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
+[33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
+[33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
+[33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
+[33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
+[33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
+[33m[MISS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c9bf97cbaabc/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c9bf97cbaabc/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
@@ -974,14 +1086,98 @@ Legend:
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m                                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c9bf97cbaabc/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c9bf97cbaabc/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-34/34 selected tests:
+48/48 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-33 new tests
+47 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -l
@@ -1214,14 +1410,98 @@ RUN ./test status -e foo=bar -l
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m                                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m                                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c9bf97cbaabc/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c9bf97cbaabc/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-34/34 selected tests:
+48/48 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-33 new tests
+47 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -a
@@ -1259,6 +1539,20 @@ RUN ./test status -e foo=bar -a
 [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
 [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
+[33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
+[33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
+[33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
+[33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
+[33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
+[33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
+[33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
+[33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
+[33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
+[33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
+[33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
+[33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
+[33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
+[33m[MISS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar 
 Legend:
@@ -1387,12 +1681,40 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [33m[RUN][0m   57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m...[2K[32m[PASS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
+[33m[RUN][0m   4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m...[2K[32m[PASS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
+[33m[RUN][0m   2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m...[2K[32m[PASS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
+[33m[RUN][0m   5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m...[2K[32m[PASS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
+[33m[RUN][0m   69942982f070 [36mSlice[0m > [36mshort 1/5[0m...[2K[32m[PASS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
+[33m[RUN][0m   c7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m...[2K[32m[PASS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
+[33m[RUN][0m   880486950fd4 [36mSlice[0m > [36mshort 4/5[0m...[2K[32m[PASS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
+[33m[RUN][0m   c7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m...[2K[32m[PASS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
+[33m[RUN][0m   c248034012cb [36mSlice[0m > [36meven 1/3[0m...[2K[32m[PASS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
+[33m[RUN][0m   b0f035899167 [36mSlice[0m > [36meven 2/3[0m...[2K[32m[PASS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
+[33m[RUN][0m   89fe151186d4 [36mSlice[0m > [36meven 3/3[0m...[2K[32m[PASS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
+[33m[RUN][0m   5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m...[2K[32m[PASS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
+[33m[RUN][0m   913605e2d932 [36mSlice[0m > [36mlong 2/3[0m...[2K[32m[PASS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
+[33m[RUN][0m   6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m...[2K[32m[PASS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
+[33m[RUN][0m   c9bf97cbaabc [36mSlice[0m > [36mchained[0m...[2K[32m[PASS]  [0mc9bf97cbaabc [36mSlice[0m > [36mchained[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c9bf97cbaabc/log
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-34/34 selected tests:
+48/48 selected tests:
   1 skipped
-  33 successful (32 pass, 1 xfail)
+  47 successful (46 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
 <handling result before exiting>
