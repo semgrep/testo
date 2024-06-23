@@ -38,8 +38,10 @@ let apply_to_array slice ar =
   in
   let start_index = get_slice_start slice.num in
   let end_index = get_slice_start (slice.num + 1) in
-  printf "%s: len=%i, min_slice_len=%i, start=%i, end=%i\n%!" (to_string slice)
-    n min_slice_len start_index end_index;
+  (*
+  printf "%s: len=%i, min_slice_len=%i, start=%i, end=%i\n%!"
+    (to_string slice) n min_slice_len start_index end_index;
+  *)
   Array.sub ar start_index (end_index - start_index)
 
 let apply slice list =
