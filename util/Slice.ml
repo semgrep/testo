@@ -19,22 +19,28 @@ let of_string str =
 
 let to_string { num; out_of } = Printf.sprintf "%d/%d" num out_of
 
-let apply_to_array { num; out_of } ar =
-  let len = Array.length ar in
-  let slice_len =
-    (* length of a slice except for the last slice which may be shorter *)
-    if len mod out_of = 0 then len / out_of else (len / out_of) + 1
+(*
+   Algorithm to split N elements into M even batches:
+   1. N/M gives the minimum number of elements in each batch.
+   2. The remainder R is distributed to the first R batches.
+   This results in the first R batches having (N/M)+1 elements and
+   the remaining M-R batches having N/M elements.
+*)
+let apply_to_array slice ar =
+  let n = Array.length ar in
+  let m = slice.out_of in
+  let min_slice_len = n / m in
+  let r = n mod m in
+  let get_slice_start slice_num =
+    let slice_index = slice_num - 1 in
+    if slice_index <= r then (min_slice_len + 1) * slice_index
+    else ((min_slice_len + 1) * r) + (min_slice_len * (slice_index - r))
   in
-  assert (slice_len * out_of >= len);
-  let start_index = slice_len * (num - 1) in
-  if start_index >= len then [||]
-  else
-    let end_index = min (slice_len * num) len in
-    (*
-      printf "%i/%i: len=%i, slice_len=%i, start=%i, end=%i\n%!"
-        num out_of len slice_len start_index end_index;
-    *)
-    Array.sub ar start_index (end_index - start_index)
+  let start_index = get_slice_start slice.num in
+  let end_index = get_slice_start (slice.num + 1) in
+  printf "%s: len=%i, min_slice_len=%i, start=%i, end=%i\n%!" (to_string slice)
+    n min_slice_len start_index end_index;
+  Array.sub ar start_index (end_index - start_index)
 
 let apply slice list =
   list |> Array.of_list |> apply_to_array slice |> Array.to_list
@@ -60,9 +66,20 @@ let tests =
     ("even 2/3", [ "2/3" ], [ 1; 2; 3; 4; 5; 6 ], [ 3; 4 ]);
     ("even 3/3", [ "3/3" ], [ 1; 2; 3; 4; 5; 6 ], [ 5; 6 ]);
     ("long 1/3", [ "1/3" ], [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ], [ 1; 2; 3; 4 ]);
-    ("long 2/3", [ "2/3" ], [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ], [ 5; 6; 7; 8 ]);
-    ("long 3/3", [ "3/3" ], [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ], [ 9; 10 ]);
-    ("chained", [ "1/3"; "2/2" ], [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ], [ 3; 4 ]);
+    ("long 2/3", [ "2/3" ], [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ], [ 5; 6; 7 ]);
+    ("long 3/3", [ "3/3" ], [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ], [ 8; 9; 10 ]);
+    ( "chained 1/3 2/2",
+      [ "1/3"; "2/2" ],
+      [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ],
+      [ 3; 4 ] );
+    ( "chained 2/3 1/2",
+      [ "2/3"; "1/2" ],
+      [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ],
+      [ 5; 6 ] );
+    ( "chained 2/3 2/2",
+      [ "2/3"; "2/2" ],
+      [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ],
+      [ 7 ] );
   ]
   |> List.map (fun (name, slice_strs, input, expected_result) ->
          let func () =
