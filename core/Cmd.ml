@@ -22,6 +22,7 @@ type conf = {
   status_output_style : Run.status_output_style;
   (* Run *)
   lazy_ : bool;
+  slice : Slice.t list;
 }
 
 let default_conf =
@@ -32,6 +33,7 @@ let default_conf =
     show_output = false;
     status_output_style = Compact_important;
     lazy_ = false;
+    slice = [];
   }
 
 (*
@@ -69,8 +71,8 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   | Run_tests conf ->
       Run.cmd_run ~always_show_unchecked_output:conf.show_output
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ (get_tests conf.env)
-        (fun exit_code tests_with_status ->
+        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ ~slice:conf.slice
+        (get_tests conf.env) (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
       let exit_code, tests_with_status =
@@ -182,10 +184,38 @@ let lazy_term : bool Term.t =
   in
   Arg.value (Arg.flag info)
 
+(* Converter for arguments of the form NUM/NUM_SLICES *)
+let slice_conv =
+  let parse str =
+    match Slice.of_string str with
+    | None -> Error (sprintf "Malformed slice: %s" str)
+    | Some x -> Ok x
+  in
+  let print fmt slice = Format.pp_print_string fmt (Slice.to_string slice) in
+  Arg.conv' ~docv:"NUM/NUM_SLICES" (parse, print)
+
+let slice_term : Slice.t list Term.t =
+  let info =
+    Arg.info [ "slice" ] ~docv:"NUM/NUM_SLICES"
+      ~doc:
+        "Divide the test suite into NUM_SLICES and work on slice NUM only \
+         (1-based). For example, '1/4' is the first of four slices and '4/4' \
+         is the last one. If multiple '--slice' options are specified, they \
+         are applied sequentially from left to right. If the original suite \
+         defines 23 tests, '--slice 2/4' selects tests [7,8,9,10,11,12] \
+         (1-based). If additionally '--slice 1/3' is specified after it on the \
+         same command line, the remaining tests will be [7,8]. This filter is \
+         meant for running tests in parallel, possibly across multiple hosts. \
+         It is applied after any other filters to as to divide the work more \
+         evenly."
+  in
+  Arg.value (Arg.opt_all slice_conv [] info)
+
 let run_doc = "run the tests"
 
 let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
-  let combine env filter_by_substring filter_by_tag lazy_ show_output verbose =
+  let combine env filter_by_substring filter_by_tag lazy_ show_output slice
+      verbose =
     let show_output = show_output || verbose in
     Run_tests
       {
@@ -195,12 +225,13 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
         filter_by_tag = check_tag filter_by_tag;
         lazy_;
         show_output;
+        slice;
       }
     |> run_with_conf test_spec
   in
   Term.(
     const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term
-    $ lazy_term $ show_output_term $ verbose_run_term)
+    $ lazy_term $ show_output_term $ slice_term $ verbose_run_term)
 
 let subcmd_run test_spec =
   let info = Cmd.info "run" ~doc:run_doc in

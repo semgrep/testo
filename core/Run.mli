@@ -23,6 +23,7 @@ val cmd_run :
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
   lazy_:bool ->
+  slice:Testo_util.Slice.t list ->
   Types.test list ->
   (int -> Types.test_with_status list -> _) ->
   _

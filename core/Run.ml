@@ -728,7 +728,7 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
     (P.return ()) tests
 
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
-let before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests =
+let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
   Store.init_workspace ();
   check_test_definitions tests;
   let tests =
@@ -741,7 +741,7 @@ let before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests =
         |> Helpers.list_map (fun (test, _, _) -> test)
   in
   print_status_introduction ();
-  filter ~filter_by_substring ~filter_by_tag tests
+  filter ~filter_by_substring ~filter_by_tag tests |> Slice.apply_slices slice
 
 (* Run this after a run or Lwt run. *)
 let after_run ~always_show_unchecked_output tests selected_tests =
@@ -759,9 +759,9 @@ let after_run ~always_show_unchecked_output tests selected_tests =
    Entry point for the 'run' subcommand
 *)
 let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~lazy_ tests cont =
+    ~lazy_ ~slice tests cont =
   let selected_tests =
-    before_run ~filter_by_substring ~filter_by_tag ~lazy_ tests
+    before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
   in
   run_tests_sequentially ~always_show_unchecked_output selected_tests
   >>= (fun () ->
