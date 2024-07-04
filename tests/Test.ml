@@ -323,6 +323,10 @@ let tests env =
             Alcotest.fail (sprintf "Invalid value for variable foo: %S" other));
   ]
   @ categorized @ test_internal_files
+  @ Testo.categorize "Slice"
+      (List.map
+         (fun (name, func) -> Testo.create name func)
+         Testo_util.Slice.tests)
 
 let () =
   Testo.interpret_argv ~project_name:"testo_tests"
