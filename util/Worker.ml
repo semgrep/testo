@@ -4,21 +4,15 @@
 
 type worker = {
   id : string; (* unique ID derived from the slice *)
-  slice : Slice.t;
   in_channel : in_channel; (* to be closed with 'Unix.close_process_in' *)
   file_descr : Unix.file_descr;
-  pid : int;
   input_buffer : Buffer.t;
   mutable running : bool; (* = an END message has not been received *)
 }
 
-type t = { workers : worker list; read : Message.t option }
+type t = { read : unit -> (worker * Message.t) option }
 
 let still_running workers = List.exists (fun x -> x.running) workers
-
-(* Add bytes to a worker's input buffer. This results in 0, 1, or more
-   messages becoming available. *)
-let add_bytes (x : worker) : Message.t list = failwith "TODO: input buffer"
 
 let close_worker (x : worker) =
   x.running <- false;
@@ -27,27 +21,42 @@ let close_worker (x : worker) =
 
 let close_workers workers = List.iter close_worker workers
 
-let read_from_worker (x : worker) (queue : Message.t Queue.t) : Message.t list =
+let take_lines_from_buffer buf =
+  let lines = Buffer.contents buf |> String.split_on_char '\n' in
+  let complete_lines, leftover =
+    match lines |> List.rev with
+    | leftover :: complete -> (List.rev complete, leftover)
+    | [] -> assert false
+  in
+  Buffer.clear buf;
+  Buffer.add_string buf leftover;
+  complete_lines
+
+let flush_input_buffer worker buf queue =
+  let lines = take_lines_from_buffer buf in
+  List.iter (fun line -> Queue.add (worker, Message.of_string line) queue) lines
+
+let read_from_worker (x : worker) (queue : (worker * Message.t) Queue.t) =
   (* Read everything that's available to read now without blocking *)
   let buf_len = 1024 in
   let buf = Bytes.create buf_len in
   let bytes_read = input x.in_channel buf 0 buf_len in
-  if bytes_read = 0 then (
-    (* end of input *)
-    close_worker x;
-    [])
+  if bytes_read = 0 then (* end of input *)
+    close_worker x
   else (
     (* Add bytes to the worker's input buffer and see if we have
        complete messages that we can parse and add to the message queue. *)
     Buffer.add_subbytes x.input_buffer buf 0 bytes_read;
-    flush_input_buffer x.input_buffer queue)
+    flush_input_buffer x x.input_buffer queue)
 
 let make_poller workers =
   (* The table maps file descriptor to worker data. This is needed to
      determine when all workers are done. *)
   let worker_tbl = Hashtbl.create 100 in
-  List.iter (fun worker -> Hashtbl.add worker_tbl worker.file_descr worker);
-  let in_fds = Helpers.list_map (fun x -> x.file_descr) in
+  List.iter
+    (fun worker -> Hashtbl.add worker_tbl worker.file_descr worker)
+    workers;
+  let in_fds = Helpers.list_map (fun x -> x.file_descr) workers in
   let incoming_message_queue = Queue.create () in
   let rec poll () =
     match Queue.take_opt incoming_message_queue with
@@ -92,8 +101,17 @@ let create ~num_workers ~original_argv =
            in
            (* This is supposed to work on all platforms. *)
            let in_channel = Unix.open_process_args_in program_name argv in
-           let pid = Unix.process_in_pid in_channel in
-           { id = slice_str; slice; in_channel; pid })
+           let file_descr = Unix.descr_of_in_channel in_channel in
+           {
+             id = slice_str;
+             in_channel;
+             file_descr;
+             input_buffer = Buffer.create 200;
+             running = true;
+           })
   in
-  let read () = make_poller workers in
-  { workers; read }
+  let read = make_poller workers in
+  { read }
+
+let read (x : t) =
+  x.read () |> Option.map (fun (worker, msg) -> (worker.id, msg))
