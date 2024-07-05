@@ -10,6 +10,10 @@ type t = { num : int; out_of : int }
 let create ~num ~out_of =
   if num >= 1 && num <= out_of then Some { num; out_of } else None
 
+let partition n =
+  if n <= 0 then invalid_arg "Slice.partition"
+  else List.init n (fun i -> { num = i + 1; out_of = n })
+
 let of_string str =
   match String.split_on_char '/' str with
   | [ a; b ] -> (

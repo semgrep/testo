@@ -22,6 +22,8 @@ val cmd_run :
   always_show_unchecked_output:bool ->
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
+  is_worker:bool ->
+  jobs:int option ->
   lazy_:bool ->
   slice:Testo_util.Slice.t list ->
   Types.test list ->

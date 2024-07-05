@@ -9,6 +9,17 @@ open Promise.Operators
 module T = Types
 module P = Promise
 
+(*
+   The current process has 3 possibly identities:
+   - master + worker: runs tests sequentially
+   - worker: same as master+worker but outputs progress in a special format
+   - master: creates processes to run the tests in parallel
+*)
+type identity =
+  | Master_worker
+  | Master of int (* number of parallel workers to manage *)
+  | Worker
+
 type status_output_style =
   | Long_all
   | Compact_all
@@ -701,8 +712,12 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   in
   (exit_code, tests_with_status)
 
-let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
-    'unit_promise =
+(*
+   Run tests.
+   In a Master process, this function can be used only to report skipped tests.
+*)
+let run_tests_sequentially ~always_show_unchecked_output ~identity
+    (tests : T.test list) : 'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
       let test_func : unit -> 'unit_promise =
@@ -711,24 +726,43 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
       in
       previous >>= fun () ->
       if test.skipped then (
-        printf "%s%s\n%!"
-          (Style.left_col (Style.color Yellow "[SKIP]"))
-          (format_title test);
+        (match identity with
+        | Master_worker
+        | Master _ ->
+            (* Skipped tests are reported by the master. *)
+            printf "%s%s\n%!"
+              (Style.left_col (Style.color Yellow "[SKIP]"))
+              (format_title test)
+        | Worker ->
+            (* Skipped tests should have been filtered out! *)
+            assert false);
         P.return ())
       else (
-        printf "%s%s...%!"
-          (Style.left_col (Style.color Yellow "[RUN]"))
-          (format_title test);
+        (* Run the test! *)
+        (match identity with
+        | Master _ -> assert false
+        | Master_worker ->
+            printf "%s%s...%!"
+              (Style.left_col (Style.color Yellow "[RUN]"))
+              (format_title test)
+        | Worker -> printf "START %s\n%!" test.id);
         P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-        (* Erase RUN line *)
-        printf "\027[2K\r";
-        get_test_with_status test
-        |> print_status ~highlight_test:false ~always_show_unchecked_output;
+        (* Report the test as done! *)
+        (match identity with
+        | Master _ -> assert false
+        | Master_worker ->
+            (* Try to erase the RUN line. This only erases from the current
+               point to the beginning of the physical line of the console. *)
+            printf "\027[2K\r";
+            get_test_with_status test
+            |> print_status ~highlight_test:false ~always_show_unchecked_output
+        | Worker -> printf "END %s\n%!" test.id);
         P.return ()))
     (P.return ()) tests
 
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
-let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
+let before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice tests
+    =
   Store.init_workspace ();
   check_test_definitions tests;
   let tests =
@@ -740,7 +774,11 @@ let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
         List.filter is_important_status tests_with_status
         |> Helpers.list_map (fun (test, _, _) -> test)
   in
-  print_status_introduction ();
+  (match identity with
+  | Master _
+  | Master_worker ->
+      print_status_introduction ()
+  | Worker -> ());
   filter ~filter_by_substring ~filter_by_tag tests |> Slice.apply_slices slice
 
 (* Run this after a run or Lwt run. *)
@@ -756,15 +794,43 @@ let after_run ~always_show_unchecked_output tests selected_tests =
   (exit_code, tests_with_status)
 
 (*
+   Run tests sequentially in this process or run tests in parallel
+   in subprocesses.
+*)
+let select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
+    ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests =
+  let identity =
+    match is_worker with
+    | true -> Worker
+    | false -> (
+        match jobs with
+        | Some 0 -> Master_worker
+        | Some n -> Master n
+        | None -> (
+            match CPU.get_count () with
+            | None -> Master_worker
+            | Some n -> Master n))
+  in
+  match identity with
+  | Master_worker
+  | Worker ->
+      let selected_tests =
+        before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice
+          tests
+      in
+      run_tests_sequentially ~always_show_unchecked_output ~identity
+        selected_tests
+      >>= fun () -> P.return selected_tests
+  | Master _jobs -> failwith "TODO: parallel execution"
+
+(*
    Entry point for the 'run' subcommand
 *)
 let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~lazy_ ~slice tests cont =
-  let selected_tests =
-    before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
-  in
-  run_tests_sequentially ~always_show_unchecked_output selected_tests
-  >>= (fun () ->
+    ~is_worker ~jobs ~lazy_ ~slice tests cont =
+  select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
+    ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests
+  >>= (fun selected_tests ->
         let exit_code, tests_with_status =
           after_run ~always_show_unchecked_output tests selected_tests
         in

@@ -23,6 +23,8 @@ type conf = {
   (* Run *)
   lazy_ : bool;
   slice : Slice.t list;
+  is_worker : bool;
+  jobs : int option;
 }
 
 let default_conf =
@@ -34,6 +36,8 @@ let default_conf =
     status_output_style = Compact_important;
     lazy_ = false;
     slice = [];
+    is_worker = false;
+    jobs = None;
   }
 
 (*
@@ -71,8 +75,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   | Run_tests conf ->
       Run.cmd_run ~always_show_unchecked_output:conf.show_output
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ ~slice:conf.slice
-        (get_tests conf.env) (fun exit_code tests_with_status ->
+        ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
+        ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice (get_tests conf.env)
+        (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
   | Status conf ->
       let exit_code, tests_with_status =
@@ -177,6 +182,16 @@ let env_term : (string * string) list Term.t =
 (* Subcommand: run (replaces alcotest's 'test') *)
 (****************************************************************************)
 
+let jobs_term : int option Term.t =
+  let info =
+    Arg.info [ "j"; "jobs" ] ~docv:"NUM"
+      ~doc:
+        "Specify the number of jobs to run in parallel. By default, this value \
+         is determined automatically. To enforce sequential execution, use '-j \
+         0' or '-j 1'."
+  in
+  Arg.value (Arg.opt (Arg.some Arg.int) None info)
+
 let lazy_term : bool Term.t =
   let info =
     Arg.info [ "lazy" ]
@@ -211,11 +226,18 @@ let slice_term : Slice.t list Term.t =
   in
   Arg.value (Arg.opt_all slice_conv [] info)
 
+let worker_term : bool Term.t =
+  let info =
+    Arg.info [ "worker" ]
+      ~doc:"Internal option used to launch a parallel worker."
+  in
+  Arg.value (Arg.flag info)
+
 let run_doc = "run the tests"
 
 let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
-  let combine env filter_by_substring filter_by_tag lazy_ show_output slice
-      verbose =
+  let combine env filter_by_substring filter_by_tag jobs lazy_ show_output slice
+      verbose worker =
     let show_output = show_output || verbose in
     Run_tests
       {
@@ -223,6 +245,8 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
+        is_worker = worker;
+        jobs;
         lazy_;
         show_output;
         slice;
@@ -231,7 +255,8 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
   in
   Term.(
     const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term
-    $ lazy_term $ show_output_term $ slice_term $ verbose_run_term)
+    $ jobs_term $ lazy_term $ show_output_term $ slice_term $ verbose_run_term
+    $ worker_term)
 
 let subcmd_run test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
