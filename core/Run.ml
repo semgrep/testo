@@ -56,6 +56,32 @@ let if_plural num s = if num >= 2 then s else ""
 let if_singular num s = if num <= 1 then s else ""
 
 (*
+   Compute a checksum used to detect obvious differences between
+   the list of tests obtained in the master process and the list of tests
+   obtained in a worker process in charge of taking a slice of that list.
+
+   The checksum is passed by the master to each worker via a command-line
+   option.
+*)
+let get_checksum (tests : T.test list) =
+  tests
+  |> Helpers.list_map (fun (x : T.test) -> x.id)
+  |> String.concat " " |> Digest.string |> Digest.to_hex
+
+let check_checksum ~expected_checksum tests =
+  match expected_checksum with
+  | None -> ()
+  | Some expected ->
+      let checksum = get_checksum tests in
+      if checksum <> expected then
+        Worker.fatal_error
+          "Checksum mismatch: the test suite in a worker process is different \
+           than the list of tests in the master process. You need to make sure \
+           that the name and the order of the tests in the test suite is \
+           deterministic and independent of any internal command-line option \
+           (e.g. '--worker')."
+
+(*
    Check that no two tests have the same full name or the same ID.
 *)
 let check_id_uniqueness (tests : T.test list) =
@@ -715,6 +741,9 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
 (*
    Run tests.
    In a Master process, this function can be used only to report skipped tests.
+
+   TODO: split the running logic from the reporting logic so as to allow two
+   running modes: sequential and out-of-order
 *)
 let run_tests_sequentially ~always_show_unchecked_output ~identity
     (tests : T.test list) : 'unit_promise =
@@ -745,7 +774,7 @@ let run_tests_sequentially ~always_show_unchecked_output ~identity
             printf "%s%s...%!"
               (Style.left_col (Style.color Yellow "[RUN]"))
               (format_title test)
-        | Worker -> printf "START %s\n%!" test.id);
+        | Worker -> Worker.write (Start_test test.id));
         P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
         (* Report the test as done! *)
         (match identity with
@@ -756,9 +785,16 @@ let run_tests_sequentially ~always_show_unchecked_output ~identity
             printf "\027[2K\r";
             get_test_with_status test
             |> print_status ~highlight_test:false ~always_show_unchecked_output
-        | Worker -> printf "END %s\n%!" test.id);
+        | Worker -> Worker.write (End_test test.id));
         P.return ()))
     (P.return ()) tests
+  >>= fun () ->
+  (match identity with
+  | Worker -> Worker.write End
+  | Master _
+  | Master_worker ->
+      ());
+  P.return ()
 
 (* Run this before a run or Lwt run. Returns the filtered tests. *)
 let before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice tests
@@ -796,9 +832,11 @@ let after_run ~always_show_unchecked_output tests selected_tests =
 (*
    Run tests sequentially in this process or run tests in parallel
    in subprocesses.
+
+   Return all the selected tests.
 *)
-let select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
-    ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests =
+let select_and_run_tests ~always_show_unchecked_output ~argv
+    ~filter_by_substring ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests =
   let identity =
     match is_worker with
     | true -> Worker
@@ -811,51 +849,25 @@ let select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
             | None -> Master_worker
             | Some n -> Master n))
   in
-  match identity with
+  let selected_tests =
+    before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice tests
+  in
+  (match identity with
   | Master_worker
   | Worker ->
-      let selected_tests =
-        before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice
-          tests
-      in
       run_tests_sequentially ~always_show_unchecked_output ~identity
         selected_tests
-      >>= fun () -> P.return selected_tests
-  | Master _jobs -> failwith "TODO: parallel execution"
-
-(*
-   Compute a checksum used to detect obvious differences between
-   the list of tests obtained in the master process and the list of tests
-   obtained in a worker process in charge of taking a slice of that list.
-
-   The checksum is passed by the master to each worker via a command-line
-   option.
-*)
-let get_checksum (tests : T.test list) =
-  tests
-  |> Helpers.list_map (fun (x : T.test) -> x.id)
-  |> String.concat " " |> Digest.string |> Digest.to_hex
-
-let check_checksum ~expected_checksum tests =
-  match expected_checksum with
-  | None -> ()
-  | Some expected ->
-      let checksum = get_checksum tests in
-      if checksum <> expected then
-        Worker.fatal_error
-          "Checksum mismatch: the test suite in a worker process is different \
-           than the list of tests in the master process. You need to make sure \
-           that the name and the order of the tests in the test suite is \
-           deterministic and independent of any internal command-line option \
-           (e.g. '--worker')."
+  | Master num_workers -> run_tests_in_workers ~num_workers tests)
+  >>= fun () -> P.return selected_tests
 
 (*
    Entry point for the 'run' subcommand
 *)
-let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~is_worker ~jobs ~lazy_ ~slice ~test_list_checksum tests cont =
+let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
+    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice ~test_list_checksum tests cont
+    =
   if is_worker then check_checksum ~expected_checksum:test_list_checksum tests;
-  select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
+  select_and_run_tests ~always_show_unchecked_output ~argv ~filter_by_substring
     ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests
   >>= (fun selected_tests ->
         let exit_code, tests_with_status =
