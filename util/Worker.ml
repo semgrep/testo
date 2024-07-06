@@ -2,6 +2,8 @@
    Manage the lifecycle of worker processes used for parallel test runs.
 *)
 
+open Printf
+
 type worker = {
   id : string; (* unique ID derived from the slice *)
   in_channel : in_channel; (* to be closed with 'Unix.close_process_in' *)
@@ -33,7 +35,14 @@ let take_lines_from_buffer buf =
   complete_lines
 
 let flush_input_buffer worker buf queue =
-  let lines = take_lines_from_buffer buf in
+  let lines =
+    (* Ignore empty lines that may have been added as a way to protect
+       messages against junk. See 'write'. *)
+    take_lines_from_buffer buf
+    |> List.filter (function
+         | "" -> false
+         | _ -> true)
+  in
   List.iter (fun line -> Queue.add (worker, Message.of_string line) queue) lines
 
 let read_from_worker (x : worker) (queue : (worker * Message.t) Queue.t) =
@@ -84,7 +93,7 @@ let make_poller workers =
   in
   poll
 
-let create ~num_workers ~original_argv =
+let create ~num_workers ~original_argv ~test_list_checksum =
   let slices = Slice.partition num_workers in
   let workers =
     slices
@@ -97,7 +106,16 @@ let create ~num_workers ~original_argv =
            in
            let argv =
              Array.concat
-               [ original_argv; [| "--worker"; "--slice"; slice_str |] ]
+               [
+                 original_argv;
+                 [|
+                   "--worker";
+                   "--test-list-checksum";
+                   test_list_checksum;
+                   "--slice";
+                   slice_str;
+                 |];
+               ]
            in
            (* This is supposed to work on all platforms. *)
            let in_channel = Unix.open_process_args_in program_name argv in
@@ -115,3 +133,12 @@ let create ~num_workers ~original_argv =
 
 let read (x : t) =
   x.read () |> Option.map (fun (worker, msg) -> (worker.id, msg))
+
+let write msg =
+  (* We print a newline before the message to terminate any junk
+     that may have been written to stdout by user code. *)
+  printf "\n%s\n%!" (Message.to_string msg)
+
+let fatal_error str =
+  write (Error str);
+  exit 1

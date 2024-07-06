@@ -26,6 +26,7 @@ val cmd_run :
   jobs:int option ->
   lazy_:bool ->
   slice:Testo_util.Slice.t list ->
+  test_list_checksum:string option ->
   Types.test list ->
   (int -> Types.test_with_status list -> _) ->
   _

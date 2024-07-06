@@ -9,10 +9,26 @@ type t
    the same command as the current process but with modifications
    (e.g. '--worker' is added, a '--slice' option is added, ...)
 *)
-val create : num_workers:int -> original_argv:string array -> t
+val create :
+  num_workers:int ->
+  original_argv:string array ->
+  test_list_checksum:string ->
+  t
 
 (*
-   Read the next available message from a worker.
+   Read the next available message from a worker, returning the worker's
+   identifier and the message.
+
    A 'None' result indicates that all the workers are done.
 *)
 val read : t -> (string * Message.t) option
+
+(*
+   In a worker, write a newline-delimited message to stdout.
+*)
+val write : Message.t -> unit
+
+(*
+   In a worker, report an error and exit with a nonzero status.
+*)
+val fatal_error : string -> 'a

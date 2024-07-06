@@ -824,10 +824,37 @@ let select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
   | Master _jobs -> failwith "TODO: parallel execution"
 
 (*
+   Compute a checksum used to detect obvious differences between
+   the list of tests obtained in the master process and the list of tests
+   obtained in a worker process in charge of taking a slice of that list.
+
+   The checksum is passed by the master to each worker via a command-line
+   option.
+*)
+let get_checksum (tests : T.test list) =
+  tests
+  |> Helpers.list_map (fun (x : T.test) -> x.id)
+  |> String.concat " " |> Digest.string |> Digest.to_hex
+
+let check_checksum ~expected_checksum tests =
+  match expected_checksum with
+  | None -> ()
+  | Some expected ->
+      let checksum = get_checksum tests in
+      if checksum <> expected then
+        Worker.fatal_error
+          "Checksum mismatch: the test suite in a worker process is different \
+           than the list of tests in the master process. You need to make sure \
+           that the name and the order of the tests in the test suite is \
+           deterministic and independent of any internal command-line option \
+           (e.g. '--worker')."
+
+(*
    Entry point for the 'run' subcommand
 *)
 let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~is_worker ~jobs ~lazy_ ~slice tests cont =
+    ~is_worker ~jobs ~lazy_ ~slice ~test_list_checksum tests cont =
+  if is_worker then check_checksum ~expected_checksum:test_list_checksum tests;
   select_and_run_tests ~always_show_unchecked_output ~filter_by_substring
     ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests
   >>= (fun selected_tests ->
