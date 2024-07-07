@@ -11,6 +11,7 @@ open Printf
 type t =
   | Start_test of string (* test ID *)
   | End_test of string (* test ID *)
+  | Skip_test of string (* test ID *)
   | End
   | Error of string (* error message *)
   | Junk of string (* any non-conforming line of input *)
@@ -39,6 +40,7 @@ let of_string str =
         match kind with
         | "START_TEST" -> Start_test test_id
         | "END_TEST" -> End_test test_id
+        | "SKIP_TEST" -> Skip_test test_id
         | _ -> Junk str
       else Junk str
 
@@ -53,6 +55,7 @@ let to_string x =
   (match x with
   | Start_test test_id -> sprintf "START_TEST %s" test_id
   | End_test test_id -> sprintf "END_TEST %s" test_id
+  | Skip_test test_id -> sprintf "SKIP_TEST %s" test_id
   | End -> "END"
   | Error msg -> sprintf "ERROR %s" msg
   | Junk data ->

@@ -21,6 +21,7 @@ type conf = {
   (* Status *)
   status_output_style : Run.status_output_style;
   (* Run *)
+  argv : string array;
   lazy_ : bool;
   slice : Slice.t list;
   is_worker : bool;
@@ -35,6 +36,7 @@ let default_conf =
     env = [];
     show_output = false;
     status_output_style = Compact_important;
+    argv = Sys.argv;
     lazy_ = false;
     slice = [];
     is_worker = false;
@@ -68,20 +70,25 @@ let fatal_error msg =
   exit 1
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
-    (cmd_conf : cmd_conf) =
+    (cmd_conf : cmd_conf) : unit =
   (*
      The creation of tests can take a while so it's delayed until we
      really need the tests. This makes '--help' fast.
   *)
   match cmd_conf with
   | Run_tests conf ->
-      Run.cmd_run ~always_show_unchecked_output:conf.show_output
+      Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
         ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice
         ~test_list_checksum:conf.test_list_checksum (get_tests conf.env)
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
+      |> (* TODO: ignoring this promise doesn't make sense.
+            The whole Lwt support needs testing and probably doesn't
+            work as is. If someone really needs it, please provide a test
+            environment where it's justified i.e. where we can't
+            call 'Lwt_main.run' so we can make this work. *) ignore
   | Status conf ->
       let exit_code, tests_with_status =
         Run.cmd_status ~always_show_unchecked_output:conf.show_output
@@ -248,7 +255,7 @@ let worker_term : bool Term.t =
 
 let run_doc = "run the tests"
 
-let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
+let subcmd_run_term ~argv (test_spec : _ test_spec) : unit Term.t =
   let combine env filter_by_substring filter_by_tag jobs lazy_ show_output slice
       test_list_checksum verbose worker =
     let show_output = show_output || verbose in
@@ -264,6 +271,7 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
         show_output;
         slice;
         test_list_checksum;
+        argv;
       }
     |> run_with_conf test_spec
   in
@@ -272,9 +280,9 @@ let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
     $ jobs_term $ lazy_term $ show_output_term $ slice_term
     $ test_list_checksum_term $ verbose_run_term $ worker_term)
 
-let subcmd_run test_spec =
+let subcmd_run ~argv test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
-  Cmd.v info (subcmd_run_term test_spec)
+  Cmd.v info (subcmd_run_term ~argv test_spec)
 
 (****************************************************************************)
 (* Subcommand: status (replaces alcotest's 'list') *)
@@ -400,14 +408,18 @@ let root_info ~project_name =
   let name = Filename.basename Sys.argv.(0) in
   Cmd.info name ~doc:(root_doc ~project_name) ~man:(root_man ~project_name)
 
-let root_term test_spec =
+let root_term ~argv test_spec =
   (*
   Term.ret (Term.const (`Help (`Pager, None)))
 *)
-  subcmd_run_term test_spec
+  subcmd_run_term ~argv test_spec
 
-let subcommands test_spec =
-  [ subcmd_run test_spec; subcmd_status test_spec; subcmd_approve test_spec ]
+let subcommands ~argv test_spec =
+  [
+    subcmd_run ~argv test_spec;
+    subcmd_status test_spec;
+    subcmd_approve test_spec;
+  ]
 
 let with_record_backtrace func =
   let original_state = Printexc.backtrace_status () in
@@ -434,6 +446,8 @@ let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
   with_record_backtrace (fun () ->
       Store.init_settings ?expectation_workspace_root ?status_workspace_root
         ~project_name ();
-      Cmd.group ~default:(root_term test_spec) (root_info ~project_name)
-        (subcommands test_spec)
+      Cmd.group
+        ~default:(root_term ~argv test_spec)
+        (root_info ~project_name)
+        (subcommands ~argv test_spec)
       |> Cmd.eval ~argv |> (* does not reach this point by default *) exit)

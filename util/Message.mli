@@ -16,6 +16,7 @@
 type t =
   | Start_test of string
   | End_test of string
+  | Skip_test of string
   | End
   | Error of string
   | Junk of string

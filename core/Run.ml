@@ -9,17 +9,6 @@ open Promise.Operators
 module T = Types
 module P = Promise
 
-(*
-   The current process has 3 possibly identities:
-   - master + worker: runs tests sequentially
-   - worker: same as master+worker but outputs progress in a special format
-   - master: creates processes to run the tests in parallel
-*)
-type identity =
-  | Master_worker
-  | Master of int (* number of parallel workers to manage *)
-  | Worker
-
 type status_output_style =
   | Long_all
   | Compact_all
@@ -45,6 +34,7 @@ type alcotest_test = string * alcotest_test_case list
 (* The exit codes used by the built-in test runner. *)
 let exit_success = 0
 let exit_failure = 1
+let exit_internal_error = 2
 
 (* Left margin for text relating to a test *)
 let bullet = Style.color Faint "• "
@@ -68,13 +58,13 @@ let get_checksum (tests : T.test list) =
   |> Helpers.list_map (fun (x : T.test) -> x.id)
   |> String.concat " " |> Digest.string |> Digest.to_hex
 
-let check_checksum ~expected_checksum tests =
+let check_checksum_or_abort ~expected_checksum tests =
   match expected_checksum with
   | None -> ()
   | Some expected ->
       let checksum = get_checksum tests in
       if checksum <> expected then
-        Worker.fatal_error
+        Worker.Server.fatal_error
           "Checksum mismatch: the test suite in a worker process is different \
            than the list of tests in the master process. You need to make sure \
            that the name and the order of the tests in the test suite is \
@@ -738,14 +728,90 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   in
   (exit_code, tests_with_status)
 
-(*
-   Run tests.
-   In a Master process, this function can be used only to report skipped tests.
+type report_progress = {
+  start_test : T.test -> unit;
+  end_test : T.test -> unit;
+  skip_test : T.test -> unit;
+  end_work : unit -> unit;
+}
 
-   TODO: split the running logic from the reporting logic so as to allow two
-   running modes: sequential and out-of-order
+let report_progress_to_console ~always_show_unchecked_output =
+  let start_test test =
+    printf "%s%s\n%!"
+      (Style.left_col (Style.color Yellow "[RUN]"))
+      (format_title test)
+  in
+  let end_test test =
+    get_test_with_status test
+    |> print_status ~highlight_test:false ~always_show_unchecked_output
+  in
+  let skip_test test =
+    printf "%s%s\n%!"
+      (Style.left_col (Style.color Yellow "[SKIP]"))
+      (format_title test)
+  in
+  let end_work () = () in
+  { start_test; end_test; skip_test; end_work }
+
+let report_progress_from_worker =
+  let start_test (test : T.test) = Worker.Server.write (Start_test test.id) in
+  let end_test (test : T.test) = Worker.Server.write (End_test test.id) in
+  let skip_test (test : T.test) = Worker.Server.write (Skip_test test.id) in
+  let end_work () = Worker.Server.write End in
+  { start_test; end_test; skip_test; end_work }
+
+let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
+    ~test_list_checksum tests =
+  let workers =
+    Worker.Client.create ~num_workers ~original_argv:argv ~test_list_checksum
+  in
+  let get_test =
+    let tbl = Hashtbl.create (2 * List.length tests) in
+    List.iter (fun (x : T.test) -> Hashtbl.add tbl x.id x) tests;
+    fun test_id ->
+      try Hashtbl.find tbl test_id with
+      | Not_found ->
+          failwith
+            (sprintf "Internal error: received invalid test ID from worker: %S"
+               test_id)
+  in
+  let rec loop () =
+    match Worker.Client.read workers with
+    | None -> ()
+    | Some (worker_id, msg) ->
+        (match msg with
+        | Start_test test_id ->
+            let test = get_test test_id in
+            printf "%s%s\n%!"
+              (Style.left_col (Style.color Yellow "[RUN]"))
+              (format_title test)
+        | End_test test_id ->
+            let test = get_test test_id in
+            get_test_with_status test
+            |> print_status ~highlight_test:false ~always_show_unchecked_output
+        | Skip_test test_id ->
+            let test = get_test test_id in
+            printf "%s%s\n%!"
+              (Style.left_col (Style.color Yellow "[SKIP]"))
+              (format_title test)
+        | End ->
+            (* Done with this worker. Log something? *)
+            ()
+        | Error msg ->
+            eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
+            Worker.Client.close workers;
+            exit exit_internal_error
+        | Junk line -> printf "[%s] %s\n%!" worker_id line);
+        loop ()
+  in
+  loop ()
+
+(*
+   Run tests and report progress. This is done in a worker process that
+   writes messages to stdout and are read by the master process which
+   takes care of printing the progress and gathering final results.
 *)
-let run_tests_sequentially ~always_show_unchecked_output ~identity
+let run_tests_sequentially ~(report_progress : report_progress)
     (tests : T.test list) : 'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
@@ -755,52 +821,21 @@ let run_tests_sequentially ~always_show_unchecked_output ~identity
       in
       previous >>= fun () ->
       if test.skipped then (
-        (match identity with
-        | Master_worker
-        | Master _ ->
-            (* Skipped tests are reported by the master. *)
-            printf "%s%s\n%!"
-              (Style.left_col (Style.color Yellow "[SKIP]"))
-              (format_title test)
-        | Worker ->
-            (* Skipped tests should have been filtered out! *)
-            assert false);
+        report_progress.skip_test test;
         P.return ())
       else (
-        (* Run the test! *)
-        (match identity with
-        | Master _ -> assert false
-        | Master_worker ->
-            printf "%s%s...%!"
-              (Style.left_col (Style.color Yellow "[RUN]"))
-              (format_title test)
-        | Worker -> Worker.write (Start_test test.id));
+        report_progress.start_test test;
         P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-        (* Report the test as done! *)
-        (match identity with
-        | Master _ -> assert false
-        | Master_worker ->
-            (* Try to erase the RUN line. This only erases from the current
-               point to the beginning of the physical line of the console. *)
-            printf "\027[2K\r";
-            get_test_with_status test
-            |> print_status ~highlight_test:false ~always_show_unchecked_output
-        | Worker -> Worker.write (End_test test.id));
+        report_progress.end_test test;
         P.return ()))
     (P.return ()) tests
   >>= fun () ->
-  (match identity with
-  | Worker -> Worker.write End
-  | Master _
-  | Master_worker ->
-      ());
+  report_progress.end_work ();
   P.return ()
 
-(* Run this before a run or Lwt run. Returns the filtered tests. *)
-let before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice tests
-    =
-  Store.init_workspace ();
-  check_test_definitions tests;
+(* Select tests to run. This runs in both master and workers but results
+   in a shorter list of tests in workers. *)
+let select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
   let tests =
     match lazy_ with
     | false -> tests
@@ -810,12 +845,19 @@ let before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice tests
         List.filter is_important_status tests_with_status
         |> Helpers.list_map (fun (test, _, _) -> test)
   in
-  (match identity with
-  | Master _
-  | Master_worker ->
-      print_status_introduction ()
-  | Worker -> ());
   filter ~filter_by_substring ~filter_by_tag tests |> Slice.apply_slices slice
+
+(* This runs in the master process before a run or Lwt run
+   and returns the list of selected tests that will be dispatched to
+   the workers. *)
+let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
+  Store.init_workspace ();
+  check_test_definitions tests;
+  let selected_tests =
+    select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+  in
+  print_status_introduction ();
+  selected_tests
 
 (* Run this after a run or Lwt run. *)
 let after_run ~always_show_unchecked_output tests selected_tests =
@@ -830,56 +872,62 @@ let after_run ~always_show_unchecked_output tests selected_tests =
   (exit_code, tests_with_status)
 
 (*
-   Run tests sequentially in this process or run tests in parallel
-   in subprocesses.
-
-   Return all the selected tests.
-*)
-let select_and_run_tests ~always_show_unchecked_output ~argv
-    ~filter_by_substring ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests =
-  let identity =
-    match is_worker with
-    | true -> Worker
-    | false -> (
-        match jobs with
-        | Some 0 -> Master_worker
-        | Some n -> Master n
-        | None -> (
-            match CPU.get_count () with
-            | None -> Master_worker
-            | Some n -> Master n))
-  in
-  let selected_tests =
-    before_run ~filter_by_substring ~filter_by_tag ~identity ~lazy_ ~slice tests
-  in
-  (match identity with
-  | Master_worker
-  | Worker ->
-      run_tests_sequentially ~always_show_unchecked_output ~identity
-        selected_tests
-  | Master num_workers -> run_tests_in_workers ~num_workers tests)
-  >>= fun () -> P.return selected_tests
-
-(*
    Entry point for the 'run' subcommand
+
+   It splits into master and worker. Options that affect formatting
+   are for the master. Options that affect test execution, if any, are
+   for the workers. Options that select which tests should run are used by
+   both the master and the workers (because the master doesn't pass the
+   list of selected tests to the workers).
 *)
 let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
-    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice ~test_list_checksum tests cont
-    =
-  if is_worker then check_checksum ~expected_checksum:test_list_checksum tests;
-  select_and_run_tests ~always_show_unchecked_output ~argv ~filter_by_substring
-    ~filter_by_tag ~jobs ~is_worker ~lazy_ ~slice tests
-  >>= (fun selected_tests ->
-        let exit_code, tests_with_status =
-          after_run ~always_show_unchecked_output tests selected_tests
-        in
-        cont exit_code tests_with_status |> ignore;
-        (* The continuation 'cont' should exit but otherwise we exit once
-           it's done. *)
-        exit exit_code)
-  |> ignore;
-  (* shouldn't be reached if 'bind' does what it's supposed to *)
-  exit exit_success
+    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice
+    ~test_list_checksum:expected_checksum tests cont =
+  if is_worker then (
+    (*
+        The checksum is computed on the list of tests before applying
+        the --slice options since a --slice option is added to the
+        worker's command line.
+    *)
+    check_checksum_or_abort ~expected_checksum tests;
+    let selected_tests =
+      select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+    in
+    run_tests_sequentially ~report_progress:report_progress_from_worker
+      selected_tests
+    >>= fun () -> exit 0)
+  else
+    let num_workers =
+      match jobs with
+      | Some n -> max 0 n
+      | None -> (
+          match CPU.get_count () with
+          | None -> 0
+          | Some n -> n)
+    in
+    let selected_tests =
+      before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+    in
+    (match num_workers with
+    | 0 ->
+        (* Run in the same process. This is for situations or platforms where
+           multiprocessing might not work for whatever reason. *)
+        run_tests_sequentially
+          ~report_progress:
+            (report_progress_to_console ~always_show_unchecked_output)
+          selected_tests
+    | _ ->
+        run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
+          ~test_list_checksum:(get_checksum tests) selected_tests;
+        P.return ())
+    >>= fun () ->
+    let exit_code, tests_with_status =
+      after_run ~always_show_unchecked_output tests selected_tests
+    in
+    cont exit_code tests_with_status |> ignore;
+    (* The continuation 'cont' should exit but otherwise we exit once
+       it's done. *)
+    exit exit_code
 
 (*
    Entry point for the 'approve' subcommand
