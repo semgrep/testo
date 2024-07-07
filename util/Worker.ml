@@ -15,7 +15,10 @@ module Client = struct
 
   type t = { workers : worker list; read : unit -> (worker * Message.t) option }
 
-  let still_running workers = List.exists (fun x -> x.running) workers
+  let fds_of_running_workers workers =
+    List.filter_map
+      (fun x -> if x.running then Some x.file_descr else None)
+      workers
 
   let close_worker (x : worker) =
     x.running <- false;
@@ -69,31 +72,32 @@ module Client = struct
     List.iter
       (fun worker -> Hashtbl.add worker_tbl worker.file_descr worker)
       workers;
-    let in_fds = Helpers.list_map (fun x -> x.file_descr) workers in
     let incoming_message_queue = Queue.create () in
     let rec poll () =
       match Queue.take_opt incoming_message_queue with
       | Some msg -> Some msg
-      | None ->
-          if still_running workers then (
-            (* Wait for data being available to read from one of the workers *)
-            match Unix.select in_fds [] [] (-1.) with
-            | in_fd :: _, _, _ ->
-                let worker =
-                  match Hashtbl.find_opt worker_tbl in_fd with
-                  | None -> assert false
-                  | Some x -> x
-                in
-                (* Read the available data, resulting in 0, 1, or more messages
-                   being added to the queue. *)
-                read_from_worker worker incoming_message_queue;
-                poll ()
-            | [], _, _ ->
-                (* This shouldn't happen if all the workers terminated cleanly
-                   after sending an END message. *)
-                close_workers workers;
-                None)
-          else None
+      | None -> (
+          match fds_of_running_workers workers with
+          | [] -> None
+          | in_fds -> (
+              (* Wait for data being available to read from one of the
+                 workers *)
+              match Unix.select in_fds [] [] (-1.) with
+              | in_fd :: _, _, _ ->
+                  let worker =
+                    match Hashtbl.find_opt worker_tbl in_fd with
+                    | None -> assert false
+                    | Some x -> x
+                  in
+                  (* Read the available data, resulting in 0, 1, or more
+                     messages being added to the queue. *)
+                  read_from_worker worker incoming_message_queue;
+                  poll ()
+              | [], _, _ ->
+                  (* This shouldn't happen if all the workers terminated
+                     cleanly after sending an END message. *)
+                  close_workers workers;
+                  None))
     in
     poll
 

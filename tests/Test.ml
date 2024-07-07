@@ -209,6 +209,7 @@ let windows_todo : Testo.expected_outcome =
    of approval.
 *)
 let tests env =
+  print_endline "junk printed on stdout when creating the test suite";
   [
     t "simple" (fun () -> ());
     t "tags" ~tags:[ testing_tag; tags_tag ] (fun () -> ());

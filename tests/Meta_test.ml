@@ -64,6 +64,23 @@ let test_subcommand ?expected_exit_code ~__LOC__:loc subcommand_name
   in
   shell_command ?expected_exit_code ~__LOC__:loc command
 
+(*
+   0 workers: no workers are created
+   1 worker: one worker is created but the output is still deterministic
+   more than one worker: the output won't be in a particular order, making it
+   harder to test expectations.
+*)
+let test_run ?expected_exit_code ?(num_workers = 1) ~__LOC__:loc
+    shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc "run"
+    (sprintf "-j %d %s" num_workers shell_command_args)
+
+let test_status ?expected_exit_code ~__LOC__:loc shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc "status" shell_command_args
+
+let test_approve ?expected_exit_code ~__LOC__:loc shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc "approve" shell_command_args
+
 let clear_status ~__LOC__:loc () =
   shell_command ~__LOC__:loc "rm -rf _build/testo/status/testo_tests"
 
@@ -99,35 +116,34 @@ let test_standard_flow () =
   section "Clean start";
   clear_status ~__LOC__ ();
   clear_snapshots ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "run" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "--all --long" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve" "-s auto-approve";
-  test_subcommand ~__LOC__ "approve" "-s environment-sensitive";
-  test_subcommand ~__LOC__ "status" "";
-  test_subcommand ~__LOC__ "status" "--env A_b123=xxx";
-  test_subcommand ~__LOC__ "status" "-e novalue" ~expected_exit_code:124;
-  test_subcommand ~__LOC__ "status" "-e b@d_key=42" ~expected_exit_code:124;
-  test_subcommand ~__LOC__ "status" "-a -t testin" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "-a -t testing";
+  test_status ~__LOC__ "" ~expected_exit_code:1;
+  test_run ~__LOC__ "" ~expected_exit_code:1;
+  test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
+  test_status ~__LOC__ "" ~expected_exit_code:1;
+  test_approve ~__LOC__ "-s auto-approve";
+  test_approve ~__LOC__ "-s environment-sensitive";
+  test_status ~__LOC__ "";
+  test_status ~__LOC__ "--env A_b123=xxx";
+  test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
+  test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
+  test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
+  test_status ~__LOC__ "-a -t testing";
   (* Modify the output of the test named 'environment-sensitive'
      by setting an environment variable it consults, simulating a bug *)
   with_env ("TESTO_TEST", Some "hello") (fun () ->
-      test_subcommand ~__LOC__ "run" "-s environment-sensitive"
-        ~expected_exit_code:1);
+      test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
   (* "Fix the bug" in test 'environment-sensitive' *)
-  test_subcommand ~__LOC__ "run" "-s environment-sensitive";
+  test_run ~__LOC__ "-s environment-sensitive";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" "-v" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "-l" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "-a" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "run" "";
+  test_status ~__LOC__ "-v" ~expected_exit_code:1;
+  test_status ~__LOC__ "-l" ~expected_exit_code:1;
+  test_status ~__LOC__ "-a" ~expected_exit_code:1;
+  test_run ~__LOC__ "";
   section "Delete snapshots but not statuses";
   clear_snapshots ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve" "-s auto-approve"
+  test_status ~__LOC__ "" ~expected_exit_code:1;
+  test_approve ~__LOC__ "-s auto-approve"
 
 (*****************************************************************************)
 (* Exercise the failing test suite *)
