@@ -511,6 +511,7 @@ val to_alcotest : alcotest_skip:(unit -> _) -> t list -> alcotest_test list
 
 val interpret_argv :
   ?argv:string array ->
+  ?default_workers:int option ->
   ?expectation_workspace_root:Fpath.t ->
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
   ?status_workspace_root:Fpath.t ->
@@ -539,6 +540,10 @@ val interpret_argv :
 
 {ul
    {- [argv]: command line to parse. Defaults to [Sys.argv].}
+   {- [default_workers]: the default number of workers to use in parallel
+      runs when [-j] or [--jobs] isn't specified on the command line.
+      It defaults to [None], indicating that the number of workers will
+      be set to the number of CPUs detected on the machine.}
    {- [expectation_workspace_root]: storage path for expected output.
       The default is [tests/snapshots].}
    {- [handle_subcommand_result]: optional function to call on the result

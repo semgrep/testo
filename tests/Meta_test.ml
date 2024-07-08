@@ -206,4 +206,8 @@ let tests =
   ]
 
 let () =
-  Testo.interpret_argv ~project_name:"testo_meta_tests" (fun _env -> tests)
+  (* We have a few tests that use the same workspace. To avoid conflicts,
+     we run them sequentially. *)
+  let default_workers = Some 0 in
+  Testo.interpret_argv ~default_workers ~project_name:"testo_meta_tests"
+    (fun _env -> tests)

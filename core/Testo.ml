@@ -348,7 +348,7 @@ let test ?category ?checked_output ?expected_outcome ?normalize ?skipped ?tags
 
 let get_registered_tests () = List.rev !registered_tests
 
-let interpret_argv ?argv ?expectation_workspace_root ?handle_subcommand_result
-    ?status_workspace_root ~project_name get_tests =
-  Cmd.interpret_argv ?argv ?expectation_workspace_root ?handle_subcommand_result
-    ?status_workspace_root ~project_name get_tests
+let interpret_argv ?argv ?default_workers ?expectation_workspace_root
+    ?handle_subcommand_result ?status_workspace_root ~project_name get_tests =
+  Cmd.interpret_argv ?argv ?default_workers ?expectation_workspace_root
+    ?handle_subcommand_result ?status_workspace_root ~project_name get_tests

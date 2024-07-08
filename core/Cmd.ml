@@ -204,13 +204,23 @@ let env_term : (string * string) list Term.t =
 (* Subcommand: run (replaces alcotest's 'test') *)
 (****************************************************************************)
 
-let jobs_term : int option Term.t =
+let jobs_term ~default_workers : int option Term.t =
+  let default_str =
+    match default_workers with
+    | None -> "set to the number of CPUs detected on the machine"
+    | Some n -> string_of_int n
+  in
   let info =
     Arg.info [ "j"; "jobs" ] ~docv:"NUM"
       ~doc:
-        "Specify the number of jobs to run in parallel. By default, this value \
-         is determined automatically. To enforce sequential execution, use '-j \
-         0' or '-j 1'."
+        (sprintf
+           "Specify the number of jobs to run in parallel. By default, this \
+            value is %s. Both '-j0' and '-j1' ensure sequential, \
+            non-overlapping execution of the tests. Unlike '-j1', '-j0' will \
+            not create a separate worker process to run the tests. The default \
+            can be changed by passing '~default_workers' to the OCaml function \
+            'Testo.interpret_argv'."
+           default_str)
   in
   Arg.value (Arg.opt (Arg.some Arg.int) None info)
 
@@ -267,10 +277,16 @@ let worker_term : bool Term.t =
 
 let run_doc = "run the tests"
 
-let subcmd_run_term ~argv (test_spec : _ test_spec) : unit Term.t =
+let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
+    unit Term.t =
   let combine debug env filter_by_substring filter_by_tag jobs lazy_ show_output
       slice test_list_checksum verbose worker =
     let show_output = show_output || verbose in
+    let jobs =
+      match jobs with
+      | None -> default_workers
+      | Some _ -> jobs
+    in
     Run_tests
       {
         default_conf with
@@ -290,12 +306,13 @@ let subcmd_run_term ~argv (test_spec : _ test_spec) : unit Term.t =
   in
   Term.(
     const combine $ debug_term $ env_term $ filter_by_substring_term
-    $ filter_by_tag_term $ jobs_term $ lazy_term $ show_output_term $ slice_term
-    $ test_list_checksum_term $ verbose_run_term $ worker_term)
+    $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
+    $ show_output_term $ slice_term $ test_list_checksum_term $ verbose_run_term
+    $ worker_term)
 
-let subcmd_run ~argv test_spec =
+let subcmd_run ~argv ~default_workers test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
-  Cmd.v info (subcmd_run_term ~argv test_spec)
+  Cmd.v info (subcmd_run_term ~argv ~default_workers test_spec)
 
 (****************************************************************************)
 (* Subcommand: status (replaces alcotest's 'list') *)
@@ -424,15 +441,15 @@ let root_info ~project_name =
   let name = Filename.basename Sys.argv.(0) in
   Cmd.info name ~doc:(root_doc ~project_name) ~man:(root_man ~project_name)
 
-let root_term ~argv test_spec =
+let root_term ~argv ~default_workers test_spec =
   (*
   Term.ret (Term.const (`Help (`Pager, None)))
 *)
-  subcmd_run_term ~argv test_spec
+  subcmd_run_term ~argv ~default_workers test_spec
 
-let subcommands ~argv test_spec =
+let subcommands ~argv ~default_workers test_spec =
   [
-    subcmd_run ~argv test_spec;
+    subcmd_run ~argv ~default_workers test_spec;
     subcmd_status test_spec;
     subcmd_approve test_spec;
   ]
@@ -452,7 +469,8 @@ let with_record_backtrace func =
 
    Otherwise, 'conf' is returned to the application.
 *)
-let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
+let interpret_argv ?(argv = Sys.argv) ?(default_workers = None)
+    ?expectation_workspace_root
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
     ?status_workspace_root ~project_name
     (get_tests : (string * string) list -> Types.test list) =
@@ -463,7 +481,7 @@ let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
       Store.init_settings ?expectation_workspace_root ?status_workspace_root
         ~project_name ();
       Cmd.group
-        ~default:(root_term ~argv test_spec)
+        ~default:(root_term ~argv ~default_workers test_spec)
         (root_info ~project_name)
-        (subcommands ~argv test_spec)
+        (subcommands ~argv ~default_workers test_spec)
       |> Cmd.eval ~argv |> (* does not reach this point by default *) exit)
