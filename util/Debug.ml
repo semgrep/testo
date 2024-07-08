@@ -5,4 +5,4 @@
 *)
 
 let debug = ref false
-let log make_msg = Printf.eprintf "[DEBUG] %s\n%!" (make_msg ())
+let log make_msg = if !debug then Printf.eprintf "[DEBUG] %s\n%!" (make_msg ())
