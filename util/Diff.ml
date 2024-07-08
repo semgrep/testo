@@ -157,7 +157,7 @@ let format_header ~color buf path1 path2 =
     (Style.opt_color color Bold line2)
 
 let format_context buf lines =
-  Array.iter (fun line -> bprintf buf "%s\n" line) lines
+  Array.iter (fun line -> bprintf buf " %s\n" line) lines
 
 let format_edit ~color buf (x : diff) =
   match x with
