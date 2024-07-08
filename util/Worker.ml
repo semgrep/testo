@@ -33,6 +33,7 @@ module Client = struct
       workers
 
   let close_worker (x : worker) =
+    Debug.log (fun () -> sprintf "close worker %s" x.id);
     x.running <- false;
     match Unix.close_process x.process with
     | _status -> ()
@@ -70,12 +71,17 @@ module Client = struct
     let buf_len = 1024 in
     let buf = Bytes.create buf_len in
     let bytes_read = input x.std_in_ch buf 0 buf_len in
-    if bytes_read = 0 then (* end of input *)
-      close_worker x
+    if bytes_read = 0 then (
+      (* end of input *)
+      Debug.log (fun () ->
+          sprintf "received 0 bytes from worker %s, closing" x.id);
+      close_worker x)
     else (
       (* Add bytes to the worker's input buffer and see if we have
          complete messages that we can parse and add to the message
          queue. *)
+      Debug.log (fun () ->
+          sprintf "received %i bytes from worker %s" bytes_read x.id);
       Buffer.add_subbytes x.std_input_buffer buf 0 bytes_read;
       flush_input_buffer x x.std_input_buffer queue)
 
@@ -96,6 +102,9 @@ module Client = struct
           | in_fds -> (
               (* Wait for data being available to read from one of the
                  workers. *)
+              Debug.log (fun () ->
+                  sprintf "wait for a message from one of %i worker(s)"
+                    (List.length in_fds));
               match Unix.select in_fds [] [] (-1.) with
               | in_fd :: _, _, _ ->
                   let worker =
@@ -103,19 +112,23 @@ module Client = struct
                     | None -> assert false
                     | Some x -> x
                   in
+                  Debug.log (fun () ->
+                      sprintf "receiving data from worker %s" worker.id);
                   (* Read the available data, resulting in 0, 1, or more
                      messages being added to the queue. *)
                   read_from_worker worker incoming_message_queue;
                   poll ()
               | [], _, _ ->
-                  (* This shouldn't happen if all the workers terminated
-                     cleanly after sending an END message. *)
+                  Debug.log (fun () ->
+                      "'select' returned nothing. Did a worker exit \
+                       prematurely?");
                   close_workers workers;
                   None))
     in
     poll
 
   let create ~num_workers ~original_argv ~test_list_checksum =
+    Debug.log (fun () -> sprintf "create %i worker(s)" num_workers);
     let worker_ids =
       List.init num_workers (fun i -> sprintf "%d/%d" (i + 1) num_workers)
     in
@@ -134,6 +147,10 @@ module Client = struct
                    [| "--worker"; "--test-list-checksum"; test_list_checksum |];
                  ]
              in
+             Debug.log (fun () ->
+                 sprintf "create worker %s with command: %s" id
+                   (argv |> Array.to_list |> String.concat " "));
+
              (* This is supposed to work on all platforms. *)
              let ((std_in_ch, std_out_ch) as process) =
                Unix.open_process_args program_name argv

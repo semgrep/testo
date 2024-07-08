@@ -13,6 +13,7 @@ open Cmdliner
 *)
 type conf = {
   (* All subcommands *)
+  debug : bool;
   filter_by_substring : string option;
   filter_by_tag : Tag.t option;
   env : (string * string) list;
@@ -31,6 +32,7 @@ type conf = {
 
 let default_conf =
   {
+    debug = false;
     filter_by_substring = None;
     filter_by_tag = None;
     env = [];
@@ -77,6 +79,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   *)
   match cmd_conf with
   | Run_tests conf ->
+      Debug.debug := conf.debug;
       Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
@@ -90,6 +93,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
             environment where it's justified i.e. where we can't
             call 'Lwt_main.run' so we can make this work. *) ignore
   | Status conf ->
+      Debug.debug := conf.debug;
       let exit_code, tests_with_status =
         Run.cmd_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
@@ -98,6 +102,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
+      Debug.debug := conf.debug;
       let exit_code =
         Run.cmd_approve ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag (get_tests conf.env)
@@ -110,6 +115,13 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
 (*
    Some of the command-line options are shared among subcommands.
 *)
+
+let debug_term : bool Term.t =
+  let info =
+    Arg.info [ "debug" ]
+      ~doc:"Log information that can be useful for debugging the Testo library."
+  in
+  Arg.value (Arg.flag info)
 
 let filter_by_substring_term : string option Term.t =
   let info =
@@ -256,12 +268,13 @@ let worker_term : bool Term.t =
 let run_doc = "run the tests"
 
 let subcmd_run_term ~argv (test_spec : _ test_spec) : unit Term.t =
-  let combine env filter_by_substring filter_by_tag jobs lazy_ show_output slice
-      test_list_checksum verbose worker =
+  let combine debug env filter_by_substring filter_by_tag jobs lazy_ show_output
+      slice test_list_checksum verbose worker =
     let show_output = show_output || verbose in
     Run_tests
       {
         default_conf with
+        debug;
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
@@ -276,8 +289,8 @@ let subcmd_run_term ~argv (test_spec : _ test_spec) : unit Term.t =
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term
-    $ jobs_term $ lazy_term $ show_output_term $ slice_term
+    const combine $ debug_term $ env_term $ filter_by_substring_term
+    $ filter_by_tag_term $ jobs_term $ lazy_term $ show_output_term $ slice_term
     $ test_list_checksum_term $ verbose_run_term $ worker_term)
 
 let subcmd_run ~argv test_spec =
@@ -321,8 +334,8 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all env filter_by_substring filter_by_tag long show_output verbose
-      =
+  let combine all debug env filter_by_substring filter_by_tag long show_output
+      verbose =
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -336,6 +349,7 @@ let subcmd_status_term tests : unit Term.t =
     Status
       {
         default_conf with
+        debug;
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
@@ -345,7 +359,7 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ env_term $ filter_by_substring_term
+    const combine $ all_term $ debug_term $ env_term $ filter_by_substring_term
     $ filter_by_tag_term $ long_term $ show_output_term $ verbose_status_term)
 
 let subcmd_status tests =
@@ -359,10 +373,11 @@ let subcmd_status tests =
 let approve_doc = "approve new test output"
 
 let subcmd_approve_term tests : unit Term.t =
-  let combine env filter_by_substring filter_by_tag =
+  let combine debug env filter_by_substring filter_by_tag =
     Approve
       {
         default_conf with
+        debug;
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
@@ -370,7 +385,8 @@ let subcmd_approve_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term)
+    const combine $ debug_term $ env_term $ filter_by_substring_term
+    $ filter_by_tag_term)
 
 let subcmd_approve tests =
   let info = Cmd.info "approve" ~doc:approve_doc in
