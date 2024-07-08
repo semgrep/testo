@@ -783,7 +783,7 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
             eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
             Worker.Client.close workers;
             exit exit_internal_error
-        | Junk line -> printf "[%s] %s\n%!" worker_id line);
+        | Junk line -> printf "[worker %s] %s\n%!" worker_id line);
         loop ()
   in
   loop ()

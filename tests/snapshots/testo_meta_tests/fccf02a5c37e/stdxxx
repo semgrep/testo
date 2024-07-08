@@ -11,7 +11,8 @@ RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
 RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
 RUN ./test status -e foo=bar 
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
 [33m[MISS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
 [33m[MISS]  [0mbd1c5167dc34 [36mcategory[0m > [36msubcategory[0m > [36mcategory[0m
@@ -63,7 +64,8 @@ junk printed on stdout when creating the test suite
 [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Legend:
 [2m• [0m[PASS]: a successful test that was expected to succeed (good);
 [2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
@@ -75,7 +77,8 @@ Legend:
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
 [33m[RUN][0m   8dbdda48fb87 [36msimple[0m
-[0/1] junk printed on stdout when creating the test suite
+[worker 1/1] junk printed on stdout...
+[worker 1/1] ... when creating the test suite
 [32m[PASS]  [0m8dbdda48fb87 [36msimple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8dbdda48fb87/log
 [33m[RUN][0m   d57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
@@ -371,7 +374,8 @@ Legend:
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar --all --long
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Legend:
 [2m• [0m[PASS]: a successful test that was expected to succeed (good);
 [2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
@@ -622,7 +626,8 @@ Legend:
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar 
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m
 [33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
 [33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
@@ -634,18 +639,22 @@ junk printed on stdout when creating the test suite
 [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 <handling result before exiting>
 RUN ./test approve -e foo=bar -s auto-approve
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Expected output changed for 9 tests.
 <handling result before exiting>
 RUN ./test approve -e foo=bar -s environment-sensitive
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Expected output changed for 0 test.
 <handling result before exiting>
 RUN ./test status -e foo=bar 
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 <handling result before exiting>
 RUN ./test status -e foo=bar --env A_b123=xxx
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 <handling result before exiting>
 RUN ./test status -e foo=bar -e novalue
 test: option '-e': Malformed KEY=VALUE pair: novalue
@@ -658,11 +667,13 @@ Try 'test status --help' or 'test --help' for more information.
 RUN ./test status -e foo=bar -a -t testin
 Error: Unknown or misspelled tag: testin
 RUN ./test status -e foo=bar -a -t testing
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 [32m[PASS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 -s environment-sensitive
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Legend:
 [2m• [0m[PASS]: a successful test that was expected to succeed (good);
 [2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
@@ -674,7 +685,8 @@ Legend:
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
-[0/1] junk printed on stdout when creating the test suite
+[worker 1/1] junk printed on stdout...
+[worker 1/1] ... when creating the test suite
 [31m[FAIL]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
 [2m• [0mCaptured stdout differs from expectation:
@@ -716,7 +728,8 @@ Checking if the environment variable TESTO_TEST is set:
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 -s environment-sensitive
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Legend:
 [2m• [0m[PASS]: a successful test that was expected to succeed (good);
 [2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
@@ -728,7 +741,8 @@ Legend:
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
-[0/1] junk printed on stdout when creating the test suite
+[worker 1/1] junk printed on stdout...
+[worker 1/1] ... when creating the test suite
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
@@ -747,7 +761,8 @@ overall status: [32msuccess[0m
 #####################################################################
 RUN rm -rf _build/testo/status/testo_tests
 RUN ./test status -e foo=bar -v
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Legend:
 [2m• [0m[PASS]: a successful test that was expected to succeed (good);
 [2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
@@ -1276,7 +1291,8 @@ Legend:
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -l
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -1613,7 +1629,8 @@ junk printed on stdout when creating the test suite
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -a
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
 [33m[MISS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
 [33m[MISS]  [0mbd1c5167dc34 [36mcategory[0m > [36msubcategory[0m > [36mcategory[0m
@@ -1666,7 +1683,8 @@ junk printed on stdout when creating the test suite
 [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Legend:
 [2m• [0m[PASS]: a successful test that was expected to succeed (good);
 [2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
@@ -1678,7 +1696,8 @@ Legend:
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
 [33m[RUN][0m   8dbdda48fb87 [36msimple[0m
-[0/1] junk printed on stdout when creating the test suite
+[worker 1/1] junk printed on stdout...
+[worker 1/1] ... when creating the test suite
 [32m[PASS]  [0m8dbdda48fb87 [36msimple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8dbdda48fb87/log
 [33m[RUN][0m   d57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
@@ -1897,7 +1916,8 @@ RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
 RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
 RUN ./test status -e foo=bar 
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m
 [33m[PASS*] [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
 [33m[PASS*] [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
@@ -1909,6 +1929,7 @@ junk printed on stdout when creating the test suite
 [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 <handling result before exiting>
 RUN ./test approve -e foo=bar -s auto-approve
-junk printed on stdout when creating the test suite
+junk printed on stdout...
+... when creating the test suite
 Expected output changed for 9 tests.
 <handling result before exiting>

@@ -117,7 +117,7 @@ module Client = struct
 
   let create ~num_workers ~original_argv ~test_list_checksum =
     let worker_ids =
-      List.init num_workers (fun i -> sprintf "%d/%d" i num_workers)
+      List.init num_workers (fun i -> sprintf "%d/%d" (i + 1) num_workers)
     in
     let workers =
       worker_ids
