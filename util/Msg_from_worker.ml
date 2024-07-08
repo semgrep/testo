@@ -9,10 +9,7 @@
 open Printf
 
 type t =
-  | Start_test of string (* test ID *)
   | End_test of string (* test ID *)
-  | Skip_test of string (* test ID *)
-  | End
   | Error of string (* error message *)
   | Junk of string (* any non-conforming line of input *)
 
@@ -28,21 +25,16 @@ let check_test_id str =
 
 let of_string str =
   match String.index_opt str ' ' with
-  | None -> (
-      match str with
-      | "END" -> End
-      | _ -> Junk str)
-  | Some i ->
+  | None -> Junk str
+  | Some i -> (
       let kind = String.sub str 0 i in
       let payload = String.sub str (i + 1) (String.length str - i - 1) in
-      let test_id = payload in
-      if check_test_id test_id then
-        match kind with
-        | "START_TEST" -> Start_test test_id
-        | "END_TEST" -> End_test test_id
-        | "SKIP_TEST" -> Skip_test test_id
-        | _ -> Junk str
-      else Junk str
+      match kind with
+      | "END_TEST" ->
+          let test_id = payload in
+          if check_test_id test_id then End_test test_id else Junk str
+      | "ERROR" -> Error payload
+      | _ -> Junk str)
 
 let replace_newlines str =
   String.map
@@ -53,10 +45,7 @@ let replace_newlines str =
 
 let to_string x =
   (match x with
-  | Start_test test_id -> sprintf "START_TEST %s" test_id
   | End_test test_id -> sprintf "END_TEST %s" test_id
-  | Skip_test test_id -> sprintf "SKIP_TEST %s" test_id
-  | End -> "END"
   | Error msg -> sprintf "ERROR %s" msg
   | Junk data ->
       (* This should be unused. A writer should not send 'Junk' messages.

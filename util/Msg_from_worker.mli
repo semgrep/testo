@@ -1,10 +1,9 @@
 (*
-   Read and write messages between worker and master
+   Messages sent by a worker process to the master.
 *)
 
 (* A message produced by a worker (server) to notify the master (client)
 
-   Start_test test_id: notifies the master that the test started.
    End_test test_id: notifies the master the test ended.
    End: notifies the master that the worker is done running all the tests
         and is about to terminate.
@@ -13,13 +12,7 @@
 
    It is the client's responsibility to obtain and report test details.
 *)
-type t =
-  | Start_test of string
-  | End_test of string
-  | Skip_test of string
-  | End
-  | Error of string
-  | Junk of string
+type t = End_test of string | Error of string | Junk of string
 
 (* Parse a line of input. The input string may not contain a newline
    character. *)

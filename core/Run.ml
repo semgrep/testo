@@ -728,37 +728,16 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   in
   (exit_code, tests_with_status)
 
-type report_progress = {
-  start_test : T.test -> unit;
-  end_test : T.test -> unit;
-  skip_test : T.test -> unit;
-  end_work : unit -> unit;
-}
+let start_test worker test =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow "[RUN]"))
+    (format_title test);
+  Worker.Client.write worker (Start_test test.id)
 
-let report_progress_to_console ~always_show_unchecked_output =
-  let start_test test =
-    printf "%s%s\n%!"
-      (Style.left_col (Style.color Yellow "[RUN]"))
-      (format_title test)
-  in
-  let end_test test =
-    get_test_with_status test
-    |> print_status ~highlight_test:false ~always_show_unchecked_output
-  in
-  let skip_test test =
-    printf "%s%s\n%!"
-      (Style.left_col (Style.color Yellow "[SKIP]"))
-      (format_title test)
-  in
-  let end_work () = () in
-  { start_test; end_test; skip_test; end_work }
-
-let report_progress_from_worker =
-  let start_test (test : T.test) = Worker.Server.write (Start_test test.id) in
-  let end_test (test : T.test) = Worker.Server.write (End_test test.id) in
-  let skip_test (test : T.test) = Worker.Server.write (Skip_test test.id) in
-  let end_work () = Worker.Server.write End in
-  { start_test; end_test; skip_test; end_work }
+let feed_worker test_queue worker =
+  match Queue.take_opt test_queue with
+  | Some test -> start_test worker test
+  | None -> Worker.Client.close_worker worker
 
 let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
     ~test_list_checksum tests =
@@ -775,28 +754,31 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
             (sprintf "Internal error: received invalid test ID from worker: %S"
                test_id)
   in
+  let test_queue = tests |> List.to_seq |> Queue.of_seq in
+  (* Send a first task (test) to each worker *)
+  Worker.Client.iter_workers workers (fun worker ->
+      feed_worker test_queue worker);
+  (* Wait for responses from workers and feed them until the queue is empty *)
   let rec loop () =
     match Worker.Client.read workers with
-    | None -> ()
-    | Some (worker_id, msg) ->
+    | None ->
+        (* There are no more workers = they were closed after we
+           tried to feed each of them from the empty queue. *)
+        ()
+    | Some (worker, msg) ->
+        let worker_id = Worker.Client.worker_id worker in
         (match msg with
-        | Start_test test_id ->
-            let test = get_test test_id in
-            printf "%s%s\n%!"
-              (Style.left_col (Style.color Yellow "[RUN]"))
-              (format_title test)
         | End_test test_id ->
             let test = get_test test_id in
-            get_test_with_status test
-            |> print_status ~highlight_test:false ~always_show_unchecked_output
-        | Skip_test test_id ->
-            let test = get_test test_id in
-            printf "%s%s\n%!"
-              (Style.left_col (Style.color Yellow "[SKIP]"))
-              (format_title test)
-        | End ->
-            (* Done with this worker. Log something? *)
-            ()
+            if test.skipped then
+              printf "%s%s\n%!"
+                (Style.left_col (Style.color Yellow "[SKIP]"))
+                (format_title test)
+            else
+              get_test_with_status test
+              |> print_status ~highlight_test:false
+                   ~always_show_unchecked_output;
+            feed_worker test_queue worker
         | Error msg ->
             eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
             Worker.Client.close workers;
@@ -806,13 +788,26 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
   in
   loop ()
 
+let report_skip_test test =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow "[SKIP]"))
+    (format_title test)
+
+let report_start_test test =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow "[RUN]"))
+    (format_title test)
+
+let report_end_test ~always_show_unchecked_output test =
+  get_test_with_status test
+  |> print_status ~highlight_test:false ~always_show_unchecked_output
+
 (*
-   Run tests and report progress. This is done in a worker process that
-   writes messages to stdout and are read by the master process which
-   takes care of printing the progress and gathering final results.
+   Run tests and report progress. This is done in the main process when
+   running without worker processes ('-j 0' option).
 *)
-let run_tests_sequentially ~(report_progress : report_progress)
-    (tests : T.test list) : 'unit_promise =
+let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
+    'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
       let test_func : unit -> 'unit_promise =
@@ -821,17 +816,47 @@ let run_tests_sequentially ~(report_progress : report_progress)
       in
       previous >>= fun () ->
       if test.skipped then (
-        report_progress.skip_test test;
+        report_skip_test test;
         P.return ())
       else (
-        report_progress.start_test test;
+        report_start_test test;
         P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-        report_progress.end_test test;
+        report_end_test ~always_show_unchecked_output test;
         P.return ()))
     (P.return ()) tests
-  >>= fun () ->
-  report_progress.end_work ();
-  P.return ()
+
+let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
+  let get_test =
+    let tbl = Hashtbl.create (2 * List.length tests) in
+    List.iter (fun (test : T.test) -> Hashtbl.add tbl test.id test) tests;
+    fun test_id ->
+      try Hashtbl.find tbl test_id with
+      | Not_found ->
+          failwith (sprintf "Invalid test ID received by worker: %S" test_id)
+  in
+  let rec loop previous =
+    previous >>= fun () ->
+    match Worker.Server.read () with
+    | None -> exit 0
+    | Some (Start_test test_id) ->
+        let test = get_test test_id in
+        let test_func : unit -> 'unit_promise =
+          wrap_test_function ~with_storage:true ~flip_xfail_outcome:false test
+            test.func
+        in
+        let job =
+          if test.skipped then (
+            (* This shouldn't happen but it's not a problem *)
+            Worker.Server.write (End_test test_id);
+            P.return ())
+          else
+            P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
+            Worker.Server.write (End_test test_id);
+            P.return ()
+        in
+        loop job
+  in
+  loop (P.return ())
 
 (* Select tests to run. This runs in both master and workers but results
    in a shorter list of tests in workers. *)
@@ -893,9 +918,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
     let selected_tests =
       select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
     in
-    run_tests_sequentially ~report_progress:report_progress_from_worker
-      selected_tests
-    >>= fun () -> exit 0)
+    run_tests_requested_by_master selected_tests >>= fun () -> exit 0)
   else
     let num_workers =
       match jobs with
@@ -912,10 +935,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
     | 0 ->
         (* Run in the same process. This is for situations or platforms where
            multiprocessing might not work for whatever reason. *)
-        run_tests_sequentially
-          ~report_progress:
-            (report_progress_to_console ~always_show_unchecked_output)
-          selected_tests
+        run_tests_sequentially ~always_show_unchecked_output selected_tests
     | _ ->
         run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
           ~test_list_checksum:(get_checksum tests) selected_tests;
