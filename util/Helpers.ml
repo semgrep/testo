@@ -12,6 +12,15 @@ let list_map f l = List.rev_map f l |> List.rev
 let list_flatten ll =
   List.fold_left (fun acc l -> List.rev_append l acc) [] ll |> List.rev
 
+let string_for_all func str =
+  try
+    for i = 0 to String.length str - 1 do
+      if not (func str.[i]) then raise Exit
+    done;
+    true
+  with
+  | Exit -> false
+
 let make_dir_if_not_exists ?(recursive = false) (dir : Fpath.t) =
   let rec mkdir dir =
     match (Unix.stat !!dir).st_kind with

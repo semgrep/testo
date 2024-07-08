@@ -8,6 +8,9 @@ val list_map : ('a -> 'b) -> 'a list -> 'b list
 (* Safe version of List.flatten *)
 val list_flatten : 'a list list -> 'a list
 
+(* String.for_all is only available from OCaml 4.13 *)
+val string_for_all : (char -> bool) -> string -> bool
+
 (* Create a directory if it doesn't exist.
    Also create its parents if they don't exist and 'recursive' is true.
 *)

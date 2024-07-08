@@ -15,7 +15,7 @@ type t =
 
 let check_test_id str =
   str <> ""
-  && String.for_all
+  && Helpers.string_for_all
        (function
          | '0' .. '9'
          | 'a' .. 'f' ->
