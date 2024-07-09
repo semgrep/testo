@@ -26,8 +26,12 @@
 <li><a href="#how-to-write-tests-ahead-of-time">How to write tests ahead of time?</a></li>
 <li><a href="#how-to-pass-arbitrary-options-to-the-test-program">How to pass arbitrary options to the test program?</a></li>
 <li><a href="#how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</a></li>
+<li><a href="#how-to-run-tests-in-parallel">How to run tests in parallel?</a><ul>
+<li><a href="#parallel-execution-on-a-single-host">Parallel execution on a single host</a></li>
+<li><a href="#parallel-execution-across-multiple-ci-hosts">Parallel execution across multiple CI hosts</a></li>
+</ul></li>
+<li><a href="#how-to-report-problems-with-testo">How to report problems with Testo?</a></li>
 <li><a href="#how-to-export-test-output-to-junit">How to export test output to JUnit?</a></li>
-<li><a href="#how-to-run-tests-in-parallel">How to run tests in parallel?</a></li>
 </ul>
 </nav>
 <!-- note to authors:
@@ -188,9 +192,22 @@ let tests = [
 ]</code></pre>
 <p>On some platforms such as a JavaScript runtime, there is no equivalent of <code>Lwt_main.run</code>. For these cases, we provide the library <code>testo-lwt</code>. It exposes a <a href="https://semgrep.github.io/testo/reference/testo-lwt/index.html"><code>Testo_lwt</code> module</a> whose interface is almost identical to <code>Testo</code> except that test functions have type <code>unit -&gt; unit Lwt.t</code> instead of <code>unit -&gt; unit</code>.</p>
 <p>For the Async library, we don’t provide <code>testo-async</code> but it should be straightforward to add. Check the status of the <a href="https://github.com/semgrep/testo/issues/73">corresponding GitHub issue</a>.</p>
+<h2 id="how-to-run-tests-in-parallel">How to run tests in parallel?</h2>
+<h3 id="parallel-execution-on-a-single-host">Parallel execution on a single host</h3>
+<p>By default, there’s nothing special to do because the test executable created by Testo will detect the number of CPUs available on the machine and run the tests in parallel accordingly. If this is not satisfying, use the <code>-j</code> option to use a specific number of workers:</p>
+<pre><code>$ ./test -j4</code></pre>
+<p>If some tests fail because they can’t run in parallel, use the <code>-j0</code> option to run tests sequentially without creating a worker process. Creating a single worker process with <code>-j1</code> should also work for the purpose of running the tests sequentially.</p>
+<p>If the test suite should run sequentially most of the time, you should make it the default by specifying <code>~default_workers</code> in your OCaml test program:</p>
+<pre><code>let () =
+  Testo.interpret_argv
+    ~project_name:&quot;my project&quot;
+    ~default_workers:(Some 0)
+    (fun _env -&gt; tests)</code></pre>
+<h3 id="parallel-execution-across-multiple-ci-hosts">Parallel execution across multiple CI hosts</h3>
+<p>If you have the option of running the test suite on multiple hosts in parallel, you have to run a different <code>./test</code> command on each host. To partition the work into 4 parts, run <code>./test --slice 1/4</code>, <code>./test --slice 2/4</code>, <code>./test --slice 3/4</code>, and <code>./test --slice 4/4</code> each on a different host. Check with your CI provider how to achieve this conveniently.</p>
+<h2 id="how-to-report-problems-with-testo">How to report problems with Testo?</h2>
+<p>Check for known issues at <a href="https://github.com/semgrep/testo/issues">https://github.com/semgrep/testo/issues</a>. If your problem seems new, please file a new issue as a first step toward its resolution. The <code>--debug</code> flag might reveal what’s going on and can be helpful for debugging certain problems.</p>
 <h2 id="how-to-export-test-output-to-junit">How to export test output to JUnit?</h2>
 <p>🚧 not implemented, see <a href="https://github.com/semgrep/testo/issues/14">Issue #14</a>.</p>
-<h2 id="how-to-run-tests-in-parallel">How to run tests in parallel?</h2>
-<p>🚧 not implemented, see <a href="https://github.com/semgrep/testo/issues/8">Issue #8</a>.</p>
 </body>
 </html>
