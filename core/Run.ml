@@ -439,11 +439,16 @@ let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
      | Not_OK _ ->
          true)
 
+(*
+   Show difference between expected and actual output if both files are
+   available.
+*)
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
-  let equal, diffs = Diff.files path_to_expected_output path_to_output in
-  if not equal then
-    printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
-      diffs
+  if Sys.file_exists !!path_to_expected_output then
+    let equal, diffs = Diff.files path_to_expected_output path_to_output in
+    if not equal then
+      printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
+        diffs
 
 let show_output_details (test : T.test) (sum : T.status_summary)
     (capture_paths : Store.capture_paths list) =
@@ -464,7 +469,6 @@ let show_output_details (test : T.test) (sum : T.status_summary)
              | OK_but_new ->
                  ()
              | Not_OK _ ->
-                 (* TODO: only show diff if this particular file differs *)
                  show_diff short_name path_to_expected_output path_to_output);
              if success <> OK_but_new then
                printf "%sPath to expected %s: %s\n" bullet short_name
