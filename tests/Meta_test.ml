@@ -146,6 +146,20 @@ let test_standard_flow () =
   test_approve ~__LOC__ "-s auto-approve"
 
 (*****************************************************************************)
+(* Exercise the parallel test suite *)
+(*****************************************************************************)
+
+let parallel_test_subcommand ~__LOC__:loc shell_command_string =
+  let command = "./parallel-test " ^ shell_command_string in
+  shell_command ~__LOC__:loc command
+
+let test_fewer_workers_than_tests () =
+  parallel_test_subcommand ~__LOC__ "run -j4"
+
+let test_more_workers_than_tests () =
+  parallel_test_subcommand ~__LOC__ "run -j100"
+
+(*****************************************************************************)
 (* Exercise the failing test suite *)
 (*****************************************************************************)
 
@@ -180,10 +194,20 @@ let mask_alcotest_output =
     delete (Re.Pcre.quote "::endgroup::\n");
   ]
 
+let sort_lines str =
+  str |> String.split_on_char '\n' |> List.sort String.compare
+  |> String.concat "\n"
+
+let mask_and_sort = mask_alcotest_output @ [ sort_lines ]
+
 let tests =
   [
     t ~checked_output:(T.stdxxx ()) ~normalize:mask_alcotest_output
       "standard flow" test_standard_flow;
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+      "fewer workers than tests" test_fewer_workers_than_tests;
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+      "more workers than tests" test_more_workers_than_tests;
     t "failing flow run"
       ~expected_outcome:
         (Should_fail "the invoked test suite is designed to fail")
@@ -208,6 +232,5 @@ let tests =
 let () =
   (* We have a few tests that use the same workspace. To avoid conflicts,
      we run them sequentially. *)
-  let default_workers = Some 0 in
-  Testo.interpret_argv ~default_workers ~project_name:"testo_meta_tests"
-    (fun _env -> tests)
+  Testo.interpret_argv ~default_workers:(Some 0)
+    ~project_name:"testo_meta_tests" (fun _env -> tests)

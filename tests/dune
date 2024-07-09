@@ -1,4 +1,4 @@
-; A dummy test suite with some failing tests and some successful tests
+; Unit tests for internal modules of the Testo library and some "dummy" tests
 (executable
  (name test)
  (modules Test)
@@ -8,11 +8,20 @@
  )
 )
 
-; Another dummy test suite. This one fails, allowing us to check the
+; A dummy test suite. This one fails, allowing us to check the
 ; quality of error reporting.
 (executable
  (name failing_test)
  (modules Failing_test)
+ (libraries
+    testo
+ )
+)
+
+; A dummy test suite used to test parallel execution
+(executable
+ (name parallel_test)
+ (modules Parallel_test)
  (libraries
     testo
  )
