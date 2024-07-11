@@ -901,6 +901,15 @@ let after_run ~always_show_unchecked_output tests selected_tests =
   (exit_code, tests_with_status)
 
 (*
+   This can happen when a worker is busy collecting tests and logging
+   messages to stderr but the master decides to close it right away
+   because there are more workers than tests to run.
+*)
+let ignore_broken_pipe func =
+  try func () with
+  | Sys_error err when err = "Broken pipe" -> exit 0
+
+(*
    Entry point for the 'run' subcommand
 
    It splits into master and worker. Options that affect formatting
@@ -912,17 +921,18 @@ let after_run ~always_show_unchecked_output tests selected_tests =
 let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
     ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice
     ~test_list_checksum:expected_checksum tests cont =
-  if is_worker then (
-    (*
-        The checksum is computed on the list of tests before applying
-        the --slice options since a --slice option is added to the
-        worker's command line.
-    *)
-    check_checksum_or_abort ~expected_checksum tests;
-    let selected_tests =
-      select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
-    in
-    run_tests_requested_by_master selected_tests >>= fun () -> exit 0)
+  if is_worker then
+    ignore_broken_pipe (fun () ->
+        (*
+          The checksum is computed on the list of tests before applying
+          the --slice options since a --slice option is added to the
+          worker's command line.
+      *)
+        check_checksum_or_abort ~expected_checksum tests;
+        let selected_tests =
+          select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+        in
+        run_tests_requested_by_master selected_tests >>= fun () -> exit 0)
   else
     let num_workers =
       match jobs with
