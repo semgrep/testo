@@ -73,11 +73,14 @@ let fatal_error msg =
 
 (*
    A "broken pipe" signal is delivered to a worker process when the worker
-   is trying to write something to e.g. stderr while collecting tests
-   but the master is already closing it because there are more workers
-   than tests to run.
+   is trying to write something to a pipe. This can happen when:
+   - A worker is still busy building the test suite and logs material
+     to stdout.
+   - The master is already killing the worker because its test queue has
+     become empty. This closes the pipe connected to the worker's stdout.
 *)
-let ignore_broken_pipe () = Sys.set_signal Sys.sigpipe Signal_ignore
+let ignore_broken_pipe () =
+  Sys.set_signal Sys.sigpipe (Signal_handle (fun _signal -> exit 0))
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
@@ -484,9 +487,9 @@ let interpret_argv ?(argv = Sys.argv) ?(default_workers = None)
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
     ?status_workspace_root ~project_name
     (get_tests : (string * string) list -> Types.test list) =
+  let test_spec = (get_tests, handle_subcommand_result) in
   (* TODO: is there any reason why we shouldn't always record a stack
      backtrace when running tests? *)
-  let test_spec = (get_tests, handle_subcommand_result) in
   with_record_backtrace (fun () ->
       Store.init_settings ?expectation_workspace_root ?status_workspace_root
         ~project_name ();
