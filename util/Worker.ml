@@ -179,6 +179,7 @@ module Server = struct
     let line =
       try Some (input_line stdin) with
       | End_of_file -> None
+      | Sys_error err when (* fragile *) err = "Broken pipe" -> None
     in
     Option.map Msg_from_master.of_string line
 
