@@ -73,7 +73,7 @@ let fatal_error msg =
 
 (*
    A "broken pipe" signal is delivered to a worker process when the worker
-   is trying to write something to a pipe. This can happen when:
+   is trying to write something to a closed pipe. This can happen when:
    - A worker is still busy building the test suite and logs material
      to stdout.
    - The master is already killing the worker because its test queue has
