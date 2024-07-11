@@ -71,6 +71,17 @@ let fatal_error msg =
   eprintf "Error: %s\n%!" msg;
   exit 1
 
+(*
+   This can happen when a worker is busy collecting tests and logging
+   messages to stderr but the master decides to close it right away
+   because there are more workers than tests to run.
+*)
+let ignore_broken_pipe cond func =
+  if cond then
+    try func () with
+    | Sys_error err when err = "Broken pipe" -> exit 0
+  else func ()
+
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
   (*
@@ -80,13 +91,15 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   match cmd_conf with
   | Run_tests conf ->
       Debug.debug := conf.debug;
-      Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
-        ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
-        ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice
-        ~test_list_checksum:conf.test_list_checksum (get_tests conf.env)
-        (fun exit_code tests_with_status ->
-          handle_subcommand_result exit_code (Run_result tests_with_status))
+      ignore_broken_pipe conf.is_worker (fun () ->
+          let tests = get_tests conf.env in
+          Run.cmd_run ~always_show_unchecked_output:conf.show_output
+            ~argv:conf.argv ~filter_by_substring:conf.filter_by_substring
+            ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
+            ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice
+            ~test_list_checksum:conf.test_list_checksum tests
+            (fun exit_code tests_with_status ->
+              handle_subcommand_result exit_code (Run_result tests_with_status)))
       |> (* TODO: ignoring this promise doesn't make sense.
             The whole Lwt support needs testing and probably doesn't
             work as is. If someone really needs it, please provide a test
