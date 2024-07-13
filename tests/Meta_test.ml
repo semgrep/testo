@@ -198,7 +198,11 @@ let sort_lines str =
   str |> String.split_on_char '\n' |> List.sort String.compare
   |> String.concat "\n"
 
-let mask_and_sort = mask_alcotest_output @ [ sort_lines ]
+(* Remove lines containing "OPTIONAL" *)
+let remove_optional_lines =
+  Testo.remove_matching_lines (Testo.contains_substring ~sub:"OPTIONAL")
+
+let mask_and_sort = mask_alcotest_output @ [ sort_lines; remove_optional_lines ]
 
 let tests =
   [

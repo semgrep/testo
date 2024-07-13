@@ -13,13 +13,17 @@ let tests _env =
      and might get killed before it even started listening for test requests.
      This causes a 'Sys_error "Broken pipe"' unless the sigpipe signal
      is handled in the worker.
+
+     Output lines starting with "OPT" may or may not be printed from
+     one run to another. The meta test will ignore them when checking
+     the expected output.
   *)
   Unix.sleepf 0.1;
-  printf "harmless junk printed to stdout\n%!";
-  eprintf "harmless junk printed to stderr\n%!";
+  printf "OPTIONAL harmless junk printed to stdout\n%!";
+  eprintf "OPTIONAL harmless junk printed to stderr\n%!";
   at_exit (fun () ->
-      printf "harmless junk printed to stdout by an at_exit hook\n%!";
-      eprintf "harmless junk printed to stderr by an at_exit hook\n%!");
+      printf "OPTIONAL harmless junk printed to stdout by an at_exit hook\n%!";
+      eprintf "OPTIONAL harmless junk printed to stderr by an at_exit hook\n%!");
   List.init 8 (fun i ->
       Testo.create
         (sprintf "sleep %.0fms #%i" (sleep_duration *. 1000.) (i + 1))

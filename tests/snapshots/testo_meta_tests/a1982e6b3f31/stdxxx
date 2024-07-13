@@ -37,16 +37,4 @@
 8/8 selected tests:
 Legend:
 RUN ./parallel-test run -j4
-[worker 1/4] harmless junk printed to stdout
-[worker 2/4] harmless junk printed to stdout
-[worker 3/4] harmless junk printed to stdout
-[worker 4/4] harmless junk printed to stdout
-harmless junk printed to stderr
-harmless junk printed to stderr
-harmless junk printed to stderr
-harmless junk printed to stderr
-harmless junk printed to stderr
-harmless junk printed to stderr by an at_exit hook
-harmless junk printed to stdout
-harmless junk printed to stdout by an at_exit hook
 overall status: [32msuccess[0m

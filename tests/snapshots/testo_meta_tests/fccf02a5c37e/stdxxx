@@ -33,6 +33,11 @@ junk printed on stdout...
 [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
 [33m[MISS]  [0me8a3ba3cf9b4 [36mmask_temp_paths[0m
 [33m[MISS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
+[33m[MISS]  [0m59046838dc2d [36mcontains substring[0m
+[33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
+[33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
+[33m[MISS]  [0md07f2170491b [36mremove matching lines[0m
+[33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m
 [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
 [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
@@ -173,6 +178,21 @@ Legend:
 [33m[RUN][0m   cb1a0033f274 [36mmask exotic temp paths[0m
 [32m[PASS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
+[33m[RUN][0m   59046838dc2d [36mcontains substring[0m
+[32m[PASS]  [0m59046838dc2d [36mcontains substring[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
+[33m[RUN][0m   130a6f0e870f [36mcontains pcre pattern[0m
+[32m[PASS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
+[33m[RUN][0m   df76b0fc2d37 [36mfilter_map_lines[0m
+[32m[PASS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
+[33m[RUN][0m   d07f2170491b [36mremove matching lines[0m
+[32m[PASS]  [0md07f2170491b [36mremove matching lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
+[33m[RUN][0m   2f713596bc5a [36mkeep matching lines[0m
+[32m[PASS]  [0m2f713596bc5a [36mkeep matching lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [33m[RUN][0m   d5b0041ea8f4 [36mcheck for substring in stdout[0m
 [32m[PASS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [2m• [0mChecked output: stdout
@@ -366,9 +386,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-50/50 selected tests:
+55/55 selected tests:
   1 skipped
-  49 successful (48 pass, 1 xfail)
+  54 successful (53 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -462,6 +482,16 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/e8a3ba3cf9b4/log
 [32m[PASS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
+[32m[PASS]  [0m59046838dc2d [36mcontains substring[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
+[32m[PASS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
+[32m[PASS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
+[32m[PASS]  [0md07f2170491b [36mremove matching lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
+[32m[PASS]  [0m2f713596bc5a [36mkeep matching lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [32m[PASS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/d5b0041ea8f4/stdout
@@ -618,9 +648,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-50/50 selected tests:
+55/55 selected tests:
   1 skipped
-  49 successful (48 pass, 1 xfail)
+  54 successful (53 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -722,7 +752,7 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/50 selected tests:
+1/55 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -751,7 +781,7 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/50 selected tests:
+1/55 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -855,6 +885,21 @@ Legend:
 [33m[MISS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/outcome[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
+[33m[MISS]  [0m59046838dc2d [36mcontains substring[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
+[33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
+[33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
+[33m[MISS]  [0md07f2170491b [36mremove matching lines[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
+[33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/outcome[0m
@@ -1095,6 +1140,36 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m59046838dc2d [36mcontains substring[0m                                      [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md07f2170491b [36mremove matching lines[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m                                     [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -1283,11 +1358,11 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-50/50 selected tests:
+55/55 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-49 new tests
+54 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -l
@@ -1433,6 +1508,36 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m59046838dc2d [36mcontains substring[0m                                      [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md07f2170491b [36mremove matching lines[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m                                     [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/outcome[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -1621,11 +1726,11 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-50/50 selected tests:
+55/55 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-49 new tests
+54 new tests
 overall status: [31mfailure[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -a
@@ -1652,6 +1757,11 @@ junk printed on stdout...
 [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
 [33m[MISS]  [0me8a3ba3cf9b4 [36mmask_temp_paths[0m
 [33m[MISS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
+[33m[MISS]  [0m59046838dc2d [36mcontains substring[0m
+[33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
+[33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
+[33m[MISS]  [0md07f2170491b [36mremove matching lines[0m
+[33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m
 [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
 [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
@@ -1790,6 +1900,21 @@ Legend:
 [33m[RUN][0m   cb1a0033f274 [36mmask exotic temp paths[0m
 [32m[PASS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
+[33m[RUN][0m   59046838dc2d [36mcontains substring[0m
+[32m[PASS]  [0m59046838dc2d [36mcontains substring[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
+[33m[RUN][0m   130a6f0e870f [36mcontains pcre pattern[0m
+[32m[PASS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
+[33m[RUN][0m   df76b0fc2d37 [36mfilter_map_lines[0m
+[32m[PASS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
+[33m[RUN][0m   d07f2170491b [36mremove matching lines[0m
+[32m[PASS]  [0md07f2170491b [36mremove matching lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
+[33m[RUN][0m   2f713596bc5a [36mkeep matching lines[0m
+[32m[PASS]  [0m2f713596bc5a [36mkeep matching lines[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [33m[RUN][0m   d5b0041ea8f4 [36mcheck for substring in stdout[0m
 [32m[PASS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [2m• [0mChecked output: stdout
@@ -1898,9 +2023,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-50/50 selected tests:
+55/55 selected tests:
   1 skipped
-  49 successful (48 pass, 1 xfail)
+  54 successful (53 pass, 1 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
 <handling result before exiting>
