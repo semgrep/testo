@@ -242,6 +242,54 @@ let mask_pcre_pattern ?replace pat =
              frag1 ^ replace to_be_replaced ^ frag2)
     |> String.concat ""
 
+let represent_lines_as_pairs (xs : Re.Pcre.split_result list) :
+    (string * string) list =
+  let rec map acc (xs : Re.Pcre.split_result list) =
+    match xs with
+    | Text line :: Delim newline :: xs -> map ((line, newline) :: acc) xs
+    | Delim newline :: xs -> map (("", newline) :: acc) xs
+    | Text line :: xs -> map ((line, "") :: acc) xs
+    | (Group _ | NoGroup) :: _ -> map acc xs
+    | [] -> List.rev acc
+  in
+  map [] xs
+
+(* Respect Unix (\n) and Windows line endings (\r\n) *)
+let parse_lines : string -> (string * string) list =
+  let line_sep = Re.Pcre.regexp "\r?\n" in
+  fun str -> str |> Re.Pcre.full_split ~rex:line_sep |> represent_lines_as_pairs
+
+let concatenate_lines (lines : (string * string) list) : string =
+  let buf = Buffer.create 500 in
+  List.iter
+    (fun (line, newline) ->
+      Buffer.add_string buf line;
+      Buffer.add_string buf newline)
+    lines;
+  Buffer.contents buf
+
+let filter_map_lines func str =
+  let lines = parse_lines str in
+  List.filter_map
+    (fun (line, newline) ->
+      match func line with
+      | None -> None
+      | Some line -> Some (line, newline))
+    lines
+  |> concatenate_lines
+
+let contains_pcre_pattern ~pat =
+  let rex = Re.Pcre.regexp pat in
+  fun str -> Re.Pcre.pmatch ~rex str
+
+let contains_substring ~sub = contains_pcre_pattern ~pat:(Re.Pcre.quote sub)
+
+let remove_matching_lines cond str =
+  filter_map_lines (fun line -> if cond line then None else Some line) str
+
+let keep_matching_lines cond str =
+  remove_matching_lines (fun x -> not (cond x)) str
+
 let path_segment_re = Re.Pcre.regexp {|[^\\/]+|}
 
 (* Internal function.

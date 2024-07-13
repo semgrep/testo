@@ -349,6 +349,36 @@ v}
 v}
 *)
 
+val contains_substring : sub:string -> string -> bool
+(** Test if a string contains a substring [sub]. *)
+
+val contains_pcre_pattern : pat:string -> string -> bool
+(** Test if a string contains an unanchored PCRE pattern [pat]. *)
+
+val filter_map_lines : (string -> string option) -> string -> string
+(** Edit or remove each line of text.
+    [filter_map_lines edit text] applies to the function [edit] in turn
+    to each line of [text] without its line terminator.
+    Returning [None] removes the line.
+    Line terminators ["\n"] or ["\r\n"] are preserved if and only if the
+    line is not removed.
+*)
+
+val remove_matching_lines : (string -> bool) -> string -> string
+(** [remove_matching_lines cond text] removes any line from [text]
+    that validates [cond].
+
+    For example, [remove_matching_lines (contains_substring ~sub:"DEBUG")]
+    is a function that removes from a string all the lines containing
+    ["DEBUG"].
+    [remove_matching_lines (contains_pcre_pattern ~pat:"^DEBUG")] is a
+    function that removes only the lines that start with ["DEBUG"].
+*)
+
+val keep_matching_lines : (string -> bool) -> string -> string
+(** [remove_matching_lines cond text] removes any line from [text]
+    that that doesn't validate [cond]. *)
+
 val mask_temp_paths :
   ?depth:int option ->
   ?replace:(string -> string) ->
