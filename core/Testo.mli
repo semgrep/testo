@@ -357,10 +357,10 @@ val contains_pcre_pattern : pat:string -> string -> bool
 
 val filter_map_lines : (string -> string option) -> string -> string
 (** Edit or remove each line of text.
-    [filter_map_lines edit text] applies to the function [edit] in turn
+    [filter_map_lines edit text] applies the function [edit] in turn
     to each line of [text] without its line terminator.
     Returning [None] removes the line.
-    Line terminators ["\n"] or ["\r\n"] are preserved if and only if the
+    Line terminators [\n] or [\r\n] are preserved if and only if the
     line is not removed.
 *)
 
@@ -370,9 +370,9 @@ val remove_matching_lines : (string -> bool) -> string -> string
 
     For example, [remove_matching_lines (contains_substring ~sub:"DEBUG")]
     is a function that removes from a string all the lines containing
-    ["DEBUG"].
+    [DEBUG].
     [remove_matching_lines (contains_pcre_pattern ~pat:"^DEBUG")] is a
-    function that removes only the lines that start with ["DEBUG"].
+    function that removes only the lines that start with [DEBUG].
 *)
 
 val keep_matching_lines : (string -> bool) -> string -> string
