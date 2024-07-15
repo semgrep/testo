@@ -64,6 +64,23 @@ let test_subcommand ?expected_exit_code ~__LOC__:loc subcommand_name
   in
   shell_command ?expected_exit_code ~__LOC__:loc command
 
+(*
+   0 workers: no workers are created
+   1 worker: one worker is created but the output is still deterministic
+   more than one worker: the output won't be in a particular order, making it
+   harder to test expectations.
+*)
+let test_run ?expected_exit_code ?(num_workers = 1) ~__LOC__:loc
+    shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc "run"
+    (sprintf "-j %d %s" num_workers shell_command_args)
+
+let test_status ?expected_exit_code ~__LOC__:loc shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc "status" shell_command_args
+
+let test_approve ?expected_exit_code ~__LOC__:loc shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc "approve" shell_command_args
+
 let clear_status ~__LOC__:loc () =
   shell_command ~__LOC__:loc "rm -rf _build/testo/status/testo_tests"
 
@@ -99,35 +116,48 @@ let test_standard_flow () =
   section "Clean start";
   clear_status ~__LOC__ ();
   clear_snapshots ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "run" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "--all --long" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve" "-s auto-approve";
-  test_subcommand ~__LOC__ "approve" "-s environment-sensitive";
-  test_subcommand ~__LOC__ "status" "";
-  test_subcommand ~__LOC__ "status" "--env A_b123=xxx";
-  test_subcommand ~__LOC__ "status" "-e novalue" ~expected_exit_code:124;
-  test_subcommand ~__LOC__ "status" "-e b@d_key=42" ~expected_exit_code:124;
-  test_subcommand ~__LOC__ "status" "-a -t testin" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "-a -t testing";
+  test_status ~__LOC__ "" ~expected_exit_code:1;
+  test_run ~__LOC__ "" ~expected_exit_code:1;
+  test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
+  test_status ~__LOC__ "" ~expected_exit_code:1;
+  test_approve ~__LOC__ "-s auto-approve";
+  test_approve ~__LOC__ "-s environment-sensitive";
+  test_status ~__LOC__ "";
+  test_status ~__LOC__ "--env A_b123=xxx";
+  test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
+  test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
+  test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
+  test_status ~__LOC__ "-a -t testing";
   (* Modify the output of the test named 'environment-sensitive'
      by setting an environment variable it consults, simulating a bug *)
   with_env ("TESTO_TEST", Some "hello") (fun () ->
-      test_subcommand ~__LOC__ "run" "-s environment-sensitive"
-        ~expected_exit_code:1);
+      test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
   (* "Fix the bug" in test 'environment-sensitive' *)
-  test_subcommand ~__LOC__ "run" "-s environment-sensitive";
+  test_run ~__LOC__ "-s environment-sensitive";
   section "Delete statuses but not snapshots";
   clear_status ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" "-v" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "-l" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "status" "-a" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "run" "";
+  test_status ~__LOC__ "-v" ~expected_exit_code:1;
+  test_status ~__LOC__ "-l" ~expected_exit_code:1;
+  test_status ~__LOC__ "-a" ~expected_exit_code:1;
+  test_run ~__LOC__ "";
   section "Delete snapshots but not statuses";
   clear_snapshots ~__LOC__ ();
-  test_subcommand ~__LOC__ "status" "" ~expected_exit_code:1;
-  test_subcommand ~__LOC__ "approve" "-s auto-approve"
+  test_status ~__LOC__ "" ~expected_exit_code:1;
+  test_approve ~__LOC__ "-s auto-approve"
+
+(*****************************************************************************)
+(* Exercise the parallel test suite *)
+(*****************************************************************************)
+
+let parallel_test_subcommand ~__LOC__:loc shell_command_string =
+  let command = "./parallel-test " ^ shell_command_string in
+  shell_command ~__LOC__:loc command
+
+let test_fewer_workers_than_tests () =
+  parallel_test_subcommand ~__LOC__ "run -j4"
+
+let test_more_workers_than_tests () =
+  parallel_test_subcommand ~__LOC__ "run -j100"
 
 (*****************************************************************************)
 (* Exercise the failing test suite *)
@@ -164,10 +194,24 @@ let mask_alcotest_output =
     delete (Re.Pcre.quote "::endgroup::\n");
   ]
 
+let sort_lines str =
+  str |> String.split_on_char '\n' |> List.sort String.compare
+  |> String.concat "\n"
+
+(* Remove lines containing "OPTIONAL" *)
+let remove_optional_lines =
+  Testo.remove_matching_lines (Testo.contains_substring ~sub:"OPTIONAL")
+
+let mask_and_sort = mask_alcotest_output @ [ sort_lines; remove_optional_lines ]
+
 let tests =
   [
     t ~checked_output:(T.stdxxx ()) ~normalize:mask_alcotest_output
       "standard flow" test_standard_flow;
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+      "fewer workers than tests" test_fewer_workers_than_tests;
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+      "more workers than tests" test_more_workers_than_tests;
     t "failing flow run"
       ~expected_outcome:
         (Should_fail "the invoked test suite is designed to fail")
@@ -190,4 +234,7 @@ let tests =
   ]
 
 let () =
-  Testo.interpret_argv ~project_name:"testo_meta_tests" (fun _env -> tests)
+  (* We have a few tests that use the same workspace. To avoid conflicts,
+     we run them sequentially. *)
+  Testo.interpret_argv ~default_workers:(Some 0)
+    ~project_name:"testo_meta_tests" (fun _env -> tests)

@@ -19,6 +19,7 @@ type subcommand_result =
 *)
 val interpret_argv :
   ?argv:string array ->
+  ?default_workers:int option ->
   ?expectation_workspace_root:Fpath.t ->
   ?handle_subcommand_result:(int -> subcommand_result -> unit) ->
   ?status_workspace_root:Fpath.t ->

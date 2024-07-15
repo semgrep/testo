@@ -12,6 +12,8 @@
 *)
 type t = private { num : int; out_of : int }
 
+(* Create n slices: 1/n, 2/n, ..., n/n *)
+val partition : int -> t list
 val of_string : string -> t option
 val to_string : t -> string
 

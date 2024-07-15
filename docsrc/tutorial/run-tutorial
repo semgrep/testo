@@ -106,7 +106,7 @@ let tests = [
 let () =
   Testo.interpret_argv
     ~project_name:"my_project"
-    (fun () -> tests)
+    (fun _env -> tests)
 EOF
     # Use this new version of Test.ml
     ln -s Test.ml.v2 Test.ml

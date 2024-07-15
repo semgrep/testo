@@ -13,6 +13,7 @@ open Cmdliner
 *)
 type conf = {
   (* All subcommands *)
+  debug : bool;
   filter_by_substring : string option;
   filter_by_tag : Tag.t option;
   env : (string * string) list;
@@ -21,19 +22,28 @@ type conf = {
   (* Status *)
   status_output_style : Run.status_output_style;
   (* Run *)
+  argv : string array;
   lazy_ : bool;
   slice : Slice.t list;
+  is_worker : bool;
+  jobs : int option;
+  test_list_checksum : string option;
 }
 
 let default_conf =
   {
+    debug = false;
     filter_by_substring = None;
     filter_by_tag = None;
     env = [];
     show_output = false;
     status_output_style = Compact_important;
+    argv = Sys.argv;
     lazy_ = false;
     slice = [];
+    is_worker = false;
+    jobs = None;
+    test_list_checksum = None;
   }
 
 (*
@@ -61,20 +71,42 @@ let fatal_error msg =
   eprintf "Error: %s\n%!" msg;
   exit 1
 
+(*
+   A "broken pipe" signal is delivered to a worker process when the worker
+   is trying to write something to a closed pipe. This can happen when:
+   - A worker is still busy building the test suite and logs material
+     to stdout.
+   - The master is already killing the worker because its test queue has
+     become empty. This closes the pipe connected to the worker's stdout.
+*)
+let ignore_broken_pipe () =
+  Sys.set_signal Sys.sigpipe (Signal_handle (fun _signal -> exit 0))
+
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
-    (cmd_conf : cmd_conf) =
+    (cmd_conf : cmd_conf) : unit =
   (*
      The creation of tests can take a while so it's delayed until we
      really need the tests. This makes '--help' fast.
   *)
   match cmd_conf with
   | Run_tests conf ->
-      Run.cmd_run ~always_show_unchecked_output:conf.show_output
+      if conf.is_worker then ignore_broken_pipe ();
+      Debug.debug := conf.debug;
+      let tests = get_tests conf.env in
+      Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag ~lazy_:conf.lazy_ ~slice:conf.slice
-        (get_tests conf.env) (fun exit_code tests_with_status ->
+        ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
+        ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice
+        ~test_list_checksum:conf.test_list_checksum tests
+        (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
+      |> (* TODO: ignoring this promise doesn't make sense.
+            The whole Lwt support needs testing and probably doesn't
+            work as is. If someone really needs it, please provide a test
+            environment where it's justified i.e. where we can't
+            call 'Lwt_main.run' so we can make this work. *) ignore
   | Status conf ->
+      Debug.debug := conf.debug;
       let exit_code, tests_with_status =
         Run.cmd_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
@@ -83,6 +115,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
+      Debug.debug := conf.debug;
       let exit_code =
         Run.cmd_approve ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag (get_tests conf.env)
@@ -95,6 +128,13 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
 (*
    Some of the command-line options are shared among subcommands.
 *)
+
+let debug_term : bool Term.t =
+  let info =
+    Arg.info [ "debug" ]
+      ~doc:"Log information that can be useful for debugging the Testo library."
+  in
+  Arg.value (Arg.flag info)
 
 let filter_by_substring_term : string option Term.t =
   let info =
@@ -177,6 +217,26 @@ let env_term : (string * string) list Term.t =
 (* Subcommand: run (replaces alcotest's 'test') *)
 (****************************************************************************)
 
+let jobs_term ~default_workers : int option Term.t =
+  let default_str =
+    match default_workers with
+    | None -> "set to the number of CPUs detected on the machine"
+    | Some n -> string_of_int n
+  in
+  let info =
+    Arg.info [ "j"; "jobs" ] ~docv:"NUM"
+      ~doc:
+        (sprintf
+           "Specify the number of jobs to run in parallel. By default, this \
+            value is %s. Both '-j0' and '-j1' ensure sequential, \
+            non-overlapping execution of the tests. Unlike '-j1', '-j0' will \
+            not create a separate worker process to run the tests. The default \
+            can be changed by passing '~default_workers' to the OCaml function \
+            'Testo.interpret_argv'."
+           default_str)
+  in
+  Arg.value (Arg.opt (Arg.some Arg.int) None info)
+
 let lazy_term : bool Term.t =
   let info =
     Arg.info [ "lazy" ]
@@ -211,31 +271,61 @@ let slice_term : Slice.t list Term.t =
   in
   Arg.value (Arg.opt_all slice_conv [] info)
 
+let test_list_checksum_term : string option Term.t =
+  let info =
+    Arg.info [ "test-list-checksum" ] ~docv:"STR"
+      ~doc:
+        "Internal use only. This is a checksum used to check that the list of \
+         tests generated in a worker is the same as the list of tests \
+         generated by the master."
+  in
+  Arg.value (Arg.opt (Arg.some Arg.string) None info)
+
+let worker_term : bool Term.t =
+  let info =
+    Arg.info [ "worker" ]
+      ~doc:"Internal option used to launch a parallel worker."
+  in
+  Arg.value (Arg.flag info)
+
 let run_doc = "run the tests"
 
-let subcmd_run_term (test_spec : _ test_spec) : unit Term.t =
-  let combine env filter_by_substring filter_by_tag lazy_ show_output slice
-      verbose =
+let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
+    unit Term.t =
+  let combine debug env filter_by_substring filter_by_tag jobs lazy_ show_output
+      slice test_list_checksum verbose worker =
     let show_output = show_output || verbose in
+    let jobs =
+      match jobs with
+      | None -> default_workers
+      | Some _ -> jobs
+    in
     Run_tests
       {
         default_conf with
+        debug;
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
+        is_worker = worker;
+        jobs;
         lazy_;
         show_output;
         slice;
+        test_list_checksum;
+        argv;
       }
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term
-    $ lazy_term $ show_output_term $ slice_term $ verbose_run_term)
+    const combine $ debug_term $ env_term $ filter_by_substring_term
+    $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
+    $ show_output_term $ slice_term $ test_list_checksum_term $ verbose_run_term
+    $ worker_term)
 
-let subcmd_run test_spec =
+let subcmd_run ~argv ~default_workers test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
-  Cmd.v info (subcmd_run_term test_spec)
+  Cmd.v info (subcmd_run_term ~argv ~default_workers test_spec)
 
 (****************************************************************************)
 (* Subcommand: status (replaces alcotest's 'list') *)
@@ -274,8 +364,8 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all env filter_by_substring filter_by_tag long show_output verbose
-      =
+  let combine all debug env filter_by_substring filter_by_tag long show_output
+      verbose =
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -289,6 +379,7 @@ let subcmd_status_term tests : unit Term.t =
     Status
       {
         default_conf with
+        debug;
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
@@ -298,7 +389,7 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ env_term $ filter_by_substring_term
+    const combine $ all_term $ debug_term $ env_term $ filter_by_substring_term
     $ filter_by_tag_term $ long_term $ show_output_term $ verbose_status_term)
 
 let subcmd_status tests =
@@ -312,10 +403,11 @@ let subcmd_status tests =
 let approve_doc = "approve new test output"
 
 let subcmd_approve_term tests : unit Term.t =
-  let combine env filter_by_substring filter_by_tag =
+  let combine debug env filter_by_substring filter_by_tag =
     Approve
       {
         default_conf with
+        debug;
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
@@ -323,7 +415,8 @@ let subcmd_approve_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ env_term $ filter_by_substring_term $ filter_by_tag_term)
+    const combine $ debug_term $ env_term $ filter_by_substring_term
+    $ filter_by_tag_term)
 
 let subcmd_approve tests =
   let info = Cmd.info "approve" ~doc:approve_doc in
@@ -361,14 +454,18 @@ let root_info ~project_name =
   let name = Filename.basename Sys.argv.(0) in
   Cmd.info name ~doc:(root_doc ~project_name) ~man:(root_man ~project_name)
 
-let root_term test_spec =
+let root_term ~argv ~default_workers test_spec =
   (*
   Term.ret (Term.const (`Help (`Pager, None)))
 *)
-  subcmd_run_term test_spec
+  subcmd_run_term ~argv ~default_workers test_spec
 
-let subcommands test_spec =
-  [ subcmd_run test_spec; subcmd_status test_spec; subcmd_approve test_spec ]
+let subcommands ~argv ~default_workers test_spec =
+  [
+    subcmd_run ~argv ~default_workers test_spec;
+    subcmd_status test_spec;
+    subcmd_approve test_spec;
+  ]
 
 let with_record_backtrace func =
   let original_state = Printexc.backtrace_status () in
@@ -385,16 +482,19 @@ let with_record_backtrace func =
 
    Otherwise, 'conf' is returned to the application.
 *)
-let interpret_argv ?(argv = Sys.argv) ?expectation_workspace_root
+let interpret_argv ?(argv = Sys.argv) ?(default_workers = None)
+    ?expectation_workspace_root
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
     ?status_workspace_root ~project_name
     (get_tests : (string * string) list -> Types.test list) =
+  let test_spec = (get_tests, handle_subcommand_result) in
   (* TODO: is there any reason why we shouldn't always record a stack
      backtrace when running tests? *)
-  let test_spec = (get_tests, handle_subcommand_result) in
   with_record_backtrace (fun () ->
       Store.init_settings ?expectation_workspace_root ?status_workspace_root
         ~project_name ();
-      Cmd.group ~default:(root_term test_spec) (root_info ~project_name)
-        (subcommands test_spec)
+      Cmd.group
+        ~default:(root_term ~argv ~default_workers test_spec)
+        (root_info ~project_name)
+        (subcommands ~argv ~default_workers test_spec)
       |> Cmd.eval ~argv |> (* does not reach this point by default *) exit)

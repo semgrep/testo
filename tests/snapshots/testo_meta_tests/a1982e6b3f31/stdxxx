@@ -1,0 +1,40 @@
+
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/0b27fd150b90/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/0e38e2181377/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/50e7057f9597/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/5291fba84cbe/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/67490960411a/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/8d9e0e6d44e4/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/98fc55950497/log
+[2m• [0mPath to captured log: _build/testo/status/testo_parallel_test/c55570a5ae68/log
+[2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
+[2m• [0m[MISS]: a test that never ran;
+[2m• [0m[PASS]: a successful test that was expected to succeed (good);
+[2m• [0m[SKIP]: a test that is always skipped but kept around for some reason;
+[2m• [0m[XFAIL]: a failing test that was expected to fail (tolerated failure);
+[2m• [0m[XPASS]: a successful test that was expected to fail (progress?).
+[2m• [0m[xxxx*]: a new test for which there's no expected output yet.
+[32m[PASS]  [0m0b27fd150b90 [36msleep 50ms #3[0m
+[32m[PASS]  [0m0e38e2181377 [36msleep 50ms #7[0m
+[32m[PASS]  [0m50e7057f9597 [36msleep 50ms #6[0m
+[32m[PASS]  [0m5291fba84cbe [36msleep 50ms #1[0m
+[32m[PASS]  [0m67490960411a [36msleep 50ms #4[0m
+[32m[PASS]  [0m8d9e0e6d44e4 [36msleep 50ms #8[0m
+[32m[PASS]  [0m98fc55950497 [36msleep 50ms #5[0m
+[32m[PASS]  [0mc55570a5ae68 [36msleep 50ms #2[0m
+[33m[RUN][0m   0b27fd150b90 [36msleep 50ms #3[0m
+[33m[RUN][0m   0e38e2181377 [36msleep 50ms #7[0m
+[33m[RUN][0m   50e7057f9597 [36msleep 50ms #6[0m
+[33m[RUN][0m   5291fba84cbe [36msleep 50ms #1[0m
+[33m[RUN][0m   67490960411a [36msleep 50ms #4[0m
+[33m[RUN][0m   8d9e0e6d44e4 [36msleep 50ms #8[0m
+[33m[RUN][0m   98fc55950497 [36msleep 50ms #5[0m
+[33m[RUN][0m   c55570a5ae68 [36msleep 50ms #2[0m
+  0 unsuccessful (0 fail, 0 xpass)
+  8 successful (8 pass, 0 xfail)
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+8/8 selected tests:
+Legend:
+RUN ./parallel-test run -j4
+overall status: [32msuccess[0m

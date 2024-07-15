@@ -34,6 +34,7 @@ type alcotest_test = string * alcotest_test_case list
 (* The exit codes used by the built-in test runner. *)
 let exit_success = 0
 let exit_failure = 1
+let exit_internal_error = 2
 
 (* Left margin for text relating to a test *)
 let bullet = Style.color Faint "• "
@@ -43,6 +44,32 @@ let if_plural num s = if num >= 2 then s else ""
 
 (* For appending an 's' to conjugated verbs in messages *)
 let if_singular num s = if num <= 1 then s else ""
+
+(*
+   Compute a checksum used to detect obvious differences between
+   the list of tests obtained in the master process and the list of tests
+   obtained in a worker process in charge of taking a slice of that list.
+
+   The checksum is passed by the master to each worker via a command-line
+   option.
+*)
+let get_checksum (tests : T.test list) =
+  tests
+  |> Helpers.list_map (fun (x : T.test) -> x.id)
+  |> String.concat " " |> Digest.string |> Digest.to_hex
+
+let check_checksum_or_abort ~expected_checksum tests =
+  match expected_checksum with
+  | None -> ()
+  | Some expected ->
+      let checksum = get_checksum tests in
+      if checksum <> expected then
+        Worker.Server.fatal_error
+          "Checksum mismatch: the test suite in a worker process is different \
+           than the list of tests in the master process. You need to make sure \
+           that the name and the order of the tests in the test suite is \
+           deterministic and independent of any internal command-line option \
+           (e.g. '--worker')."
 
 (*
    Check that no two tests have the same full name or the same ID.
@@ -412,11 +439,16 @@ let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
      | Not_OK _ ->
          true)
 
+(*
+   Show difference between expected and actual output if both files are
+   available.
+*)
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
-  let equal, diffs = Diff.files path_to_expected_output path_to_output in
-  if not equal then
-    printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
-      diffs
+  if Sys.file_exists !!path_to_expected_output then
+    let equal, diffs = Diff.files path_to_expected_output path_to_output in
+    if not equal then
+      printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
+        diffs
 
 let show_output_details (test : T.test) (sum : T.status_summary)
     (capture_paths : Store.capture_paths list) =
@@ -437,7 +469,6 @@ let show_output_details (test : T.test) (sum : T.status_summary)
              | OK_but_new ->
                  ()
              | Not_OK _ ->
-                 (* TODO: only show diff if this particular file differs *)
                  show_diff short_name path_to_expected_output path_to_output);
              if success <> OK_but_new then
                printf "%sPath to expected %s: %s\n" bullet short_name
@@ -701,6 +732,84 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   in
   (exit_code, tests_with_status)
 
+let start_test worker test =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow "[RUN]"))
+    (format_title test);
+  Worker.Client.write worker (Start_test test.id)
+
+let feed_worker test_queue worker =
+  match Queue.take_opt test_queue with
+  | Some test -> start_test worker test
+  | None -> Worker.Client.close_worker worker
+
+let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
+    ~test_list_checksum tests =
+  let workers =
+    Worker.Client.create ~num_workers ~original_argv:argv ~test_list_checksum
+  in
+  let get_test =
+    let tbl = Hashtbl.create (2 * List.length tests) in
+    List.iter (fun (x : T.test) -> Hashtbl.add tbl x.id x) tests;
+    fun test_id ->
+      try Hashtbl.find tbl test_id with
+      | Not_found ->
+          failwith
+            (sprintf "Internal error: received invalid test ID from worker: %S"
+               test_id)
+  in
+  let test_queue = tests |> List.to_seq |> Queue.of_seq in
+  (* Send a first task (test) to each worker *)
+  Worker.Client.iter_workers workers (fun worker ->
+      feed_worker test_queue worker);
+  (* Wait for responses from workers and feed them until the queue is empty *)
+  let rec loop () =
+    match Worker.Client.read workers with
+    | None ->
+        (* There are no more workers = they were closed after we
+           tried to feed each of them from the empty queue. *)
+        ()
+    | Some (worker, msg) ->
+        let worker_id = Worker.Client.worker_id worker in
+        (match msg with
+        | End_test test_id ->
+            let test = get_test test_id in
+            if test.skipped then
+              printf "%s%s\n%!"
+                (Style.left_col (Style.color Yellow "[SKIP]"))
+                (format_title test)
+            else
+              get_test_with_status test
+              |> print_status ~highlight_test:false
+                   ~always_show_unchecked_output;
+            feed_worker test_queue worker
+        | Error msg ->
+            eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
+            Worker.Client.close workers;
+            exit exit_internal_error
+        | Junk line -> printf "[worker %s] %s\n%!" worker_id line);
+        loop ()
+  in
+  loop ()
+
+let report_skip_test test =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow "[SKIP]"))
+    (format_title test)
+
+let report_start_test test =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow "[RUN]"))
+    (format_title test)
+
+let report_end_test ~always_show_unchecked_output test =
+  get_test_with_status test
+  |> print_status ~highlight_test:false ~always_show_unchecked_output
+
+(*
+   Run tests and report progress. This is done in the main process when
+   running without worker processes ('-j 0' option).
+*)
 let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
     'unit_promise =
   List.fold_left
@@ -711,26 +820,51 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
       in
       previous >>= fun () ->
       if test.skipped then (
-        printf "%s%s\n%!"
-          (Style.left_col (Style.color Yellow "[SKIP]"))
-          (format_title test);
+        report_skip_test test;
         P.return ())
       else (
-        printf "%s%s...%!"
-          (Style.left_col (Style.color Yellow "[RUN]"))
-          (format_title test);
+        report_start_test test;
         P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-        (* Erase RUN line *)
-        printf "\027[2K\r";
-        get_test_with_status test
-        |> print_status ~highlight_test:false ~always_show_unchecked_output;
+        report_end_test ~always_show_unchecked_output test;
         P.return ()))
     (P.return ()) tests
 
-(* Run this before a run or Lwt run. Returns the filtered tests. *)
-let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
-  Store.init_workspace ();
-  check_test_definitions tests;
+let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
+  let get_test =
+    let tbl = Hashtbl.create (2 * List.length tests) in
+    List.iter (fun (test : T.test) -> Hashtbl.add tbl test.id test) tests;
+    fun test_id ->
+      try Hashtbl.find tbl test_id with
+      | Not_found ->
+          failwith (sprintf "Invalid test ID received by worker: %S" test_id)
+  in
+  let rec loop previous =
+    previous >>= fun () ->
+    match Worker.Server.read () with
+    | None -> exit 0
+    | Some (Start_test test_id) ->
+        let test = get_test test_id in
+        let test_func : unit -> 'unit_promise =
+          wrap_test_function ~with_storage:true ~flip_xfail_outcome:false test
+            test.func
+        in
+        let job =
+          if test.skipped then (
+            (* This shouldn't happen but it's not a problem *)
+            Worker.Server.write (End_test test_id);
+            P.return ())
+          else
+            P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
+            Worker.Server.write (End_test test_id);
+            P.return ()
+        in
+        loop job
+  in
+  loop (P.return ())
+
+(* Select tests to run. This runs in both master and workers but results
+   in a shorter list of tests in workers. *)
+let select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
   let tests =
     match lazy_ with
     | false -> tests
@@ -740,8 +874,19 @@ let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
         List.filter is_important_status tests_with_status
         |> Helpers.list_map (fun (test, _, _) -> test)
   in
-  print_status_introduction ();
   filter ~filter_by_substring ~filter_by_tag tests |> Slice.apply_slices slice
+
+(* This runs in the master process before a run or Lwt run
+   and returns the list of selected tests that will be dispatched to
+   the workers. *)
+let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
+  Store.init_workspace ();
+  check_test_definitions tests;
+  let selected_tests =
+    select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+  in
+  print_status_introduction ();
+  selected_tests
 
 (* Run this after a run or Lwt run. *)
 let after_run ~always_show_unchecked_output tests selected_tests =
@@ -757,24 +902,56 @@ let after_run ~always_show_unchecked_output tests selected_tests =
 
 (*
    Entry point for the 'run' subcommand
+
+   It splits into master and worker. Options that affect formatting
+   are for the master. Options that affect test execution, if any, are
+   for the workers. Options that select which tests should run are used by
+   both the master and the workers (because the master doesn't pass the
+   list of selected tests to the workers).
 *)
-let cmd_run ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~lazy_ ~slice tests cont =
-  let selected_tests =
-    before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
-  in
-  run_tests_sequentially ~always_show_unchecked_output selected_tests
-  >>= (fun () ->
-        let exit_code, tests_with_status =
-          after_run ~always_show_unchecked_output tests selected_tests
-        in
-        cont exit_code tests_with_status |> ignore;
-        (* The continuation 'cont' should exit but otherwise we exit once
-           it's done. *)
-        exit exit_code)
-  |> ignore;
-  (* shouldn't be reached if 'bind' does what it's supposed to *)
-  exit exit_success
+let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
+    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice
+    ~test_list_checksum:expected_checksum tests cont =
+  if is_worker then (
+    (*
+        The checksum is computed on the list of tests before applying
+        the --slice options since a --slice option is added to the
+        worker's command line.
+    *)
+    check_checksum_or_abort ~expected_checksum tests;
+    let selected_tests =
+      select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+    in
+    run_tests_requested_by_master selected_tests >>= fun () -> exit 0)
+  else
+    let num_workers =
+      match jobs with
+      | Some n -> max 0 n
+      | None -> (
+          match CPU.get_count () with
+          | None -> 0
+          | Some n -> n)
+    in
+    let selected_tests =
+      before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+    in
+    (match num_workers with
+    | 0 ->
+        (* Run in the same process. This is for situations or platforms where
+           multiprocessing might not work for whatever reason. *)
+        run_tests_sequentially ~always_show_unchecked_output selected_tests
+    | _ ->
+        run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
+          ~test_list_checksum:(get_checksum tests) selected_tests;
+        P.return ())
+    >>= fun () ->
+    let exit_code, tests_with_status =
+      after_run ~always_show_unchecked_output tests selected_tests
+    in
+    cont exit_code tests_with_status |> ignore;
+    (* The continuation 'cont' should exit but otherwise we exit once
+       it's done. *)
+    exit exit_code
 
 (*
    Entry point for the 'approve' subcommand

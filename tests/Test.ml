@@ -151,6 +151,55 @@ let test_mask_exotic_temp_paths () =
   ]
   |> List.iter test_one
 
+let test_contains_substring () =
+  assert (Testo.contains_substring ~sub:"abc" "xxxabcxxx");
+  assert (Testo.contains_substring ~sub:"a\nb" "xxxa\nbxxx");
+  assert (not (Testo.contains_substring ~sub:"abc" "xxxabxxx"))
+
+let test_contains_pcre_pattern () =
+  assert (Testo.contains_pcre_pattern ~pat:"b" "abc");
+  assert (Testo.contains_pcre_pattern ~pat:"[a-z]" "--x--");
+  assert (not (Testo.contains_pcre_pattern ~pat:"[a-z]" "----"))
+
+let test_filter_map_lines () =
+  let res =
+    "a\nbc\nd\r\ne\n\nff\r\ngg\nh"
+    |> Testo.filter_map_lines (fun line ->
+           match line with
+           | "bc" -> None
+           | "d" -> None
+           | other -> Some (String.uppercase_ascii other))
+  in
+  Alcotest.(check string) "equal" "A\nE\n\nFF\r\nGG\nH" res
+
+let test_remove_matching_lines () =
+  let res =
+    Testo.remove_matching_lines
+      (Testo.contains_substring ~sub:"DEBUG")
+      "DEBUG\nxxxDEBUGxxx\nhello\n"
+  in
+  Alcotest.(check string) "equal" "hello\n" res;
+  let res =
+    Testo.remove_matching_lines
+      (Testo.contains_pcre_pattern ~pat:"^DEBUG")
+      "DEBUG\nxxxDEBUGxxx\nhello\n"
+  in
+  Alcotest.(check string) "equal" "xxxDEBUGxxx\nhello\n" res
+
+let test_keep_matching_lines () =
+  let res =
+    Testo.keep_matching_lines
+      (Testo.contains_substring ~sub:"DEBUG")
+      "DEBUG\nxxxDEBUGxxx\nhello\n"
+  in
+  Alcotest.(check string) "equal" "DEBUG\nxxxDEBUGxxx\n" res;
+  let res =
+    Testo.keep_matching_lines
+      (Testo.contains_pcre_pattern ~pat:"^DEBUG")
+      "DEBUG\nxxxDEBUGxxx\nhello\n"
+  in
+  Alcotest.(check string) "equal" "DEBUG\n" res
+
 let test_alcotest_error_formatting () =
   printf
     "This alcotest check is expected to fail with nice error formatting.\n%!";
@@ -209,6 +258,7 @@ let windows_todo : Testo.expected_outcome =
    of approval.
 *)
 let tests env =
+  print_endline "junk printed on stdout...\n... when creating the test suite";
   [
     t "simple" (fun () -> ());
     t "tags" ~tags:[ testing_tag; tags_tag ] (fun () -> ());
@@ -285,6 +335,11 @@ let tests env =
     t "mask_temp_paths" ~expected_outcome:windows_todo test_mask_temp_paths;
     t "mask exotic temp paths" ~expected_outcome:windows_todo
       test_mask_exotic_temp_paths;
+    t "contains substring" test_contains_substring;
+    t "contains pcre pattern" test_contains_pcre_pattern;
+    t "filter_map_lines" test_filter_map_lines;
+    t "remove matching lines" test_remove_matching_lines;
+    t "keep matching lines" test_keep_matching_lines;
     t ~checked_output:(Testo.stdout ())
       ~normalize:[ Testo.mask_not_substring "water" ]
       "check for substring in stdout"

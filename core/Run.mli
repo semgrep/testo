@@ -20,13 +20,17 @@ val to_alcotest :
 
 val cmd_run :
   always_show_unchecked_output:bool ->
+  argv:string array ->
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
+  is_worker:bool ->
+  jobs:int option ->
   lazy_:bool ->
   slice:Testo_util.Slice.t list ->
+  test_list_checksum:string option ->
   Types.test list ->
   (int -> Types.test_with_status list -> _) ->
-  _
+  _ Promise.t
 
 (* Print the status of each test.
    Return a non-zero exit status if any of the tests is not a success

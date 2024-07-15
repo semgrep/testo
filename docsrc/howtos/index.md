@@ -290,14 +290,58 @@ For the Async library, we don't provide `testo-async` but it should be
 straightforward to add. Check the status of the [corresponding GitHub
 issue](https://github.com/semgrep/testo/issues/73).
 
+How to run tests in parallel?
+--
+
+### Parallel execution on a single host
+
+By default, there's nothing special to do because the test executable created
+by Testo will detect the number of CPUs available on the machine and
+run the tests in parallel accordingly. If this is not satisfying, use
+the `-j` option to use a specific number of workers:
+
+```
+$ ./test -j4
+```
+
+If some tests fail because they can't run in parallel, use the `-j0`
+option to run tests sequentially without creating a worker process.
+Creating a single worker process with `-j1` should also work for the
+purpose of running the tests sequentially.
+
+If the test suite should run sequentially most of the time, you should
+make it the default by specifying `~default_workers` in your OCaml
+test program:
+
+```
+let () =
+  Testo.interpret_argv
+    ~project_name:"my project"
+    ~default_workers:(Some 0)
+    (fun _env -> tests)
+```
+
+### Parallel execution across multiple CI hosts
+
+If you have the option of running the test suite on multiple hosts in
+parallel, you have to run a different `./test` command on each
+host. To partition the work into 4 parts, run `./test --slice 1/4`,
+`./test --slice 2/4`, `./test --slice 3/4`, and `./test --slice 4/4`
+each on a different host. Check with your CI provider how to achieve
+this conveniently.
+
+How to report problems with Testo?
+--
+
+Check for known issues at
+[https://github.com/semgrep/testo/issues](https://github.com/semgrep/testo/issues).
+If your problem seems new, please file a new issue as a first step
+toward its resolution.
+The `--debug` flag might reveal what's going on and can be helpful for
+debugging certain problems.
+
 How to export test output to JUnit?
 --
 
 🚧 not implemented,
 see [Issue #14](https://github.com/semgrep/testo/issues/14).
-
-How to run tests in parallel?
---
-
-🚧 not implemented,
-see [Issue #8](https://github.com/semgrep/testo/issues/8).
