@@ -324,24 +324,18 @@ let to_alcotest_gen ~(alcotest_skip : unit -> _)
          (suite_name, (test.name, `Quick, func)))
   |> group_by_key
 
-let print_exn (test : T.test) exn trace =
-  match test.expected_outcome with
-  | Should_succeed ->
-      prerr_string
-        (Style.color Red
-           (sprintf "FAIL: The test raised an exception: %s\n%s"
-              (Printexc.to_string exn)
-              (Printexc.raw_backtrace_to_string trace)))
-  | Should_fail _reason ->
-      prerr_string
-        (Style.color Green
-           (sprintf "XFAIL: As expected, the test raised an exception: %s\n%s"
-              (Printexc.to_string exn)
-              (Printexc.raw_backtrace_to_string trace)))
-
-let with_print_exn (test : T.test) func () =
-  P.catch func (fun exn trace ->
-      print_exn test exn trace;
+let with_store_exception (test : T.test) func () =
+  P.catch
+    (fun () ->
+      func () >>= fun () ->
+      Store.store_exception test None;
+      P.return ())
+    (fun exn trace ->
+      let msg =
+        sprintf "%s\n%s" (Printexc.to_string exn)
+          (Printexc.raw_backtrace_to_string trace)
+      in
+      Store.store_exception test (Some msg);
       (Printexc.raise_with_backtrace exn trace : unit Promise.t))
 
 let with_flip_xfail_outcome (test : T.test) func =
@@ -363,7 +357,7 @@ let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
-  func |> with_print_exn test
+  func |> with_store_exception test
   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
@@ -552,28 +546,45 @@ let print_status ~highlight_test ~always_show_unchecked_output
           | Not_OK _ -> true
         in
         (* TODO: show the checked output to be approved? *)
+        (if show_unchecked_output then
+           match Store.get_unchecked_output test with
+           | None -> (
+               match success with
+               | OK -> ()
+               | OK_but_new -> ()
+               | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
+                   printf "%sFailed due to an exception. See captured output.\n"
+                     bullet
+               | Not_OK (Some Wrong_output) ->
+                   printf "%sFailed due to wrong output.\n" bullet
+               | Not_OK None ->
+                   printf
+                     "%sSucceded when it should have failed. See captured \
+                      output.\n"
+                     bullet)
+           | Some (log_description, data) -> (
+               match data with
+               | "" -> printf "%sLog (%s) is empty.\n" bullet log_description
+               | _ ->
+                   printf "%sLog (%s):\n%s" bullet log_description
+                     (Style.quote_multiline_text data);
+                   if not (ends_with_newline data) then print_char '\n'));
+        (* Show the exception in case of a test failure due to an exception *)
         if show_unchecked_output then
-          match Store.get_unchecked_output test with
-          | None -> (
-              match success with
-              | OK -> ()
-              | OK_but_new -> ()
-              | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
-                  printf "%sFailed due to an exception. See captured output.\n"
-                    bullet
-              | Not_OK (Some Wrong_output) ->
-                  printf "%sFailed due to wrong output.\n" bullet
-              | Not_OK None ->
-                  printf
-                    "%sSucceded when it should have failed. See captured output.\n"
-                    bullet)
-          | Some (log_description, data) -> (
-              match data with
-              | "" -> printf "%sLog (%s) is empty.\n" bullet log_description
-              | _ ->
-                  printf "%sLog (%s):\n%s" bullet log_description
-                    (Style.quote_multiline_text data);
-                  if not (ends_with_newline data) then print_char '\n')));
+          match success with
+          | Not_OK (Some (Exception | Exception_and_wrong_output)) -> (
+              match Store.get_exception test with
+              | Some msg ->
+                  printf "%sException raised by the test:\n%s" bullet
+                    (Style.color Red (Style.quote_multiline_text msg))
+              | None ->
+                  (* = assert false *)
+                  ())
+          | OK
+          | OK_but_new
+          | Not_OK (Some Wrong_output)
+          | Not_OK None ->
+              ()));
   flush stdout
 
 let print_statuses ~highlight_test ~always_show_unchecked_output

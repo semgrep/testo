@@ -46,6 +46,21 @@ type capture_paths = {
 val capture_paths_of_test : Types.test -> capture_paths list
 
 (*
+   Record exception and stack trace raised by a test in a file.
+
+   If the argument is 'None', the file is deleted if it exists.
+   If the argument is 'Some msg', 'msg' is saved. 'msg' must be
+   a human-readable representation of the exception raised by the test.
+*)
+val store_exception : Types.test -> string option -> unit
+
+(*
+   Get the contents of the file containing the exception raised by a test.
+   This file exists if the test failed due to an exception.
+*)
+val get_exception : Types.test -> string option
+
+(*
    Ordinary output that's not compared against expectations.
    This is what's left of stdout and stderr after redirections.
 
