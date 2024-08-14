@@ -582,6 +582,14 @@ let print_status ~highlight_test ~always_show_unchecked_output
                   ())
           | OK
           | OK_but_new
+            when always_show_unchecked_output -> (
+              match Store.get_exception test with
+              | Some msg ->
+                  printf "%sException raised by the test:\n%s" bullet
+                    (Style.color Green (Style.quote_multiline_text msg))
+              | None -> ())
+          | OK
+          | OK_but_new
           | Not_OK (Some Wrong_output)
           | Not_OK None ->
               ()));
