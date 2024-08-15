@@ -81,6 +81,11 @@ let read_file_exn path : string =
   | Ok data -> data
   | Error path -> Error.user_error (errmsg_of_missing_file path)
 
+let with_file_out path f =
+  let oc = open_out_bin !!path in
+  Fun.protect ~finally:(fun () -> close_out_noerr oc) (fun () -> f oc)
+
+let write_file path data = with_file_out path (fun oc -> output_string oc data)
 let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
 
 (**************************************************************************)
@@ -247,6 +252,20 @@ let short_name_of_checked_output_options default_name
 
 let get_output_path (test : T.test) filename =
   get_status_workspace () / test.id / filename
+
+let get_exception_path (test : T.test) = get_output_path test "exception"
+
+let store_exception (test : T.test) opt_msg =
+  let path = get_exception_path test in
+  match opt_msg with
+  | None -> remove_file path
+  | Some msg -> write_file path msg
+
+let get_exception (test : T.test) =
+  let path = get_exception_path test in
+  match read_file path with
+  | Ok data -> Some data
+  | Error _path -> None
 
 (*
    Derive the various file paths related to a given test, but excluding

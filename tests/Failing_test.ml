@@ -28,6 +28,8 @@ non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     t "doesn't contain substring" ~checked_output:(Testo.stdout ())
       ~normalize:[ Testo.mask_not_substring "water" ]
       (fun () -> print_string "fire");
+    t "show exception when capturing stderr" ~checked_output:(Testo.stderr ())
+      (fun () -> failwith "blah");
   ]
 
 let () = Testo.interpret_argv ~project_name:"testo_failing_tests" tests
