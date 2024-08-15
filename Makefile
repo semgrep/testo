@@ -16,6 +16,7 @@ setup:
 .PHONY: test
 test: build
 	dune exec diff/tests/test.exe
+	./test-alcotest
 	./meta-test
 
 # The test program offers various options. This is one of them.

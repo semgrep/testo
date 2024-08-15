@@ -36,3 +36,13 @@
     testo
  )
 )
+
+; Test the export to Alcotest
+(executable
+ (name test_alcotest)
+ (modules Test_alcotest)
+ (libraries
+    testo
+    alcotest
+ )
+)
