@@ -103,10 +103,14 @@ let default_status_workspace_root = Fpath.v "_build" / "testo" / "status"
 let default_expectation_workspace_root = Fpath.v "tests" / "snapshots"
 
 let not_initialized () =
-  Error.user_error "Missing initialization call: Testo.init ()"
+  Error.user_error
+    "The Testo workspace was not initialized properly or at all. This is \
+     probably a bug in Testo."
 
 let already_initialized () =
-  Error.user_error "Multiple initialization calls to Testo.init. Keep only one."
+  Error.user_error
+    "Internal error in Testo: there was an attempt to initialize the workspace \
+     more than once."
 
 let make_late_init () =
   let var = ref None in

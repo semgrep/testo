@@ -357,7 +357,8 @@ let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
-  func |> with_store_exception test
+  func
+  |> conditional_wrap with_storage (with_store_exception test)
   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
