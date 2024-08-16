@@ -772,6 +772,11 @@ let feed_worker test_queue worker =
   | Some test -> start_test worker test
   | None -> Worker.Client.close_worker worker
 
+let report_skip_test test reason =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s] " reason)))
+    (format_title test)
+
 let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
     ~test_list_checksum tests =
   let workers =
@@ -804,11 +809,7 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
         | End_test test_id ->
             let test = get_test test_id in
             (match test.skipped with
-            | Some reason ->
-                printf "%s%s\n%!"
-                  (Style.left_col
-                     (Style.color Yellow (sprintf "[SKIP: %s] " reason)))
-                  (format_title test)
+            | Some reason -> report_skip_test test reason
             | None ->
                 get_test_with_status test
                 |> print_status ~highlight_test:false
@@ -822,11 +823,6 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
         loop ()
   in
   loop ()
-
-let report_skip_test test =
-  printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow "[SKIP]"))
-    (format_title test)
 
 let report_start_test test =
   printf "%s%s\n%!"
@@ -851,8 +847,8 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
       in
       previous >>= fun () ->
       match test.skipped with
-      | Some _reason ->
-          report_skip_test test;
+      | Some reason ->
+          report_skip_test test reason;
           P.return ()
       | None ->
           report_start_test test;
