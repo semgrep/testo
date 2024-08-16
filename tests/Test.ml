@@ -377,6 +377,8 @@ let tests env =
         | Some "bar" -> ()
         | Some other ->
             Alcotest.fail (sprintf "Invalid value for variable foo: %S" other));
+    t "solo 1/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
+    t "solo 2/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"

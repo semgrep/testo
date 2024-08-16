@@ -761,21 +761,33 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   in
   (exit_code, tests_with_status)
 
-let start_test worker test =
+let report_start_test (test : T.test) =
+  let run_label =
+    match test.solo with
+    | None -> "[RUN]"
+    | Some reason -> sprintf "[RUN SOLO: %s]" reason
+  in
   printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow "[RUN]"))
-    (format_title test);
+    (Style.left_col (Style.color Yellow run_label))
+    (format_title test)
+
+let report_end_test ~always_show_unchecked_output test =
+  get_test_with_status test
+  |> print_status ~highlight_test:false ~always_show_unchecked_output
+
+let report_skip_test test reason =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s]" reason)))
+    (format_title test)
+
+let start_test worker (test : T.test) =
+  report_start_test test;
   Worker.Client.write worker (Start_test test.id)
 
 let feed_worker test_queue worker =
   match Queue.take_opt test_queue with
   | Some test -> start_test worker test
   | None -> Worker.Client.close_worker worker
-
-let report_skip_test test reason =
-  printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s] " reason)))
-    (format_title test)
 
 let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
     ~test_list_checksum tests =
@@ -823,15 +835,6 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
         loop ()
   in
   loop ()
-
-let report_start_test test =
-  printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow "[RUN]"))
-    (format_title test)
-
-let report_end_test ~always_show_unchecked_output test =
-  get_test_with_status test
-  |> print_status ~highlight_test:false ~always_show_unchecked_output
 
 (*
    Run tests and report progress. This is done in the main process when
@@ -964,16 +967,20 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
     let selected_tests =
       before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
     in
-    (match num_workers with
-    | 0 ->
-        (* Run in the same process. This is for situations or platforms where
-           multiprocessing might not work for whatever reason. *)
-        run_tests_sequentially ~always_show_unchecked_output selected_tests
-    | _ ->
-        run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
-          ~test_list_checksum:(get_checksum tests) selected_tests;
-        P.return ())
+    let all_sequential = num_workers = 0 in
+    let sequential_tests, parallel_tests =
+      selected_tests
+      |> List.partition (fun (test : T.test) ->
+             all_sequential || test.solo <> None)
+    in
+    (* Run in the same process. This is for situations or platforms where
+       multiprocessing might not work for whatever reason. *)
+    run_tests_sequentially ~always_show_unchecked_output sequential_tests
     >>= fun () ->
+    if num_workers > 0 then
+      run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
+        ~test_list_checksum:(get_checksum tests) parallel_tests;
+    P.return () >>= fun () ->
     let exit_code, tests_with_status =
       after_run ~always_show_unchecked_output tests selected_tests
     in
