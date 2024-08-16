@@ -195,6 +195,44 @@ let with_temp_file = Temp_file.with_temp_file
 let with_capture = Store.with_capture
 
 (**************************************************************************)
+(* Hygiene *)
+(**************************************************************************)
+
+let getenv_string k =
+  match Sys.getenv_opt k with
+  | None -> ""
+  | Some v -> v
+
+let with_environment_variables env func =
+  let envs =
+    Helpers.list_map
+      (fun (k, tmp) ->
+        (* OCaml doesn't provide an 'unsetenv' function, so we won't
+           distinguish an unset variable from one whose value is the
+           empty string. *)
+        let orig = getenv_string k in
+        Unix.putenv k tmp;
+        (k, orig, tmp))
+      env
+  in
+  Promise.protect
+    ~finally:(fun () ->
+      List.iter
+        (fun (k, orig, tmp) ->
+          let cur = getenv_string k in
+          Unix.putenv k orig;
+          if cur <> tmp then
+            Error.fail_test
+              (sprintf
+                 "The environment variable %S was modified by the test \
+                  function but not restored. Its value is %S but %S was \
+                  expected."
+                 k cur tmp))
+        envs;
+      Promise.return ())
+    func
+
+(**************************************************************************)
 (* Output masking *)
 (**************************************************************************)
 
