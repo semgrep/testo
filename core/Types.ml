@@ -117,7 +117,8 @@ type test = {
   tags : Testo_util.Tag.t list;
   normalize : (string -> string) list;
   checked_output : checked_output_kind;
-  skipped : bool;
+  skipped : string option;
+  solo : string option;
   tolerate_chdir : bool;
 }
 

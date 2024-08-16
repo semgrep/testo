@@ -715,28 +715,30 @@ type changed = Changed | Unchanged
 exception Local_error of string
 
 let approve_new_output (test : T.test) : (changed, string) Result.t =
-  if test.skipped then Ok Unchanged
-  else
-    let paths = capture_paths_of_test test in
-    match check_outcome test with
-    | Error _ as res -> res
-    | Ok () -> (
-        let old_expectation = get_expectation test paths in
-        clear_expected_output test;
-        try
-          let data =
-            paths |> get_checked_output
-            |> list_map (function
-                 | Ok data -> data
-                 | Error missing_file ->
-                     raise (Local_error (errmsg_of_missing_file missing_file)))
-          in
-          set_expected_output test paths data;
-          let new_expectation = get_expectation test paths in
-          let changed =
-            if old_expectation = new_expectation then Unchanged else Changed
-          in
-          Ok changed
-        with
-        | Local_error msg ->
-            Error (sprintf "Cannot approve output for test %s: %s" test.id msg))
+  match test.skipped with
+  | Some _reason -> Ok Unchanged
+  | None -> (
+      let paths = capture_paths_of_test test in
+      match check_outcome test with
+      | Error _ as res -> res
+      | Ok () -> (
+          let old_expectation = get_expectation test paths in
+          clear_expected_output test;
+          try
+            let data =
+              paths |> get_checked_output
+              |> list_map (function
+                   | Ok data -> data
+                   | Error missing_file ->
+                       raise (Local_error (errmsg_of_missing_file missing_file)))
+            in
+            set_expected_output test paths data;
+            let new_expectation = get_expectation test paths in
+            let changed =
+              if old_expectation = new_expectation then Unchanged else Changed
+            in
+            Ok changed
+          with
+          | Local_error msg ->
+              Error
+                (sprintf "Cannot approve output for test %s: %s" test.id msg)))

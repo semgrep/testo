@@ -91,7 +91,8 @@ type t = T.test = {
   tags : Tag.t list;
   normalize : (string -> string) list;
   checked_output : checked_output_kind;
-  skipped : bool;
+  skipped : string option;
+  solo : string option;
   tolerate_chdir : bool;
 }
 
@@ -139,7 +140,7 @@ let update_id (test : t) =
   { test with id; internal_full_name }
 
 let create ?(category = []) ?(checked_output = T.Ignore_output)
-    ?(expected_outcome = Should_succeed) ?(normalize = []) ?(skipped = false)
+    ?(expected_outcome = Should_succeed) ?(normalize = []) ?skipped ?solo
     ?(tags = []) ?(tolerate_chdir = false) name func =
   {
     id = "";
@@ -152,6 +153,7 @@ let create ?(category = []) ?(checked_output = T.Ignore_output)
     normalize;
     checked_output;
     skipped;
+    solo;
     tolerate_chdir;
   }
   |> update_id
@@ -159,7 +161,7 @@ let create ?(category = []) ?(checked_output = T.Ignore_output)
 let opt option default = Option.value option ~default
 
 let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
-    ?skipped ?tags ?tolerate_chdir old =
+    ?skipped ?solo ?tags ?tolerate_chdir old =
   {
     id = "";
     internal_full_name = "";
@@ -172,6 +174,7 @@ let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
     normalize = opt normalize old.normalize;
     checked_output = opt checked_output old.checked_output;
     skipped = opt skipped old.skipped;
+    solo = opt solo old.solo;
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
   }
   |> update_id
@@ -388,10 +391,10 @@ let to_alcotest = Run.to_alcotest
 let registered_tests : t list ref = ref []
 let register x = registered_tests := x :: !registered_tests
 
-let test ?category ?checked_output ?expected_outcome ?normalize ?skipped ?tags
-    ?tolerate_chdir name func =
-  create ?category ?checked_output ?expected_outcome ?normalize ?skipped ?tags
-    ?tolerate_chdir name func
+let test ?category ?checked_output ?expected_outcome ?normalize ?skipped ?solo
+    ?tags ?tolerate_chdir name func =
+  create ?category ?checked_output ?expected_outcome ?normalize ?skipped ?solo
+    ?tags ?tolerate_chdir name func
   |> register
 
 let get_registered_tests () = List.rev !registered_tests
