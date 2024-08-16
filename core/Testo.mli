@@ -118,23 +118,29 @@ type t = private {
         for display and filtering. A new category is created typically when
         grouping multiple test suites into one with 'categorize_suites'
         or when assigning a category to a list of tests with 'categorize'.
-        e.g. ["food"; "fruit"; "kiwi"] *)
+        e.g. [["food"; "fruit"; "kiwi"]] *)
   name : string;
   func : unit -> unit Promise.t;
   (***** Options *****)
   expected_outcome : expected_outcome;
-  tags : Tag.t list;  (** Tags must be declared once using 'create_tag'. *)
+  tags : Tag.t list;  (** Tags must be declared once using [create_tag]. *)
   normalize : (string -> string) list;
       (** An optional function to rewrite any output data so as to mask the
         variable parts. *)
   checked_output : checked_output_kind;
-      (** The 'skipped' property causes a test to be skipped by Alcotest but
-        still shown as "[SKIP]" rather than being omitted. *)
-  skipped : bool;
-      (** If the test function changes the current directory without restoring
-        it, it's an error unless this flag is set. *)
+  skipped : string option;
+      (** If not [None], the [skipped] property causes a test to be skipped
+          by Alcotest but still shown as ["[SKIP]"] rather than being
+          omitted. The string should give a reason why the test is being
+          skipped. *)
+  solo : string option;
+      (** If not [None], this test will never run concurrently with other
+          tests. The string should give a reason why the test should not
+          run in parallel with other tests. *)
   tolerate_chdir : bool;
-      (** All the tests in a test suite should share this field. *)
+      (** If the test function changes the current directory without restoring
+          it, it's an error unless this flag is set. All the tests in a test
+          suite should share this field. *)
 }
 (**
    [t] is the type of a test. A test suite is a flat list of tests.
@@ -184,7 +190,8 @@ val create :
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?normalize:(string -> string) list ->
-  ?skipped:bool ->
+  ?skipped:string ->
+  ?solo:string ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
   string ->
@@ -204,9 +211,13 @@ val create :
       captured output before comparing it to the reference snapshot.
       See {!mask_line} and other functions with the [mask] prefix which are
       provided for this purpose.}
-   {- [skipped]: whether the test should be skipped. This is intended for tests
-      that give inconsistent results and need fixing.
+   {- [skipped]: specify that the test must be skipped.
+      This is intended for tests
+      that give inconsistent results and need fixing. The string should explain
+      why the test is being skipped.
       See also [expected_outcome].}
+   {- [solo]: specify that the test may not run in concurrently with other
+      tests. The string should explain why.}
    {- [tags]: a list of tags to apply to the test. See {!module:Tag}.}
    {- [tolerate_chdir]: by default, a test will fail if it modifies the
       current directory and doesn't restore it. This flag cancels this check.
@@ -222,7 +233,8 @@ val update :
   ?func:(unit -> unit Promise.t) ->
   ?normalize:(string -> string) list ->
   ?name:string ->
-  ?skipped:bool ->
+  ?skipped:string option ->
+  ?solo:string option ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
   t ->
@@ -450,7 +462,8 @@ val test :
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?normalize:(string -> string) list ->
-  ?skipped:bool ->
+  ?skipped:string ->
+  ?solo:string ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
   string ->

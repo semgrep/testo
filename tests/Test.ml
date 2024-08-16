@@ -327,7 +327,8 @@ let tests env =
         | str -> printf "TESTO_TEST is set to %S.\n" str);
     t "xfail" ~expected_outcome:(Should_fail "raises exception on purpose")
       (fun () -> failwith "this exception is expected");
-    t "skipped" ~skipped:true (fun () -> failwith "this shouldn't happen");
+    t "skipped" ~skipped:"some reason" (fun () ->
+        failwith "this shouldn't happen");
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t ~checked_output:(Testo.stdout ()) ~normalize:[ String.lowercase_ascii ]
       "masked" (fun () -> print_endline "HELLO");
@@ -376,6 +377,8 @@ let tests env =
         | Some "bar" -> ()
         | Some other ->
             Alcotest.fail (sprintf "Invalid value for variable foo: %S" other));
+    t "solo 1/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
+    t "solo 2/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"

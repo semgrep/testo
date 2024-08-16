@@ -49,7 +49,7 @@ let graph_length str = strip str |> utf8_length
 
 let pad str min_len =
   let len = graph_length str in
-  if len >= min_len then str else str ^ String.make (min_len - len) ' '
+  if len >= min_len then str ^ " " else str ^ String.make (min_len - len) ' '
 
 let left_col text = pad text 8
 

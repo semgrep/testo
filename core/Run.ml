@@ -186,18 +186,20 @@ let stats_of_tests tests tests_with_status =
   in
   tests_with_status
   |> List.iter (fun ((test : T.test), _status, (sum : T.status_summary)) ->
-         if test.skipped then incr stats.skipped_tests
-         else (
-           (match sum.status_class with
-           | MISS -> ()
-           | _ -> if not sum.has_expected_output then incr stats.needs_approval);
-           incr
+         match test.skipped with
+         | Some _reason -> incr stats.skipped_tests
+         | None ->
              (match sum.status_class with
-             | PASS -> stats.pass
-             | FAIL _ -> stats.fail
-             | XFAIL _ -> stats.xfail
-             | XPASS -> stats.xpass
-             | MISS -> stats.miss)));
+             | MISS -> ()
+             | _ ->
+                 if not sum.has_expected_output then incr stats.needs_approval);
+             incr
+               (match sum.status_class with
+               | PASS -> stats.pass
+               | FAIL _ -> stats.fail
+               | XFAIL _ -> stats.xfail
+               | XPASS -> stats.xpass
+               | MISS -> stats.miss));
   stats
 
 (* Sample output: "", " {foo, bar}" *)
@@ -310,15 +312,17 @@ let to_alcotest_gen ~(alcotest_skip : unit -> _)
               A "skipped" test is marked as skipped in Alcotest's run output
               and leaves no trace such that Testo thinks it never ran.
            *)
-           if test.skipped then (fun () ->
-             alcotest_skip () |> ignore;
-             Error.user_error
-               "The function 'alcotest_skip' passed to 'Testo.to_alcotest' \
-                didn't raise\n\
-                an exception as expected. 'Testo.to_alcotest' should be called \
-                with\n\
-                '~alcotest_skip:Alcotest.skip'.")
-           else (wrap_test_function test test.func : unit -> _)
+           match test.skipped with
+           | Some _reason ->
+               fun () ->
+                 alcotest_skip () |> ignore;
+                 Error.user_error
+                   "The function 'alcotest_skip' passed to 'Testo.to_alcotest' \
+                    didn't raise\n\
+                    an exception as expected. 'Testo.to_alcotest' should be \
+                    called with\n\
+                    '~alcotest_skip:Alcotest.skip'."
+           | None -> (wrap_test_function test test.func : unit -> _)
          in
          (* This is the format expected by Alcotest: *)
          (suite_name, (test.name, `Quick, func)))
@@ -425,7 +429,7 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
       exit_failure
 
 let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
-  (not test.skipped)
+  test.skipped = None
   && ((not sum.has_expected_output)
      ||
      match success_of_status_summary sum with
@@ -498,102 +502,107 @@ let print_status ~highlight_test ~always_show_unchecked_output
     (((test : T.test), (status : T.status), sum) as test_with_status) =
   let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
-      if (* Details about expectations *)
-         test.skipped then printf "%sAlways skipped\n" bullet
-      else (
-        (match status.expectation.expected_outcome with
-        | Should_succeed -> ()
-        | Should_fail reason -> printf "%sExpected to fail: %s\n" bullet reason);
-        (match test.checked_output with
-        | Ignore_output -> ()
-        | _ ->
-            let text =
-              match test.checked_output with
-              | Ignore_output -> Error.assert_false ~__LOC__ ()
-              | Stdout _ -> "stdout"
-              | Stderr _ -> "stderr"
-              | Stdxxx _ -> "merged stdout and stderr"
-              | Split_stdout_stderr _ -> "separate stdout and stderr"
-            in
-            printf "%sChecked output: %s\n" bullet text);
-        (* Details about results *)
-        (match status.expectation.expected_output with
-        | Error (Missing_files [ path ]) ->
-            print_error
-              (sprintf "Missing file containing the expected output: %s" !!path)
-        | Error (Missing_files paths) ->
-            print_error
-              (sprintf "Missing files containing the expected output: %s"
-                 (String.concat ", " (Fpath_.to_string_list paths)))
-        | Ok _expected_output -> (
-            match status.result with
-            | Error (Missing_files [ path ]) ->
-                print_error
-                  (sprintf "Missing file containing the test output: %s" !!path)
-            | Error (Missing_files paths) ->
-                print_error
-                  (sprintf "Missing files containing the test output: %s"
-                     (String.concat ", " (Fpath_.to_string_list paths)))
-            | Ok _ -> ()));
-        let capture_paths = Store.capture_paths_of_test test in
-        show_output_details test sum capture_paths;
-        let success = success_of_status_summary sum in
-        let show_unchecked_output =
-          always_show_unchecked_output
-          ||
-          match success with
-          | OK -> false
-          | OK_but_new -> true
-          | Not_OK _ -> true
-        in
-        (* TODO: show the checked output to be approved? *)
-        (if show_unchecked_output then
-           match Store.get_unchecked_output test with
-           | None -> (
-               match success with
-               | OK -> ()
-               | OK_but_new -> ()
-               | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
-                   printf "%sFailed due to an exception. See captured output.\n"
-                     bullet
-               | Not_OK (Some Wrong_output) ->
-                   printf "%sFailed due to wrong output.\n" bullet
-               | Not_OK None ->
-                   printf
-                     "%sSucceded when it should have failed. See captured \
-                      output.\n"
-                     bullet)
-           | Some (log_description, data) -> (
-               match data with
-               | "" -> printf "%sLog (%s) is empty.\n" bullet log_description
-               | _ ->
-                   printf "%sLog (%s):\n%s" bullet log_description
-                     (Style.quote_multiline_text data);
-                   if not (ends_with_newline data) then print_char '\n'));
-        (* Show the exception in case of a test failure due to an exception *)
-        if show_unchecked_output then
-          match success with
-          | Not_OK (Some (Exception | Exception_and_wrong_output)) -> (
-              match Store.get_exception test with
-              | Some msg ->
-                  printf "%sException raised by the test:\n%s" bullet
-                    (Style.color Red (Style.quote_multiline_text msg))
-              | None ->
-                  (* = assert false *)
-                  ())
-          | OK
-          | OK_but_new
-            when always_show_unchecked_output -> (
-              match Store.get_exception test with
-              | Some msg ->
-                  printf "%sException raised by the test:\n%s" bullet
-                    (Style.color Green (Style.quote_multiline_text msg))
-              | None -> ())
-          | OK
-          | OK_but_new
-          | Not_OK (Some Wrong_output)
-          | Not_OK None ->
-              ()));
+      (* Details about expectations *)
+      match test.skipped with
+      | Some _reason -> printf "%sAlways skipped\n" bullet
+      | None -> (
+          (match status.expectation.expected_outcome with
+          | Should_succeed -> ()
+          | Should_fail reason ->
+              printf "%sExpected to fail: %s\n" bullet reason);
+          (match test.checked_output with
+          | Ignore_output -> ()
+          | _ ->
+              let text =
+                match test.checked_output with
+                | Ignore_output -> Error.assert_false ~__LOC__ ()
+                | Stdout _ -> "stdout"
+                | Stderr _ -> "stderr"
+                | Stdxxx _ -> "merged stdout and stderr"
+                | Split_stdout_stderr _ -> "separate stdout and stderr"
+              in
+              printf "%sChecked output: %s\n" bullet text);
+          (* Details about results *)
+          (match status.expectation.expected_output with
+          | Error (Missing_files [ path ]) ->
+              print_error
+                (sprintf "Missing file containing the expected output: %s"
+                   !!path)
+          | Error (Missing_files paths) ->
+              print_error
+                (sprintf "Missing files containing the expected output: %s"
+                   (String.concat ", " (Fpath_.to_string_list paths)))
+          | Ok _expected_output -> (
+              match status.result with
+              | Error (Missing_files [ path ]) ->
+                  print_error
+                    (sprintf "Missing file containing the test output: %s"
+                       !!path)
+              | Error (Missing_files paths) ->
+                  print_error
+                    (sprintf "Missing files containing the test output: %s"
+                       (String.concat ", " (Fpath_.to_string_list paths)))
+              | Ok _ -> ()));
+          let capture_paths = Store.capture_paths_of_test test in
+          show_output_details test sum capture_paths;
+          let success = success_of_status_summary sum in
+          let show_unchecked_output =
+            always_show_unchecked_output
+            ||
+            match success with
+            | OK -> false
+            | OK_but_new -> true
+            | Not_OK _ -> true
+          in
+          (* TODO: show the checked output to be approved? *)
+          (if show_unchecked_output then
+             match Store.get_unchecked_output test with
+             | None -> (
+                 match success with
+                 | OK -> ()
+                 | OK_but_new -> ()
+                 | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
+                     printf
+                       "%sFailed due to an exception. See captured output.\n"
+                       bullet
+                 | Not_OK (Some Wrong_output) ->
+                     printf "%sFailed due to wrong output.\n" bullet
+                 | Not_OK None ->
+                     printf
+                       "%sSucceded when it should have failed. See captured \
+                        output.\n"
+                       bullet)
+             | Some (log_description, data) -> (
+                 match data with
+                 | "" -> printf "%sLog (%s) is empty.\n" bullet log_description
+                 | _ ->
+                     printf "%sLog (%s):\n%s" bullet log_description
+                       (Style.quote_multiline_text data);
+                     if not (ends_with_newline data) then print_char '\n'));
+          (* Show the exception in case of a test failure due to an exception *)
+          if show_unchecked_output then
+            match success with
+            | Not_OK (Some (Exception | Exception_and_wrong_output)) -> (
+                match Store.get_exception test with
+                | Some msg ->
+                    printf "%sException raised by the test:\n%s" bullet
+                      (Style.color Red (Style.quote_multiline_text msg))
+                | None ->
+                    (* = assert false *)
+                    ())
+            | OK
+            | OK_but_new
+              when always_show_unchecked_output -> (
+                match Store.get_exception test with
+                | Some msg ->
+                    printf "%sException raised by the test:\n%s" bullet
+                      (Style.color Green (Style.quote_multiline_text msg))
+                | None -> ())
+            | OK
+            | OK_but_new
+            | Not_OK (Some Wrong_output)
+            | Not_OK None ->
+                ()));
   flush stdout
 
 let print_statuses ~highlight_test ~always_show_unchecked_output
@@ -607,7 +616,7 @@ let print_statuses ~highlight_test ~always_show_unchecked_output
 let is_overall_success statuses =
   statuses
   |> List.for_all (fun ((test : T.test), _status, sum) ->
-         test.skipped
+         test.skipped <> None
          ||
          match sum |> success_of_status_summary with
          | OK -> true
@@ -752,10 +761,27 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   in
   (exit_code, tests_with_status)
 
-let start_test worker test =
+let report_start_test (test : T.test) =
+  let run_label =
+    match test.solo with
+    | None -> "[RUN]"
+    | Some reason -> sprintf "[RUN SOLO: %s]" reason
+  in
   printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow "[RUN]"))
-    (format_title test);
+    (Style.left_col (Style.color Yellow run_label))
+    (format_title test)
+
+let report_end_test ~always_show_unchecked_output test =
+  get_test_with_status test
+  |> print_status ~highlight_test:false ~always_show_unchecked_output
+
+let report_skip_test test reason =
+  printf "%s%s\n%!"
+    (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s]" reason)))
+    (format_title test)
+
+let start_test worker (test : T.test) =
+  report_start_test test;
   Worker.Client.write worker (Start_test test.id)
 
 let feed_worker test_queue worker =
@@ -794,14 +820,12 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
         (match msg with
         | End_test test_id ->
             let test = get_test test_id in
-            if test.skipped then
-              printf "%s%s\n%!"
-                (Style.left_col (Style.color Yellow "[SKIP]"))
-                (format_title test)
-            else
-              get_test_with_status test
-              |> print_status ~highlight_test:false
-                   ~always_show_unchecked_output;
+            (match test.skipped with
+            | Some reason -> report_skip_test test reason
+            | None ->
+                get_test_with_status test
+                |> print_status ~highlight_test:false
+                     ~always_show_unchecked_output);
             feed_worker test_queue worker
         | Error msg ->
             eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
@@ -811,20 +835,6 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
         loop ()
   in
   loop ()
-
-let report_skip_test test =
-  printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow "[SKIP]"))
-    (format_title test)
-
-let report_start_test test =
-  printf "%s%s\n%!"
-    (Style.left_col (Style.color Yellow "[RUN]"))
-    (format_title test)
-
-let report_end_test ~always_show_unchecked_output test =
-  get_test_with_status test
-  |> print_status ~highlight_test:false ~always_show_unchecked_output
 
 (*
    Run tests and report progress. This is done in the main process when
@@ -839,14 +849,15 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
           test.func
       in
       previous >>= fun () ->
-      if test.skipped then (
-        report_skip_test test;
-        P.return ())
-      else (
-        report_start_test test;
-        P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-        report_end_test ~always_show_unchecked_output test;
-        P.return ()))
+      match test.skipped with
+      | Some reason ->
+          report_skip_test test reason;
+          P.return ()
+      | None ->
+          report_start_test test;
+          P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
+          report_end_test ~always_show_unchecked_output test;
+          P.return ())
     (P.return ()) tests
 
 let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
@@ -869,14 +880,15 @@ let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
             test.func
         in
         let job =
-          if test.skipped then (
-            (* This shouldn't happen but it's not a problem *)
-            Worker.Server.write (End_test test_id);
-            P.return ())
-          else
-            P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-            Worker.Server.write (End_test test_id);
-            P.return ()
+          match test.skipped with
+          | Some _reason ->
+              (* This shouldn't happen but it's not a problem *)
+              Worker.Server.write (End_test test_id);
+              P.return ()
+          | None ->
+              P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
+              Worker.Server.write (End_test test_id);
+              P.return ()
         in
         loop job
   in
@@ -955,16 +967,20 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
     let selected_tests =
       before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
     in
-    (match num_workers with
-    | 0 ->
-        (* Run in the same process. This is for situations or platforms where
-           multiprocessing might not work for whatever reason. *)
-        run_tests_sequentially ~always_show_unchecked_output selected_tests
-    | _ ->
-        run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
-          ~test_list_checksum:(get_checksum tests) selected_tests;
-        P.return ())
+    let all_sequential = num_workers = 0 in
+    let sequential_tests, parallel_tests =
+      selected_tests
+      |> List.partition (fun (test : T.test) ->
+             all_sequential || test.solo <> None)
+    in
+    (* Run in the same process. This is for situations or platforms where
+       multiprocessing might not work for whatever reason. *)
+    run_tests_sequentially ~always_show_unchecked_output sequential_tests
     >>= fun () ->
+    if num_workers > 0 then
+      run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
+        ~test_list_checksum:(get_checksum tests) parallel_tests;
+    P.return () >>= fun () ->
     let exit_code, tests_with_status =
       after_run ~always_show_unchecked_output tests selected_tests
     in
