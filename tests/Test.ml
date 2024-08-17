@@ -330,6 +330,33 @@ let tests env =
     t "skipped" ~skipped:"some reason" (fun () ->
         failwith "this shouldn't happen");
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
+    t "with environment variables ok" (fun () ->
+        Alcotest.(check (option string)) "equal" None (Sys.getenv_opt "B");
+        Testo.with_environment_variables
+          [ ("A", "a"); ("B", "b"); ("C", "c") ]
+          (fun () ->
+            Alcotest.(check (option string))
+              "equal" (Some "a") (Sys.getenv_opt "A");
+            Alcotest.(check (option string))
+              "equal" (Some "b") (Sys.getenv_opt "B");
+            Testo.with_environment_variables
+              [ ("B", "z") ]
+              (fun () ->
+                Alcotest.(check (option string))
+                  "equal" (Some "a") (Sys.getenv_opt "A");
+                Alcotest.(check (option string))
+                  "equal" (Some "z") (Sys.getenv_opt "B"));
+            Alcotest.(check (option string))
+              "equal" (Some "b") (Sys.getenv_opt "B"));
+        Alcotest.(check (option string)) "equal" (Some "") (Sys.getenv_opt "B"));
+    t "with environment variables bad"
+      ~expected_outcome:(Should_fail "fail to restore environment variable")
+      (fun () ->
+        Testo.with_environment_variables
+          [ ("A", "a"); ("B", "b"); ("C", "c") ]
+          (fun () ->
+            (* change value and don't restore it -> test failure *)
+            Unix.putenv "B" "z"));
     t ~checked_output:(Testo.stdout ()) ~normalize:[ String.lowercase_ascii ]
       "masked" (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;

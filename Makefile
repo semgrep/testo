@@ -30,6 +30,11 @@ doc:
 	$(MAKE) -C docsrc
 	$(MAKE) -C docsrc test
 
+# Run HTTP server that serves the docs (requires Python)
+.PHONY: livedoc
+livedoc:
+	$(MAKE) -C docsrc live
+
 .PHONY: clean
 clean:
 	dune clean

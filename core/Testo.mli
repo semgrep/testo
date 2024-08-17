@@ -310,6 +310,25 @@ val with_capture :
 (** [with_capture stdout func] evaluates [func ()] while
     capturing the output of the given channel [stdout] as a string. *)
 
+(** {2 Environment control} *)
+
+val with_environment_variables :
+  (string * string) list -> (unit -> 'a Promise.t) -> 'a Promise.t
+(** [with_environment_variables ["FOO", "42"; "BAR", "hello"] func]
+    sets the environment variables [FOO] and [BAR] during the execution of
+    [func] and then restores them to their original values.
+
+    Additionally, a test failure is produced if [func] modifies these
+    environment variables without restoring them to the state in which
+    it found them.
+
+    Due to a limitation in OCaml's "Unix" library, environment
+    variables cannot be unset. If an environment variable was originally
+    unset, restoring this original state isn't possible. Instead,
+    the environment variable will be set to the empty string when
+    [with_environment_variables] returns.
+*)
+
 (** {2 Output masking functions}
 
    Functions with the [mask_] prefix are string replacement
