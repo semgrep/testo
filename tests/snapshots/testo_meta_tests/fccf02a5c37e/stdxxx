@@ -179,7 +179,7 @@ Legend:
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
 [31m Failure("I am broken")
- Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+ Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
@@ -407,7 +407,7 @@ Legend:
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
 [31m Failure("I am broken")
- Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+ Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
@@ -524,7 +524,7 @@ Legend:
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
 [31m Failure("I am broken")
- Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+ Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
@@ -715,7 +715,7 @@ Legend:
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
 [31m Failure("I am broken")
- Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+ Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
@@ -2095,7 +2095,7 @@ Legend:
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
 [31m Failure("I am broken")
- Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+ Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
@@ -2256,7 +2256,7 @@ Legend:
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
 [31m Failure("I am broken")
- Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+ Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
