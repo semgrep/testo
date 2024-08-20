@@ -177,6 +177,15 @@ let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
 
 let delete pat = T.mask_pcre_pattern ~replace:(fun _ -> "") pat
 
+(* Different versions of OCaml print stack traces differently:
+   4.08:
+     Raised at file "stdlib.ml", line 29, characters 17-33
+   4.14:
+     Raised at Stdlib.failwith in file "stdlib.ml", line 29, characters 17-33
+*)
+let mask_stack_backtrace =
+  Testo.mask_line ~after:"Raised at " ~before:", line" ()
+
 let mask_alcotest_output =
   [
     T.mask_line ~mask:"<MASKED RUN ID>" ~after:"This run has ID `" ~before:"'"
@@ -193,6 +202,7 @@ let mask_alcotest_output =
        now. *)
     delete (Re.Pcre.quote "::group::{test}\n");
     delete (Re.Pcre.quote "::endgroup::\n");
+    mask_stack_backtrace;
   ]
 
 let sort_lines str =
