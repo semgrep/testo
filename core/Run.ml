@@ -18,6 +18,7 @@ type status_output_style =
 type status_stats = {
   total_tests : int;
   selected_tests : int;
+  broken_tests : int;
   skipped_tests : int ref;
   pass : int ref;
   fail : int ref;
@@ -170,11 +171,21 @@ let format_status_summary (sum : T.status_summary) =
   let displayed_string = sum |> string_of_status_summary |> brackets in
   Style.left_col displayed_string |> Style.color style
 
+let count_broken_tests tests_with_status =
+  tests_with_status
+  |> List.fold_left
+       (fun n ((test : T.test), _, _) ->
+         match test.broken with
+         | None -> n
+         | Some _reason -> n + 1)
+       0
+
 let stats_of_tests tests tests_with_status =
   let stats =
     {
       total_tests = List.length tests;
       selected_tests = List.length tests_with_status;
+      broken_tests = count_broken_tests tests_with_status;
       skipped_tests = ref 0;
       pass = ref 0;
       fail = ref 0;
@@ -460,9 +471,6 @@ let show_output_details (test : T.test) (sum : T.status_summary)
        ->
          flush stdout;
          flush stderr;
-         (match test.tracking_url with
-         | None -> ()
-         | Some url -> printf "%sTracking URL: %s\n" bullet url);
          (match path_to_expected_output with
          | None -> ()
          | Some path_to_expected_output ->
@@ -509,6 +517,14 @@ let print_status ~highlight_test ~always_show_unchecked_output
       match test.skipped with
       | Some _reason -> printf "%sAlways skipped\n" bullet
       | None -> (
+          (match test.broken with
+          | None -> ()
+          | Some reason ->
+              printf "%sThis test was marked as broken by the programmer: %s\n"
+                bullet reason);
+          (match test.tracking_url with
+          | None -> ()
+          | Some url -> printf "%sTracking URL: %s\n" bullet url);
           (match status.expectation.expected_outcome with
           | Should_succeed -> ()
           | Should_fail reason ->
@@ -616,10 +632,11 @@ let print_statuses ~highlight_test ~always_show_unchecked_output
 (*
    If anything's not perfect, consider it a failure.
 *)
-let is_overall_success statuses =
+let is_overall_success ~strict statuses =
   statuses
   |> List.for_all (fun ((test : T.test), _status, sum) ->
          test.skipped <> None
+         || ((not strict) && test.broken <> None)
          ||
          match sum |> success_of_status_summary with
          | OK -> true
@@ -658,13 +675,14 @@ let print_status_introduction () =
 
    'important': report only tests that need attention
 *)
-let print_compact_status ?(important = false) tests_with_status =
+let print_compact_status ?(important = false) ~strict tests_with_status =
   let tests_with_status =
     if important then List.filter is_important_status tests_with_status
     else tests_with_status
   in
   List.iter print_one_line_status tests_with_status;
-  if is_overall_success tests_with_status then exit_success else exit_failure
+  if is_overall_success ~strict tests_with_status then exit_success
+  else exit_failure
 
 let print_short_status ~always_show_unchecked_output tests_with_status =
   let tests_with_status = List.filter is_important_status tests_with_status in
@@ -698,10 +716,10 @@ let report_dead_snapshots all_tests =
         printf "  %s %s\n" !!(x.dir_or_junk_file) msg)
       dead_snapshots)
 
-let print_status_summary tests tests_with_status =
+let print_status_summary ~strict tests tests_with_status : int =
   report_dead_snapshots tests;
   let stats = stats_of_tests tests tests_with_status in
-  let overall_success = is_overall_success tests_with_status in
+  let overall_success = is_overall_success ~strict tests_with_status in
   printf "%i/%i selected test%s:\n" stats.selected_tests stats.total_tests
     (if_plural stats.total_tests "s");
   if !(stats.skipped_tests) > 0 then
@@ -721,6 +739,14 @@ let print_status_summary tests tests_with_status =
   printf "overall status: %s\n"
     (if overall_success then Style.color Green "success"
      else Style.color Red "failure");
+  if stats.broken_tests > 0 && not strict then
+    printf "%s\n"
+      (Style.color Yellow
+         (sprintf
+            "The status of %i \"broken\" test%s was ignored! Use '--strict' to \
+             override."
+            stats.broken_tests
+            (if_plural stats.broken_tests "s")));
   if overall_success then exit_success else exit_failure
 
 let print_all_statuses ~always_show_unchecked_output tests tests_with_status =
@@ -731,11 +757,11 @@ let print_all_statuses ~always_show_unchecked_output tests tests_with_status =
   print_short_status ~always_show_unchecked_output tests_with_status;
   print_status_summary tests tests_with_status
 
-let print_important_statuses ~always_show_unchecked_output tests
-    tests_with_status =
+let print_important_statuses ~always_show_unchecked_output ~strict tests
+    tests_with_status : int =
   (* Print details about each test that needs attention *)
   print_short_status ~always_show_unchecked_output tests_with_status;
-  print_status_summary tests tests_with_status
+  print_status_summary ~strict tests tests_with_status
 
 let get_test_with_status test =
   let status = Store.get_status test in
@@ -747,20 +773,21 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
    Entry point for the 'status' subcommand
 *)
 let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
-    ~output_style tests =
+    ~output_style ~strict tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
     | Long_all ->
-        print_all_statuses ~always_show_unchecked_output tests tests_with_status
-    | Long_important ->
-        print_important_statuses ~always_show_unchecked_output tests
+        print_all_statuses ~always_show_unchecked_output ~strict tests
           tests_with_status
-    | Compact_all -> print_compact_status tests_with_status
+    | Long_important ->
+        print_important_statuses ~always_show_unchecked_output ~strict tests
+          tests_with_status
+    | Compact_all -> print_compact_status ~strict tests_with_status
     | Compact_important ->
-        print_compact_status ~important:true tests_with_status
+        print_compact_status ~important:true ~strict tests_with_status
   in
   (exit_code, tests_with_status)
 
@@ -924,14 +951,14 @@ let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
   selected_tests
 
 (* Run this after a run or Lwt run. *)
-let after_run ~always_show_unchecked_output tests selected_tests =
+let after_run ~always_show_unchecked_output ~strict tests selected_tests =
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     (* Print details about each test that needs attention *)
     print_short_status ~always_show_unchecked_output tests_with_status;
     (* Print one line per test that needs attention *)
-    print_compact_status ~important:true tests_with_status |> ignore;
-    print_status_summary tests tests_with_status
+    print_compact_status ~important:true ~strict tests_with_status |> ignore;
+    print_status_summary ~strict tests tests_with_status
   in
   (exit_code, tests_with_status)
 
@@ -945,7 +972,7 @@ let after_run ~always_show_unchecked_output tests selected_tests =
    list of selected tests to the workers).
 *)
 let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
-    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice
+    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice ~strict
     ~test_list_checksum:expected_checksum tests cont =
   if is_worker then (
     (*
@@ -985,7 +1012,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
         ~test_list_checksum:(get_checksum tests) parallel_tests;
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
-      after_run ~always_show_unchecked_output tests selected_tests
+      after_run ~always_show_unchecked_output ~strict tests selected_tests
     in
     cont exit_code tests_with_status |> ignore;
     (* The continuation 'cont' should exit but otherwise we exit once

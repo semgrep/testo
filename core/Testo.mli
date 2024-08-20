@@ -122,12 +122,19 @@ type t = private {
   name : string;
   func : unit -> unit Promise.t;
   (***** Options *****)
+  broken : string option;
+      (** If not [None], the [broken] property causes the test to run
+          normally but it will be ignored when determining the success
+          of the test suite. This allows flaky tests to be kept around
+          until they can be fixed. Use the string argument to explain
+          briefly why the test is marked as broken. The [--strict]
+          command-line option causes the broken status to be ignored i.e.
+          a test run will fail if a broken test fails. *)
+  checked_output : checked_output_kind;
   expected_outcome : expected_outcome;
-  tags : Tag.t list;  (** Tags must be declared once using [create_tag]. *)
   normalize : (string -> string) list;
       (** An optional function to rewrite any output data so as to mask the
         variable parts. *)
-  checked_output : checked_output_kind;
   skipped : string option;
       (** If not [None], the [skipped] property causes a test to be skipped
           by Alcotest but still shown as ["[SKIP]"] rather than being
@@ -137,6 +144,7 @@ type t = private {
       (** If not [None], this test will never run concurrently with other
           tests. The string should give a reason why the test should not
           run in parallel with other tests. *)
+  tags : Tag.t list;  (** Tags must be declared once using [create_tag]. *)
   tolerate_chdir : bool;
       (** If the test function changes the current directory without restoring
           it, it's an error unless this flag is set. All the tests in a test
@@ -188,6 +196,7 @@ type subcommand_result =
   | Approve_result
 
 val create :
+  ?broken:string ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
@@ -230,6 +239,7 @@ val create :
 *)
 
 val update :
+  ?broken:string option ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->

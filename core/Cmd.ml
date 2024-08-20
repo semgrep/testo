@@ -27,6 +27,7 @@ type conf = {
   slice : Slice.t list;
   is_worker : bool;
   jobs : int option;
+  strict : bool;
   test_list_checksum : string option;
 }
 
@@ -43,6 +44,7 @@ let default_conf =
     slice = [];
     is_worker = false;
     jobs = None;
+    strict = false;
     test_list_checksum = None;
   }
 
@@ -96,7 +98,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
-        ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice
+        ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice ~strict:conf.strict
         ~test_list_checksum:conf.test_list_checksum tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
@@ -111,7 +113,8 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
         Run.cmd_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
-          ~output_style:conf.status_output_style (get_tests conf.env)
+          ~output_style:conf.status_output_style ~strict:conf.strict
+          (get_tests conf.env)
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
@@ -170,6 +173,17 @@ let show_output_term : bool Term.t =
         "Show the output of all tests rather than only showing the output of \
          the failed tests. This excludes the output (stdout, stderr, or both) \
          that may be captured explicitly to be compared against expectations."
+  in
+  Arg.value (Arg.flag info)
+
+let strict_term : bool Term.t =
+  let info =
+    Arg.info [ "strict" ]
+      ~doc:
+        "Treat broken tests as ordinary tests. This disables the default \
+         behavior consisting in ignoring failing tests that were marked as \
+         broken by the programmer when it comes to determining the overall \
+         success of the test run."
   in
   Arg.value (Arg.flag info)
 
@@ -293,7 +307,7 @@ let run_doc = "run the tests"
 let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     unit Term.t =
   let combine debug env filter_by_substring filter_by_tag jobs lazy_ show_output
-      slice test_list_checksum verbose worker =
+      slice strict test_list_checksum verbose worker =
     let show_output = show_output || verbose in
     let jobs =
       match jobs with
@@ -312,6 +326,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
         lazy_;
         show_output;
         slice;
+        strict;
         test_list_checksum;
         argv;
       }
@@ -320,8 +335,8 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
   Term.(
     const combine $ debug_term $ env_term $ filter_by_substring_term
     $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
-    $ show_output_term $ slice_term $ test_list_checksum_term $ verbose_run_term
-    $ worker_term)
+    $ show_output_term $ slice_term $ strict_term $ test_list_checksum_term
+    $ verbose_run_term $ worker_term)
 
 let subcmd_run ~argv ~default_workers test_spec =
   let info = Cmd.info "run" ~doc:run_doc in
@@ -365,7 +380,7 @@ let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
   let combine all debug env filter_by_substring filter_by_tag long show_output
-      verbose =
+      strict verbose =
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -385,12 +400,14 @@ let subcmd_status_term tests : unit Term.t =
         filter_by_tag = check_tag filter_by_tag;
         show_output;
         status_output_style;
+        strict;
       }
     |> run_with_conf tests
   in
   Term.(
     const combine $ all_term $ debug_term $ env_term $ filter_by_substring_term
-    $ filter_by_tag_term $ long_term $ show_output_term $ verbose_status_term)
+    $ filter_by_tag_term $ long_term $ show_output_term $ strict_term
+    $ verbose_status_term)
 
 let subcmd_status tests =
   let info = Cmd.info "status" ~doc:status_doc in

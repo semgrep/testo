@@ -27,6 +27,7 @@ val cmd_run :
   jobs:int option ->
   lazy_:bool ->
   slice:Testo_util.Slice.t list ->
+  strict:bool ->
   test_list_checksum:string option ->
   Types.test list ->
   (int -> Types.test_with_status list -> _) ->
@@ -40,6 +41,7 @@ val cmd_status :
   filter_by_substring:string option ->
   filter_by_tag:Testo_util.Tag.t option ->
   output_style:status_output_style ->
+  strict:bool ->
   Types.test list ->
   int * Types.test_with_status list
 
