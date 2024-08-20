@@ -141,6 +141,8 @@ type t = private {
       (** If the test function changes the current directory without restoring
           it, it's an error unless this flag is set. All the tests in a test
           suite should share this field. *)
+  tracking_url : string option;
+      (** A link to the relevant entry in a bug tracking system. *)
 }
 (**
    [t] is the type of a test. A test suite is a flat list of tests.
@@ -194,6 +196,7 @@ val create :
   ?solo:string ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
+  ?tracking_url:string ->
   string ->
   (unit -> unit Promise.t) ->
   t
@@ -237,6 +240,7 @@ val update :
   ?solo:string option ->
   ?tags:Tag.t list ->
   ?tolerate_chdir:bool ->
+  ?tracking_url:string option ->
   t ->
   t
 (**

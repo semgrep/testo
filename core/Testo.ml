@@ -94,6 +94,7 @@ type t = T.test = {
   skipped : string option;
   solo : string option;
   tolerate_chdir : bool;
+  tracking_url : string option;
 }
 
 (* Polymorphic type alias for an Alcotest's 'test_case'. *)
@@ -141,7 +142,7 @@ let update_id (test : t) =
 
 let create ?(category = []) ?(checked_output = T.Ignore_output)
     ?(expected_outcome = Should_succeed) ?(normalize = []) ?skipped ?solo
-    ?(tags = []) ?(tolerate_chdir = false) name func =
+    ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
     id = "";
     internal_full_name = "";
@@ -155,13 +156,14 @@ let create ?(category = []) ?(checked_output = T.Ignore_output)
     skipped;
     solo;
     tolerate_chdir;
+    tracking_url;
   }
   |> update_id
 
 let opt option default = Option.value option ~default
 
 let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
-    ?skipped ?solo ?tags ?tolerate_chdir old =
+    ?skipped ?solo ?tags ?tolerate_chdir ?tracking_url old =
   {
     id = "";
     internal_full_name = "";
@@ -176,6 +178,7 @@ let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
     skipped = opt skipped old.skipped;
     solo = opt solo old.solo;
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
+    tracking_url = opt tracking_url old.tracking_url;
   }
   |> update_id
 

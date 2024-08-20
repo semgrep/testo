@@ -120,6 +120,7 @@ type test = {
   skipped : string option;
   solo : string option;
   tolerate_chdir : bool;
+  tracking_url : string option;
 }
 
 type test_with_status = test * status * status_summary

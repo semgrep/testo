@@ -460,6 +460,9 @@ let show_output_details (test : T.test) (sum : T.status_summary)
        ->
          flush stdout;
          flush stderr;
+         (match test.tracking_url with
+         | None -> ()
+         | Some url -> printf "%sTracking URL: %s\n" bullet url);
          (match path_to_expected_output with
          | None -> ()
          | Some path_to_expected_output ->
