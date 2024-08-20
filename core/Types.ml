@@ -112,14 +112,16 @@ type test = {
   category : string list;
   name : string;
   func : unit -> unit Promise.t;
-  (* Options *)
-  expected_outcome : expected_outcome;
-  tags : Testo_util.Tag.t list;
-  normalize : (string -> string) list;
+  (* Options (alphabetical order) *)
+  broken : string option;
   checked_output : checked_output_kind;
+  expected_outcome : expected_outcome;
+  normalize : (string -> string) list;
   skipped : string option;
   solo : string option;
+  tags : Testo_util.Tag.t list;
   tolerate_chdir : bool;
+  tracking_url : string option;
 }
 
 type test_with_status = test * status * status_summary

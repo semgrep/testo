@@ -329,6 +329,10 @@ let tests env =
       (fun () -> failwith "this exception is expected");
     t "skipped" ~skipped:"some reason" (fun () ->
         failwith "this shouldn't happen");
+    t "broken" ~broken:"this test is super flaky" (fun () ->
+        failwith "I am broken");
+    t "tracking URL" ~tracking_url:"https://example.com/issue/1234" (fun () ->
+        ());
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t "with environment variables ok" (fun () ->
         Alcotest.(check (option string)) "equal" None (Sys.getenv_opt "B");

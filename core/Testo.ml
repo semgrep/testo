@@ -87,13 +87,15 @@ type t = T.test = {
   category : string list;
   name : string;
   func : unit -> unit Promise.t;
-  expected_outcome : expected_outcome;
-  tags : Tag.t list;
-  normalize : (string -> string) list;
+  broken : string option;
   checked_output : checked_output_kind;
+  expected_outcome : expected_outcome;
+  normalize : (string -> string) list;
   skipped : string option;
   solo : string option;
+  tags : Tag.t list;
   tolerate_chdir : bool;
+  tracking_url : string option;
 }
 
 (* Polymorphic type alias for an Alcotest's 'test_case'. *)
@@ -139,29 +141,31 @@ let update_id (test : t) =
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
-let create ?(category = []) ?(checked_output = T.Ignore_output)
+let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
     ?(expected_outcome = Should_succeed) ?(normalize = []) ?skipped ?solo
-    ?(tags = []) ?(tolerate_chdir = false) name func =
+    ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
     id = "";
     internal_full_name = "";
     category;
     name;
     func;
-    expected_outcome;
-    tags;
-    normalize;
+    broken;
     checked_output;
+    expected_outcome;
+    normalize;
     skipped;
     solo;
+    tags;
     tolerate_chdir;
+    tracking_url;
   }
   |> update_id
 
 let opt option default = Option.value option ~default
 
-let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
-    ?skipped ?solo ?tags ?tolerate_chdir old =
+let update ?broken ?category ?checked_output ?expected_outcome ?func ?normalize
+    ?name ?skipped ?solo ?tags ?tolerate_chdir ?tracking_url old =
   {
     id = "";
     internal_full_name = "";
@@ -169,13 +173,15 @@ let update ?category ?checked_output ?expected_outcome ?func ?normalize ?name
     name = opt name old.name;
     func = opt func old.func;
     (* requires same type for func and old.func *)
-    expected_outcome = opt expected_outcome old.expected_outcome;
-    tags = opt tags old.tags;
-    normalize = opt normalize old.normalize;
+    broken = opt broken old.broken;
     checked_output = opt checked_output old.checked_output;
+    expected_outcome = opt expected_outcome old.expected_outcome;
+    normalize = opt normalize old.normalize;
     skipped = opt skipped old.skipped;
     solo = opt solo old.solo;
+    tags = opt tags old.tags;
     tolerate_chdir = opt tolerate_chdir old.tolerate_chdir;
+    tracking_url = opt tracking_url old.tracking_url;
   }
   |> update_id
 
