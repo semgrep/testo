@@ -13,7 +13,7 @@ subject to frequent interface changes._
 
 * [Getting started](https://semgrep.github.io/testo/tutorial)
 * [Howtos](https://semgrep.github.io/testo/howtos)
-* [API reference](https://semgrep.github.io/testo/reference/)
+* [API reference](https://semgrep.github.io/testo/reference/testo/Testo/index.html)
 
 Features
 --
