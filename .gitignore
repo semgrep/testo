@@ -1,1 +1,8 @@
 /_build
+
+# Symbolic links created dynamically
+/failing-test
+/meta-test
+/parallel-test
+/test
+/test-alcotest
