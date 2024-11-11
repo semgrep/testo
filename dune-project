@@ -54,7 +54,7 @@ checking, and approving the output of tests.")
   (depends
     (ocaml (>= 4.08.0))
     (alcotest :with-test)
-    cmdliner
+    (cmdliner (>= 1.1.0))
     fpath
     (re (>= 1.7.2))
     testo-util
@@ -72,7 +72,7 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     ; Same direct dependencies as 'testo' above
     (ocaml (>= 4.08.0))
     (alcotest :with-test)
-    cmdliner
+    (cmdliner (>= 1.1.0))
     fpath
     (re (>= 1.7.2))
     testo-util
