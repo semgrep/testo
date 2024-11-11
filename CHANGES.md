@@ -1,5 +1,4 @@
-0.1.0 (YYYY-MM-DD)
+0.1.0 (2024-11-10)
 ------------------
 
-<!-- No need to add changelog items for our first release. -->
-* First official release
+First official release
