@@ -3,9 +3,6 @@ Testo
 
 > Party hard, test harder &mdash; DJ Testo
 
-🚧 _This project hasn't been released on Opam yet, and is still
-subject to frequent interface changes._
-
 ![image](https://github.com/semgrep/testo/assets/343265/51f3e6a0-fdb1-400b-a146-4312746ae8d0)
 
 [Documentation](https://semgrep.github.io/testo/)
