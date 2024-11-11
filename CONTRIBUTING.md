@@ -59,21 +59,22 @@ Note that:
 5. Install [dune-release](https://github.com/ocamllabs/dune-release)
    if not already installed:
    `opam install dune-release`
-6. Run `dune-release tag`. It will pick up the version from the
-   changelog and ask for confirmation.
-7. Run `dune-release distrib` to create a tarball.
-8. Run `dune-release publish` to upload the tarball to GitHub and
-   create GitHub release including the changes extracted from the
-   changelog.
-9. Create opam packages with `dune-release opam pkg`.
-10. Submit the opam packages to opam-repository using
-   `dune-release opam submit`.
-11. Fix the opam-repository pull request as needed. For example, this
-    may require setting a new version constraint on the `atd` package
-    in the opam files, if it wasn't possible to do so in
-    `dune-project`.
-12. Check whether opam-repository's CI test succeed and fix problems
-    accordingly until the pull request is merged.
+6. Run `make opam-release` or run the individual steps below by hand:
+   * Run `dune-release tag`. It will pick up the version from the
+     changelog and ask for confirmation.
+   * Run `dune-release distrib` to create a tarball.
+   * Run `dune-release publish` to upload the tarball to GitHub and
+     create GitHub release including the changes extracted from the
+     changelog.
+   * Create opam packages with `dune-release opam pkg`.
+   * Submit the opam packages to opam-repository using
+     `dune-release opam submit`.
+7. Fix the opam-repository pull request as needed. For example, this
+   may require setting a new version constraint on the `atd` package
+   in the opam files, if it wasn't possible to do so in
+   `dune-project`.
+8. Check whether opam-repository's CI test succeed and fix problems
+   accordingly until the pull request is merged.
 
 Shortcut for all the `dune-release` steps:
 ```
