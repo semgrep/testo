@@ -10,7 +10,7 @@
 (license "ISC")
 (source (github semgrep/testo))
 (homepage "https://github.com/semgrep/testo")
-(maintainers "Martin Jambon <martin@semgrep.com>" "OCaml community")
+(maintainers "Martin Jambon <martin@semgrep.com>")
 (authors
   "Martin Jambon"
   "Gabriel Jaldon"
