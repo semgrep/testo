@@ -6,6 +6,18 @@
 build:
 	dune build .
 
+# dune-release gets confused by dead symlinks so we create them dynamically
+.PHONY: symlinks
+symlinks:
+	ln -sf _build/default/tests/test.exe test
+	ln -sf _build/default/tests/failing_test.exe failing-test
+	ln -sf _build/default/tests/parallel_test.exe parallel-test
+	ln -sf _build/default/tests/test_alcotest.exe test-alcotest
+
+.PHONY: delete-symlinks
+delete-symlinks:
+	rm -f test failing-test parallel-test test-alcotest
+
 # Install opam dependencies. This requires pre-commit which requires
 # Python. See scripts/dev-setup-alpine for an example of how to install
 # pre-commit.
@@ -44,7 +56,7 @@ clean:
 # See complete release instructions in CONTRIBUTING.md.
 #
 .PHONY: opam-release
-opam-release:
+opam-release: delete-symlinks
 	dune-release tag
 	dune-release bistro
 
