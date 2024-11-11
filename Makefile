@@ -47,3 +47,7 @@ clean:
 opam-release:
 	dune-release tag
 	dune-release bistro
+
+.PHONY: opam-files
+opam-files:
+	dune build *.opam
