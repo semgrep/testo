@@ -58,7 +58,7 @@ clean:
 # See complete release instructions in CONTRIBUTING.md.
 #
 .PHONY: opam-release
-opam-release: delete-symlinks
+opam-release: delete-symlinks opam-files
 	dune-release tag
 	dune-release bistro
 

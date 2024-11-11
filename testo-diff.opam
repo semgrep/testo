@@ -9,6 +9,7 @@ Python implementation.
 See https://github.com/paulgb/simplediff"""
 maintainer: ["Martin Jambon" "OCaml community"]
 authors: ["Martin Jambon" "Gabriel Jaldon"]
+license: "ISC"
 homepage: "https://github.com/semgrep/testo"
 bug-reports: "https://github.com/semgrep/testo/issues"
 depends: [
