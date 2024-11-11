@@ -1,5 +1,5 @@
 (lang dune 3.7)
-(name semgrep)
+(name testo)
 (using menhir 2.1)
 
 ; Generate the opam files used to install dependencies.
