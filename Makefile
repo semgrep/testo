@@ -3,7 +3,7 @@
 #
 
 .PHONY: build
-build:
+build: symlinks
 	dune build .
 
 # dune-release gets confused by dead symlinks so we create them dynamically
