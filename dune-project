@@ -68,7 +68,7 @@ checking, and approving the output of tests.")
 Use this if the tests return Lwt promises and you can't make them synchronous
 because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
   (depends
-    lwt
+    (lwt (>= 5.6.0))
     ; Same direct dependencies as 'testo' above
     (ocaml (>= 4.08.0))
     (alcotest :with-test)
