@@ -40,7 +40,7 @@ Testo is a test framework for OCaml.")
   (depends
     (ocaml (>= 4.08.0))
     fpath
-    (re (>= 1.7.2))
+    (re (>= 1.10.0))
     testo-diff
   )
 )
@@ -56,7 +56,7 @@ checking, and approving the output of tests.")
     (alcotest :with-test)
     (cmdliner (>= 1.1.0))
     fpath
-    (re (>= 1.7.2))
+    (re (>= 1.10.0))
     testo-util
   )
 )
@@ -74,7 +74,7 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     (alcotest :with-test)
     (cmdliner (>= 1.1.0))
     fpath
-    (re (>= 1.7.2))
+    (re (>= 1.10.0))
     testo-util
   )
 )
