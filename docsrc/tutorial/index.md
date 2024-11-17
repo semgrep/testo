@@ -59,10 +59,8 @@ Getting started
 
 ### Install the `testo` library
 
-🚧 ~~Install `testo` with [Opam](https://opam.ocaml.org/)
-using `opam install testo`~~ We'll be providing an Opam package soon. For
-now, we recommend using `testo` as a git submodule. Dune will pick
-it up and build it as part of your project like an ordinary library.
+Installing `testo` with [Opam](https://opam.ocaml.org/)
+using `opam install testo`.
 
 ### Set up your project
 

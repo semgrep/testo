@@ -5,11 +5,22 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Testo howtos</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="/testo/reference/odoc.support/odoc.css" />
   <link rel="stylesheet" href="/testo/generic.css" />
@@ -18,20 +29,46 @@
 <header id="title-block-header">
 <h1 class="title">Testo howtos</h1>
 </header>
-<nav id="TOC">
+<nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#how-to-write-an-assertion-without-resorting-to-an-extra-library">How to write an assertion (without resorting to an extra library)?</a></li>
-<li><a href="#how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How to write an assertion for a value of a simple type with Alcotest?</a></li>
-<li><a href="#how-to-write-an-assertion-for-a-custom-type">How to write an assertion for a custom type?</a></li>
-<li><a href="#how-to-write-tests-ahead-of-time">How to write tests ahead of time?</a></li>
-<li><a href="#how-to-pass-arbitrary-options-to-the-test-program">How to pass arbitrary options to the test program?</a></li>
-<li><a href="#how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</a></li>
-<li><a href="#how-to-run-tests-in-parallel">How to run tests in parallel?</a><ul>
-<li><a href="#parallel-execution-on-a-single-host">Parallel execution on a single host</a></li>
-<li><a href="#parallel-execution-across-multiple-ci-hosts">Parallel execution across multiple CI hosts</a></li>
+<li><a
+href="#how-to-write-an-assertion-without-resorting-to-an-extra-library"
+id="toc-how-to-write-an-assertion-without-resorting-to-an-extra-library">How
+to write an assertion (without resorting to an extra library)?</a></li>
+<li><a
+href="#how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest"
+id="toc-how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How
+to write an assertion for a value of a simple type with
+Alcotest?</a></li>
+<li><a href="#how-to-write-an-assertion-for-a-custom-type"
+id="toc-how-to-write-an-assertion-for-a-custom-type">How to write an
+assertion for a custom type?</a></li>
+<li><a href="#how-to-write-tests-ahead-of-time"
+id="toc-how-to-write-tests-ahead-of-time">How to write tests ahead of
+time?</a></li>
+<li><a href="#how-to-pass-arbitrary-options-to-the-test-program"
+id="toc-how-to-pass-arbitrary-options-to-the-test-program">How to pass
+arbitrary options to the test program?</a></li>
+<li><a
+href="#how-to-write-tests-for-lwt-async-or-other-kinds-of-promises"
+id="toc-how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How
+to write tests for Lwt, Async or other kinds of promises?</a></li>
+<li><a href="#how-to-run-tests-in-parallel"
+id="toc-how-to-run-tests-in-parallel">How to run tests in parallel?</a>
+<ul>
+<li><a href="#parallel-execution-on-a-single-host"
+id="toc-parallel-execution-on-a-single-host">Parallel execution on a
+single host</a></li>
+<li><a href="#parallel-execution-across-multiple-ci-hosts"
+id="toc-parallel-execution-across-multiple-ci-hosts">Parallel execution
+across multiple CI hosts</a></li>
 </ul></li>
-<li><a href="#how-to-report-problems-with-testo">How to report problems with Testo?</a></li>
-<li><a href="#how-to-export-test-output-to-junit">How to export test output to JUnit?</a></li>
+<li><a href="#how-to-report-problems-with-testo"
+id="toc-how-to-report-problems-with-testo">How to report problems with
+Testo?</a></li>
+<li><a href="#how-to-export-test-output-to-junit"
+id="toc-how-to-export-test-output-to-junit">How to export test output to
+JUnit?</a></li>
 </ul>
 </nav>
 <!-- note to authors:
@@ -39,9 +76,15 @@ We don't have automatic validation of the code snippets shown here.
 It's a good idea to check that your code at least compiles.
 For this, you may want to use `dune utop` and paste your code into it.
 -->
-<p>For getting started with <a href="https://github.com/semgrep/testo">Testo</a> and discovering the basics, make sure to read the <a href="../tutorial">tutorial</a> first.</p>
-<h2 id="how-to-write-an-assertion-without-resorting-to-an-extra-library">How to write an assertion (without resorting to an extra library)?</h2>
-<p>A simple solution is to use the built-in <code>assert</code> construct:</p>
+<p>For getting started with <a
+href="https://github.com/semgrep/testo">Testo</a> and discovering the
+basics, make sure to read the <a href="../tutorial">tutorial</a>
+first.</p>
+<h2
+id="how-to-write-an-assertion-without-resorting-to-an-extra-library">How
+to write an assertion (without resorting to an extra library)?</h2>
+<p>A simple solution is to use the built-in <code>assert</code>
+construct:</p>
 <pre><code>let test_addition =
   Testo.create &quot;addition&quot;
     (fun () -&gt;
@@ -50,7 +93,13 @@ For this, you may want to use `dune utop` and paste your code into it.
       let res = 2 + 2 in
       assert (res = 4)
     )</code></pre>
-<p>When such a test fails, the location of the <code>assert ...</code> expression is shown to the user. The advantage over using a dedicated function like <code>Alcotest.check</code> is that it’s a little quicker to write and simpler to understand. The main disadvantage is that the expected and actual values are not printed. In this case, it’s best for the test to print enough information about the condition being tested e.g.</p>
+<p>When such a test fails, the location of the <code>assert ...</code>
+expression is shown to the user. The advantage over using a dedicated
+function like <code>Alcotest.check</code> is that it’s a little quicker
+to write and simpler to understand. The main disadvantage is that the
+expected and actual values are not printed. In this case, it’s best for
+the test to print enough information about the condition being tested
+e.g.</p>
 <pre><code>open Printf
 
 let test_addition =
@@ -65,11 +114,21 @@ let test_addition =
       add 1 1 2;
       add 2 2 4
     )</code></pre>
-<p>In case of a failure, the test’s output will be shown to the user.</p>
-<h2 id="how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How to write an assertion for a value of a simple type with Alcotest?</h2>
-<p>Testo was originally meant to extend <a href="https://github.com/mirage/alcotest">Alcotest</a>, but it became too different and ended up being a separate project. However, Alcotest provides some functionality that wasn’t reimplemented in Testo and can benefit Testo tests. Like Testo, Alcotest is an ordinary OCaml library that is typically installed with Opam:</p>
+<p>In case of a failure, the test’s output will be shown to the
+user.</p>
+<h2
+id="how-to-write-an-assertion-for-a-value-of-a-simple-type-with-alcotest">How
+to write an assertion for a value of a simple type with Alcotest?</h2>
+<p>Testo was originally meant to extend <a
+href="https://github.com/mirage/alcotest">Alcotest</a>, but it became
+too different and ended up being a separate project. However, Alcotest
+provides some functionality that wasn’t reimplemented in Testo and can
+benefit Testo tests. Like Testo, Alcotest is an ordinary OCaml library
+that is typically installed with Opam:</p>
 <pre><code>$ opam install alcotest</code></pre>
-<p><code>Alcotest.check</code> is the function we’ll use to check test results against expectations. If a check fails, an exception is raised and it is formatted as a nice error message.</p>
+<p><code>Alcotest.check</code> is the function we’ll use to check test
+results against expectations. If a check fails, an exception is raised
+and it is formatted as a nice error message.</p>
 <p>Here’s a test that checks values of type <code>int</code>:</p>
 <pre><code>let test_addition =
   Testo.create &quot;addition&quot;
@@ -88,7 +147,10 @@ let test_addition =
       let res = 2 + 2 in
       Alcotest.(check int) &quot;sum&quot; 4 res
     )</code></pre>
-<p><code>Alcotest.int</code> is called a <a href="https://mirage.github.io/alcotest/alcotest/Alcotest/index.html#testable-values">“testable”</a>. There are predefined testables for OCaml’s simple types such as <code>bool</code>, <code>int</code>, <code>string</code>, etc.</p>
+<p><code>Alcotest.int</code> is called a <a
+href="https://mirage.github.io/alcotest/alcotest/Alcotest/index.html#testable-values">“testable”</a>.
+There are predefined testables for OCaml’s simple types such as
+<code>bool</code>, <code>int</code>, <code>string</code>, etc.</p>
 <p>Checking a list of strings can be done as follows:</p>
 <pre><code>let test_items =
    Testo.create &quot;items&quot;
@@ -96,9 +158,14 @@ let test_addition =
        let res = [&quot;a&quot;] @ [&quot;b&quot;] in
        Alcotest.(check (list string)) &quot;sum&quot; [&quot;a&quot;; &quot;b&quot;] res
      )</code></pre>
-<h2 id="how-to-write-an-assertion-for-a-custom-type">How to write an assertion for a custom type?</h2>
-<p>A testable (see previous section) must be created for types such as records or variants. This is done with <code>Alcotest.testable print equal</code> where <code>print</code> is a printer and <code>equal</code> is an equality function.</p>
-<p>Let’s assume we’re testing values of type <code>Thing.t</code>. Module <code>Thing</code> exposes the following signature:</p>
+<h2 id="how-to-write-an-assertion-for-a-custom-type">How to write an
+assertion for a custom type?</h2>
+<p>A testable (see previous section) must be created for types such as
+records or variants. This is done with
+<code>Alcotest.testable print equal</code> where <code>print</code> is a
+printer and <code>equal</code> is an equality function.</p>
+<p>Let’s assume we’re testing values of type <code>Thing.t</code>.
+Module <code>Thing</code> exposes the following signature:</p>
 <pre><code>module Thing : sig
   type t
   val to_string : t -&gt; string
@@ -118,8 +185,12 @@ let thing = Alcotest.testable print_thing equal_thing</code></pre>
       let expected_thing = ... in
       Alcotest.check thing &quot;equal&quot; expected_thing result
     )</code></pre>
-<h2 id="how-to-write-tests-ahead-of-time">How to write tests ahead of time?</h2>
-<p>Testo supports two ways of writing tests that are known to fail. If the test consistently fails in all environments, the recommended solution is to use <code>~expected_outcome:(Should_fail "&lt;insert excuse&gt;")</code>:</p>
+<h2 id="how-to-write-tests-ahead-of-time">How to write tests ahead of
+time?</h2>
+<p>Testo supports two ways of writing tests that are known to fail. If
+the test consistently fails in all environments, the recommended
+solution is to use
+<code>~expected_outcome:(Should_fail "&lt;insert excuse&gt;")</code>:</p>
 <pre><code>Testo.create
   &quot;my test&quot;
     ~expected_outcome:(Should_fail &quot;TODO&quot;)
@@ -127,8 +198,14 @@ let thing = Alcotest.testable print_thing equal_thing</code></pre>
       (* code that raises an exception *)
       ...
     )</code></pre>
-<p>If such a test raises an exception as expected, its status will be shown as <code>XFAIL</code> and considered successful.</p>
-<p>Now, if a test is “flaky” i.e. it sometimes fails and sometimes succeed, it can be marked as “skipped”. The only difference with a test that’s completely removed from the test suite is that it’s still listed by <code>./test status -a</code> and marked as <code>SKIP</code> instead of being invisible and forgotten. In this example, we’ll skip a test only if the platform is Windows:</p>
+<p>If such a test raises an exception as expected, its status will be
+shown as <code>XFAIL</code> and considered successful.</p>
+<p>Now, if a test is “flaky” i.e. it sometimes fails and sometimes
+succeed, it can be marked as “skipped”. The only difference with a test
+that’s completely removed from the test suite is that it’s still listed
+by <code>./test status -a</code> and marked as <code>SKIP</code> instead
+of being invisible and forgotten. In this example, we’ll skip a test
+only if the platform is Windows:</p>
 <pre><code>let is_windows =
   Sys.os_type = &quot;Win32&quot;
 
@@ -138,14 +215,26 @@ let test_something =
     &quot;something&quot;
     ~skipped:is_windows
     (fun () -&gt; ...)</code></pre>
-<h2 id="how-to-pass-arbitrary-options-to-the-test-program">How to pass arbitrary options to the test program?</h2>
-<p>For example, the tests may need to read a configuration file whose path isn’t fixed, or maybe we want to see what happens when we change some settings.</p>
-<p>One solution is to set an environment variable in the shell or parent process of the test program. However, environment variables are not great for the following reasons:</p>
+<h2 id="how-to-pass-arbitrary-options-to-the-test-program">How to pass
+arbitrary options to the test program?</h2>
+<p>For example, the tests may need to read a configuration file whose
+path isn’t fixed, or maybe we want to see what happens when we change
+some settings.</p>
+<p>One solution is to set an environment variable in the shell or parent
+process of the test program. However, environment variables are not
+great for the following reasons:</p>
 <ul>
-<li>Environment variables can easily leak into child processes in which these variables shouldn’t be set, or worse it can result in passing sensitive data that shouldn’t be accessed by other processes.</li>
-<li>Environment variables are hard to track. They affect the program’s behavior but their existence is not obvious because they don’t necessarily appear on the command line.</li>
+<li>Environment variables can easily leak into child processes in which
+these variables shouldn’t be set, or worse it can result in passing
+sensitive data that shouldn’t be accessed by other processes.</li>
+<li>Environment variables are hard to track. They affect the program’s
+behavior but their existence is not obvious because they don’t
+necessarily appear on the command line.</li>
 </ul>
-<p>To avoid these issues and make parameters explicit, Testo provides a <code>--env</code> (or <code>-e</code>) option that allows passing key/value pairs when invoking the test program. Consult <code>--help</code> for guidance:</p>
+<p>To avoid these issues and make parameters explicit, Testo provides a
+<code>--env</code> (or <code>-e</code>) option that allows passing
+key/value pairs when invoking the test program. Consult
+<code>--help</code> for guidance:</p>
 <pre><code>$ ./test --help
 ...
        -e KEY=VALUE, --env=KEY=VALUE
@@ -154,10 +243,12 @@ let test_something =
            [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for
            passing arbitrary runtime settings to the test suite is offered as
            a safer alternative to environment variables.</code></pre>
-<p>Suppose we want to pass the path <code>etc/special-foo.conf</code> to the test program. We would invoke it as follows:</p>
+<p>Suppose we want to pass the path <code>etc/special-foo.conf</code> to
+the test program. We would invoke it as follows:</p>
 <pre><code>$ ./test run --env conf=etc/special-foo.conf
 ...</code></pre>
-<p>The part of the OCaml program that produces the list of tests would consult the <code>conf</code> variable as follows:</p>
+<p>The part of the OCaml program that produces the list of tests would
+consult the <code>conf</code> variable as follows:</p>
 <pre><code>let tests env : Testo.t list =
   let config_path =
     match List.assoc_opt &quot;conf&quot; env with
@@ -173,11 +264,15 @@ let () =
   Testo.interpret_argv
     ~project_name:&quot;foo&quot;
     tests</code></pre>
-<p>Passing multiple key/value pairs is done with multiple <code>-e</code> or <code>--env</code> options:</p>
+<p>Passing multiple key/value pairs is done with multiple
+<code>-e</code> or <code>--env</code> options:</p>
 <pre><code>$ ./test run -e conf=etc/special-foo.conf -e foo=bar
 ...</code></pre>
-<h2 id="how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How to write tests for Lwt, Async or other kinds of promises?</h2>
-<p>The simplest way is to start and stop the event loop within each test. With <code>Lwt</code>, this is normally done with <code>Lwt_main.run</code>:</p>
+<h2 id="how-to-write-tests-for-lwt-async-or-other-kinds-of-promises">How
+to write tests for Lwt, Async or other kinds of promises?</h2>
+<p>The simplest way is to start and stop the event loop within each
+test. With <code>Lwt</code>, this is normally done with
+<code>Lwt_main.run</code>:</p>
 <pre><code>(* Generic higher-level function that converts a asynchronous
    computation into a synchronous one. *)
 let sync (func : unit -&gt; unit Lwt.t) =
@@ -190,24 +285,56 @@ let test_sleep () : unit Lwt.t =
 let tests = [
   Testo.create &quot;sleep&quot; (sync test_sleep);
 ]</code></pre>
-<p>On some platforms such as a JavaScript runtime, there is no equivalent of <code>Lwt_main.run</code>. For these cases, we provide the library <code>testo-lwt</code>. It exposes a <a href="https://semgrep.github.io/testo/reference/testo-lwt/index.html"><code>Testo_lwt</code> module</a> whose interface is almost identical to <code>Testo</code> except that test functions have type <code>unit -&gt; unit Lwt.t</code> instead of <code>unit -&gt; unit</code>.</p>
-<p>For the Async library, we don’t provide <code>testo-async</code> but it should be straightforward to add. Check the status of the <a href="https://github.com/semgrep/testo/issues/73">corresponding GitHub issue</a>.</p>
+<p>On some platforms such as a JavaScript runtime, there is no
+equivalent of <code>Lwt_main.run</code>. For these cases, we provide the
+library <code>testo-lwt</code>. It exposes a <a
+href="https://semgrep.github.io/testo/reference/testo-lwt/index.html"><code>Testo_lwt</code>
+module</a> whose interface is almost identical to <code>Testo</code>
+except that test functions have type <code>unit -&gt; unit Lwt.t</code>
+instead of <code>unit -&gt; unit</code>.</p>
+<p>For the Async library, we don’t provide <code>testo-async</code> but
+it should be straightforward to add. Check the status of the <a
+href="https://github.com/semgrep/testo/issues/73">corresponding GitHub
+issue</a>.</p>
 <h2 id="how-to-run-tests-in-parallel">How to run tests in parallel?</h2>
-<h3 id="parallel-execution-on-a-single-host">Parallel execution on a single host</h3>
-<p>By default, there’s nothing special to do because the test executable created by Testo will detect the number of CPUs available on the machine and run the tests in parallel accordingly. If this is not satisfying, use the <code>-j</code> option to use a specific number of workers:</p>
+<h3 id="parallel-execution-on-a-single-host">Parallel execution on a
+single host</h3>
+<p>By default, there’s nothing special to do because the test executable
+created by Testo will detect the number of CPUs available on the machine
+and run the tests in parallel accordingly. If this is not satisfying,
+use the <code>-j</code> option to use a specific number of workers:</p>
 <pre><code>$ ./test -j4</code></pre>
-<p>If some tests fail because they can’t run in parallel, use the <code>-j0</code> option to run tests sequentially without creating a worker process. Creating a single worker process with <code>-j1</code> should also work for the purpose of running the tests sequentially.</p>
-<p>If the test suite should run sequentially most of the time, you should make it the default by specifying <code>~default_workers</code> in your OCaml test program:</p>
+<p>If some tests fail because they can’t run in parallel, use the
+<code>-j0</code> option to run tests sequentially without creating a
+worker process. Creating a single worker process with <code>-j1</code>
+should also work for the purpose of running the tests sequentially.</p>
+<p>If the test suite should run sequentially most of the time, you
+should make it the default by specifying <code>~default_workers</code>
+in your OCaml test program:</p>
 <pre><code>let () =
   Testo.interpret_argv
     ~project_name:&quot;my project&quot;
     ~default_workers:(Some 0)
     (fun _env -&gt; tests)</code></pre>
-<h3 id="parallel-execution-across-multiple-ci-hosts">Parallel execution across multiple CI hosts</h3>
-<p>If you have the option of running the test suite on multiple hosts in parallel, you have to run a different <code>./test</code> command on each host. To partition the work into 4 parts, run <code>./test --slice 1/4</code>, <code>./test --slice 2/4</code>, <code>./test --slice 3/4</code>, and <code>./test --slice 4/4</code> each on a different host. Check with your CI provider how to achieve this conveniently.</p>
-<h2 id="how-to-report-problems-with-testo">How to report problems with Testo?</h2>
-<p>Check for known issues at <a href="https://github.com/semgrep/testo/issues">https://github.com/semgrep/testo/issues</a>. If your problem seems new, please file a new issue as a first step toward its resolution. The <code>--debug</code> flag might reveal what’s going on and can be helpful for debugging certain problems.</p>
-<h2 id="how-to-export-test-output-to-junit">How to export test output to JUnit?</h2>
-<p>🚧 not implemented, see <a href="https://github.com/semgrep/testo/issues/14">Issue #14</a>.</p>
+<h3 id="parallel-execution-across-multiple-ci-hosts">Parallel execution
+across multiple CI hosts</h3>
+<p>If you have the option of running the test suite on multiple hosts in
+parallel, you have to run a different <code>./test</code> command on
+each host. To partition the work into 4 parts, run
+<code>./test --slice 1/4</code>, <code>./test --slice 2/4</code>,
+<code>./test --slice 3/4</code>, and <code>./test --slice 4/4</code>
+each on a different host. Check with your CI provider how to achieve
+this conveniently.</p>
+<h2 id="how-to-report-problems-with-testo">How to report problems with
+Testo?</h2>
+<p>Check for known issues at <a
+href="https://github.com/semgrep/testo/issues">https://github.com/semgrep/testo/issues</a>.
+If your problem seems new, please file a new issue as a first step
+toward its resolution. The <code>--debug</code> flag might reveal what’s
+going on and can be helpful for debugging certain problems.</p>
+<h2 id="how-to-export-test-output-to-junit">How to export test output to
+JUnit?</h2>
+<p>🚧 not implemented, see <a
+href="https://github.com/semgrep/testo/issues/14">Issue #14</a>.</p>
 </body>
 </html>
