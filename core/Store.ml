@@ -697,13 +697,15 @@ let check_outcome (test : T.test) =
   | Should_fail _, Ok Failed ->
       Ok ()
   | Should_succeed, Ok Failed ->
+      (* bug: this happens even if there was no exception but incorrect
+         output that would be fine to approve *)
       Error
         (sprintf "Cannot approve test %S because it raised an exception."
            test.id)
   | Should_fail reason, Ok Succeeded ->
       Error
         (sprintf
-           {|Cannot approve est %S because it succeeded but
+           {|Cannot approve test %S because it succeeded but
 was expected to fail by raising an exception.
 The original reason given was:
   %S|}
