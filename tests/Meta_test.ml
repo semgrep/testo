@@ -255,7 +255,7 @@ let tests =
       (fun () ->
         print_string "not masked";
         failwith "this exception is expected");
-    t "approve output that used to be incorrect but tolerated: XFAIL -> XPASS"
+    t "approve xfail"
       ~checked_output:(T.stdxxx ())
       test_approve_xfail;
   ]

@@ -6,18 +6,44 @@
    Feel free to isolate types in their own modules if it makes things clearer.
 *)
 
+(* This indicates whether the test function succeeded without checking
+   the captured output. *)
+type completion_status =
+  | Test_function_returned
+  | Test_function_raised_an_exception
+
+(* If a test failed with an exception, we don't check the output.
+   Incorrect_output implies the test returned without raising an exception. *)
+type fail_reason = Raised_exception | Incorrect_output
+
 (*
-   There are four statuses for a completed test, like in pytest:
+   The outcome defines whether a test succeeded or failed.
+   A test succeeded if the test function returned without raising an
+   exception and all the captured output, if any, matches the expected output.
 
-   Should_succeed, Succeded -> PASS (good)
-   Should_succeed, Failed -> FAIL (bad)
-   Should_fail, Failed -> XFAIL (good)
-   Should_fail, Succeeded -> XPASS (bad)
-
-   When running a test suite, it's considered a success if all the tests
-   complete with status PASS or XFAIL.
+   This should not be confused with the passing status indicating whether
+   the test passes: a test passes if its outcome matches the expected outcome.
 *)
-type outcome = Succeeded | Failed
+type outcome = Succeeded | Failed of fail_reason
+
+type missing_files = Missing_files of Fpath.t list
+
+(* A summary of the 'status' object using the same language as pytest.
+
+   PASS: expected success, actual success
+   FAIL: expected success, actual failure
+   XFAIL: expected failure, actual failure
+   XPASS: expected failure, actual success
+   MISS: missing data
+
+   Maximum string length for display: 5 characters
+*)
+type passing_status =
+  | PASS
+  | FAIL of fail_reason
+  | XFAIL of fail_reason
+  | XPASS
+  | MISS of missing_files
 
 type captured_output =
   | Ignored of string (* unchecked combined output *)
@@ -33,13 +59,14 @@ type expected_output =
   | Expected_stdout_stderr of string * string (* stdout, stderr *)
   | Expected_merged of string (* combined output *)
 
-type result = { outcome : outcome; captured_output : captured_output }
+type result = {
+  completion_status : completion_status;
+  captured_output : captured_output;
+}
 
 type expected_outcome =
   | Should_succeed
   | Should_fail of string (* explains why we expect this test to fail *)
-
-type missing_files = Missing_files of Fpath.t list
 
 (*
    The expected output is optional so as to allow new tests for which
@@ -62,27 +89,10 @@ type status = {
   result : (result, missing_files) Result.t;
 }
 
-type fail_reason = Exception | Wrong_output | Exception_and_wrong_output
-
-(* A summary of the 'status' object using the same language as pytest.
-
-   PASS: expected success, actual success
-   FAIL: expected success, actual failure
-   XFAIL: expected failure, actual failure
-   XPASS: expected failure, actual success
-   MISS: missing data
-
-   Maximum string length for display: 5 characters
-*)
-type status_class =
-  | PASS
-  | FAIL of fail_reason
-  | XFAIL of fail_reason
-  | XPASS
-  | MISS
-
+(* Redundant but convenient to consult *)
 type status_summary = {
-  status_class : status_class;
+  passing_status : passing_status;
+  outcome : outcome;
   has_expected_output : bool;
 }
 

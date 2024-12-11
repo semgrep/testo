@@ -26,7 +26,12 @@ type expected_outcome =
   | Should_succeed
   | Should_fail of string  (** explains why we expect this test to fail *)
 
-type outcome = Succeeded | Failed
+type completion_status =
+  | Test_function_returned
+  | Test_function_raised_an_exception
+
+type fail_reason = Raised_exception | Incorrect_output
+type outcome = Succeeded | Failed of fail_reason
 
 type captured_output =
   | Ignored of string  (** unchecked combined output *)
@@ -42,7 +47,11 @@ type expected_output =
   | Expected_stdout_stderr of string * string  (** stdout, stderr *)
   | Expected_merged of string  (** combined output *)
 
-type result = { outcome : outcome; captured_output : captured_output }
+type result = {
+  completion_status : completion_status;
+  captured_output : captured_output;
+}
+
 type missing_files = Types.missing_files = Missing_files of Fpath.t list
 
 type expectation = {
@@ -55,17 +64,16 @@ type status = {
   result : (result, missing_files) Result.t;
 }
 
-type fail_reason = Exception | Wrong_output | Exception_and_wrong_output
-
-type status_class =
+type passing_status =
   | PASS
   | FAIL of fail_reason
   | XFAIL of fail_reason
   | XPASS
-  | MISS
+  | MISS of missing_files
 
 type status_summary = {
-  status_class : status_class;
+  passing_status : passing_status;
+  outcome : outcome;
   has_expected_output : bool;
 }
 

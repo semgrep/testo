@@ -912,263 +912,263 @@ Legend:
   subcommand once you're satisfied with the output.
 
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8dbdda48fb87/log
 [33m[MISS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d57ac4525684/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d57ac4525684/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d57ac4525684/log
 [33m[MISS]  [0mbd1c5167dc34 [36mcategory[0m > [36msubcategory[0m > [36mcategory[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bd1c5167dc34/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bd1c5167dc34/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/bd1c5167dc34/log
 [33m[MISS]  [0m2c57c8917bfb [36munchecked stdout[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2c57c8917bfb/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2c57c8917bfb/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2c57c8917bfb/log
 [33m[MISS]  [0m68358d78cb0b [36munchecked stderr[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/68358d78cb0b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/68358d78cb0b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/68358d78cb0b/log
 [33m[MISS]  [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c96a5aa8b4b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c96a5aa8b4b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/9c96a5aa8b4b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [33m[MISS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m
 [2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [33m[MISS]  [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m
 [2m• [0mChecked output: merged stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/17ec149855c2/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/17ec149855c2/completion_status[0m
 [2m• [0mPath to captured stdxxx: _build/testo/status/testo_tests/17ec149855c2/stdxxx
 [33m[MISS]  [0m02ac0ea4ae90 [36mauto-approve[0m > [36mcapture stdout and stderr[0m
 [2m• [0mChecked output: separate stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/02ac0ea4ae90/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/02ac0ea4ae90/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/02ac0ea4ae90/stdout
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/02ac0ea4ae90/stderr
 [33m[MISS]  [0m25cccdbd5166 [36mauto-approve[0m > [36mcapture stdout in custom location[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/25cccdbd5166/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/25cccdbd5166/completion_status[0m
 [2m• [0mPath to captured my-stdout: _build/testo/status/testo_tests/25cccdbd5166/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/completion_status[0m
 [2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [2m• [0mChecked output: merged stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/edebe706faa8/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/edebe706faa8/completion_status[0m
 [2m• [0mPath to captured my-stdxxx: _build/testo/status/testo_tests/edebe706faa8/stdxxx
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
 [2m• [0mChecked output: separate stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/completion_status[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [2m• [0mExpected to fail: raises exception on purpose
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/85349a4a9157/log
 [33m[MISS]  [0m05dd9a9f220b [36mxfail due to invalid output[0m
 [2m• [0mExpected to fail: produces incorrect output on purpose
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/05dd9a9f220b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/05dd9a9f220b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/05dd9a9f220b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/05dd9a9f220b/log
 [33m[MISS]  [0me52e279299e9 [36mskipped[0m
 [2m• [0mAlways skipped
 [33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m
 [2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/54ddc3c7d064/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/54ddc3c7d064/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [33m[MISS]  [0ma55170a13733 [36mtracking URL[0m
 [2m• [0mTracking URL: https://example.com/issue/1234
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a55170a13733/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a55170a13733/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a55170a13733/log
 [33m[MISS]  [0m91a3c9030236 [36mchdir[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/91a3c9030236/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/91a3c9030236/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/91a3c9030236/log
 [33m[MISS]  [0mc10b96c9a177 [36mwith environment variables ok[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c10b96c9a177/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c10b96c9a177/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c10b96c9a177/log
 [33m[MISS]  [0mdf3dde6aa501 [36mwith environment variables bad[0m
 [2m• [0mExpected to fail: fail to restore environment variable
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df3dde6aa501/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df3dde6aa501/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/df3dde6aa501/log
 [33m[MISS]  [0ma3e1a604f579 [36mmasked[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
 [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
 [33m[MISS]  [0me8a3ba3cf9b4 [36mmask_temp_paths[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e8a3ba3cf9b4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e8a3ba3cf9b4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/e8a3ba3cf9b4/log
 [33m[MISS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
 [33m[MISS]  [0m59046838dc2d [36mcontains substring[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
 [33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
 [33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
 [33m[MISS]  [0md07f2170491b [36mremove matching lines[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
 [33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
 [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
 [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m
 [2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [33m[MISS]  [0mafc104393bac [36mtemporary files[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
 [33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
 [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ec7514c8554d/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ec7514c8554d/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
 [33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
 [33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
 [33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
 [33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
 [33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
 [33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
 [33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
 [33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
 [33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
 [33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
 [33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
 [33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
 [33m[MISS]  [0m8a4a3d95651b [36mSlice[0m > [36mchained 1/3 2/2[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8a4a3d95651b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8a4a3d95651b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8a4a3d95651b/log
 [33m[MISS]  [0ma8cc405c1f92 [36mSlice[0m > [36mchained 2/3 1/2[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a8cc405c1f92/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a8cc405c1f92/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a8cc405c1f92/log
 [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8dbdda48fb87/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m                                     [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d57ac4525684/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d57ac4525684/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d57ac4525684/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mbd1c5167dc34 [36mcategory[0m > [36msubcategory[0m > [36mcategory[0m                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bd1c5167dc34/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bd1c5167dc34/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/bd1c5167dc34/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m2c57c8917bfb [36munchecked stdout[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2c57c8917bfb/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2c57c8917bfb/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2c57c8917bfb/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m68358d78cb0b [36munchecked stderr[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/68358d78cb0b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/68358d78cb0b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/68358d78cb0b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c96a5aa8b4b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c96a5aa8b4b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/9c96a5aa8b4b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1176,7 +1176,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1184,14 +1184,14 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: merged stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/17ec149855c2/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/17ec149855c2/completion_status[0m
 [2m• [0mPath to captured stdxxx: _build/testo/status/testo_tests/17ec149855c2/stdxxx
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m02ac0ea4ae90 [36mauto-approve[0m > [36mcapture stdout and stderr[0m                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: separate stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/02ac0ea4ae90/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/02ac0ea4ae90/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/02ac0ea4ae90/stdout
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/02ac0ea4ae90/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1199,7 +1199,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m25cccdbd5166 [36mauto-approve[0m > [36mcapture stdout in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/25cccdbd5166/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/25cccdbd5166/completion_status[0m
 [2m• [0mPath to captured my-stdout: _build/testo/status/testo_tests/25cccdbd5166/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1207,7 +1207,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/completion_status[0m
 [2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1215,14 +1215,14 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: merged stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/edebe706faa8/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/edebe706faa8/completion_status[0m
 [2m• [0mPath to captured my-stdxxx: _build/testo/status/testo_tests/edebe706faa8/stdxxx
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌───────────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m  [2m│[0m
 [2m└───────────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: separate stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/completion_status[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1230,7 +1230,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1238,7 +1238,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m85349a4a9157 [36mxfail[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: raises exception on purpose
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/85349a4a9157/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -1246,7 +1246,7 @@ Legend:
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: produces incorrect output on purpose
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/05dd9a9f220b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/05dd9a9f220b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/05dd9a9f220b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/05dd9a9f220b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1254,96 +1254,96 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/54ddc3c7d064/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/54ddc3c7d064/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0ma55170a13733 [36mtracking URL[0m                                            [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mTracking URL: https://example.com/issue/1234
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a55170a13733/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a55170a13733/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a55170a13733/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m91a3c9030236 [36mchdir[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/91a3c9030236/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/91a3c9030236/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/91a3c9030236/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc10b96c9a177 [36mwith environment variables ok[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c10b96c9a177/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c10b96c9a177/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c10b96c9a177/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mdf3dde6aa501 [36mwith environment variables bad[0m                          [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: fail to restore environment variable
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df3dde6aa501/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df3dde6aa501/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/df3dde6aa501/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0ma3e1a604f579 [36mmasked[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0me8a3ba3cf9b4 [36mmask_temp_paths[0m                                         [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e8a3ba3cf9b4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e8a3ba3cf9b4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/e8a3ba3cf9b4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m59046838dc2d [36mcontains substring[0m                                      [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md07f2170491b [36mremove matching lines[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m                                     [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1351,7 +1351,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1359,7 +1359,7 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m                          [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1367,174 +1367,174 @@ Legend:
 [0m[2m│[0m [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mafc104393bac [36mtemporary files[0m                                         [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m                                     [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ec7514c8554d/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ec7514c8554d/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌─────────────────────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m  [2m│[0m
 [2m└─────────────────────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8a4a3d95651b [36mSlice[0m > [36mchained 1/3 2/2[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8a4a3d95651b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8a4a3d95651b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8a4a3d95651b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0ma8cc405c1f92 [36mSlice[0m > [36mchained 2/3 1/2[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a8cc405c1f92/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a8cc405c1f92/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a8cc405c1f92/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed:
@@ -1554,38 +1554,38 @@ junk printed on stdout...
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8dbdda48fb87/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m                                     [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d57ac4525684/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d57ac4525684/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d57ac4525684/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mbd1c5167dc34 [36mcategory[0m > [36msubcategory[0m > [36mcategory[0m                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bd1c5167dc34/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bd1c5167dc34/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/bd1c5167dc34/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m2c57c8917bfb [36munchecked stdout[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2c57c8917bfb/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2c57c8917bfb/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2c57c8917bfb/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m68358d78cb0b [36munchecked stderr[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/68358d78cb0b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/68358d78cb0b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/68358d78cb0b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c96a5aa8b4b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c96a5aa8b4b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/9c96a5aa8b4b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9c96a5aa8b4b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1593,7 +1593,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m0048917873df [36mauto-approve[0m > [36mcapture stderr[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0048917873df/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/0048917873df/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0048917873df/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1601,14 +1601,14 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m17ec149855c2 [36mauto-approve[0m > [36mcapture stdxxx[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: merged stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/17ec149855c2/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/17ec149855c2/completion_status[0m
 [2m• [0mPath to captured stdxxx: _build/testo/status/testo_tests/17ec149855c2/stdxxx
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m02ac0ea4ae90 [36mauto-approve[0m > [36mcapture stdout and stderr[0m                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: separate stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/02ac0ea4ae90/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/02ac0ea4ae90/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/02ac0ea4ae90/stdout
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/02ac0ea4ae90/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1616,7 +1616,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m25cccdbd5166 [36mauto-approve[0m > [36mcapture stdout in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/25cccdbd5166/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/25cccdbd5166/completion_status[0m
 [2m• [0mPath to captured my-stdout: _build/testo/status/testo_tests/25cccdbd5166/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/25cccdbd5166/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1624,7 +1624,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8674d1483367/completion_status[0m
 [2m• [0mPath to captured my-stderr: _build/testo/status/testo_tests/8674d1483367/stderr
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8674d1483367/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1632,14 +1632,14 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: merged stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/edebe706faa8/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/edebe706faa8/completion_status[0m
 [2m• [0mPath to captured my-stdxxx: _build/testo/status/testo_tests/edebe706faa8/stdxxx
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌───────────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m  [2m│[0m
 [2m└───────────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: separate stdout and stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/completion_status[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1647,7 +1647,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1655,7 +1655,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m85349a4a9157 [36mxfail[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: raises exception on purpose
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/85349a4a9157/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/85349a4a9157/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -1663,7 +1663,7 @@ junk printed on stdout...
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: produces incorrect output on purpose
 [2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/05dd9a9f220b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/05dd9a9f220b/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/05dd9a9f220b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/05dd9a9f220b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1671,96 +1671,96 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/54ddc3c7d064/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/54ddc3c7d064/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0ma55170a13733 [36mtracking URL[0m                                            [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mTracking URL: https://example.com/issue/1234
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a55170a13733/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a55170a13733/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a55170a13733/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m91a3c9030236 [36mchdir[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/91a3c9030236/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/91a3c9030236/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/91a3c9030236/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc10b96c9a177 [36mwith environment variables ok[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c10b96c9a177/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c10b96c9a177/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c10b96c9a177/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mdf3dde6aa501 [36mwith environment variables bad[0m                          [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mExpected to fail: fail to restore environment variable
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df3dde6aa501/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df3dde6aa501/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/df3dde6aa501/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0ma3e1a604f579 [36mmasked[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0me8a3ba3cf9b4 [36mmask_temp_paths[0m                                         [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e8a3ba3cf9b4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e8a3ba3cf9b4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/e8a3ba3cf9b4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mcb1a0033f274 [36mmask exotic temp paths[0m                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb1a0033f274/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/cb1a0033f274/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m59046838dc2d [36mcontains substring[0m                                      [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/59046838dc2d/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/59046838dc2d/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m130a6f0e870f [36mcontains pcre pattern[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/130a6f0e870f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/130a6f0e870f/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mdf76b0fc2d37 [36mfilter_map_lines[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/df76b0fc2d37/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/df76b0fc2d37/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md07f2170491b [36mremove matching lines[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d07f2170491b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d07f2170491b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m2f713596bc5a [36mkeep matching lines[0m                                     [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2f713596bc5a/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2f713596bc5a/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0md5b0041ea8f4 [36mcheck for substring in stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1768,7 +1768,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1776,7 +1776,7 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m                          [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
@@ -1784,174 +1784,174 @@ junk printed on stdout...
 [0m[2m│[0m [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stderr
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mafc104393bac [36mtemporary files[0m                                         [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m1f85f39d5e9a [36muser output capture[0m                                     [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1f85f39d5e9a/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/1f85f39d5e9a/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/1f85f39d5e9a/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ec7514c8554d/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ec7514c8554d/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/ec7514c8554d/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b8cd199f2e62/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b8cd199f2e62/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/outcome[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f66d12950c64/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/f66d12950c64/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mcaadabfd495c [36mauto-approve[0m > [36minternal files[0m > [36mdon't create name file[0m  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/caadabfd495c/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/caadabfd495c/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌─────────────────────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m57b56cb8ada0 [36mauto-approve[0m > [36minternal files[0m > [36mcheck for name file in previous tests[0m  [2m│[0m
 [2m└─────────────────────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57b56cb8ada0/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/57b56cb8ada0/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m4a0adc56173a [36mSlice[0m > [36mempty 1/1[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/4a0adc56173a/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/4a0adc56173a/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m2ae5c882730e [36mSlice[0m > [36mempty 1/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2ae5c882730e/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/2ae5c882730e/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5290cda648b1 [36mSlice[0m > [36mempty 5/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5290cda648b1/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5290cda648b1/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m69942982f070 [36mSlice[0m > [36mshort 1/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/69942982f070/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/69942982f070/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc7e9d9cc5ced [36mSlice[0m > [36mshort 3/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7e9d9cc5ced/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c7e9d9cc5ced/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m880486950fd4 [36mSlice[0m > [36mshort 4/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/880486950fd4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/880486950fd4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc7cf03355e3e [36mSlice[0m > [36mshort 5/5[0m                                       [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c7cf03355e3e/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c7cf03355e3e/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mc248034012cb [36mSlice[0m > [36meven 1/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c248034012cb/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c248034012cb/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb0f035899167 [36mSlice[0m > [36meven 2/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b0f035899167/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b0f035899167/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m89fe151186d4 [36mSlice[0m > [36meven 3/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/89fe151186d4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/89fe151186d4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5a01ad65d512 [36mSlice[0m > [36mlong 1/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5a01ad65d512/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5a01ad65d512/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m913605e2d932 [36mSlice[0m > [36mlong 2/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/913605e2d932/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/913605e2d932/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m6adba8fe4ac9 [36mSlice[0m > [36mlong 3/3[0m                                        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/6adba8fe4ac9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/6adba8fe4ac9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8a4a3d95651b [36mSlice[0m > [36mchained 1/3 2/2[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8a4a3d95651b/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8a4a3d95651b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8a4a3d95651b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0ma8cc405c1f92 [36mSlice[0m > [36mchained 2/3 1/2[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a8cc405c1f92/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a8cc405c1f92/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a8cc405c1f92/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/outcome[0m
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed:

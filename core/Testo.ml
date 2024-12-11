@@ -18,7 +18,12 @@ type expected_outcome = T.expected_outcome =
   | Should_succeed
   | Should_fail of string
 
-type outcome = T.outcome = Succeeded | Failed
+type completion_status = T.completion_status =
+  | Test_function_returned
+  | Test_function_raised_an_exception
+
+type fail_reason = T.fail_reason = Raised_exception | Incorrect_output
+type outcome = T.outcome = Succeeded | Failed of fail_reason
 
 type captured_output = T.captured_output =
   | Ignored of string
@@ -35,7 +40,7 @@ type expected_output = T.expected_output =
   | Expected_merged of string (* combined output *)
 
 type result = T.result = {
-  outcome : outcome;
+  completion_status : completion_status;
   captured_output : captured_output;
 }
 
@@ -51,20 +56,16 @@ type status = T.status = {
   result : (result, missing_files) Result.t;
 }
 
-type fail_reason = T.fail_reason =
-  | Exception
-  | Wrong_output
-  | Exception_and_wrong_output
-
-type status_class = T.status_class =
+type passing_status = T.passing_status =
   | PASS
   | FAIL of fail_reason
   | XFAIL of fail_reason
   | XPASS
-  | MISS
+  | MISS of missing_files
 
 type status_summary = T.status_summary = {
-  status_class : status_class;
+  passing_status : passing_status;
+  outcome : outcome;
   has_expected_output : bool;
 }
 
