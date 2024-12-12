@@ -146,6 +146,19 @@ let test_standard_flow () =
   test_status ~__LOC__ "" ~expected_exit_code:1;
   test_approve ~__LOC__ "-s auto-approve"
 
+(*
+   Invalid output -> XFAIL
+   Approved output -> XPASS
+*)
+let test_approve_xfail () =
+  section "Approve the incorrect output of an XFAIL test";
+  test_approve ~__LOC__ "-s '05dd9a9f220b'";
+  section "Now expect XPASS status";
+  test_status ~__LOC__ "-s '05dd9a9f220b'" ~expected_exit_code:1;
+  section "Clean up";
+  shell_command ~__LOC__
+    "git restore tests/snapshots/testo_tests/05dd9a9f220b/stdout"
+
 (*****************************************************************************)
 (* Exercise the parallel test suite *)
 (*****************************************************************************)
@@ -242,6 +255,9 @@ let tests =
       (fun () ->
         print_string "not masked";
         failwith "this exception is expected");
+    t "approve xfail"
+      ~checked_output:(T.stdxxx ())
+      test_approve_xfail;
   ]
 
 let () =

@@ -1,0 +1,20 @@
+#####################################################################
+# Approve the incorrect output of an XFAIL test
+#####################################################################
+RUN ./test approve -e foo=bar -s '05dd9a9f220b'
+junk printed on stdout...
+... when creating the test suite
+Expected output changed for 1 test.
+<handling result before exiting>
+#####################################################################
+# Now expect XPASS status
+#####################################################################
+RUN ./test status -e foo=bar -s '05dd9a9f220b'
+junk printed on stdout...
+... when creating the test suite
+[31m[XPASS] [0m05dd9a9f220b [36mxfail due to invalid output[0m
+<handling result before exiting>
+#####################################################################
+# Clean up
+#####################################################################
+RUN git restore tests/snapshots/testo_tests/05dd9a9f220b/stdout

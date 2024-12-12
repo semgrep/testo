@@ -141,21 +141,21 @@ let check_test_definitions tests =
 
 let string_of_status_summary (sum : T.status_summary) =
   let approval_suffix = if sum.has_expected_output then "" else "*" in
-  match sum.status_class with
+  match sum.passing_status with
   | PASS -> "PASS" ^ approval_suffix
   | FAIL _ -> "FAIL" ^ approval_suffix
   | XFAIL _ -> "XFAIL" ^ approval_suffix
   | XPASS -> "XPASS" ^ approval_suffix
-  | MISS -> "MISS"
+  | MISS _ -> "MISS"
 
 let success_of_status_summary (sum : T.status_summary) =
-  match sum.status_class with
+  match sum.passing_status with
   | PASS
   | XFAIL _ ->
       if sum.has_expected_output then OK else OK_but_new
   | FAIL fail_reason -> Not_OK (Some fail_reason)
   | XPASS -> Not_OK None
-  | MISS -> OK_but_new
+  | MISS _ -> OK_but_new
 
 let color_of_status_summary (sum : T.status_summary) : Style.color =
   match success_of_status_summary sum with
@@ -200,17 +200,17 @@ let stats_of_tests tests tests_with_status =
          match test.skipped with
          | Some _reason -> incr stats.skipped_tests
          | None ->
-             (match sum.status_class with
-             | MISS -> ()
+             (match sum.passing_status with
+             | MISS _ -> ()
              | _ ->
                  if not sum.has_expected_output then incr stats.needs_approval);
              incr
-               (match sum.status_class with
+               (match sum.passing_status with
                | PASS -> stats.pass
                | FAIL _ -> stats.fail
                | XFAIL _ -> stats.xfail
                | XPASS -> stats.xpass
-               | MISS -> stats.miss));
+               | MISS _ -> stats.miss));
   stats
 
 (* Sample output: "", " {foo, bar}" *)
@@ -580,11 +580,11 @@ let print_status ~highlight_test ~always_show_unchecked_output
                  match success with
                  | OK -> ()
                  | OK_but_new -> ()
-                 | Not_OK (Some (Exception | Exception_and_wrong_output)) ->
+                 | Not_OK (Some Raised_exception) ->
                      printf
                        "%sFailed due to an exception. See captured output.\n"
                        bullet
-                 | Not_OK (Some Wrong_output) ->
+                 | Not_OK (Some Incorrect_output) ->
                      printf "%sFailed due to wrong output.\n" bullet
                  | Not_OK None ->
                      printf
@@ -601,7 +601,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
           (* Show the exception in case of a test failure due to an exception *)
           if show_unchecked_output then
             match success with
-            | Not_OK (Some (Exception | Exception_and_wrong_output)) -> (
+            | Not_OK (Some Raised_exception) -> (
                 match Store.get_exception test with
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
@@ -619,7 +619,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some Wrong_output)
+            | Not_OK (Some Incorrect_output)
             | Not_OK None ->
                 ()));
   flush stdout

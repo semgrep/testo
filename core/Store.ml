@@ -76,6 +76,13 @@ let read_file path : (string, Fpath.t (* missing file *)) Result.t =
 let errmsg_of_missing_file (path : Fpath.t) : string =
   sprintf "Missing or inaccessible file %s" !!path
 
+let errmsg_of_missing_files (T.Missing_files paths) : string =
+  match paths with
+  | [path] -> errmsg_of_missing_file path
+  | paths ->
+      sprintf "Missing or inaccessible files: %s"
+        (paths |> List.map Fpath.to_string |> String.concat ", ")
+
 let read_file_exn path : string =
   match read_file path with
   | Ok data -> data
@@ -201,29 +208,29 @@ let corrupted_file path =
        "Uh oh, the test framework ran into a corrupted file: %S\n\
         Remove it and retry." !!path)
 
-let get_outcome_path (test : T.test) =
-  get_test_status_workspace test / "outcome"
+let get_completion_status_path (test : T.test) =
+  get_test_status_workspace test / "completion_status"
 
-let string_of_outcome (outcome : T.outcome) =
-  match outcome with
-  | Succeeded -> "Succeeded"
-  | Failed -> "Failed"
+let string_of_completion_status (x : T.completion_status) =
+  match x with
+  | Test_function_returned -> "Test_function_returned"
+  | Test_function_raised_an_exception -> "Test_function_raised_an_exception"
 
-let outcome_of_string path data : T.outcome =
+let completion_status_of_string path data : T.completion_status =
   match data with
-  | "Succeeded" -> Succeeded
-  | "Failed" -> Failed
+  | "Test_function_returned" -> Test_function_returned
+  | "Test_function_raised_an_exception" -> Test_function_raised_an_exception
   | _ -> corrupted_file path
 
-let set_outcome (test : T.test) outcome =
-  let path = get_outcome_path test in
-  outcome |> string_of_outcome |> Helpers.write_file path
+let set_completion_status (test : T.test) completion_status =
+  let path = get_completion_status_path test in
+  completion_status |> string_of_completion_status |> Helpers.write_file path
 
-let get_outcome (test : T.test) :
-    (T.outcome, Fpath.t (* missing file *)) Result.t =
-  let path = get_outcome_path test in
+let get_completion_status (test : T.test) :
+    (T.completion_status, Fpath.t (* missing file *)) Result.t =
+  let path = get_completion_status_path test in
   match read_file path with
-  | Ok data -> Ok (outcome_of_string path data)
+  | Ok data -> Ok (completion_status_of_string path data)
   | Error path -> Error path
 
 (* File names used to the test output, possibly after masking the variable
@@ -574,15 +581,15 @@ let with_output_capture (test : T.test) (func : unit -> 'unit_promise) =
         normalize_output test;
         P.return ())
 
-let with_outcome_capture (test : T.test) func : unit -> unit Promise.t =
+let with_completion_status_capture (test : T.test) func : unit -> unit Promise.t =
  fun () ->
   P.catch
     (fun () ->
       func () >>= fun res ->
-      set_outcome test Succeeded;
+      set_completion_status test Test_function_returned;
       P.return res)
     (fun e trace ->
-      set_outcome test Failed;
+      set_completion_status test Test_function_raised_an_exception;
       (Printexc.raise_with_backtrace e trace : 'unit_promise))
 
 (* Subtle: keep this a two-stage invocation:
@@ -598,7 +605,7 @@ let with_outcome_capture (test : T.test) func : unit -> unit Promise.t =
 let with_result_capture (test : T.test) func : unit -> unit Promise.t =
   init_test_workspace test;
   let func = with_output_capture test func in
-  let func = with_outcome_capture test func in
+  let func = with_completion_status_capture test func in
   func
 
 (**************************************************************************)
@@ -640,16 +647,16 @@ let get_expectation (test : T.test) (paths : capture_paths list) : T.expectation
 
 let get_result (test : T.test) (paths : capture_paths list) :
     (T.result, T.missing_files) Result.t =
-  match get_outcome test with
+  match get_completion_status test with
   | Error missing_file -> Error (Missing_files [ missing_file ])
-  | Ok outcome -> (
+  | Ok completion_status -> (
       let opt_captured_output =
         paths |> get_output |> list_result_of_result_list
         |> Result.map (captured_output_of_data test.checked_output)
       in
       match opt_captured_output with
       | Error missing_files -> Error (Missing_files missing_files)
-      | Ok captured_output -> Ok { outcome; captured_output })
+      | Ok captured_output -> Ok { completion_status; captured_output })
 
 let get_status (test : T.test) : T.status =
   let paths = capture_paths_of_test test in
@@ -657,58 +664,65 @@ let get_status (test : T.test) : T.status =
   let result = get_result test paths in
   { expectation; result }
 
-let fail_reason_of_pair (outcome : T.outcome) (output_matches : bool) :
-    T.fail_reason option =
-  match (outcome, output_matches) with
-  | Failed, false -> Some Exception_and_wrong_output
-  | Failed, true -> Some Exception
-  | Succeeded, false -> Some Wrong_output
-  | Succeeded, true -> None
+let outcome_of_pair
+    (completion_status : T.completion_status)
+    (output_matches : bool) : T.outcome =
+  match completion_status with
+  | Test_function_raised_an_exception -> Failed Raised_exception
+  | Test_function_returned ->
+      match output_matches with
+      | false -> Failed Incorrect_output
+      | true -> Succeeded
+
+let outcome_of_expectation_and_result
+    (expect : T.expectation) (result : T.result)
+  : T.outcome * bool =
+  let has_expected_output, output_matches =
+    match (expect.expected_output, result.captured_output) with
+    | Ok output1, output2 when T.equal_checked_output output1 output2 ->
+        (true, true)
+    | Ok _, _ -> (true, false)
+    | Error _, _ -> (false, true)
+  in
+  outcome_of_pair result.completion_status output_matches, has_expected_output
 
 let status_summary_of_status (status : T.status) : T.status_summary =
   match status.result with
-  | Error _ ->
+  | Error missing_files ->
       {
-        status_class = MISS;
-        has_expected_output = false (* incorrect but does it matter? *);
+        passing_status = MISS missing_files;
+        (* These two fields are meaningless *)
+        outcome = Failed Raised_exception;
+        has_expected_output = false;
       }
   | Ok result ->
       let expect = status.expectation in
-      let has_expected_output, output_matches =
-        match (expect.expected_output, result.captured_output) with
-        | Ok output1, output2 when T.equal_checked_output output1 output2 ->
-            (true, true)
-        | Ok _, _ -> (true, false)
-        | Error _, _ -> (false, true)
+      let outcome, has_expected_output =
+        outcome_of_expectation_and_result expect result in
+      let passing_status : T.passing_status =
+        match expect.expected_outcome, outcome with
+        | Should_succeed, Succeeded -> PASS
+        | Should_succeed, Failed fail_reason -> FAIL fail_reason
+        | Should_fail _, Succeeded -> XPASS
+        | Should_fail _, Failed fail_reason -> XFAIL fail_reason
       in
-      let fail_reason = fail_reason_of_pair result.outcome output_matches in
-      let status_class : T.status_class =
-        match (expect.expected_outcome, fail_reason) with
-        | Should_succeed, None -> PASS
-        | Should_succeed, Some fail_reason -> FAIL fail_reason
-        | Should_fail _, None -> XPASS
-        | Should_fail _, Some fail_reason -> XFAIL fail_reason
-      in
-      { status_class; has_expected_output }
+      { passing_status; outcome; has_expected_output }
 
-let check_outcome (test : T.test) =
-  match (test.expected_outcome, get_outcome test) with
-  | Should_succeed, Ok Succeeded
-  | Should_fail _, Ok Failed ->
+let check_status_before_approval (test : T.test) =
+  let status = get_status test in
+  let status_summary = status_summary_of_status status in
+  match status_summary.passing_status with
+  | PASS
+  | XPASS
+  | FAIL Incorrect_output
+  | XFAIL Incorrect_output ->
       Ok ()
-  | Should_succeed, Ok Failed ->
+  | FAIL Raised_exception
+  | XFAIL Raised_exception ->
       Error
-        (sprintf "Cannot approve test %S because it raised an exception."
-           test.id)
-  | Should_fail reason, Ok Succeeded ->
-      Error
-        (sprintf
-           {|Cannot approve est %S because it succeeded but
-was expected to fail by raising an exception.
-The original reason given was:
-  %S|}
-           test.id reason)
-  | _, Error missing_file -> Error (errmsg_of_missing_file missing_file)
+        (sprintf "Cannot approve test because it raised an exception: %s '%s'"
+           test.id test.internal_full_name)
+  | MISS missing_files -> Error (errmsg_of_missing_files missing_files)
 
 type changed = Changed | Unchanged
 
@@ -719,7 +733,7 @@ let approve_new_output (test : T.test) : (changed, string) Result.t =
   | Some _reason -> Ok Unchanged
   | None -> (
       let paths = capture_paths_of_test test in
-      match check_outcome test with
+      match check_status_before_approval test with
       | Error _ as res -> res
       | Ok () -> (
           let old_expectation = get_expectation test paths in
