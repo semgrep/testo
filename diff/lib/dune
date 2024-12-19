@@ -4,4 +4,9 @@
   (name testo_diff)
   (libraries
   )
+  (preprocess
+    (pps
+      ppx_deriving.show
+    )
+  )
 )

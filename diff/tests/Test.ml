@@ -3,7 +3,14 @@
 *)
 
 open Printf
-module Diff = Testo_diff.Make (String)
+module Diff = Testo_diff.Make (
+  struct
+    type t = string
+    [@@deriving show]
+
+    let compare = String.compare
+  end
+)
 
 (* OCaml syntax for copy-pasting *)
 let ocaml_string_of_array a =
