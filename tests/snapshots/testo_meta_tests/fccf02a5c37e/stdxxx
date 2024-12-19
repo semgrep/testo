@@ -52,6 +52,13 @@ junk printed on stdout...
 [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m
 [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
+[33m[MISS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
+[33m[MISS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[33m[MISS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[33m[MISS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
@@ -271,6 +278,48 @@ Legend:
 [33m[RUN][0m   fb27e160e59b [36mrequire '--env foo=bar'[0m
 [32m[PASS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
+[33m[RUN][0m   bf116ef3934b [36mdiff[0m > [36mhello[0m
+[32m[PASS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected hello.diff: tests/diff-data/hello.diff
+[2m• [0mPath to captured hello.diff: _build/testo/status/testo_tests/bf116ef3934b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf116ef3934b/log
+[33m[RUN][0m   c0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[32m[PASS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected six-lines.diff: tests/diff-data/six-lines.diff
+[2m• [0mPath to captured six-lines.diff: _build/testo/status/testo_tests/c0c423c0300c/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c0c423c0300c/log
+[33m[RUN][0m   8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[32m[PASS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected leading-context.diff: tests/diff-data/leading-context.diff
+[2m• [0mPath to captured leading-context.diff: _build/testo/status/testo_tests/8e08941de3ba/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8e08941de3ba/log
+[33m[RUN][0m   7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[32m[PASS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected leading-context-short.diff: tests/diff-data/leading-context-short.diff
+[2m• [0mPath to captured leading-context-short.diff: _build/testo/status/testo_tests/7d073a531ccf/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7d073a531ccf/log
+[33m[RUN][0m   1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[32m[PASS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected trailing-context.diff: tests/diff-data/trailing-context.diff
+[2m• [0mPath to captured trailing-context.diff: _build/testo/status/testo_tests/1cf5a6371f59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1cf5a6371f59/log
+[33m[RUN][0m   8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[32m[PASS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected joined-context.diff: tests/diff-data/joined-context.diff
+[2m• [0mPath to captured joined-context.diff: _build/testo/status/testo_tests/8ae0ad03ce59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8ae0ad03ce59/log
+[33m[RUN][0m   360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
+[32m[PASS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected gap-in-context.diff: tests/diff-data/gap-in-context.diff
+[2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -442,9 +491,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-62/62 selected tests:
+69/69 selected tests:
   1 skipped
-  60 successful (57 pass, 3 xfail)
+  67 successful (64 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -606,6 +655,41 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [32m[PASS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
+[32m[PASS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected hello.diff: tests/diff-data/hello.diff
+[2m• [0mPath to captured hello.diff: _build/testo/status/testo_tests/bf116ef3934b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf116ef3934b/log
+[32m[PASS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected six-lines.diff: tests/diff-data/six-lines.diff
+[2m• [0mPath to captured six-lines.diff: _build/testo/status/testo_tests/c0c423c0300c/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c0c423c0300c/log
+[32m[PASS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected leading-context.diff: tests/diff-data/leading-context.diff
+[2m• [0mPath to captured leading-context.diff: _build/testo/status/testo_tests/8e08941de3ba/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8e08941de3ba/log
+[32m[PASS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected leading-context-short.diff: tests/diff-data/leading-context-short.diff
+[2m• [0mPath to captured leading-context-short.diff: _build/testo/status/testo_tests/7d073a531ccf/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7d073a531ccf/log
+[32m[PASS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected trailing-context.diff: tests/diff-data/trailing-context.diff
+[2m• [0mPath to captured trailing-context.diff: _build/testo/status/testo_tests/1cf5a6371f59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1cf5a6371f59/log
+[32m[PASS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected joined-context.diff: tests/diff-data/joined-context.diff
+[2m• [0mPath to captured joined-context.diff: _build/testo/status/testo_tests/8ae0ad03ce59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8ae0ad03ce59/log
+[32m[PASS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected gap-in-context.diff: tests/diff-data/gap-in-context.diff
+[2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
@@ -746,9 +830,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-62/62 selected tests:
+69/69 selected tests:
   1 skipped
-  60 successful (57 pass, 3 xfail)
+  67 successful (64 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -859,7 +943,7 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/62 selected tests:
+1/69 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -888,7 +972,7 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/62 selected tests:
+1/69 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -1065,6 +1149,41 @@ Legend:
 [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
+[33m[MISS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bf116ef3934b/completion_status[0m
+[2m• [0mPath to captured hello.diff: _build/testo/status/testo_tests/bf116ef3934b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf116ef3934b/log
+[33m[MISS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c0c423c0300c/completion_status[0m
+[2m• [0mPath to captured six-lines.diff: _build/testo/status/testo_tests/c0c423c0300c/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c0c423c0300c/log
+[33m[MISS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8e08941de3ba/completion_status[0m
+[2m• [0mPath to captured leading-context.diff: _build/testo/status/testo_tests/8e08941de3ba/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8e08941de3ba/log
+[33m[MISS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7d073a531ccf/completion_status[0m
+[2m• [0mPath to captured leading-context-short.diff: _build/testo/status/testo_tests/7d073a531ccf/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7d073a531ccf/log
+[33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1cf5a6371f59/completion_status[0m
+[2m• [0mPath to captured trailing-context.diff: _build/testo/status/testo_tests/1cf5a6371f59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1cf5a6371f59/log
+[33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8ae0ad03ce59/completion_status[0m
+[2m• [0mPath to captured joined-context.diff: _build/testo/status/testo_tests/8ae0ad03ce59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8ae0ad03ce59/log
+[33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/360c4b690be4/completion_status[0m
+[2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -1404,6 +1523,62 @@ Legend:
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m                                            [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bf116ef3934b/completion_status[0m
+[2m• [0mPath to captured hello.diff: _build/testo/status/testo_tests/bf116ef3934b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf116ef3934b/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c0c423c0300c/completion_status[0m
+[2m• [0mPath to captured six-lines.diff: _build/testo/status/testo_tests/c0c423c0300c/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c0c423c0300c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m                                  [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8e08941de3ba/completion_status[0m
+[2m• [0mPath to captured leading-context.diff: _build/testo/status/testo_tests/8e08941de3ba/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8e08941de3ba/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m                            [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7d073a531ccf/completion_status[0m
+[2m• [0mPath to captured leading-context-short.diff: _build/testo/status/testo_tests/7d073a531ccf/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7d073a531ccf/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m                                 [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1cf5a6371f59/completion_status[0m
+[2m• [0mPath to captured trailing-context.diff: _build/testo/status/testo_tests/1cf5a6371f59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1cf5a6371f59/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8ae0ad03ce59/completion_status[0m
+[2m• [0mPath to captured joined-context.diff: _build/testo/status/testo_tests/8ae0ad03ce59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8ae0ad03ce59/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/360c4b690be4/completion_status[0m
+[2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
@@ -1540,11 +1715,11 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-62/62 selected tests:
+69/69 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-61 new tests
+68 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -1821,6 +1996,62 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m                                            [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bf116ef3934b/completion_status[0m
+[2m• [0mPath to captured hello.diff: _build/testo/status/testo_tests/bf116ef3934b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf116ef3934b/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c0c423c0300c/completion_status[0m
+[2m• [0mPath to captured six-lines.diff: _build/testo/status/testo_tests/c0c423c0300c/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c0c423c0300c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m                                  [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8e08941de3ba/completion_status[0m
+[2m• [0mPath to captured leading-context.diff: _build/testo/status/testo_tests/8e08941de3ba/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8e08941de3ba/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m                            [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7d073a531ccf/completion_status[0m
+[2m• [0mPath to captured leading-context-short.diff: _build/testo/status/testo_tests/7d073a531ccf/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7d073a531ccf/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m                                 [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1cf5a6371f59/completion_status[0m
+[2m• [0mPath to captured trailing-context.diff: _build/testo/status/testo_tests/1cf5a6371f59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1cf5a6371f59/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8ae0ad03ce59/completion_status[0m
+[2m• [0mPath to captured joined-context.diff: _build/testo/status/testo_tests/8ae0ad03ce59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8ae0ad03ce59/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m                                   [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/360c4b690be4/completion_status[0m
+[2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
@@ -1957,11 +2188,11 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-62/62 selected tests:
+69/69 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-61 new tests
+68 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2008,6 +2239,13 @@ junk printed on stdout...
 [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m
 [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
+[33m[MISS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
+[33m[MISS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[33m[MISS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[33m[MISS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
@@ -2225,6 +2463,48 @@ Legend:
 [33m[RUN][0m   fb27e160e59b [36mrequire '--env foo=bar'[0m
 [32m[PASS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
+[33m[RUN][0m   bf116ef3934b [36mdiff[0m > [36mhello[0m
+[32m[PASS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected hello.diff: tests/diff-data/hello.diff
+[2m• [0mPath to captured hello.diff: _build/testo/status/testo_tests/bf116ef3934b/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf116ef3934b/log
+[33m[RUN][0m   c0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[32m[PASS]  [0mc0c423c0300c [36mdiff[0m > [36msix-lines[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected six-lines.diff: tests/diff-data/six-lines.diff
+[2m• [0mPath to captured six-lines.diff: _build/testo/status/testo_tests/c0c423c0300c/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c0c423c0300c/log
+[33m[RUN][0m   8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[32m[PASS]  [0m8e08941de3ba [36mdiff[0m > [36mleading-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected leading-context.diff: tests/diff-data/leading-context.diff
+[2m• [0mPath to captured leading-context.diff: _build/testo/status/testo_tests/8e08941de3ba/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8e08941de3ba/log
+[33m[RUN][0m   7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[32m[PASS]  [0m7d073a531ccf [36mdiff[0m > [36mleading-context-short[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected leading-context-short.diff: tests/diff-data/leading-context-short.diff
+[2m• [0mPath to captured leading-context-short.diff: _build/testo/status/testo_tests/7d073a531ccf/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7d073a531ccf/log
+[33m[RUN][0m   1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[32m[PASS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected trailing-context.diff: tests/diff-data/trailing-context.diff
+[2m• [0mPath to captured trailing-context.diff: _build/testo/status/testo_tests/1cf5a6371f59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1cf5a6371f59/log
+[33m[RUN][0m   8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[32m[PASS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected joined-context.diff: tests/diff-data/joined-context.diff
+[2m• [0mPath to captured joined-context.diff: _build/testo/status/testo_tests/8ae0ad03ce59/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/8ae0ad03ce59/log
+[33m[RUN][0m   360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
+[32m[PASS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
+[2m• [0mChecked output: stdout
+[2m• [0mPath to expected gap-in-context.diff: tests/diff-data/gap-in-context.diff
+[2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -2311,9 +2591,9 @@ Legend:
 2 folders no longer belong to the test suite and can be removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-62/62 selected tests:
+69/69 selected tests:
   1 skipped
-  60 successful (57 pass, 3 xfail)
+  67 successful (64 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
