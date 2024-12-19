@@ -450,6 +450,8 @@ let tests env =
     test_diff "leading-context";
     test_diff "leading-context-short";
     test_diff "trailing-context";
+    test_diff "joined-context";
+    test_diff "gap-in-context";
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"
