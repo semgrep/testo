@@ -448,6 +448,7 @@ let tests env =
     test_diff "hello";
     test_diff "six-lines";
     test_diff "leading-context";
+    test_diff "leading-context-short";
     test_diff "trailing-context";
   ]
   @ categorized @ test_internal_files

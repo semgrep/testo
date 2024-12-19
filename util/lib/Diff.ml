@@ -115,17 +115,28 @@ let group_diffs_by_hunk (diffs : (diff * pos) list) : (diff * pos) list list =
   pre_hunks
 
 (*
-   When encountering an Equal block, determine whether to create a boundary
-   between hunks.
+   Truncate the context (Equal block) on the left of a hunk.
+   Return (removed length, remaining part).
 *)
-let elide_equal_lines ~context_len lines =
+let truncate_left_context ~context_len lines =
   let len = Array.length lines in
-  if len <= 2 * context_len then None
+  if len <= context_len then None
+  else
+    Some
+      ( len - context_len,
+        Array.sub lines (len - context_len) context_len )
+
+(*
+   Truncate the context (Equal block) on the right of a hunk.
+   Return (remaining part, removed length).
+*)
+let truncate_right_context ~context_len lines =
+  let len = Array.length lines in
+  if len <= context_len then None
   else
     Some
       ( Array.sub lines 0 context_len,
-        len - (2 * context_len),
-        Array.sub lines (len - context_len) context_len )
+        len - context_len )
 
 (* Trim the leading and trailing Equal blocks and figure out the
    start and length of the lines represented by the hunk in each file. *)
@@ -133,10 +144,10 @@ let finalize_hunk (hunks : (diff * pos) list) =
   let left_context, start1, start2, hunks =
     match hunks with
     | (Equal lines, (start1, start2)) :: hunks -> (
-        match elide_equal_lines ~context_len lines with
+        match truncate_left_context ~context_len lines with
         | None -> (lines, start1, start2, hunks)
-        | Some (left, mid, right) ->
-            let offset = Array.length left + mid in
+        | Some (removed, right) ->
+            let offset = removed in
             (right, start1 + offset, start2 + offset, hunks)
       )
     | ((Added _ | Deleted _), (start1, start2)) :: _ ->
@@ -146,9 +157,9 @@ let finalize_hunk (hunks : (diff * pos) list) =
   let right_context, hunks =
     match List.rev hunks with
     | (Equal lines, _loc) :: rev_hunks -> (
-        match elide_equal_lines ~context_len lines with
+        match truncate_right_context ~context_len lines with
         | None -> (lines, List.rev rev_hunks)
-        | Some (left, _mid, _right) -> (left, List.rev rev_hunks))
+        | Some (left, _removed) -> (left, List.rev rev_hunks))
     | ((Added _ | Deleted _), _) :: _ -> ([||], hunks)
     | [] -> assert false
   in
