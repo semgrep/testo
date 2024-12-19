@@ -351,6 +351,12 @@ val with_environment_variables :
     [with_environment_variables] returns.
 *)
 
+val with_chdir : Fpath.t -> (unit -> 'a) -> 'a
+(** [with_chdir path func] changes the current directory associated with
+    the process to [path] before calling the function [func].
+    The original value of the current directory is restored when the function
+    terminates. *)
+
 (** {2 Output masking functions}
 
    Functions with the [mask_] prefix are string replacement

@@ -140,6 +140,10 @@ let tests =
           "g";
           "h";
         |] );
+    ("bug",
+     roundtrip_sym 1
+       [| "1"; "2"; "3"; "4"; "5"; "6"; |]
+       [| "Inserted"; "1"; "2"; "3"; "4"; "5"; "6"; |]);
   ]
 
 (* Who needs a test framework anyway? *)

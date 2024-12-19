@@ -244,6 +244,37 @@ let test_user_output_capture () =
   let (), capture2 = Testo.with_capture stdout (fun () -> print_string "wow") in
   Alcotest.(check string) "more captured stdout" "wow" capture2
 
+(*
+   Test the formatting for diffs, as implemented in the testo-util library.
+   The diff computation itself is tested in testo-diff.
+
+   To test the diff between two files, pick a name and place two files
+   '<name>.left' and '<name>.right' into 'tests/diff-data/'.
+
+   Note that we use Testo to produce diffs of Testo diffs with the
+   possibility that they're all broken, making such test failures
+   particularly confusing. For troubleshooting, it's easier to call
+   'bin/testo-diff' on the files in 'tests/diff-data' manually and
+   compare with the output of 'diff -u --color'.
+*)
+let test_diff name =
+  let dir = Fpath.v "tests/diff-data/" in
+  let func () =
+    Testo.with_chdir dir (fun () ->
+      let equal, diff_text =
+        Testo_util.Diff.files
+          (Fpath.v (name ^ ".left"))
+          (Fpath.v (name ^ ".right"))
+      in
+      assert (not equal);
+      print_string diff_text
+    )
+  in
+  Testo.create name func ~category:["diff"]
+    ~checked_output:(Testo.stdout
+                       ~expected_stdout_path:(dir / (name ^ ".diff"))
+                       ())
+
 (* For tests that need porting to Windows *)
 let is_windows = Sys.os_type = "Win32"
 
@@ -414,6 +445,8 @@ let tests env =
             Alcotest.fail (sprintf "Invalid value for variable foo: %S" other));
     t "solo 1/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
     t "solo 2/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
+    test_diff "hello";
+    test_diff "six-lines";
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"

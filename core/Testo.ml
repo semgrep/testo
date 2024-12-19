@@ -201,6 +201,13 @@ let read_file = Helpers.read_file
 let with_temp_file = Temp_file.with_temp_file
 let with_capture = Store.with_capture
 
+let with_chdir path func =
+  let orig_cwd = Unix.getcwd () in
+  Unix.chdir !!path;
+  Fun.protect
+    ~finally:(fun () -> Unix.chdir orig_cwd)
+    func
+
 (**************************************************************************)
 (* Hygiene *)
 (**************************************************************************)
