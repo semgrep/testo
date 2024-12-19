@@ -447,6 +447,8 @@ let tests env =
     t "solo 2/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
     test_diff "hello";
     test_diff "six-lines";
+    test_diff "leading-context";
+    test_diff "trailing-context";
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"
