@@ -7,13 +7,35 @@
 
 open Printf
 open Fpath_.Operators
-module Diff = Testo_diff.Make (String)
+module Diff = Testo_diff.Make (
+  struct
+    type t = string
+    [@@deriving show]
+
+    let compare = String.compare
+  end
+)
+
+let debug = false
 
 type diff = Diff.diff
+[@@deriving show]
+
+type diffs = diff list
+[@@deriving show]
 
 (* 1-based line number in each file *)
 type pos = int * int
+[@@deriving show]
+
+type pre_hunk = (diff * pos) list
+[@@deriving show]
+
+type pre_hunks = pre_hunk list
+[@@deriving show]
+
 type span = { start_line : int; length : int }
+[@@deriving show]
 
 type hunk = {
   span1 : span;
@@ -22,6 +44,10 @@ type hunk = {
   edits : diff list;
   right_context : string array;
 }
+[@@deriving show]
+
+type hunks = hunk list
+[@@deriving show]
 
 let read_lines path =
   path |> Helpers.read_file |> String.split_on_char '\n' |> Array.of_list
@@ -72,27 +98,45 @@ let group_diffs_by_hunk (diffs : (diff * pos) list) : (diff * pos) list list =
           (* close current hunk, start a new one.
              The trick is to add the Equal block to both the previous
              and next hunk. *)
-          fold (List.rev ((ed :: current_hunk) :: hunks)) [ ed ] diffs
+          fold (List.rev (ed :: current_hunk) :: hunks) [ ed ] diffs
         else (* extend current hunk *)
           fold hunks (ed :: current_hunk) diffs
     | (((Added _ | Deleted _), _) as ed) :: diffs ->
         fold hunks (ed :: current_hunk) diffs
     | [] -> List.rev (List.rev current_hunk :: hunks)
   in
-  fold [] [] diffs |> List.filter is_nontrivial_hunk
+  if debug then
+    printf "diffs:\n%s\n" (show_pre_hunk diffs);
+  let pre_hunks =
+    fold [] [] diffs |> List.filter is_nontrivial_hunk
+  in
+  if debug then
+    printf "pre-hunks:\n%s\n" (show_pre_hunks pre_hunks);
+  pre_hunks
 
 (*
-   When encountering an Equal block, determine whether to create a boundary
-   between hunks.
+   Truncate the context (Equal block) on the left of a hunk.
+   Return (removed length, remaining part).
 *)
-let elide_equal_lines ~context_len lines =
+let truncate_left_context ~context_len lines =
   let len = Array.length lines in
-  if len <= 2 * context_len then None
+  if len <= context_len then None
+  else
+    Some
+      ( len - context_len,
+        Array.sub lines (len - context_len) context_len )
+
+(*
+   Truncate the context (Equal block) on the right of a hunk.
+   Return (remaining part, removed length).
+*)
+let truncate_right_context ~context_len lines =
+  let len = Array.length lines in
+  if len <= context_len then None
   else
     Some
       ( Array.sub lines 0 context_len,
-        len - (2 * context_len),
-        Array.sub lines (len - context_len) context_len )
+        len - context_len )
 
 (* Trim the leading and trailing Equal blocks and figure out the
    start and length of the lines represented by the hunk in each file. *)
@@ -100,11 +144,12 @@ let finalize_hunk (hunks : (diff * pos) list) =
   let left_context, start1, start2, hunks =
     match hunks with
     | (Equal lines, (start1, start2)) :: hunks -> (
-        match elide_equal_lines ~context_len lines with
+        match truncate_left_context ~context_len lines with
         | None -> (lines, start1, start2, hunks)
-        | Some (left, mid, right) ->
-            let offset = Array.length left + mid in
-            (right, start1 + offset, start2 + offset, hunks))
+        | Some (removed, right) ->
+            let offset = removed in
+            (right, start1 + offset, start2 + offset, hunks)
+      )
     | ((Added _ | Deleted _), (start1, start2)) :: _ ->
         ([||], start1, start2, hunks)
     | [] -> assert false
@@ -112,9 +157,9 @@ let finalize_hunk (hunks : (diff * pos) list) =
   let right_context, hunks =
     match List.rev hunks with
     | (Equal lines, _loc) :: rev_hunks -> (
-        match elide_equal_lines ~context_len lines with
+        match truncate_right_context ~context_len lines with
         | None -> (lines, List.rev rev_hunks)
-        | Some (left, _mid, _right) -> (left, List.rev rev_hunks))
+        | Some (left, _removed) -> (left, List.rev rev_hunks))
     | ((Added _ | Deleted _), _) :: _ -> ([||], hunks)
     | [] -> assert false
   in
@@ -145,6 +190,8 @@ let finalize_hunk (hunks : (diff * pos) list) =
   }
 
 let hunks_of_edits (edits : diff list) : hunk list =
+  if debug then
+    printf "edits:\n%s\n" (show_diffs edits);
   edits |> number_diffs |> group_diffs_by_hunk |> Helpers.list_map finalize_hunk
 
 let format_header ~color buf path1 path2 =
@@ -187,6 +234,8 @@ let format_hunk ~color buf (x : hunk) =
 *)
 let format ~color buf path1 path2 (edits : diff list) : unit =
   let hunks = hunks_of_edits edits in
+  if debug then
+    printf "hunks:\n%s\n" (show_hunks hunks);
   format_header ~color buf path1 path2;
   List.iter (format_hunk ~color buf) hunks
 

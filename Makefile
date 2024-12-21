@@ -14,10 +14,12 @@ symlinks:
 	ln -sf _build/default/tests/parallel_test.exe parallel-test
 	ln -sf _build/default/tests/test_alcotest.exe test-alcotest
 	ln -sf _build/default/tests/meta_test.exe meta-test
+	# testo-diff
+	ln -sf _build/install/default/bin .
 
 .PHONY: delete-symlinks
 delete-symlinks:
-	rm -f test failing-test parallel-test test-alcotest meta-test
+	rm -f test failing-test parallel-test test-alcotest meta-test bin
 
 # Install opam dependencies. This requires pre-commit which requires
 # Python. See scripts/dev-setup-alpine for an example of how to install

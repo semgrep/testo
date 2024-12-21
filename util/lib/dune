@@ -8,4 +8,9 @@
     testo-diff
     unix
   )
+  (preprocess
+    (pps
+      ppx_deriving.show
+    )
+  )
 )

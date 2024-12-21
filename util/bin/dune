@@ -1,0 +1,11 @@
+; 'testo-diff' command line similar to 'diff -u'.
+; This is intended for testing purposes.
+(executable
+ (package testo-util)
+ (public_name testo-diff)
+ (name Testo_diff)
+ (libraries
+   testo-diff
+   testo-util
+ )
+)

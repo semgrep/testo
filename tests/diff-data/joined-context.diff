@@ -1,0 +1,14 @@
+[1m--- joined-context.left[0m
+[1m+++ joined-context.right[0m
+[36m@@ -1,9 +1,9 @@[0m
+[31m-x[0m
+[32m+x2[0m
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+[31m-y[0m
+[32m+y2[0m
+ 

@@ -9,6 +9,7 @@
 
 module type Comparable = sig
   type t
+  [@@deriving show]
   (** The type of the items being compared *)
 
   val compare : t -> t -> int
@@ -18,16 +19,19 @@ end
 
 module type S = sig
   type item
+  [@@deriving show]
   (** The type of the item that will be compared. *)
 
   type diff =
     | Deleted of item array
     | Added of item array
     | Equal of item array
+  [@@deriving show]
         (** Represents the change or lack of change in a line or character
         between the old and new version. *)
 
   type t = diff list
+  [@@deriving show]
   (** List of diffs which is the return value of the main function. *)
 
   val get_diff : item array -> item array -> t
