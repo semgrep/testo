@@ -67,26 +67,21 @@ let test_mask_pcre_pattern () =
      The relevant fix in re is https://github.com/ocaml/ocaml-re/pull/233
   *)
   let _tests_requiring_re_1_12 = [
-    (* require re >= 1.12.0 *)
     ("", "", "<MASKED>", None);
-    (* require re >= 1.12.0 *)
     ("", "aa", "XaXaX", Some "X");
-    (* require re >= 1.12.0 *)
     ({|\b|}, "word", "XwordX", Some "X");
+    ("", "aa", "<MASKED>a<MASKED>a<MASKED>", None);
   ]
   in
   (* These tests require re 1.10 or 1.11: *)
   let _tests_requiring_re_1_10 = [
-    (* require re >= 1.12.0 *)
     ("", "", "", None);
-    (* require re >= 1.12.0 *)
     ("", "aa", "XaXa", Some "X");
-    (* require re >= 1.12.0 *)
     ({|\b|}, "word", "Xword", Some "X");
+    ("", "aa", "<MASKED>a<MASKED>a", None);
   ]
   in
   [
-    ("", "aa", "<MASKED>a<MASKED>a<MASKED>", None);
     ("a", "aa", "XX", Some "X");
     ("a", "a,a", "X,X", Some "X");
     ("a+", "xxaxxxaaaxxa", "xxAxxxAxxA", Some "A");
