@@ -4,8 +4,9 @@
 #
 set -eu
 
-sudo apk add py3-pip
-pip install pre-commit
+# Use pipx instead of pip to avoid "error: externally-managed-environment"
+sudo apk add pipx
+pipx install pre-commit
 
 # hmmm
 src=$HOME/.local/bin/pre-commit

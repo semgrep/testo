@@ -29,6 +29,7 @@ Python implementation.
 See https://github.com/paulgb/simplediff")
   (depends
     (ocaml (>= 4.08.0))
+    ppx_deriving
   )
 )
 
@@ -41,6 +42,7 @@ Testo is a test framework for OCaml.")
     (ocaml (>= 4.08.0))
     fpath
     (re (>= 1.10.0))
+    ppx_deriving
     testo-diff
   )
 )
