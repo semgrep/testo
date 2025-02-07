@@ -90,12 +90,12 @@ let rec remove_file_or_dir path =
     | S_SOCK ->
         Sys.remove !!path
 
-let contains_pcre_pattern pat =
+let contains_pcre_pattern ~pat =
   let rex = Re.Pcre.regexp pat in
   fun str -> Re.execp rex str
 
-let contains_substring substring =
-  contains_pcre_pattern (Re.Pcre.quote substring)
+let contains_substring ~sub =
+  contains_pcre_pattern ~pat:(Re.Pcre.quote sub)
 
 let write_file path data =
   let oc = open_out_bin !!path in
