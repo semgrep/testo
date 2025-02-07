@@ -156,7 +156,8 @@ type t = private {
   tolerate_chdir : bool;
       (** If the test function changes the current directory without restoring
           it, it's an error unless this flag is set. All the tests in a test
-          suite should share this field. *)
+          suite should share this field. To change the current directory
+          temporarily and safely, use {!with_chdir}. *)
   tracking_url : string option;
       (** A link to the relevant entry in a bug tracking system. *)
 }
