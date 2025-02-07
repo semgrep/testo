@@ -4,6 +4,9 @@
   complete but produces the incorrect output. Running the `approve`
   subcommand on such a test now successfully changes its status from
   XFAIL to XPASS ([#103](https://github.com/semgrep/testo/pull/103)).
+* Allow multiple `-s` search queries in the same test command,
+  allowing the selection of various tests by their name or hash
+  ([#110](https://github.com/semgrep/testo/pull/110)).
 
 0.1.0 (2024-11-10)
 ------------------

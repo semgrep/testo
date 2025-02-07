@@ -394,8 +394,10 @@ let filter ~filter_by_substring ~filter_by_tag tests =
   let filter_sub =
     match filter_by_substring with
     | None -> None
-    | Some sub ->
-        let contains_sub = Helpers.contains_substring sub in
+    | Some subs ->
+        let contains_sub str =
+          List.exists (fun sub -> Helpers.contains_substring ~sub str) subs
+        in
         Some
           (fun (test : T.test) ->
             contains_sub test.internal_full_name || contains_sub test.id)

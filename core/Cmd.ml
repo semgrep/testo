@@ -14,7 +14,7 @@ open Cmdliner
 type conf = {
   (* All subcommands *)
   debug : bool;
-  filter_by_substring : string option;
+  filter_by_substring : string list option;
   filter_by_tag : Tag.t option;
   env : (string * string) list;
   (* Run and Status *)
@@ -139,13 +139,16 @@ let debug_term : bool Term.t =
   in
   Arg.value (Arg.flag info)
 
-let filter_by_substring_term : string option Term.t =
+let filter_by_substring_term : string list Term.t =
   let info =
     Arg.info
       [ "s"; "filter-substring" ]
-      ~docv:"SUBSTRING" ~doc:"Select tests whose description contains $(docv)."
+      ~docv:"SUBSTRING" ~doc:{|Select tests whose description
+contains $(docv).
+Multiple '-s' search queries can be specified in which case only one
+of them needs to match.|}
   in
-  Arg.value (Arg.opt (Arg.some Arg.string) None info)
+  Arg.value (Arg.opt_all Arg.string [] info)
 
 let check_tag filter_by_tag =
   filter_by_tag
@@ -304,10 +307,16 @@ let worker_term : bool Term.t =
 
 let run_doc = "run the tests"
 
+let optional_nonempty_list xs =
+  match xs with
+  | [] -> None
+  | or_terms -> Some or_terms
+
 let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     unit Term.t =
   let combine debug env filter_by_substring filter_by_tag jobs lazy_ show_output
       slice strict test_list_checksum verbose worker =
+    let filter_by_substring = optional_nonempty_list filter_by_substring in
     let show_output = show_output || verbose in
     let jobs =
       match jobs with
@@ -381,6 +390,7 @@ let status_doc = "show test status"
 let subcmd_status_term tests : unit Term.t =
   let combine all debug env filter_by_substring filter_by_tag long show_output
       strict verbose =
+    let filter_by_substring = optional_nonempty_list filter_by_substring in
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -421,6 +431,7 @@ let approve_doc = "approve new test output"
 
 let subcmd_approve_term tests : unit Term.t =
   let combine debug env filter_by_substring filter_by_tag =
+    let filter_by_substring = optional_nonempty_list filter_by_substring in
     Approve
       {
         default_conf with

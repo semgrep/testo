@@ -21,7 +21,7 @@ val to_alcotest :
 val cmd_run :
   always_show_unchecked_output:bool ->
   argv:string array ->
-  filter_by_substring:string option ->
+  filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
   is_worker:bool ->
   jobs:int option ->
@@ -38,7 +38,7 @@ val cmd_run :
    (PASS or XFAIL). *)
 val cmd_status :
   always_show_unchecked_output:bool ->
-  filter_by_substring:string option ->
+  filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
   output_style:status_output_style ->
   strict:bool ->
@@ -46,7 +46,7 @@ val cmd_status :
   int * Types.test_with_status list
 
 val cmd_approve :
-  filter_by_substring:string option ->
+  filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
   Types.test list ->
   int

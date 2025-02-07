@@ -146,6 +146,18 @@ let test_standard_flow () =
   test_status ~__LOC__ "" ~expected_exit_code:1;
   test_approve ~__LOC__ "-s auto-approve"
 
+let test_multi_selection () =
+  let (), capture =
+    Testo.with_capture stdout (fun () ->
+      (* Select two tests that have different names. We could pick
+         any two tests for this. *)
+      shell_command ~__LOC__
+        "./test status -a -s 'unchecked stdout' -s 'unchecked stderr'"
+    )
+  in
+  assert (Testo_util.Helpers.contains_substring capture ~sub:"unchecked stdout");
+  assert (Testo_util.Helpers.contains_substring capture ~sub:"unchecked stderr")
+
 (*
    Invalid output -> XFAIL
    Approved output -> XPASS
@@ -258,6 +270,7 @@ let tests =
     t "approve xfail"
       ~checked_output:(T.stdxxx ())
       test_approve_xfail;
+    t "multi selection" test_multi_selection;
   ]
 
 let () =
