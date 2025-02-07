@@ -1,4 +1,4 @@
-Testo
+Testo [![CircleCI badge](https://circleci.com/gh/semgrep/testo.svg?style=svg)](https://app.circleci.com/pipelines/github/semgrep/testo)
 ==
 
 > Party hard, test harder &mdash; DJ Testo
