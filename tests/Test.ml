@@ -67,6 +67,8 @@ let test_mask_pcre_pattern () =
     ("", "", "<MASKED>", None);
     (* require re >= 1.12.0 *)
     ("", "aa", "XaXaX", Some "X");
+    (* require re >= 1.12.0 *)
+    ({|\b|}, "word", "XwordX", Some "X");
     ("", "aa", "<MASKED>a<MASKED>a<MASKED>", None);
     ("a", "aa", "XX", Some "X");
     ("a", "a,a", "X,X", Some "X");
