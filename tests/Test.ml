@@ -63,7 +63,9 @@ let test_mask_pcre_pattern () =
     Alcotest.(check string) __LOC__ expected_result res
   in
   (* re.1.12.0 requires ocaml >= 4.12 but we want to support older versions
-     of ocaml so we're not sure of the behavior of the re library here. *)
+     of ocaml so we're not sure of the behavior of the re library here.
+     The relevant fix in re is https://github.com/ocaml/ocaml-re/pull/233
+  *)
   let _tests_requiring_re_1_12 = [
     (* require re >= 1.12.0 *)
     ("", "", "<MASKED>", None);
