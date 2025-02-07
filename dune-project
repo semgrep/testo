@@ -58,7 +58,7 @@ checking, and approving the output of tests.")
     (alcotest :with-test)
     (cmdliner (>= 1.1.0))
     fpath
-    (re (>= 1.10.0))
+    (re (>= 1.12.0))
     testo-util
   )
 )
@@ -76,7 +76,7 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     (alcotest :with-test)
     (cmdliner (>= 1.1.0))
     fpath
-    (re (>= 1.10.0))
+    (re (>= 1.12.0))
     testo-util
   )
 )

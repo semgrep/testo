@@ -264,6 +264,9 @@ let mask_line ?(mask = "<MASKED>") ?(after = "") ?(before = "") () =
    - If the pattern contains a group and the first group matches, only this
      matched group is replaced by the mask.
    - Otherwise, the whole match is replaced by the mask.
+
+   Dependency: re.1.12.0 introduces a fix in Re.split_full causing trailing
+   empty delimiters to be reported correctly.
 *)
 let mask_pcre_pattern ?replace pat =
   let re = Re.Pcre.regexp pat in

@@ -63,9 +63,11 @@ let test_mask_pcre_pattern () =
     Alcotest.(check string) __LOC__ expected_result res
   in
   [
-    ("", "", "", None);
-    ("", "aa", "XaXa", Some "X");
-    ("", "aa", "<MASKED>a<MASKED>a", None);
+    (* require re >= 1.12.0 *)
+    ("", "", "<MASKED>", None);
+    (* require re >= 1.12.0 *)
+    ("", "aa", "XaXaX", Some "X");
+    ("", "aa", "<MASKED>a<MASKED>a<MASKED>", None);
     ("a", "aa", "XX", Some "X");
     ("a", "a,a", "X,X", Some "X");
     ("a+", "xxaxxxaaaxxa", "xxAxxxAxxA", Some "A");
