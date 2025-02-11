@@ -669,6 +669,7 @@ let print_status_introduction () =
 %s[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 |}
     bullet bullet bullet bullet bullet bullet bullet
 
