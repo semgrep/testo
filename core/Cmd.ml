@@ -307,6 +307,27 @@ let worker_term : bool Term.t =
 
 let run_doc = "run the tests"
 
+let run_man : Manpage.block list =
+  [
+    `S Manpage.s_description;
+    `P {|Run all or only some of the tests. By default, the status
+of each test is reported as they are executed. Here's the legend for test
+statuses:|};
+    `Pre "\
+• [PASS]: a successful test that was expected to succeed (good);
+• [FAIL]: a failing test that was expected to succeed (needs fixing);
+• [XFAIL]: a failing test that was expected to fail (tolerated failure);
+• [XPASS]: a successful test that was expected to fail (progress?).
+• [MISS]: a test that never ran;
+• [SKIP]: a test that is always skipped but kept around for some reason;
+• [xxxx*]: a new test for which there's no expected output yet.
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+";
+    `P {|To review the status of the tests without rerunning them,
+use the 'status' subcommand.|}
+  ]
+
 let optional_nonempty_list xs =
   match xs with
   | [] -> None
@@ -348,7 +369,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     $ verbose_run_term $ worker_term)
 
 let subcmd_run ~argv ~default_workers test_spec =
-  let info = Cmd.info "run" ~doc:run_doc in
+  let info = Cmd.info "run" ~doc:run_doc ~man:run_man in
   Cmd.v info (subcmd_run_term ~argv ~default_workers test_spec)
 
 (****************************************************************************)
