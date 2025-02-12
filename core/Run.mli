@@ -23,6 +23,7 @@ val cmd_run :
   argv:string array ->
   filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
+  intro:string ->
   is_worker:bool ->
   jobs:int option ->
   lazy_:bool ->
@@ -40,6 +41,7 @@ val cmd_status :
   always_show_unchecked_output:bool ->
   filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
+  intro:string ->
   output_style:status_output_style ->
   strict:bool ->
   Types.test list ->
@@ -50,3 +52,5 @@ val cmd_approve :
   filter_by_tag:Testo_util.Tag.t option ->
   Types.test list ->
   int
+
+val introduction_text : string

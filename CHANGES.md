@@ -7,6 +7,8 @@
 * Allow multiple `-s` search queries in the same test command,
   allowing the selection of various tests by their name or hash
   ([#110](https://github.com/semgrep/testo/pull/110)).
+* Add a `--expert` option to hide the legend printed by `run` and
+  `status` ([#109](https://github.com/semgrep/testo/issues/109)).
 
 0.1.0 (2024-11-10)
 ------------------
