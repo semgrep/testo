@@ -95,6 +95,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 [33m[RUN SOLO: testing][0m 9213dcc500f4 [36msolo 1/2[0m
 [32m[PASS]  [0m9213dcc500f4 [36msolo 1/2[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
@@ -512,6 +513,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 
 [32m[PASS]  [0m8dbdda48fb87 [36msimple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/8dbdda48fb87/log
@@ -905,6 +907,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
 [worker 1/1] junk printed on stdout...
 [worker 1/1] ... when creating the test suite
@@ -961,6 +964,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
 [worker 1/1] junk printed on stdout...
 [worker 1/1] ... when creating the test suite
@@ -994,6 +998,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8dbdda48fb87/completion_status[0m
@@ -2282,6 +2287,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
+Try '--help' for options.
 [33m[RUN SOLO: testing][0m 9213dcc500f4 [36msolo 1/2[0m
 [32m[PASS]  [0m9213dcc500f4 [36msolo 1/2[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log

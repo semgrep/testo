@@ -37,4 +37,5 @@
 8/8 selected tests:
 Legend:
 RUN ./parallel-test run -j4
+Try '--help' for options.
 overall status: [32msuccess[0m
