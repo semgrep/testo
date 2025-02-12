@@ -123,6 +123,7 @@ let test_standard_flow () =
   test_approve ~__LOC__ "-s auto-approve";
   test_approve ~__LOC__ "-s environment-sensitive";
   test_status ~__LOC__ "";
+  test_status ~__LOC__ "--expert";
   test_status ~__LOC__ "--env A_b123=xxx";
   test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
   test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;

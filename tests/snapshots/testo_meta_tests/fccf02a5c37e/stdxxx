@@ -869,6 +869,11 @@ junk printed on stdout...
 ... when creating the test suite
 [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
 <handling result before exiting>
+RUN ./test status -e foo=bar --expert
+junk printed on stdout...
+... when creating the test suite
+[31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
+<handling result before exiting>
 RUN ./test status -e foo=bar --env A_b123=xxx
 junk printed on stdout...
 ... when creating the test suite
