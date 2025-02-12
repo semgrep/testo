@@ -657,21 +657,11 @@ let is_overall_success ~strict statuses =
    --full: all of the above, the default
    --short: show only short status and summary
 *)
-let print_status_introduction () =
-  printf
-    {|Legend:
-%s[PASS]: a successful test that was expected to succeed (good);
-%s[FAIL]: a failing test that was expected to succeed (needs fixing);
-%s[XFAIL]: a failing test that was expected to fail (tolerated failure);
-%s[XPASS]: a successful test that was expected to fail (progress?).
-%s[MISS]: a test that never ran;
-%s[SKIP]: a test that is always skipped but kept around for some reason;
-%s[xxxx*]: a new test for which there's no expected output yet.
-  In this case, you should review the test output and run the 'approve'
-  subcommand once you're satisfied with the output.
-Try '--help' for options.
-|}
-    bullet bullet bullet bullet bullet bullet bullet
+let print_introduction intro =
+  print_string intro;
+  if not (intro = "" || intro.[String.length intro - 1] = '\n') then
+    print_char '\n';
+  flush stdout
 
 (*
    Print one status line per test
@@ -752,8 +742,8 @@ let print_status_summary ~strict tests tests_with_status : int =
             (if_plural stats.broken_tests "s")));
   if overall_success then exit_success else exit_failure
 
-let print_all_statuses ~always_show_unchecked_output tests tests_with_status =
-  print_status_introduction ();
+let print_all_statuses ~always_show_unchecked_output ~intro tests tests_with_status =
+  print_introduction intro;
   print_newline ();
   print_long_status ~always_show_unchecked_output tests_with_status;
   print_newline ();
@@ -775,7 +765,7 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the 'status' subcommand
 *)
-let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
+let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag ~intro
     ~output_style ~strict tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
@@ -783,7 +773,7 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   let exit_code =
     match output_style with
     | Long_all ->
-        print_all_statuses ~always_show_unchecked_output ~strict tests
+        print_all_statuses ~always_show_unchecked_output ~intro ~strict tests
           tests_with_status
     | Long_important ->
         print_important_statuses ~always_show_unchecked_output ~strict tests
@@ -944,13 +934,13 @@ let select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
 (* This runs in the master process before a run or Lwt run
    and returns the list of selected tests that will be dispatched to
    the workers. *)
-let before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests =
+let before_run ~filter_by_substring ~filter_by_tag ~intro ~lazy_ ~slice tests =
   Store.init_workspace ();
   check_test_definitions tests;
   let selected_tests =
     select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
   in
-  print_status_introduction ();
+  print_introduction intro;
   selected_tests
 
 (* Run this after a run or Lwt run. *)
@@ -975,7 +965,7 @@ let after_run ~always_show_unchecked_output ~strict tests selected_tests =
    list of selected tests to the workers).
 *)
 let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
-    ~filter_by_tag ~is_worker ~jobs ~lazy_ ~slice ~strict
+    ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~slice ~strict
     ~test_list_checksum:expected_checksum tests cont =
   if is_worker then (
     (*
@@ -998,7 +988,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
           | Some n -> n)
     in
     let selected_tests =
-      before_run ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
+      before_run ~filter_by_substring ~filter_by_tag ~intro ~lazy_ ~slice tests
     in
     let all_sequential = num_workers = 0 in
     let sequential_tests, parallel_tests =
@@ -1032,3 +1022,19 @@ let cmd_approve ~filter_by_substring ~filter_by_tag tests =
   |> filter ~filter_by_substring ~filter_by_tag
   |> Helpers.list_map Store.approve_new_output
   |> print_errors
+
+let introduction_text =
+  sprintf
+    {|Legend:
+%s[PASS]: a successful test that was expected to succeed (good);
+%s[FAIL]: a failing test that was expected to succeed (needs fixing);
+%s[XFAIL]: a failing test that was expected to fail (tolerated failure);
+%s[XPASS]: a successful test that was expected to fail (progress?).
+%s[MISS]: a test that never ran;
+%s[SKIP]: a test that is always skipped but kept around for some reason;
+%s[xxxx*]: a new test for which there's no expected output yet.
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+Try '--help' for options.
+|}
+    bullet bullet bullet bullet bullet bullet bullet

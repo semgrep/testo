@@ -18,6 +18,7 @@ type conf = {
   filter_by_tag : Tag.t option;
   env : (string * string) list;
   (* Run and Status *)
+  intro : string;
   show_output : bool;
   (* Status *)
   status_output_style : Run.status_output_style;
@@ -40,6 +41,7 @@ let default_conf =
     show_output = false;
     status_output_style = Compact_important;
     argv = Sys.argv;
+    intro = Run.introduction_text;
     lazy_ = false;
     slice = [];
     is_worker = false;
@@ -97,7 +99,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       let tests = get_tests conf.env in
       Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag ~is_worker:conf.is_worker
+        ~filter_by_tag:conf.filter_by_tag
+        ~intro:conf.intro
+        ~is_worker:conf.is_worker
         ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice ~strict:conf.strict
         ~test_list_checksum:conf.test_list_checksum tests
         (fun exit_code tests_with_status ->
@@ -113,6 +117,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
         Run.cmd_status ~always_show_unchecked_output:conf.show_output
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
+          ~intro:conf.intro
           ~output_style:conf.status_output_style ~strict:conf.strict
           (get_tests conf.env)
       in
@@ -136,6 +141,15 @@ let debug_term : bool Term.t =
   let info =
     Arg.info [ "debug" ]
       ~doc:"Log information that can be useful for debugging the Testo library."
+  in
+  Arg.value (Arg.flag info)
+
+let expert_term : bool Term.t =
+  let info =
+    Arg.info [ "expert" ]
+      ~doc:
+        "Assume the user is familiar with Testo and don't show non-essential
+messages or tips targeted at new users."
   in
   Arg.value (Arg.flag info)
 
@@ -335,9 +349,10 @@ let optional_nonempty_list xs =
 
 let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     unit Term.t =
-  let combine debug env filter_by_substring filter_by_tag jobs lazy_ show_output
+  let combine debug env expert filter_by_substring filter_by_tag jobs lazy_ show_output
       slice strict test_list_checksum verbose worker =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
+    let intro = if expert then "" else default_conf.intro in
     let show_output = show_output || verbose in
     let jobs =
       match jobs with
@@ -351,6 +366,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
+        intro;
         is_worker = worker;
         jobs;
         lazy_;
@@ -363,7 +379,8 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ debug_term $ env_term $ filter_by_substring_term
+    const combine $ debug_term
+    $ env_term $ expert_term $ filter_by_substring_term
     $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
     $ show_output_term $ slice_term $ strict_term $ test_list_checksum_term
     $ verbose_run_term $ worker_term)
@@ -409,9 +426,10 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all debug env filter_by_substring filter_by_tag long show_output
+  let combine all debug env expert filter_by_substring filter_by_tag long show_output
       strict verbose =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
+    let intro = if expert then "" else default_conf.intro in
     let status_output_style : Run.status_output_style =
       if verbose then Long_all
       else
@@ -429,6 +447,7 @@ let subcmd_status_term tests : unit Term.t =
         env;
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
+        intro;
         show_output;
         status_output_style;
         strict;
@@ -436,7 +455,7 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ debug_term $ env_term $ filter_by_substring_term
+    const combine $ all_term $ debug_term $ env_term $ expert_term $ filter_by_substring_term
     $ filter_by_tag_term $ long_term $ show_output_term $ strict_term
     $ verbose_status_term)
 
