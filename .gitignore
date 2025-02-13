@@ -1,4 +1,5 @@
 /_build
+/_opam
 
 # Symbolic links created dynamically
 /failing-test
