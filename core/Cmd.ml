@@ -84,7 +84,9 @@ let fatal_error msg =
      become empty. This closes the pipe connected to the worker's stdout.
 *)
 let ignore_broken_pipe () =
-  Sys.set_signal Sys.sigpipe (Signal_handle (fun _signal -> exit 0))
+  (* There are no signals to handle on Windows *)
+  if not Sys.win32 then
+    Sys.set_signal Sys.sigpipe (Signal_handle (fun _signal -> exit 0))
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
