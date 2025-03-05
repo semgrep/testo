@@ -1,3 +1,4 @@
+* Fix: don't set signals on Windows (https://github.com/semgrep/testo/pull/118).
 * Add `Testo.with_chdir` (https://github.com/semgrep/testo/pull/104).
 * Fix nonsensical diff formatting (https://github.com/semgrep/testo/pull/104).
 * Fix: enable the approval of the output of a test that is expected to
