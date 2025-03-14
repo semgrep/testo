@@ -489,8 +489,8 @@ let with_redirect_fd_to_file fd filename func () =
       (* Open the file for writing only *)
       O_WRONLY;
       (* On Windows, allows deleting the file while it may be open. This matches
-         Linux and Max behavior and prevents specious permission errors if users
-         of this function try to delet [filename]. *)
+         POSIX behavior and prevents specious permission errors if users of this
+         function try to delete [filename]. *)
       O_SHARE_DELETE;
     ]
   in
