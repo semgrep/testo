@@ -480,7 +480,21 @@ let with_redirect_fd ~from ~to_ func () =
 
 (* Redirect stdout or stderr to a file *)
 let with_redirect_fd_to_file fd filename func () =
-  let file = Unix.openfile !!filename [ O_CREAT; O_TRUNC; O_WRONLY ] 0o666 in
+  let open_flags : Unix.open_flag list =
+    [
+      (* Create the file if non-existent *)
+      O_CREAT;
+      (* Truncate the file if it exists *)
+      O_TRUNC;
+      (* Open the file for writing only *)
+      O_WRONLY;
+      (* On Windows, allows deleting the file while it may be open. This matches
+         Linux and Max behavior and prevents specious permission errors if users
+         of this function try to delet [filename]. *)
+      O_SHARE_DELETE;
+    ]
+  in
+  let file = Unix.openfile !!filename open_flags 0o666 in
   P.protect
     ~finally:(fun () ->
       Unix.close file;
