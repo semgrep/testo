@@ -513,8 +513,10 @@ so as to make their latest output the new reference.
          project_name);
     `P
       (sprintf
+         (* NOTE: We use quoted string paths via %S to avoid conflicts with
+            Cmdliner's markup (this occurs, e.g., with `\` in Windows paths). *)
          {|This test program was configured to store the temporary results in
-'%s' and the expected test output in the persistent folder '%s'.
+%S and the expected test output in the persistent folder %S.
 The latter should be kept under version control (git or similar).
 |}
          !!(Store.get_status_workspace ())
