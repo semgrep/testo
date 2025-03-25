@@ -21,7 +21,8 @@ let t = T.create
 *)
 let shell_command ?(expected_exit_code = 0) ~__LOC__:loc command =
   printf "RUN %s\n%!" command;
-  let exit_code = Sys.command command in
+  let bash_command = sprintf "bash -c '%s'" command in
+  let exit_code = Sys.command bash_command in
   if exit_code <> expected_exit_code then
     failwith
       (sprintf "%s:\nCommand '%s' exited with code %i but code %i was expected."
