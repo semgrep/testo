@@ -276,6 +276,12 @@ let tests =
   ]
 
 let () =
+  (* stdout and stderr are in "text mode" by default, and on windows this
+     entails rewriting line endings to CLRF. This makes the test output
+     incompatible between Windows and POSIX platforms. Setting the channels to
+     binary mode ensures consistent output. *)
+  set_binary_mode_out stdout true;
+  set_binary_mode_out stderr true;
   (* We have a few tests that use the same workspace. To avoid conflicts,
      we run them sequentially. *)
   Testo.interpret_argv ~default_workers:(Some 0)

@@ -476,6 +476,12 @@ let tests env =
          Testo_util.Slice.tests)
 
 let () =
+  (* stdout and stderr are in "text mode" by default, and on windows this
+     entails rewriting line endings to CLRF. This makes the test output
+     incompatible between Windows and POSIX platforms. Setting the channels to
+     binary mode ensures consistent output. *)
+  set_binary_mode_out stdout true;
+  set_binary_mode_out stderr true;
   Testo.interpret_argv ~project_name:"testo_tests"
     ~handle_subcommand_result:(fun exit_code _ ->
       print_endline "<handling result before exiting>";
