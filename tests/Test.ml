@@ -403,7 +403,12 @@ let tests env =
                   "equal" (Some "z") (Sys.getenv_opt "B"));
             Alcotest.(check (option string))
               "equal" (Some "b") (Sys.getenv_opt "B"));
-        Alcotest.(check (option string)) "equal" (Some "") (Sys.getenv_opt "B"));
+        (* Check that the env var is cleared again outside of the combinator *)
+        let expected_unset_B =
+          (* On Windows, [Sys.getenv_opt v = None] for empty variables *)
+          if Sys.win32 then None else Some ""
+        in
+        Alcotest.(check (option string)) "equal" expected_unset_B (Sys.getenv_opt "B"));
     t "with environment variables bad"
       ~expected_outcome:(Should_fail "fail to restore environment variable")
       (fun () ->
