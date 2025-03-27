@@ -457,29 +457,34 @@ let find_dead_snapshots tests : dead_snapshot list =
 (* Redirect e.g. stderr to stdout during the execution of the function func.
    Usage:
 
-     with_redirect Unix.stderr Unix.stdout do_something
+     with_redirect [Unix.stderr] Unix.stdout do_something
 
-   redirects stderr to stdout.
+   redirects stderr to stdout while running do_something.
+
+     with_redirect [Unix.stderr; Unix.stdout] fd do_something
+
+   redirects both stderr and stdout to fd while running do_something.
 *)
-let with_redirect_fd ~from ~to_ func () =
-  (* keep the original file alive *)
-  let original = Unix.dup from in
+let with_redirect_fds ~(from:Unix.file_descr list) ~to_ func () =
+  (* keep the original file descriptors (fds) alive *)
+  let originals = List.map Unix.dup from in
   P.protect
     ~finally:(fun () ->
-      Unix.close original;
+      List.iter Unix.close originals;
       P.return ())
     (fun () ->
-      (* redirect to file *)
-      Unix.dup2 to_ from;
+      (* redirect all fds in [from] to the fd [to_] *)
+      List.iter (Unix.dup2 to_) from;
       P.protect
         ~finally:(fun () ->
-          (* cancel the redirect *)
-          Unix.dup2 original from;
+          (* cancel the redirects by restoring the [from] fds to their
+             originals *)
+          List.iter2 Unix.dup2 originals from;
           P.return ())
         func)
 
-(* Redirect stdout or stderr to a file *)
-let with_redirect_fd_to_file fd filename func () =
+(* Redirect file descriptors (e.g., Unix.stdout) to a file *)
+let with_redirect_fds_to_file from filename func () =
   let open_flags : Unix.open_flag list =
     [
       (* Create the file if non-existent *)
@@ -499,40 +504,31 @@ let with_redirect_fd_to_file fd filename func () =
     ~finally:(fun () ->
       Unix.close file;
       P.return ())
-    (with_redirect_fd ~from:fd ~to_:file func)
+    (with_redirect_fds ~from ~to_:file func)
 
-(* stdout/stderr redirect using buffered channels. We're careful about
-   flushing the channel of interest (from) before any redirection. *)
-let with_redirect ~from ~to_ func () =
-  flush from;
-  let from_fd = Unix.descr_of_out_channel from in
-  let to_fd = Unix.descr_of_out_channel to_ in
-  with_redirect_fd ~from:from_fd ~to_:to_fd
+(* Redirect a list of buffered channels to a file. *)
+let with_redirects_to_file from filename func () =
+  (* Before redirecting, flush all pending writes to the channels *)
+  List.iter flush from;
+  let from_fds = List.map Unix.descr_of_out_channel from in
+  with_redirect_fds_to_file from_fds filename
     (fun () ->
       P.protect
         ~finally:(fun () ->
-          flush from;
+          (* Before cancelling the redirects, flush all pending writes *)
+          List.iter flush from;
           P.return ())
         func)
     ()
 
 (* Redirect a buffered channel to a file. *)
 let with_redirect_to_file from filename func () =
-  flush from;
-  let from_fd = Unix.descr_of_out_channel from in
-  with_redirect_fd_to_file from_fd filename
-    (fun () ->
-      P.protect
-        ~finally:(fun () ->
-          flush from;
-          P.return ())
-        func)
-    ()
+  with_redirects_to_file [from] filename func ()
 
 (* This is offered directly to users. *)
 let with_capture from func =
   Temp_file.with_temp_file ~suffix:".out" (fun path ->
-      with_redirect_to_file from path func () >>= fun res ->
+      with_redirects_to_file [from] path func () >>= fun res ->
       let output = read_file_exn path in
       P.return (res, output))
 
@@ -567,9 +563,8 @@ let normalize_output (test : T.test) =
              Helpers.write_file std_path normalized_data)
 
 let with_redirect_merged_stdout_stderr path func =
-  (* redirect stderr to stdout, then redirect stdout to stdxxx file *)
-  with_redirect_to_file stdout path
-    (with_redirect ~from:stderr ~to_:stdout func)
+  (* redirect stderr and stdout to a stdxxx file *)
+  with_redirects_to_file [stdout; stderr] path func
 
 let with_output_capture (test : T.test) (func : unit -> 'unit_promise) =
   let capture_paths = capture_paths_of_test test in
