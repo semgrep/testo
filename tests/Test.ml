@@ -291,13 +291,6 @@ let test_diff name =
                        ~expected_stdout_path:(dir / (name ^ ".diff"))
                        ())
 
-(* For tests that need porting to Windows *)
-let is_windows = Sys.os_type = "Win32"
-
-let windows_todo : Testo.expected_outcome =
-  if is_windows then Should_fail "this test needs to be ported to Windows"
-  else Should_succeed
-
 (*
    The tests marked as "auto-approve" are tests that capture their output
    and will be automatically approved by the meta test suite.
@@ -420,9 +413,8 @@ let tests env =
     t ~checked_output:(Testo.stdout ()) ~normalize:[ String.lowercase_ascii ]
       "masked" (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;
-    t "mask_temp_paths" ~expected_outcome:windows_todo test_mask_temp_paths;
-    t "mask exotic temp paths" ~expected_outcome:windows_todo
-      test_mask_exotic_temp_paths;
+    t "mask_temp_paths" test_mask_temp_paths;
+    t "mask exotic temp paths" test_mask_exotic_temp_paths;
     t "contains substring" test_contains_substring;
     t "contains pcre pattern" test_contains_pcre_pattern;
     t "filter_map_lines" test_filter_map_lines;
