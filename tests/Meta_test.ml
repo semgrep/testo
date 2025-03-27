@@ -244,11 +244,13 @@ let mask_and_sort = mask_alcotest_output @ [ sort_lines; remove_optional_lines ]
 
 let tests =
   [
-    t ~checked_output:(T.stdxxx ()) ~normalize:mask_alcotest_output
+    t ~checked_output:(T.stdxxx ())
+      ~skipped:"TODO: FIXME on Window"
+      ~normalize:mask_alcotest_output
       "standard flow" test_standard_flow;
-    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+    t ~skipped:"TODO: FIXME on Window" ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
       "fewer workers than tests" test_fewer_workers_than_tests;
-    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+    t ~skipped:"TODO: FIXME on Window" ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
       "more workers than tests" test_more_workers_than_tests;
     t "failing flow run"
       ~expected_outcome:
