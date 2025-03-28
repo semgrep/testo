@@ -152,9 +152,7 @@ let test_mask_exotic_temp_paths () =
     ("/", "/", "<TMP>");
     (* Fpath normalizes multiple leading slashes into "//" rather than "/".
        I don't know why or whether it matters in practice. *)
-    ("////", "//", "<TMP>");
     ("/", "/a", "<TMP>a");
-    ("////", "//a", "<TMP>a");
     ("a", "a", "<TMP>");
     ("a/", "a", "<TMP>");
     ("a////", "a", "<TMP>");
@@ -164,7 +162,19 @@ let test_mask_exotic_temp_paths () =
     ("/a/", "/a", "<TMP>");
     ("/a////", "/a", "<TMP>");
     ("/a////", "/a/", "<TMP>/");
-  ]
+  ] @ (
+    if Sys.win32 then
+      []
+    else
+      (* [Fpath.v "////"] fails with `Exception: Invalid_argument "\"////\": invalid path".`
+         on windows, but it *is* a valid path on POSIX systems. *)
+      [
+        (* Fpath normalizes multiple leading slashes into "//" rather than "/".
+           I don't know why or whether it matters in practice. *)
+        ("////", "//", "<TMP>");
+        ("////", "//a", "<TMP>a");
+      ]
+ )
   |> List.iter test_one
 
 let test_contains_substring () =
