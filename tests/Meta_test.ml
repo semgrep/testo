@@ -113,6 +113,8 @@ let clear_snapshots ~__LOC__:loc () =
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
 
+(* FIXME: This integration test fails on Windows because the expected output
+   includes paths generated on POSIX systems. It runs correctly however. *)
 let test_standard_flow () =
   section "Clean start";
   clear_status ~__LOC__ ();
@@ -242,14 +244,25 @@ let remove_optional_lines =
 
 let mask_and_sort = mask_alcotest_output @ [ sort_lines; remove_optional_lines ]
 
+(* FIXME: Running parallel jobs on Windows is unstable, producing
+   Sys_error("Invalid argument")` during some attempts to flush channels.
+   Perhaps related to https://github.com/ocaml/ocaml/issues/13586 *)
+let skipped =
+  if Sys.win32 then
+    Some "Running tests in parallel is unstable on Windows"
+  else
+    None
+
 let tests =
   [
     t ~checked_output:(T.stdxxx ())
       ~normalize:mask_alcotest_output
       "standard flow" test_standard_flow;
-    t ~skipped:"TODO: FIXME on Window" ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+      ?skipped
       "fewer workers than tests" test_fewer_workers_than_tests;
-    t ~skipped:"TODO: FIXME on Window" ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
+      ?skipped
       "more workers than tests" test_more_workers_than_tests;
     t "failing flow run"
       ~expected_outcome:

@@ -265,7 +265,8 @@ let jobs_term ~default_workers : int option Term.t =
             non-overlapping execution of the tests. Unlike '-j1', '-j0' will \
             not create a separate worker process to run the tests. The default \
             can be changed by passing '~default_workers' to the OCaml function \
-            'Testo.interpret_argv'."
+            'Testo.interpret_argv'. NOTE: Parallel executation of tests is not \
+            stable on Windows."
            default_str)
   in
   Arg.value (Arg.opt (Arg.some Arg.int) None info)
