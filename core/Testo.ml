@@ -368,6 +368,11 @@ let path_character_range = {|/\\:A-Za-z0-9_.-|}
 let path_character = "[" ^ path_character_range ^ "]"
 let nonpath_character = "[^" ^ path_character_range ^ "]"
 
+(* Path masking is meant to provide stable path descriptors across environments.
+   In order for this to hold across Windows and POSIX platforms, we present all
+   masked paths as POSIX. We perform this normalization on strings instead of
+   Fpath values, because the current logic of path masking is meant to preserve
+   repeated path separators, but these are normalized away by Fpath. *)
 let posixify_path p =
   if Sys.win32 then
     String.map (function '\\' -> '/' | c -> c) p
@@ -376,7 +381,6 @@ let posixify_path p =
 
 let mask_temp_paths ?(depth = Some 1) ?replace
     ?(temp_dir = Filename_.get_temp_dir_name ()) () =
-  (* TODO explain posixify *)
   let temp_dir_str = Fpath.(rem_empty_seg temp_dir |> to_string) |> posixify_path in
   let temp_dir_pat = Re.Pcre.quote temp_dir_str in
   let suffix_pat =
