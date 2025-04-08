@@ -353,7 +353,7 @@ let path_segment_re = Re.Pcre.regexp {|[^\\/]+|}
 (* Internal function.
    Replace "/tmp/a/b" with "<TMP>/<MASKED>/<MASKED>" *)
 let default_replace_path ~temp_dir str =
-  let prefix_len = String.length !!temp_dir in
+  let prefix_len = String.length temp_dir in
   let len = String.length str in
   assert (prefix_len <= len);
   let suffix = String.sub str prefix_len (len - prefix_len) in
@@ -368,10 +368,21 @@ let path_character_range = {|/\\:A-Za-z0-9_.-|}
 let path_character = "[" ^ path_character_range ^ "]"
 let nonpath_character = "[^" ^ path_character_range ^ "]"
 
+(* Path masking is meant to provide stable path descriptors across environments.
+   In order for this to hold across Windows and POSIX platforms, we present all
+   masked paths as POSIX. We perform this normalization on strings instead of
+   Fpath values, because the current logic of path masking is meant to preserve
+   repeated path separators, but these are normalized away by Fpath. *)
+let posixify_path p =
+  if Sys.win32 then
+    String.map (function '\\' -> '/' | c -> c) p
+  else
+    p
+
 let mask_temp_paths ?(depth = Some 1) ?replace
     ?(temp_dir = Filename_.get_temp_dir_name ()) () =
-  let temp_dir = Fpath.rem_empty_seg temp_dir in
-  let temp_dir_pat = Re.Pcre.quote !!temp_dir in
+  let temp_dir_str = Fpath.(rem_empty_seg temp_dir |> to_string) |> posixify_path in
+  let temp_dir_pat = Re.Pcre.quote temp_dir_str in
   let suffix_pat =
     match depth with
     | None -> sprintf {|%s*|} path_character
@@ -397,10 +408,11 @@ let mask_temp_paths ?(depth = Some 1) ?replace
   in
   let replace =
     match replace with
-    | None -> default_replace_path ~temp_dir
+    | None -> default_replace_path ~temp_dir:temp_dir_str
     | Some f -> f
   in
-  mask_pcre_pattern ~replace pat
+  fun p ->
+    posixify_path p |> mask_pcre_pattern ~replace pat
 
 let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
   let re = Re.Pcre.regexp pat in

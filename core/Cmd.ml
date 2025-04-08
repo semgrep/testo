@@ -265,7 +265,8 @@ let jobs_term ~default_workers : int option Term.t =
             non-overlapping execution of the tests. Unlike '-j1', '-j0' will \
             not create a separate worker process to run the tests. The default \
             can be changed by passing '~default_workers' to the OCaml function \
-            'Testo.interpret_argv'."
+            'Testo.interpret_argv'. NOTE: Parallel executation of tests is not \
+            stable on Windows."
            default_str)
   in
   Arg.value (Arg.opt (Arg.some Arg.int) None info)
@@ -512,8 +513,10 @@ so as to make their latest output the new reference.
          project_name);
     `P
       (sprintf
+         (* NOTE: We use quoted string paths via %S to avoid conflicts with
+            Cmdliner's markup (this occurs, e.g., with `\` in Windows paths). *)
          {|This test program was configured to store the temporary results in
-'%s' and the expected test output in the persistent folder '%s'.
+%S and the expected test output in the persistent folder %S.
 The latter should be kept under version control (git or similar).
 |}
          !!(Store.get_status_workspace ())

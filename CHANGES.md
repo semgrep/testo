@@ -1,3 +1,9 @@
+* Fix: handle windows paths correctly CLI help output
+  (https://github.com/semgrep/testo/pull/121)
+* Fix: correct path masking on Windows paths
+  (https://github.com/semgrep/testo/pull/121)
+* Fix: prevent "Bad file descriptor" errors arising from output redirection on
+  Windows (https://github.com/semgrep/testo/pull/121)
 * Fix: handle temporary file deletion cleanly on windows
   (https://github.com/semgrep/testo/pull/119)
 * Fix: don't set signals on Windows (https://github.com/semgrep/testo/pull/118).

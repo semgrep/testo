@@ -152,9 +152,7 @@ let test_mask_exotic_temp_paths () =
     ("/", "/", "<TMP>");
     (* Fpath normalizes multiple leading slashes into "//" rather than "/".
        I don't know why or whether it matters in practice. *)
-    ("////", "//", "<TMP>");
     ("/", "/a", "<TMP>a");
-    ("////", "//a", "<TMP>a");
     ("a", "a", "<TMP>");
     ("a/", "a", "<TMP>");
     ("a////", "a", "<TMP>");
@@ -164,7 +162,19 @@ let test_mask_exotic_temp_paths () =
     ("/a/", "/a", "<TMP>");
     ("/a////", "/a", "<TMP>");
     ("/a////", "/a/", "<TMP>/");
-  ]
+  ] @ (
+    if Sys.win32 then
+      []
+    else
+      (* [Fpath.v "////"] fails with `Exception: Invalid_argument "\"////\": invalid path".`
+         on windows, but it *is* a valid path on POSIX systems. *)
+      [
+        (* Fpath normalizes multiple leading slashes into "//" rather than "/".
+           I don't know why or whether it matters in practice. *)
+        ("////", "//", "<TMP>");
+        ("////", "//a", "<TMP>a");
+      ]
+ )
   |> List.iter test_one
 
 let test_contains_substring () =
@@ -291,13 +301,6 @@ let test_diff name =
                        ~expected_stdout_path:(dir / (name ^ ".diff"))
                        ())
 
-(* For tests that need porting to Windows *)
-let is_windows = Sys.os_type = "Win32"
-
-let windows_todo : Testo.expected_outcome =
-  if is_windows then Should_fail "this test needs to be ported to Windows"
-  else Should_succeed
-
 (*
    The tests marked as "auto-approve" are tests that capture their output
    and will be automatically approved by the meta test suite.
@@ -403,7 +406,12 @@ let tests env =
                   "equal" (Some "z") (Sys.getenv_opt "B"));
             Alcotest.(check (option string))
               "equal" (Some "b") (Sys.getenv_opt "B"));
-        Alcotest.(check (option string)) "equal" (Some "") (Sys.getenv_opt "B"));
+        (* Check that the env var is cleared again outside of the combinator *)
+        let expected_unset_B =
+          (* On Windows, [Sys.getenv_opt v = None] for empty variables *)
+          if Sys.win32 then None else Some ""
+        in
+        Alcotest.(check (option string)) "equal" expected_unset_B (Sys.getenv_opt "B"));
     t "with environment variables bad"
       ~expected_outcome:(Should_fail "fail to restore environment variable")
       (fun () ->
@@ -415,9 +423,8 @@ let tests env =
     t ~checked_output:(Testo.stdout ()) ~normalize:[ String.lowercase_ascii ]
       "masked" (fun () -> print_endline "HELLO");
     t "mask_pcre_pattern" test_mask_pcre_pattern;
-    t "mask_temp_paths" ~expected_outcome:windows_todo test_mask_temp_paths;
-    t "mask exotic temp paths" ~expected_outcome:windows_todo
-      test_mask_exotic_temp_paths;
+    t "mask_temp_paths" test_mask_temp_paths;
+    t "mask exotic temp paths" test_mask_exotic_temp_paths;
     t "contains substring" test_contains_substring;
     t "contains pcre pattern" test_contains_pcre_pattern;
     t "filter_map_lines" test_filter_map_lines;
@@ -476,6 +483,12 @@ let tests env =
          Testo_util.Slice.tests)
 
 let () =
+  (* stdout and stderr are in "text mode" by default, and on windows this
+     entails rewriting line endings to CLRF. This makes the test output
+     incompatible between Windows and POSIX platforms. Setting the channels to
+     binary mode ensures consistent output. *)
+  set_binary_mode_out stdout true;
+  set_binary_mode_out stderr true;
   Testo.interpret_argv ~project_name:"testo_tests"
     ~handle_subcommand_result:(fun exit_code _ ->
       print_endline "<handling result before exiting>";
