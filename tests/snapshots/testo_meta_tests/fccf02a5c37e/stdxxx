@@ -489,7 +489,7 @@ Try '--help' for options.
 [33m[PASS*] [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
 [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
 [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 69/69 selected tests:
@@ -829,7 +829,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/f66d12950c64/log
 [2m• [0mLog (stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 69/69 selected tests:
@@ -948,7 +948,7 @@ Try '--help' for options.
 [2m• [0mLog (stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [31m[FAIL]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 1/69 selected tests:
@@ -978,7 +978,7 @@ Try '--help' for options.
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/5eff5d8ffb2b/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/5eff5d8ffb2b/log
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 1/69 selected tests:
@@ -1722,7 +1722,7 @@ Try '--help' for options.
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 69/69 selected tests:
@@ -2195,7 +2195,7 @@ junk printed on stdout...
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 69/69 selected tests:
@@ -2599,7 +2599,7 @@ Try '--help' for options.
  
 [0m[2m────────────────────────────────────────────────────────────────────────────────[0m
 [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
-2 folders no longer belong to the test suite and can be removed:
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
 69/69 selected tests:
@@ -2639,3 +2639,62 @@ junk printed on stdout...
 ... when creating the test suite
 Expected output changed for 9 tests.
 <handling result before exiting>
+#####################################################################
+# Delete the dead snapshots with --autoclean
+#####################################################################
+RUN ./test status -e foo=bar -l --autoclean
+junk printed on stdout...
+... when creating the test suite
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
+[2m• [0mLog (stdout, stderr) is empty.
+[2m• [0mException raised by the test:
+[31m Failure("I am broken")
+ Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ 
+[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+2 folders no longer belong to the test suite and are being removed:
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+69/69 selected tests:
+  1 skipped
+  67 successful (64 pass, 3 xfail)
+  1 unsuccessful (1 fail, 0 xpass)
+overall status: [32msuccess[0m
+[33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
+<handling result before exiting>
+#####################################################################
+# Check that the dead snapshots are gone
+#####################################################################
+RUN ./test status -e foo=bar -l
+junk printed on stdout...
+... when creating the test suite
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
+[2m• [0mLog (stdout, stderr) is empty.
+[2m• [0mException raised by the test:
+[31m Failure("I am broken")
+ Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ 
+[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+69/69 selected tests:
+  1 skipped
+  67 successful (64 pass, 3 xfail)
+  1 unsuccessful (1 fail, 0 xpass)
+overall status: [32msuccess[0m
+[33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
+<handling result before exiting>
+#####################################################################
+# Restore the dead snapshots
+#####################################################################
+RUN git restore tests/snapshots/testo_tests

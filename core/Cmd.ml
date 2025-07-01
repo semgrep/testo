@@ -20,6 +20,7 @@ type conf = {
   (* Run and Status *)
   intro : string;
   show_output : bool;
+  autoclean : bool;
   (* Status *)
   status_output_style : Run.status_output_style;
   (* Run *)
@@ -39,6 +40,7 @@ let default_conf =
     filter_by_tag = None;
     env = [];
     show_output = false;
+    autoclean = false;
     status_output_style = Compact_important;
     argv = Sys.argv;
     intro = Run.introduction_text;
@@ -99,7 +101,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       if conf.is_worker then ignore_broken_pipe ();
       Debug.debug := conf.debug;
       let tests = get_tests conf.env in
-      Run.cmd_run ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
+      Run.cmd_run
+        ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
+        ~autoclean:conf.autoclean
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag
         ~intro:conf.intro
@@ -116,7 +120,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   | Status conf ->
       Debug.debug := conf.debug;
       let exit_code, tests_with_status =
-        Run.cmd_status ~always_show_unchecked_output:conf.show_output
+        Run.cmd_status
+          ~always_show_unchecked_output:conf.show_output
+          ~autoclean:conf.autoclean
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
           ~intro:conf.intro
@@ -138,6 +144,13 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
 (*
    Some of the command-line options are shared among subcommands.
 *)
+
+let autoclean_term : bool Term.t =
+  let info =
+    Arg.info [ "autoclean" ]
+      ~doc:"Remove test snapshots that don't match any test."
+  in
+  Arg.value (Arg.flag info)
 
 let debug_term : bool Term.t =
   let info =
@@ -352,7 +365,7 @@ let optional_nonempty_list xs =
 
 let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     unit Term.t =
-  let combine debug env expert filter_by_substring filter_by_tag jobs lazy_ show_output
+  let combine autoclean debug env expert filter_by_substring filter_by_tag jobs lazy_ show_output
       slice strict test_list_checksum verbose worker =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
@@ -365,6 +378,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     Run_tests
       {
         default_conf with
+        autoclean;
         debug;
         env;
         filter_by_substring;
@@ -382,7 +396,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ debug_term
+    const combine $ autoclean_term $ debug_term
     $ env_term $ expert_term $ filter_by_substring_term
     $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
     $ show_output_term $ slice_term $ strict_term $ test_list_checksum_term
@@ -429,7 +443,7 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all debug env expert filter_by_substring filter_by_tag long show_output
+  let combine all autoclean debug env expert filter_by_substring filter_by_tag long show_output
       strict verbose =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
@@ -446,6 +460,7 @@ let subcmd_status_term tests : unit Term.t =
     Status
       {
         default_conf with
+        autoclean;
         debug;
         env;
         filter_by_substring;
@@ -458,7 +473,7 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ debug_term $ env_term $ expert_term $ filter_by_substring_term
+    const combine $ all_term $ autoclean_term $ debug_term $ env_term $ expert_term $ filter_by_substring_term
     $ filter_by_tag_term $ long_term $ show_output_term $ strict_term
     $ verbose_status_term)
 

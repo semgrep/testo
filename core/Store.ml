@@ -450,6 +450,9 @@ let find_dead_snapshots tests : dead_snapshot list =
       else Some { dir_or_junk_file = dir; test_name })
     unknown_names
 
+let remove_dead_snapshot (x : dead_snapshot) =
+  Helpers.remove_file_or_dir x.dir_or_junk_file
+
 (**************************************************************************)
 (* Output redirection *)
 (**************************************************************************)
