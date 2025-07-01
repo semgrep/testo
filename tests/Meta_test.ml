@@ -148,7 +148,13 @@ let test_standard_flow () =
   section "Delete snapshots but not statuses";
   clear_snapshots ~__LOC__ ();
   test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_approve ~__LOC__ "-s auto-approve"
+  test_approve ~__LOC__ "-s auto-approve";
+  section "Delete the dead snapshots with --autoclean";
+  test_status ~__LOC__ "-l --autoclean";
+  section "Check that the dead snapshots are gone";
+  test_status ~__LOC__ "-l";
+  section "Restore the dead snapshots";
+  shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
 
 let test_multi_selection () =
   let (), capture =

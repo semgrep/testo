@@ -21,6 +21,7 @@ val to_alcotest :
 val cmd_run :
   always_show_unchecked_output:bool ->
   argv:string array ->
+  autoclean:bool ->
   filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
   intro:string ->
@@ -39,6 +40,7 @@ val cmd_run :
    (PASS or XFAIL). *)
 val cmd_status :
   always_show_unchecked_output:bool ->
+  autoclean:bool ->
   filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
   intro:string ->

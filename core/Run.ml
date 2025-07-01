@@ -692,13 +692,18 @@ let print_long_status ~always_show_unchecked_output tests_with_status =
       print_statuses ~highlight_test:false ~always_show_unchecked_output
         tests_with_status
 
-let report_dead_snapshots all_tests =
+let report_dead_snapshots ~autoclean all_tests =
   let dead_snapshots = Store.find_dead_snapshots all_tests in
   let n = List.length dead_snapshots in
   if n > 0 then (
-    printf
-      "%i folder%s no longer belong%s to the test suite and can be removed:\n" n
-      (if_plural n "s") (if_singular n "s");
+    if autoclean then
+      printf
+        "%i folder%s no longer belong%s to the test suite and %s being removed:\n" n
+        (if_plural n "s") (if_singular n "s") (if n < 2 then "is" else "are")
+    else
+      printf
+        "%i folder%s no longer belong%s to the test suite and can be removed manually or with '--autoclean':\n" n
+        (if_plural n "s") (if_singular n "s");
     List.iter
       (fun (x : Store.dead_snapshot) ->
         let msg =
@@ -706,11 +711,14 @@ let report_dead_snapshots all_tests =
           | None -> "??"
           | Some name -> name
         in
-        printf "  %s %s\n" !!(x.dir_or_junk_file) msg)
+        printf "  %s %s\n" !!(x.dir_or_junk_file) msg;
+        if autoclean then
+          Store.remove_dead_snapshot x
+      )
       dead_snapshots)
 
-let print_status_summary ~strict tests tests_with_status : int =
-  report_dead_snapshots tests;
+let print_status_summary ~autoclean ~strict tests tests_with_status : int =
+  report_dead_snapshots ~autoclean tests;
   let stats = stats_of_tests tests tests_with_status in
   let overall_success = is_overall_success ~strict tests_with_status in
   printf "%i/%i selected test%s:\n" stats.selected_tests stats.total_tests
@@ -742,19 +750,19 @@ let print_status_summary ~strict tests tests_with_status : int =
             (if_plural stats.broken_tests "s")));
   if overall_success then exit_success else exit_failure
 
-let print_all_statuses ~always_show_unchecked_output ~intro tests tests_with_status =
+let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro tests tests_with_status =
   print_introduction intro;
   print_newline ();
   print_long_status ~always_show_unchecked_output tests_with_status;
   print_newline ();
   print_short_status ~always_show_unchecked_output tests_with_status;
-  print_status_summary tests tests_with_status
+  print_status_summary ~autoclean tests tests_with_status
 
-let print_important_statuses ~always_show_unchecked_output ~strict tests
+let print_important_statuses ~always_show_unchecked_output ~autoclean  ~strict tests
     tests_with_status : int =
   (* Print details about each test that needs attention *)
   print_short_status ~always_show_unchecked_output tests_with_status;
-  print_status_summary ~strict tests tests_with_status
+  print_status_summary ~autoclean ~strict tests tests_with_status
 
 let get_test_with_status test =
   let status = Store.get_status test in
@@ -765,7 +773,7 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the 'status' subcommand
 *)
-let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag ~intro
+let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring ~filter_by_tag ~intro
     ~output_style ~strict tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
@@ -773,10 +781,10 @@ let cmd_status ~always_show_unchecked_output ~filter_by_substring ~filter_by_tag
   let exit_code =
     match output_style with
     | Long_all ->
-        print_all_statuses ~always_show_unchecked_output ~intro ~strict tests
+        print_all_statuses ~always_show_unchecked_output ~autoclean ~intro ~strict tests
           tests_with_status
     | Long_important ->
-        print_important_statuses ~always_show_unchecked_output ~strict tests
+        print_important_statuses ~always_show_unchecked_output ~autoclean ~strict tests
           tests_with_status
     | Compact_all -> print_compact_status ~strict tests_with_status
     | Compact_important ->
@@ -944,14 +952,14 @@ let before_run ~filter_by_substring ~filter_by_tag ~intro ~lazy_ ~slice tests =
   selected_tests
 
 (* Run this after a run or Lwt run. *)
-let after_run ~always_show_unchecked_output ~strict tests selected_tests =
+let after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests =
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     (* Print details about each test that needs attention *)
     print_short_status ~always_show_unchecked_output tests_with_status;
     (* Print one line per test that needs attention *)
     print_compact_status ~important:true ~strict tests_with_status |> ignore;
-    print_status_summary ~strict tests tests_with_status
+    print_status_summary ~autoclean ~strict tests tests_with_status
   in
   (exit_code, tests_with_status)
 
@@ -964,7 +972,7 @@ let after_run ~always_show_unchecked_output ~strict tests selected_tests =
    both the master and the workers (because the master doesn't pass the
    list of selected tests to the workers).
 *)
-let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
+let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
     ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~slice ~strict
     ~test_list_checksum:expected_checksum tests cont =
   if is_worker then (
@@ -1005,7 +1013,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~filter_by_substring
         ~test_list_checksum:(get_checksum tests) parallel_tests;
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
-      after_run ~always_show_unchecked_output ~strict tests selected_tests
+      after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests
     in
     cont exit_code tests_with_status |> ignore;
     (* The continuation 'cont' should exit but otherwise we exit once

@@ -18,6 +18,10 @@
   ([#110](https://github.com/semgrep/testo/pull/110)).
 * Add a `--expert` option to hide the legend printed by `run` and
   `status` ([#109](https://github.com/semgrep/testo/issues/109)).
+* Add a `--autoclean` option to `run` and `status` subcommands to
+  delete test snapshots that don't belong to any known test as it
+  typically happens after tests are renamed
+  ([#126](https://github.com/semgrep/testo/pull/126)).
 
 0.1.0 (2024-11-10)
 ------------------

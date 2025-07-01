@@ -111,6 +111,9 @@ type dead_snapshot = { dir_or_junk_file : Fpath.t; test_name : string option }
 *)
 val find_dead_snapshots : Types.test list -> dead_snapshot list
 
+(* Remove a snapshot folder *)
+val remove_dead_snapshot : dead_snapshot -> unit
+
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)
