@@ -65,7 +65,7 @@ let check_checksum_or_abort ~expected_checksum tests =
   | Some expected ->
       let checksum = get_checksum tests in
       if checksum <> expected then
-        Worker.Server.fatal_error
+        Multiprocess.Server.fatal_error
           "Checksum mismatch: the test suite in a worker process is different \
            than the list of tests in the master process. You need to make sure \
            that the name and the order of the tests in the test suite is \
@@ -813,17 +813,17 @@ let report_skip_test test reason =
 
 let start_test worker (test : T.test) =
   report_start_test test;
-  Worker.Client.write worker (Start_test test.id)
+  Multiprocess.Client.write worker (Start_test test.id)
 
 let feed_worker test_queue worker =
   match Queue.take_opt test_queue with
   | Some test -> start_test worker test
-  | None -> Worker.Client.close_worker worker
+  | None -> Multiprocess.Client.close_worker worker
 
 let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
     ~test_list_checksum tests =
   let workers =
-    Worker.Client.create ~num_workers ~original_argv:argv ~test_list_checksum
+    Multiprocess.Client.create ~num_workers ~original_argv:argv ~test_list_checksum
   in
   let get_test =
     let tbl = Hashtbl.create (2 * List.length tests) in
@@ -837,17 +837,17 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
   in
   let test_queue = tests |> List.to_seq |> Queue.of_seq in
   (* Send a first task (test) to each worker *)
-  Worker.Client.iter_workers workers (fun worker ->
+  Multiprocess.Client.iter_workers workers (fun worker ->
       feed_worker test_queue worker);
   (* Wait for responses from workers and feed them until the queue is empty *)
   let rec loop () =
-    match Worker.Client.read workers with
+    match Multiprocess.Client.read workers with
     | None ->
         (* There are no more workers = they were closed after we
            tried to feed each of them from the empty queue. *)
         ()
     | Some (worker, msg) ->
-        let worker_id = Worker.Client.worker_id worker in
+        let worker_id = Multiprocess.Client.worker_id worker in
         (match msg with
         | End_test test_id ->
             let test = get_test test_id in
@@ -860,7 +860,7 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
             feed_worker test_queue worker
         | Error msg ->
             eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
-            Worker.Client.close workers;
+            Multiprocess.Client.close workers;
             exit exit_internal_error
         | Junk line -> printf "[worker %s] %s\n%!" worker_id line);
         loop ()
@@ -902,7 +902,7 @@ let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
   in
   let rec loop previous =
     previous >>= fun () ->
-    match Worker.Server.read () with
+    match Multiprocess.Server.read () with
     | None -> exit 0
     | Some (Start_test test_id) ->
         let test = get_test test_id in
@@ -914,11 +914,11 @@ let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
           match test.skipped with
           | Some _reason ->
               (* This shouldn't happen but it's not a problem *)
-              Worker.Server.write (End_test test_id);
+              Multiprocess.Server.write (End_test test_id);
               P.return ()
           | None ->
               P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-              Worker.Server.write (End_test test_id);
+              Multiprocess.Server.write (End_test test_id);
               P.return ()
         in
         loop job
