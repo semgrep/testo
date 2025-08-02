@@ -1,5 +1,8 @@
 (*
    Manage the lifecycle of worker processes used for parallel test runs.
+
+   master process: client
+   worker processes: servers
 *)
 
 open Printf
