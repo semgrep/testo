@@ -2,7 +2,21 @@
    Manage the lifecycle of worker processes used for parallel test runs.
 *)
 
-(* Master side *)
+(* Master side
+
+   This code runs in the master process which is a client to the workers.
+
+   TODO: move the code from Run.run_tests_in_workers to this module so as to
+   not expose state-sensitive operations (a worker object can become closed
+   or can be killed and recreated after a timeout)?
+   We assume the following about Testo:
+   - the full list of tests is known at the beginning. No need to support
+     a mutable queue that might be refilled after starting the tests.
+   So we could pass the list of tests to the 'Client.create' function
+   and completely hide the operations on workers (write/read/close).
+   The caller of run_tests_in_workers would still need to provide
+   functions to report the progress (start test, end test, ...).
+*)
 module Client : sig
   type t
   type worker
@@ -13,6 +27,7 @@ module Client : sig
      (e.g. '--worker' is added, a '--slice' option is added, ...)
   *)
   val create :
+    test_timeout_secs:float option ->
     num_workers:int ->
     original_argv:string array ->
     test_list_checksum:string ->

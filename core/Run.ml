@@ -820,6 +820,7 @@ let feed_worker test_queue worker =
   | Some test -> start_test worker test
   | None -> Multiprocess.Client.close_worker worker
 
+(* TODO: Move this to Multiprocess.ml? See note in that file. *)
 let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
     ~test_list_checksum tests =
   let workers =
@@ -836,7 +837,9 @@ let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
                test_id)
   in
   let test_queue = tests |> List.to_seq |> Queue.of_seq in
-  (* Send a first task (test) to each worker *)
+  (* Send a first task (test) to each worker.
+     Do not reuse a worker outside of the function below as it may
+     become invalid. *)
   Multiprocess.Client.iter_workers workers (fun worker ->
       feed_worker test_queue worker);
   (* Wait for responses from workers and feed them until the queue is empty *)

@@ -68,8 +68,15 @@ module Client = struct
       (fun line -> Queue.add (worker, Msg_from_worker.of_string line) queue)
       lines
 
+  (*
+     Read a message fragment from a worker after we were notified
+     that some input is available. If it contains the end of
+     a message, the message is added to the queue. In general,
+     input fragments don't align with message boundaries. An input fragment
+     can contain multiple whole or partial messages.
+  *)
   let read_from_worker (x : worker)
-      (queue : (worker * Msg_from_worker.t) Queue.t) =
+      (incoming_message_queue : (worker * Msg_from_worker.t) Queue.t) =
     (* Read everything that's available to read now without blocking *)
     let buf_len = 1024 in
     let buf = Bytes.create buf_len in
@@ -86,20 +93,34 @@ module Client = struct
       Debug.log (fun () ->
           sprintf "received %i bytes from worker %s" bytes_read x.id);
       Buffer.add_subbytes x.std_input_buffer buf 0 bytes_read;
-      flush_input_buffer x x.std_input_buffer queue)
+      flush_input_buffer x x.std_input_buffer incoming_message_queue)
 
-  let make_poller workers =
-    (* The table maps file descriptor to worker data. This is needed to
-       determine when all workers are done. *)
+  let kill_and_replace_timed_out_workers ~get_timed_out_workers workers =
+    let _timed_out_workers : worker list = get_timed_out_workers () in
+    (* TODO: kill and replace workers *)
+    workers
+
+  let make_poller
+      ?(max_poll_interval_secs = 1.) ~get_timed_out_workers workers =
+    (* TODO: make 'worker_tbl' a part or a field of 'workers' *)
+    (* The table maps file descriptor to worker data.
+       This is needed to recover the worker info from the file descriptor
+       returned by Unix.select. *)
     let worker_tbl = Hashtbl.create 100 in
     List.iter
       (fun worker -> Hashtbl.add worker_tbl worker.std_in_fd worker)
       workers;
     let incoming_message_queue = Queue.create () in
-    let rec poll () =
+    let rec poll workers =
+      (* If a complete message was already read and is available from the
+         queue, return it. Otherwise, read the next available fragment
+         of incoming message from any worker. *)
       match Queue.take_opt incoming_message_queue with
       | Some msg -> Some msg
-      | None -> (
+      | None ->
+          let workers =
+            kill_and_replace_timed_out_workers ~get_timed_out_workers workers
+          in
           match fds_of_running_workers workers with
           | [] -> None
           | in_fds -> (
@@ -108,7 +129,7 @@ module Client = struct
               Debug.log (fun () ->
                   sprintf "wait for a message from one of %i worker(s)"
                     (List.length in_fds));
-              match Unix.select in_fds [] [] (-1.) with
+              match Unix.select in_fds [] [] max_poll_interval_secs with
               | in_fd :: _, _, _ ->
                   let worker =
                     match Hashtbl.find_opt worker_tbl in_fd with
@@ -120,21 +141,39 @@ module Client = struct
                   (* Read the available data, resulting in 0, 1, or more
                      messages being added to the queue. *)
                   read_from_worker worker incoming_message_queue;
-                  poll ()
+                  poll workers
               | [], _, _ ->
-                  Debug.log (fun () ->
+                  if max_poll_interval_secs >= 0. then
+                    (* All the workers have been busy for more than
+                       max_poll_interval_secs which is fine.
+                       max_poll_interval_secs exists only to give us
+                       a chance to check for timed out workers.
+                       Keep polling. *)
+                    poll workers
+                  else (
+                    (* Error.
+                       max_poll_interval_secs is negative, preventing
+                       Unix.select from timing out. *)
+                    Debug.log (fun () ->
                       "'select' returned nothing. Did a worker exit \
                        prematurely?");
-                  close_workers workers;
-                  None))
+                    close_workers workers;
+                    None)
+            )
     in
     poll
 
-  let create ~num_workers ~original_argv ~test_list_checksum =
+  let create
+      ?(get_timed_out_workers = fun () -> [])
+      ~num_workers
+      ~original_argv
+      ~test_list_checksum =
     Debug.log (fun () -> sprintf "create %i worker(s)" num_workers);
     let worker_ids =
       List.init num_workers (fun i -> sprintf "%d/%d" (i + 1) num_workers)
     in
+    (* TODO: make the set of workers somehow updatable so as to support
+       killing and restarting workers that time out *)
     let workers =
       worker_ids
       |> Helpers.list_map (fun id ->
@@ -168,7 +207,7 @@ module Client = struct
                running = true;
              })
     in
-    let read = make_poller workers in
+    let read = make_poller ~get_timed_out_workers workers in
     { workers; read }
 
   let read (x : t) = x.read ()
