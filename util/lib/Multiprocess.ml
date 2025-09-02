@@ -111,7 +111,7 @@ module Client = struct
       (fun worker -> Hashtbl.add worker_tbl worker.std_in_fd worker)
       workers;
     let incoming_message_queue = Queue.create () in
-    let rec poll workers =
+    let rec poll () =
       (* If a complete message was already read and is available from the
          queue, return it. Otherwise, read the next available fragment
          of incoming message from any worker. *)
@@ -141,7 +141,7 @@ module Client = struct
                   (* Read the available data, resulting in 0, 1, or more
                      messages being added to the queue. *)
                   read_from_worker worker incoming_message_queue;
-                  poll workers
+                  poll ()
               | [], _, _ ->
                   if max_poll_interval_secs >= 0. then
                     (* All the workers have been busy for more than
@@ -149,7 +149,7 @@ module Client = struct
                        max_poll_interval_secs exists only to give us
                        a chance to check for timed out workers.
                        Keep polling. *)
-                    poll workers
+                    poll ()
                   else (
                     (* Error.
                        max_poll_interval_secs is negative, preventing
@@ -163,11 +163,17 @@ module Client = struct
     in
     poll
 
+  (*
+     Create a set of workers. Each will execute a command derived from
+     the same command as the current process but with modifications
+     (e.g. '--worker' is added, a '--slice' option is added, ...)
+  *)
   let create
       ?(get_timed_out_workers = fun () -> [])
       ~num_workers
       ~original_argv
-      ~test_list_checksum =
+      ~test_list_checksum
+      () =
     Debug.log (fun () -> sprintf "create %i worker(s)" num_workers);
     let worker_ids =
       List.init num_workers (fun i -> sprintf "%d/%d" (i + 1) num_workers)
@@ -210,10 +216,83 @@ module Client = struct
     let read = make_poller ~get_timed_out_workers workers in
     { workers; read }
 
+  (*
+     Read the next available message from a worker, returning the worker's
+     identifier and the message.
+
+     A 'None' result indicates that all the workers are done.
+  *)
   let read (x : t) = x.read ()
 
+  (*
+     Send a request to an available worker.
+     An available worker is one that's not currently running a test as
+     determined by the messages we receive from it.
+  *)
   let write worker msg =
     fprintf worker.std_out_ch "%s\n%!" (Msg_from_master.to_string msg)
+
+  let start_test ~on_start_test worker test_id test =
+    on_start_test test;
+    write worker (Start_test test_id)
+
+  let feed_worker ~get_test_id ~on_start_test test_queue worker =
+    match Queue.take_opt test_queue with
+    | Some test -> start_test ~on_start_test worker (get_test_id test) test
+    | None -> close_worker worker
+
+  let run_tests_in_workers
+      ~argv
+      ~get_test_id
+      ~num_workers
+      ~on_end_test
+      ~on_start_test
+      ~test_list_checksum (tests : 'test list) =
+    let workers =
+      create ~num_workers ~original_argv:argv ~test_list_checksum ()
+    in
+    let get_test =
+      let tbl = Hashtbl.create (2 * List.length tests) in
+      List.iter (fun test -> Hashtbl.add tbl (get_test_id test) test) tests;
+      fun test_id ->
+        try Hashtbl.find tbl test_id with
+        | Not_found ->
+            failwith
+              (sprintf "Internal error: received invalid test ID from worker: %S"
+                 test_id)
+    in
+    let test_queue = tests |> List.to_seq |> Queue.of_seq in
+    (* Send a first task (test) to each worker.
+       Do not reuse a worker outside of the function below as it may
+       become invalid. *)
+    iter_workers workers (fun worker ->
+      feed_worker ~get_test_id ~on_start_test test_queue worker);
+    (* Wait for responses from workers and feed them until the queue is empty *)
+    let rec loop () =
+      match read workers with
+      | None ->
+          (* There are no more workers = they were closed after we
+             tried to feed each of them from the empty queue. *)
+          Ok ()
+      | Some (worker, msg) ->
+          let worker_id = worker_id worker in
+          (match msg with
+           | End_test test_id ->
+               let test = get_test test_id in
+               on_end_test test;
+               feed_worker ~get_test_id ~on_start_test test_queue worker;
+               loop ()
+           | Error msg ->
+               let msg =
+                 sprintf "error in worker %s: %s" worker_id msg
+               in
+               close workers;
+               Error msg
+           | Junk line ->
+               printf "[worker %s] %s\n%!" worker_id line;
+               loop ())
+    in
+    loop ()
 end
 
 module Server = struct

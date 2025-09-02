@@ -811,65 +811,6 @@ let report_skip_test test reason =
     (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s]" reason)))
     (format_title test)
 
-let start_test worker (test : T.test) =
-  report_start_test test;
-  Multiprocess.Client.write worker (Start_test test.id)
-
-let feed_worker test_queue worker =
-  match Queue.take_opt test_queue with
-  | Some test -> start_test worker test
-  | None -> Multiprocess.Client.close_worker worker
-
-(* TODO: Move this to Multiprocess.ml? See note in that file. *)
-let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
-    ~test_list_checksum tests =
-  let workers =
-    Multiprocess.Client.create ~num_workers ~original_argv:argv ~test_list_checksum
-  in
-  let get_test =
-    let tbl = Hashtbl.create (2 * List.length tests) in
-    List.iter (fun (x : T.test) -> Hashtbl.add tbl x.id x) tests;
-    fun test_id ->
-      try Hashtbl.find tbl test_id with
-      | Not_found ->
-          failwith
-            (sprintf "Internal error: received invalid test ID from worker: %S"
-               test_id)
-  in
-  let test_queue = tests |> List.to_seq |> Queue.of_seq in
-  (* Send a first task (test) to each worker.
-     Do not reuse a worker outside of the function below as it may
-     become invalid. *)
-  Multiprocess.Client.iter_workers workers (fun worker ->
-      feed_worker test_queue worker);
-  (* Wait for responses from workers and feed them until the queue is empty *)
-  let rec loop () =
-    match Multiprocess.Client.read workers with
-    | None ->
-        (* There are no more workers = they were closed after we
-           tried to feed each of them from the empty queue. *)
-        ()
-    | Some (worker, msg) ->
-        let worker_id = Multiprocess.Client.worker_id worker in
-        (match msg with
-        | End_test test_id ->
-            let test = get_test test_id in
-            (match test.skipped with
-            | Some reason -> report_skip_test test reason
-            | None ->
-                get_test_with_status test
-                |> print_status ~highlight_test:false
-                     ~always_show_unchecked_output);
-            feed_worker test_queue worker
-        | Error msg ->
-            eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
-            Multiprocess.Client.close workers;
-            exit exit_internal_error
-        | Junk line -> printf "[worker %s] %s\n%!" worker_id line);
-        loop ()
-  in
-  loop ()
-
 (*
    Run tests and report progress. This is done in the main process when
    running without worker processes ('-j 0' option).
@@ -1007,13 +948,30 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       |> List.partition (fun (test : T.test) ->
              all_sequential || test.solo <> None)
     in
+    let on_end_test (test : T.test) =
+      match test.skipped with
+      | Some reason -> report_skip_test test reason
+      | None ->
+          get_test_with_status test
+          |> print_status ~highlight_test:false
+            ~always_show_unchecked_output
+    in
     (* Run in the same process. This is for situations or platforms where
        multiprocessing might not work for whatever reason. *)
     run_tests_sequentially ~always_show_unchecked_output sequential_tests
     >>= fun () ->
     if num_workers > 0 then
-      run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
-        ~test_list_checksum:(get_checksum tests) parallel_tests;
+      (match Multiprocess.Client.run_tests_in_workers
+        ~argv
+        ~get_test_id:(fun (x : T.test) -> x.id)
+        ~num_workers
+        ~on_start_test:report_start_test
+        ~on_end_test
+        ~test_list_checksum:(get_checksum tests) parallel_tests
+      with Ok () -> ()
+         | Error msg ->
+             eprintf "Internal error: %s\n%!" msg;
+             exit exit_internal_error);
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
       after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests
