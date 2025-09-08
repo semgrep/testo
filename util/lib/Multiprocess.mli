@@ -14,12 +14,15 @@
    provided by 'test_test_id'.
 *)
 module Client : sig
+  type worker
+
   val run_tests_in_workers :
     argv:string array ->
     get_test_id:('test -> string) ->
+    get_timed_out_workers:(unit -> worker list) ->
     num_workers:int ->
     on_end_test:('test -> unit) ->
-    on_start_test:('test -> unit) ->
+    on_start_test:(worker option -> 'test -> unit) ->
     test_list_checksum:string ->
     'test list -> (unit, string) result
 end

@@ -792,7 +792,11 @@ let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring ~fi
   in
   (exit_code, tests_with_status)
 
-let report_start_test (test : T.test) =
+(* TODO: register start time of the test if subject to a time limit
+   The worker will need to be returned if we want to abort the test. *)
+let report_start_test
+    (_worker : Multiprocess.Client.worker option)
+    (test : T.test) =
   let run_label =
     match test.solo with
     | None -> "[RUN]"
@@ -802,6 +806,7 @@ let report_start_test (test : T.test) =
     (Style.left_col (Style.color Yellow run_label))
     (format_title test)
 
+(* TODO: unregister start time of the test (if subject to a time limit) *)
 let report_end_test ~always_show_unchecked_output test =
   get_test_with_status test
   |> print_status ~highlight_test:false ~always_show_unchecked_output
@@ -829,7 +834,7 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
           report_skip_test test reason;
           P.return ()
       | None ->
-          report_start_test test;
+          report_start_test None test;
           P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
           report_end_test ~always_show_unchecked_output test;
           P.return ())
@@ -907,6 +912,10 @@ let after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_te
   in
   (exit_code, tests_with_status)
 
+(* TODO: timeouts *)
+let get_timed_out_workers _timers () =
+  []
+
 (*
    Entry point for the 'run' subcommand
 
@@ -919,6 +928,8 @@ let after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_te
 let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
     ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~slice ~strict
     ~test_list_checksum:expected_checksum tests cont =
+  (* TODO: timers *)
+  let timers = () in
   if is_worker then (
     (*
         The checksum is computed on the list of tests before applying
@@ -964,6 +975,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       (match Multiprocess.Client.run_tests_in_workers
         ~argv
         ~get_test_id:(fun (x : T.test) -> x.id)
+        ~get_timed_out_workers:(get_timed_out_workers timers)
         ~num_workers
         ~on_start_test:report_start_test
         ~on_end_test
