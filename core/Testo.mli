@@ -140,6 +140,10 @@ type t = private {
           a test run will fail if a broken test fails. *)
   checked_output : checked_output_kind;
   expected_outcome : expected_outcome;
+  max_duration : float option;
+      (** A time limit for the test when running in a detached worker,
+          in seconds. This setting is ignored when running tests sequentially
+          in the master process such as with [-j0] or in [solo] mode. *)
   normalize : (string -> string) list;
       (** An optional function to rewrite any output data so as to mask the
         variable parts. *)
@@ -209,6 +213,7 @@ val create :
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
+  ?max_duration:float ->
   ?normalize:(string -> string) list ->
   ?skipped:string ->
   ?solo:string ->
@@ -253,6 +258,7 @@ val update :
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> unit Promise.t) ->
+  ?max_duration:float option ->
   ?normalize:(string -> string) list ->
   ?name:string ->
   ?skipped:string option ->

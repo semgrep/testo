@@ -126,6 +126,7 @@ type test = {
   broken : string option;
   checked_output : checked_output_kind;
   expected_outcome : expected_outcome;
+  max_duration (* seconds *) : float option;
   normalize : (string -> string) list;
   skipped : string option;
   solo : string option;

@@ -792,10 +792,9 @@ let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring ~fi
   in
   (exit_code, tests_with_status)
 
-(* TODO: register start time of the test if subject to a time limit
-   The worker will need to be returned if we want to abort the test. *)
 let report_start_test
-    (_worker : Multiprocess.Client.worker option)
+    (timers : Timers.t option)
+    (worker : Multiprocess.Client.worker option)
     (test : T.test) =
   let run_label =
     match test.solo with
@@ -804,10 +803,14 @@ let report_start_test
   in
   printf "%s%s\n%!"
     (Style.left_col (Style.color Yellow run_label))
-    (format_title test)
+    (format_title test);
+  (* Start a timer if the test has a maximum duration *)
+  match timers, worker with
+  | None, None -> () (* single process mode: timeouts are not supported *)
+  | Some timers, Some worker -> Timers.add_test timers test worker
+  | _ -> (* bad combination *) assert false
 
-(* TODO: unregister start time of the test (if subject to a time limit) *)
-let report_end_test ~always_show_unchecked_output test =
+let report_end_sequential_test ~always_show_unchecked_output test =
   get_test_with_status test
   |> print_status ~highlight_test:false ~always_show_unchecked_output
 
@@ -815,6 +818,24 @@ let report_skip_test test reason =
   printf "%s%s\n%!"
     (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s]" reason)))
     (format_title test)
+
+let report_timeout test max_duration =
+  printf "%s%s\n%!"
+    (Style.left_col
+       (Style.color Red (sprintf "[TIMEOUT: %.3fs]" max_duration)))
+    (format_title test)
+
+(* Identify timed-out tests, record and print their status, and return the
+   list of timed-out workers so they can be killed and restarted. *)
+let get_timed_out_workers timers =
+  let timed_out = Timers.remove_timeouts timers in
+  (* TODO: record test status *)
+  (* print *)
+  List.iter (fun (test, max_duration, _worker) ->
+    report_timeout test max_duration
+  ) timed_out;
+  (* report workers to kill *)
+  Helpers.list_map (fun (_test, _max_duration, worker) -> worker) timed_out
 
 (*
    Run tests and report progress. This is done in the main process when
@@ -834,9 +855,9 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
           report_skip_test test reason;
           P.return ()
       | None ->
-          report_start_test None test;
+          report_start_test None None test;
           P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-          report_end_test ~always_show_unchecked_output test;
+          report_end_sequential_test ~always_show_unchecked_output test;
           P.return ())
     (P.return ()) tests
 
@@ -912,10 +933,6 @@ let after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_te
   in
   (exit_code, tests_with_status)
 
-(* TODO: timeouts *)
-let get_timed_out_workers _timers () =
-  []
-
 (*
    Entry point for the 'run' subcommand
 
@@ -928,8 +945,6 @@ let get_timed_out_workers _timers () =
 let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
     ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~slice ~strict
     ~test_list_checksum:expected_checksum tests cont =
-  (* TODO: timers *)
-  let timers = () in
   if is_worker then (
     (*
         The checksum is computed on the list of tests before applying
@@ -959,7 +974,9 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       |> List.partition (fun (test : T.test) ->
              all_sequential || test.solo <> None)
     in
+    let timers = Timers.create () in
     let on_end_test (test : T.test) =
+      Timers.remove_test timers test;
       match test.skipped with
       | Some reason -> report_skip_test test reason
       | None ->
@@ -975,9 +992,9 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       (match Multiprocess.Client.run_tests_in_workers
         ~argv
         ~get_test_id:(fun (x : T.test) -> x.id)
-        ~get_timed_out_workers:(get_timed_out_workers timers)
+        ~get_timed_out_workers:(fun () -> get_timed_out_workers timers)
         ~num_workers
-        ~on_start_test:report_start_test
+        ~on_start_test:(report_start_test (Some timers))
         ~on_end_test
         ~test_list_checksum:(get_checksum tests) parallel_tests
       with Ok () -> ()
