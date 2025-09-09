@@ -13,6 +13,9 @@ let create_filler_test =
       (sprintf "filler test %i" id)
       (fun () -> ())
 
+(* Run tests sequentially in a detached worker (with -j1) to ensure that
+   the test that times out is handled correctly and the subsequent tests
+   run fine after the worker process is killed and respawned. *)
 let tests _env =
   let filler_tests_1 = List.init 2 create_filler_test in
   let filler_tests_2 = List.init 2 create_filler_test in

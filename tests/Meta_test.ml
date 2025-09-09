@@ -212,11 +212,12 @@ let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
 
 let timeout_test_subcommand ~loc shell_command_string =
   let command = "./timeout-test " ^ shell_command_string in
-  shell_command ~__LOC__:loc command
+  shell_command ~__LOC__:loc ~expected_exit_code:1 command
 
 (* -j1 = sequential run that supports timeouts *)
 let test_timeout_flow_run () = timeout_test_subcommand ~loc:__LOC__ "run -j1"
-let test_timeout_flow_status () = timeout_test_subcommand ~loc:__LOC__ "status"
+let test_timeout_flow_status () =
+  timeout_test_subcommand ~loc:__LOC__ "status -l"
 
 (*****************************************************************************)
 (* Meta test suite *)
@@ -291,12 +292,9 @@ let tests =
         (Should_fail "the invoked test suite is designed to fail")
       test_failing_flow_status;
     t "timeout flow run"
-      ~expected_outcome:
-        (Should_fail "the invoked test suite is designed to fail")
       test_timeout_flow_run;
     t "timeout flow status"
-      ~expected_outcome:
-        (Should_fail "the invoked test suite is designed to fail")
+      ~checked_output:(T.stdxxx ())
       test_timeout_flow_status;
     t "output masking for failing tests"
       ~expected_outcome:(Should_fail "expected to fail")
