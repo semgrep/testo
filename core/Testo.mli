@@ -234,6 +234,9 @@ val create :
       to no capture.}
    {- [expected_outcome]: whether a test is expected to complete without
       raising an exception (default) or by raising an exception. }
+   {- [max_duration]: a time limit to run the test, in seconds.
+      It is honored only in tests running in workers i.e. not with the [-j0]
+      option of the test program.}
    {- [normalize]: a list of functions applied in turn to transform the
       captured output before comparing it to the reference snapshot.
       See {!mask_line} and other functions with the [mask] prefix which are
