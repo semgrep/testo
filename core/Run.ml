@@ -617,6 +617,19 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None ->
                     (* = assert false *)
                     ())
+            | Not_OK (Some Timeout) -> (
+                let current_max_duration =
+                  match test.max_duration with
+                  | None ->
+                      (* the test was reconfigured since the run that
+                         produced the timeout *)
+                      "none"
+                  | Some max_duration -> sprintf "%g seconds" max_duration
+                in
+                printf "%sTimed out. Current time limit: %s\n"
+                  bullet
+                  current_max_duration
+              )
             | OK
             | OK_but_new
               when always_show_unchecked_output -> (
@@ -627,7 +640,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some (Incorrect_output | Timeout) | None) ->
+            | Not_OK (Some Incorrect_output | None) ->
                 ()));
   flush stdout
 
