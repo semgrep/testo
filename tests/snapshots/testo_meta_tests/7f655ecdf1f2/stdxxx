@@ -1,0 +1,36 @@
+RUN ./timeout-test status -al
+Legend:
+[2m• [0m[PASS]: a successful test that was expected to succeed (good);
+[2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
+[2m• [0m[XFAIL]: a failing test that was expected to fail (tolerated failure);
+[2m• [0m[XPASS]: a successful test that was expected to fail (progress?).
+[2m• [0m[MISS]: a test that never ran;
+[2m• [0m[SKIP]: a test that is always skipped but kept around for some reason;
+[2m• [0m[xxxx*]: a new test for which there's no expected output yet.
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+Try '--help' for options.
+
+[32m[PASS]  [0m68018e4a009a [36mdoes not time out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/68018e4a009a/log
+[2m• [0mTime limit: 15 seconds
+[31m[FAIL]  [0m9f23c62e5bdb [36mtaking too long[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/9f23c62e5bdb/log
+[2m• [0m[31mTimed out[0m. Current time limit: 0.2 seconds
+[2m• [0mLog (stdout, stderr) is empty.
+[32m[PASS]  [0m653a5af17c94 [36mfiller test 1[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/653a5af17c94/log
+[32m[PASS]  [0m9dff87ab3fba [36mfiller test 2[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/9dff87ab3fba/log
+
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [31m[FAIL]  [0m9f23c62e5bdb [36mtaking too long[0m                                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/9f23c62e5bdb/log
+[2m• [0m[31mTimed out[0m. Current time limit: 0.2 seconds
+[2m• [0mLog (stdout, stderr) is empty.
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+4/4 selected tests:
+  3 successful (3 pass, 0 xfail)
+  1 unsuccessful (1 fail, 0 xpass)
+overall status: [31mfailure[0m
