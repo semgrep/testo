@@ -114,6 +114,11 @@ val find_dead_snapshots : Types.test list -> dead_snapshot list
 (* Remove a snapshot folder *)
 val remove_dead_snapshot : dead_snapshot -> unit
 
+(* Mark a test as timed out. This is done in the master process. It should
+   be done after the worker running the test was killed to ensure
+   that worker doesn't try to write another status at the same time. *)
+val mark_test_as_timed_out : Types.test -> unit
+
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)

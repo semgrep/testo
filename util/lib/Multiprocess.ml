@@ -104,8 +104,12 @@ module Client = struct
       flush_input_buffer x x.std_input_buffer incoming_message_queue)
 
   let kill_and_replace_timed_out_workers ~get_timed_out_workers workers =
-    let timed_out_workers : worker list = get_timed_out_workers () in
-    List.iter (replace_worker workers) timed_out_workers
+    let timed_out_workers : (worker * (unit -> unit)) list =
+      get_timed_out_workers () in
+    List.iter (fun (worker, on_worker_termination) ->
+      replace_worker workers worker;
+      on_worker_termination ()
+    ) timed_out_workers
 
   (* This table maps file descriptors to worker data.
      This is needed to recover the worker info from the file descriptor

@@ -588,6 +588,12 @@ let print_status ~highlight_test ~always_show_unchecked_output
                        bullet
                  | Not_OK (Some Incorrect_output) ->
                      printf "%sFailed due to wrong output.\n" bullet
+                 | Not_OK (Some Timeout) ->
+                     printf "%sFailed due to timeout (%gs).\n"
+                       bullet
+                       (match test.max_duration with
+                        | None -> (* impossible *) infinity
+                        | Some dur -> dur)
                  | Not_OK None ->
                      printf
                        "%sSucceded when it should have failed. See captured \
@@ -621,8 +627,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some Incorrect_output)
-            | Not_OK None ->
+            | Not_OK (Some (Incorrect_output | Timeout) | None) ->
                 ()));
   flush stdout
 
@@ -822,7 +827,7 @@ let report_skip_test test reason =
 let report_timeout test max_duration =
   printf "%s%s\n%!"
     (Style.left_col
-       (Style.color Red (sprintf "[TIMEOUT: %.3fs]" max_duration)))
+       (Style.color Red (sprintf "[TIMEOUT: %gs]" max_duration)))
     (format_title test)
 
 (* Identify timed-out tests, record and print their status, and return the
@@ -835,7 +840,12 @@ let get_timed_out_workers timers =
     report_timeout test max_duration
   ) timed_out;
   (* report workers to kill *)
-  Helpers.list_map (fun (_test, _max_duration, worker) -> worker) timed_out
+  Helpers.list_map (fun (test, _max_duration, worker) ->
+    let on_worker_termination () =
+      Store.mark_test_as_timed_out test
+    in
+    (worker, on_worker_termination)
+  ) timed_out
 
 (*
    Run tests and report progress. This is done in the main process when

@@ -29,8 +29,9 @@ type expected_outcome =
 type completion_status =
   | Test_function_returned
   | Test_function_raised_an_exception
+  | Test_timeout
 
-type fail_reason = Raised_exception | Incorrect_output
+type fail_reason = Raised_exception | Incorrect_output | Timeout
 type outcome = Succeeded | Failed of fail_reason
 
 type captured_output =
