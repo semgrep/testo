@@ -217,7 +217,7 @@ let timeout_test_subcommand ~loc shell_command_string =
 (* -j1 = sequential run that supports timeouts *)
 let test_timeout_flow_run () = timeout_test_subcommand ~loc:__LOC__ "run -j1"
 let test_timeout_flow_status () =
-  timeout_test_subcommand ~loc:__LOC__ "status -l"
+  timeout_test_subcommand ~loc:__LOC__ "status -al"
 
 (*****************************************************************************)
 (* Meta test suite *)

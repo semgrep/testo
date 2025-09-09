@@ -567,6 +567,29 @@ let print_status ~highlight_test ~always_show_unchecked_output
           let capture_paths = Store.capture_paths_of_test test in
           show_output_details test sum capture_paths;
           let success = success_of_status_summary sum in
+          (* Show timeout info *)
+          (match test.max_duration, success with
+           | None, (OK | OK_but_new) -> ()
+           | Some max_duration, (OK | OK_but_new) ->
+               printf "%sTime limit: %g seconds\n"
+                 bullet
+                 max_duration
+           | _, Not_OK (Some Timeout) -> (
+               let current_max_duration =
+                 match test.max_duration with
+                 | None ->
+                     (* the test was reconfigured since the run that
+                        produced the timeout *)
+                     "none"
+                 | Some max_duration -> sprintf "%g seconds" max_duration
+               in
+               printf "%s%s. Current time limit: %s\n"
+                 bullet
+                 (Style.color Red "Timed out")
+                 current_max_duration
+             )
+           | _, Not_OK (None | Some (Raised_exception | Incorrect_output)) -> ()
+          );
           let show_unchecked_output =
             always_show_unchecked_output
             ||
@@ -617,19 +640,6 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None ->
                     (* = assert false *)
                     ())
-            | Not_OK (Some Timeout) -> (
-                let current_max_duration =
-                  match test.max_duration with
-                  | None ->
-                      (* the test was reconfigured since the run that
-                         produced the timeout *)
-                      "none"
-                  | Some max_duration -> sprintf "%g seconds" max_duration
-                in
-                printf "%sTimed out. Current time limit: %s\n"
-                  bullet
-                  current_max_duration
-              )
             | OK
             | OK_but_new
               when always_show_unchecked_output -> (
@@ -640,7 +650,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some Incorrect_output | None) ->
+            | Not_OK (Some (Incorrect_output | Timeout) | None) ->
                 ()));
   flush stdout
 

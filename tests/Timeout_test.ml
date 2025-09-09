@@ -24,15 +24,13 @@ let does_not_time_out =
    the test that times out is handled correctly and the subsequent tests
    run fine after the worker process is killed and respawned. *)
 let tests _env =
-  let filler_tests_1 = List.init 2 create_filler_test in
-  let filler_tests_2 = List.init 2 create_filler_test in
-  filler_tests_1 @
+  let filler_tests = List.init 2 create_filler_test in
   [
     does_not_time_out;
     Testo.create
       ~max_duration:0.2
       "taking too long"
       (fun () -> Unix.sleepf 5.);
-  ] @ filler_tests_2
+  ] @ filler_tests
 
 let () = Testo.interpret_argv ~project_name:"testo_timeout_test" tests
