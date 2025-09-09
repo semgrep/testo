@@ -13,6 +13,13 @@ let create_filler_test =
       (sprintf "filler test %i" id)
       (fun () -> ())
 
+(* A well-behaved test configured with a time limit *)
+let does_not_time_out =
+  Testo.create
+    "does not time out"
+    ~max_duration:15.
+    (fun () -> ())
+
 (* Run tests sequentially in a detached worker (with -j1) to ensure that
    the test that times out is handled correctly and the subsequent tests
    run fine after the worker process is killed and respawned. *)
@@ -21,6 +28,7 @@ let tests _env =
   let filler_tests_2 = List.init 2 create_filler_test in
   filler_tests_1 @
   [
+    does_not_time_out;
     Testo.create
       ~max_duration:0.2
       "taking too long"
