@@ -1,0 +1,27 @@
+(*
+   Test timeouts
+*)
+
+open Printf
+
+let create_filler_test =
+  let n = ref 0 in
+  fun _ ->
+    incr n;
+    let id = !n in
+    Testo.create
+      (sprintf "filler test %i" id)
+      (fun () -> ())
+
+let tests _env =
+  let filler_tests_1 = List.init 2 create_filler_test in
+  let filler_tests_2 = List.init 2 create_filler_test in
+  filler_tests_1 @
+  [
+    Testo.create
+      ~max_duration:0.2
+      "taking too long"
+      (fun () -> Unix.sleepf 5.);
+  ] @ filler_tests_2
+
+let () = Testo.interpret_argv ~project_name:"testo_timeout_test" tests
