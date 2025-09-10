@@ -330,6 +330,49 @@ host. To partition the work into 4 parts, run `./test --slice 1/4`,
 each on a different host. Check with your CI provider how to achieve
 this conveniently.
 
+How to prevent tests from hanging?
+--
+
+By default, each test function can take as long as it needs. If it enters an
+infinite loop or is blocked on some network operation, this can block
+the whole test suite. To prevent this, tests can be configured to
+time out after a while. This is done by setting the `max_duration`
+option, which is a time limit in seconds. For example, the following code
+applies a 10-second limit to all the tests of a suite:
+
+```
+let tests =
+  List.map (fun test -> Testo.update ~max_duration:(Some 10.) test) tests
+```
+
+To avoid overriding the time limit for the tests that already have
+one, inspect each test before optionally updating it:
+
+```
+let tests =
+  List.map (fun (test : Testo.t) ->
+    match test.max_duration with
+    | None -> Testo.update ~max_duration:(Some 10.) test
+    | Some _ -> test
+  ) tests
+```
+
+If a test times out, it will be reported as failed. Here's the output
+for a test named "taking too long" designed to trigger a timeout
+after 0.2 second:
+
+```
+$ ./test status -l
+...
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [FAIL]  9f23c62e5bdb taking too long                                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+• Path to captured log: _build/testo/status/test/9f23c62e5bdb/log
+• Timed out. Current time limit: 0.2 seconds
+• Log (stdout, stderr) is empty.
+...
+```
+
 How to report problems with Testo?
 --
 

@@ -63,6 +63,9 @@ single host</a></li>
 id="toc-parallel-execution-across-multiple-ci-hosts">Parallel execution
 across multiple CI hosts</a></li>
 </ul></li>
+<li><a href="#how-to-prevent-tests-from-hanging"
+id="toc-how-to-prevent-tests-from-hanging">How to prevent tests from
+hanging?</a></li>
 <li><a href="#how-to-report-problems-with-testo"
 id="toc-how-to-report-problems-with-testo">How to report problems with
 Testo?</a></li>
@@ -325,6 +328,37 @@ each host. To partition the work into 4 parts, run
 <code>./test --slice 3/4</code>, and <code>./test --slice 4/4</code>
 each on a different host. Check with your CI provider how to achieve
 this conveniently.</p>
+<h2 id="how-to-prevent-tests-from-hanging">How to prevent tests from
+hanging?</h2>
+<p>By default, each test function can take as long as it needs. If it
+enters an infinite loop or is blocked on some network operation, this
+can block the whole test suite. To prevent this, tests can be configured
+to time out after a while. This is done by setting the
+<code>max_duration</code> option, which is a time limit in seconds. For
+example, the following code applies a 10-second limit to all the tests
+of a suite:</p>
+<pre><code>let tests =
+  List.map (fun test -&gt; Testo.update ~max_duration:(Some 10.) test) tests</code></pre>
+<p>To avoid overriding the time limit for the tests that already have
+one, inspect each test before optionally updating it:</p>
+<pre><code>let tests =
+  List.map (fun (test : Testo.t) -&gt;
+    match test.max_duration with
+    | None -&gt; Testo.update ~max_duration:(Some 10.) test
+    | Some _ -&gt; test
+  ) tests</code></pre>
+<p>If a test times out, it will be reported as failed. Here’s the output
+for a test named “taking too long” designed to trigger a timeout after
+0.2 second:</p>
+<pre><code>$ ./test status -l
+...
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ [FAIL]  9f23c62e5bdb taking too long                                         │
+└──────────────────────────────────────────────────────────────────────────────┘
+• Path to captured log: _build/testo/status/test/9f23c62e5bdb/log
+• Timed out. Current time limit: 0.2 seconds
+• Log (stdout, stderr) is empty.
+...</code></pre>
 <h2 id="how-to-report-problems-with-testo">How to report problems with
 Testo?</h2>
 <p>Check for known issues at <a
