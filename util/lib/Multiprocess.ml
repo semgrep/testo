@@ -51,7 +51,6 @@ module Client = struct
       x.running <- false;
       Debug.log (fun () -> sprintf "close worker %s" x.name);
       let t1 = Unix.gettimeofday () in
-      let pid = Unix.process_pid x.process in
       (* Fun fact/bug (Linux, OCaml 5.3.0): if we don't send a signal
          to terminate the worker process, Unix.close_process will
          return immediately even though the child process keeps
@@ -78,6 +77,9 @@ module Client = struct
             -> The second DEBUG line shows up on the console after a
                5-second delay as expected but reports 0.002 s instead
                of 5 seconds!
+            -> With strace invoked as 'strace ./timeout-test --debug',
+               we get "WEXITED 0 (took 4.785223s)" which is close enough to
+               5 seconds.
 
          I haven't managed to reproduce the bug with the following repro.ml:
 
@@ -96,7 +98,10 @@ module Client = struct
            let t2 = Unix.gettimeofday () in
            Printf.printf "elapsed: %.6f\n%!" (t2 -. t1)
       *)
-      Unix.kill pid Sys.sigkill;
+      (*
+        let pid = Unix.process_pid x.process in
+        Unix.kill pid Sys.sigkill;
+      *)
       let status = Unix.close_process x.process in
       let t2 = Unix.gettimeofday () in
       Debug.log (fun () ->
