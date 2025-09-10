@@ -519,6 +519,12 @@ let print_status ~highlight_test ~always_show_unchecked_output
       match test.skipped with
       | Some _reason -> printf "%sAlways skipped\n" bullet
       | None -> (
+          (match test.solo with
+           | None -> ()
+           | Some reason ->
+               printf "%sThis is a solo test, set to not run concurrently with other tests. Reason: %s\n"
+                bullet reason
+          );
           (match test.broken with
           | None -> ()
           | Some reason ->
@@ -571,9 +577,12 @@ let print_status ~highlight_test ~always_show_unchecked_output
           (match test.max_duration, success with
            | None, (OK | OK_but_new) -> ()
            | Some max_duration, (OK | OK_but_new) ->
-               printf "%sTime limit: %g seconds\n"
+               printf "%sTime limit: %g seconds%s\n"
                  bullet
                  max_duration
+                 (match test.solo with
+                  | None -> ""
+                  | Some _reason -> " (unenforceable due to solo setting)")
            | _, Not_OK (Some Timeout) -> (
                let current_max_duration =
                  match test.max_duration with
