@@ -359,7 +359,7 @@ let tests =
 
 If a test times out, it will be reported as failed. Here's the output
 for a test named "taking too long" designed to trigger a timeout
-after 0.2 second:
+after 10 seconds:
 
 ```
 $ ./test status -l
@@ -368,7 +368,7 @@ $ ./test status -l
 │ [FAIL]  9f23c62e5bdb taking too long                                         │
 └──────────────────────────────────────────────────────────────────────────────┘
 • Path to captured log: _build/testo/status/test/9f23c62e5bdb/log
-• Timed out. Current time limit: 0.2 seconds
+• Timed out. Current time limit: 10 seconds
 • Log (stdout, stderr) is empty.
 ...
 ```
