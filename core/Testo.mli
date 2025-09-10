@@ -29,8 +29,9 @@ type expected_outcome =
 type completion_status =
   | Test_function_returned
   | Test_function_raised_an_exception
+  | Test_timeout
 
-type fail_reason = Raised_exception | Incorrect_output
+type fail_reason = Raised_exception | Incorrect_output | Timeout
 type outcome = Succeeded | Failed of fail_reason
 
 type captured_output =
@@ -140,6 +141,10 @@ type t = private {
           a test run will fail if a broken test fails. *)
   checked_output : checked_output_kind;
   expected_outcome : expected_outcome;
+  max_duration : float option;
+      (** A time limit for the test when running in a detached worker,
+          in seconds. This setting is ignored when running tests sequentially
+          in the master process such as with [-j0] or in [solo] mode. *)
   normalize : (string -> string) list;
       (** An optional function to rewrite any output data so as to mask the
         variable parts. *)
@@ -209,6 +214,7 @@ val create :
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
+  ?max_duration:float ->
   ?normalize:(string -> string) list ->
   ?skipped:string ->
   ?solo:string ->
@@ -228,6 +234,9 @@ val create :
       to no capture.}
    {- [expected_outcome]: whether a test is expected to complete without
       raising an exception (default) or by raising an exception. }
+   {- [max_duration]: a time limit to run the test, in seconds.
+      It is honored only in tests running in workers i.e. not with the [-j0]
+      option of the test program.}
    {- [normalize]: a list of functions applied in turn to transform the
       captured output before comparing it to the reference snapshot.
       See {!mask_line} and other functions with the [mask] prefix which are
@@ -253,6 +262,7 @@ val update :
   ?checked_output:checked_output_kind ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> unit Promise.t) ->
+  ?max_duration:float option ->
   ?normalize:(string -> string) list ->
   ?name:string ->
   ?skipped:string option ->

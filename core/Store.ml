@@ -215,11 +215,13 @@ let string_of_completion_status (x : T.completion_status) =
   match x with
   | Test_function_returned -> "Test_function_returned"
   | Test_function_raised_an_exception -> "Test_function_raised_an_exception"
+  | Test_timeout -> "Test_timeout"
 
 let completion_status_of_string path data : T.completion_status =
   match data with
   | "Test_function_returned" -> Test_function_returned
   | "Test_function_raised_an_exception" -> Test_function_raised_an_exception
+  | "Test_timeout" -> Test_timeout
   | _ -> corrupted_file path
 
 let set_completion_status (test : T.test) completion_status =
@@ -620,6 +622,9 @@ let with_result_capture (test : T.test) func : unit -> unit Promise.t =
   let func = with_completion_status_capture test func in
   func
 
+let mark_test_as_timed_out (test : T.test) =
+  set_completion_status test Test_timeout
+
 (**************************************************************************)
 (* High-level interface *)
 (**************************************************************************)
@@ -682,9 +687,11 @@ let outcome_of_pair
   match completion_status with
   | Test_function_raised_an_exception -> Failed Raised_exception
   | Test_function_returned ->
-      match output_matches with
-      | false -> Failed Incorrect_output
-      | true -> Succeeded
+      (match output_matches with
+       | false -> Failed Incorrect_output
+       | true -> Succeeded)
+  | Test_timeout ->
+      Failed Timeout
 
 let outcome_of_expectation_and_result
     (expect : T.expectation) (result : T.result)
@@ -733,6 +740,11 @@ let check_status_before_approval (test : T.test) =
   | XFAIL Raised_exception ->
       Error
         (sprintf "Cannot approve test because it raised an exception: %s '%s'"
+           test.id test.internal_full_name)
+  | FAIL Timeout
+  | XFAIL Timeout ->
+      Error
+        (sprintf "Cannot approve test because it timed out: %s '%s'"
            test.id test.internal_full_name)
   | MISS missing_files -> Error (errmsg_of_missing_files missing_files)
 

@@ -27,6 +27,15 @@
  )
 )
 
+; A dummy test suite to check that timeouts are handled correctly.
+(executable
+ (name timeout_test)
+ (modules Timeout_test)
+ (libraries
+    testo
+ )
+)
+
 ; The test suite that exercises the dummy test suites in various ways
 ; and checks that it outputs what it's supposed to.
 (executable

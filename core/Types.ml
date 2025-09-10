@@ -11,10 +11,11 @@
 type completion_status =
   | Test_function_returned
   | Test_function_raised_an_exception
+  | Test_timeout
 
 (* If a test failed with an exception, we don't check the output.
    Incorrect_output implies the test returned without raising an exception. *)
-type fail_reason = Raised_exception | Incorrect_output
+type fail_reason = Raised_exception | Incorrect_output | Timeout
 
 (*
    The outcome defines whether a test succeeded or failed.
@@ -126,6 +127,7 @@ type test = {
   broken : string option;
   checked_output : checked_output_kind;
   expected_outcome : expected_outcome;
+  max_duration (* seconds *) : float option;
   normalize : (string -> string) list;
   skipped : string option;
   solo : string option;

@@ -21,8 +21,9 @@ type expected_outcome = T.expected_outcome =
 type completion_status = T.completion_status =
   | Test_function_returned
   | Test_function_raised_an_exception
+  | Test_timeout
 
-type fail_reason = T.fail_reason = Raised_exception | Incorrect_output
+type fail_reason = T.fail_reason = Raised_exception | Incorrect_output | Timeout
 type outcome = T.outcome = Succeeded | Failed of fail_reason
 
 type captured_output = T.captured_output =
@@ -91,6 +92,7 @@ type t = T.test = {
   broken : string option;
   checked_output : checked_output_kind;
   expected_outcome : expected_outcome;
+  max_duration : float option;
   normalize : (string -> string) list;
   skipped : string option;
   solo : string option;
@@ -143,7 +145,7 @@ let update_id (test : t) =
   { test with id; internal_full_name }
 
 let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
-    ?(expected_outcome = Should_succeed) ?(normalize = []) ?skipped ?solo
+    ?(expected_outcome = Should_succeed) ?max_duration ?(normalize = []) ?skipped ?solo
     ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
     id = "";
@@ -154,6 +156,7 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
     broken;
     checked_output;
     expected_outcome;
+    max_duration;
     normalize;
     skipped;
     solo;
@@ -165,7 +168,8 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
 
 let opt option default = Option.value option ~default
 
-let update ?broken ?category ?checked_output ?expected_outcome ?func ?normalize
+let update ?broken ?category ?checked_output ?expected_outcome ?func
+    ?max_duration ?normalize
     ?name ?skipped ?solo ?tags ?tolerate_chdir ?tracking_url old =
   {
     id = "";
@@ -177,6 +181,7 @@ let update ?broken ?category ?checked_output ?expected_outcome ?func ?normalize
     broken = opt broken old.broken;
     checked_output = opt checked_output old.checked_output;
     expected_outcome = opt expected_outcome old.expected_outcome;
+    max_duration = opt max_duration old.max_duration;
     normalize = opt normalize old.normalize;
     skipped = opt skipped old.skipped;
     solo = opt solo old.solo;

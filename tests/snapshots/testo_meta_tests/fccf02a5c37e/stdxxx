@@ -98,9 +98,11 @@ Legend:
 Try '--help' for options.
 [33m[RUN SOLO: testing][0m 9213dcc500f4 [36msolo 1/2[0m
 [32m[PASS]  [0m9213dcc500f4 [36msolo 1/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [33m[RUN SOLO: testing][0m b10dcbd5d4b9 [36msolo 2/2[0m
 [32m[PASS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [33m[RUN][0m   8dbdda48fb87 [36msimple[0m
 [worker 1/1] junk printed on stdout...
@@ -654,8 +656,10 @@ Try '--help' for options.
 [32m[PASS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
 [32m[PASS]  [0m9213dcc500f4 [36msolo 1/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [32m[PASS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [32m[PASS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
 [2m• [0mChecked output: stdout
@@ -1154,9 +1158,11 @@ Try '--help' for options.
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fb27e160e59b/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/fb27e160e59b/log
 [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [33m[MISS]  [0mbf116ef3934b [36mdiff[0m > [36mhello[0m
@@ -1523,13 +1529,15 @@ Try '--help' for options.
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -1996,13 +2004,15 @@ junk printed on stdout...
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m9213dcc500f4 [36msolo 1/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9213dcc500f4/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m                                                [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b10dcbd5d4b9/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2295,9 +2305,11 @@ Legend:
 Try '--help' for options.
 [33m[RUN SOLO: testing][0m 9213dcc500f4 [36msolo 1/2[0m
 [32m[PASS]  [0m9213dcc500f4 [36msolo 1/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/9213dcc500f4/log
 [33m[RUN SOLO: testing][0m b10dcbd5d4b9 [36msolo 2/2[0m
 [32m[PASS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
 [33m[RUN][0m   8dbdda48fb87 [36msimple[0m
 [worker 1/1] junk printed on stdout...

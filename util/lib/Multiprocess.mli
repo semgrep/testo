@@ -2,45 +2,29 @@
    Manage the lifecycle of worker processes used for parallel test runs.
 *)
 
-(* Master side *)
+(* Master side
+
+   This code runs in the master process which is a client to the workers.
+   The child process will initialize from argv, collecting the list
+   of tests again. If the list of tests is obtained by scanning the
+   filesystem for test cases, then this discovery will take place again
+   in each new worker.
+
+   Here, all we need to know about tests is their unique identifier
+   provided by 'test_test_id'.
+*)
 module Client : sig
-  type t
   type worker
 
-  (*
-     Create a set of workers. Each will execute a command derived from
-     the same command as the current process but with modifications
-     (e.g. '--worker' is added, a '--slice' option is added, ...)
-  *)
-  val create :
+  val run_tests_in_workers :
+    argv:string array ->
+    get_test_id:('test -> string) ->
+    get_timed_out_workers:(unit -> (worker * (unit -> unit)) list) ->
     num_workers:int ->
-    original_argv:string array ->
+    on_end_test:('test -> unit) ->
+    on_start_test:(worker option -> 'test -> unit) ->
     test_list_checksum:string ->
-    t
-
-  val worker_id : worker -> string
-  val iter_workers : t -> (worker -> unit) -> unit
-  val close_worker : worker -> unit
-
-  (*
-     Kill all the worker processes.
-  *)
-  val close : t -> unit
-
-  (*
-     Read the next available message from a worker, returning the worker's
-     identifier and the message.
-
-     A 'None' result indicates that all the workers are done.
-  *)
-  val read : t -> (worker * Msg_from_worker.t) option
-
-  (*
-     Send a request to an available worker.
-     An available worker is one that's not currently running a test as
-     determined by the messages we receive from it.
-  *)
-  val write : worker -> Msg_from_master.t -> unit
+    'test list -> (unit, string) result
 end
 
 (* Worker side *)

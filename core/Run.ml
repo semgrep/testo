@@ -519,6 +519,12 @@ let print_status ~highlight_test ~always_show_unchecked_output
       match test.skipped with
       | Some _reason -> printf "%sAlways skipped\n" bullet
       | None -> (
+          (match test.solo with
+           | None -> ()
+           | Some reason ->
+               printf "%sThis is a solo test, set to not run concurrently with other tests. Reason: %s\n"
+                bullet reason
+          );
           (match test.broken with
           | None -> ()
           | Some reason ->
@@ -567,6 +573,32 @@ let print_status ~highlight_test ~always_show_unchecked_output
           let capture_paths = Store.capture_paths_of_test test in
           show_output_details test sum capture_paths;
           let success = success_of_status_summary sum in
+          (* Show timeout info *)
+          (match test.max_duration, success with
+           | None, (OK | OK_but_new) -> ()
+           | Some max_duration, (OK | OK_but_new) ->
+               printf "%sTime limit: %g seconds%s\n"
+                 bullet
+                 max_duration
+                 (match test.solo with
+                  | None -> ""
+                  | Some _reason -> " (unenforceable due to solo setting)")
+           | _, Not_OK (Some Timeout) -> (
+               let current_max_duration =
+                 match test.max_duration with
+                 | None ->
+                     (* the test was reconfigured since the run that
+                        produced the timeout *)
+                     "none"
+                 | Some max_duration -> sprintf "%g seconds" max_duration
+               in
+               printf "%s%s. Current time limit: %s\n"
+                 bullet
+                 (Style.color Red "Timed out")
+                 current_max_duration
+             )
+           | _, Not_OK (None | Some (Raised_exception | Incorrect_output)) -> ()
+          );
           let show_unchecked_output =
             always_show_unchecked_output
             ||
@@ -588,6 +620,12 @@ let print_status ~highlight_test ~always_show_unchecked_output
                        bullet
                  | Not_OK (Some Incorrect_output) ->
                      printf "%sFailed due to wrong output.\n" bullet
+                 | Not_OK (Some Timeout) ->
+                     printf "%sFailed due to timeout (%gs).\n"
+                       bullet
+                       (match test.max_duration with
+                        | None -> (* impossible *) infinity
+                        | Some dur -> dur)
                  | Not_OK None ->
                      printf
                        "%sSucceded when it should have failed. See captured \
@@ -621,8 +659,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some Incorrect_output)
-            | Not_OK None ->
+            | Not_OK (Some (Incorrect_output | Timeout) | None) ->
                 ()));
   flush stdout
 
@@ -792,7 +829,10 @@ let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring ~fi
   in
   (exit_code, tests_with_status)
 
-let report_start_test (test : T.test) =
+let report_start_test
+    (timers : Timers.t option)
+    (worker : Multiprocess.Client.worker option)
+    (test : T.test) =
   let run_label =
     match test.solo with
     | None -> "[RUN]"
@@ -800,9 +840,14 @@ let report_start_test (test : T.test) =
   in
   printf "%s%s\n%!"
     (Style.left_col (Style.color Yellow run_label))
-    (format_title test)
+    (format_title test);
+  (* Start a timer if the test has a maximum duration *)
+  match timers, worker with
+  | None, None -> () (* single process mode: timeouts are not supported *)
+  | Some timers, Some worker -> Timers.add_test timers test worker
+  | _ -> (* bad combination *) assert false
 
-let report_end_test ~always_show_unchecked_output test =
+let report_end_sequential_test ~always_show_unchecked_output test =
   get_test_with_status test
   |> print_status ~highlight_test:false ~always_show_unchecked_output
 
@@ -811,61 +856,28 @@ let report_skip_test test reason =
     (Style.left_col (Style.color Yellow (sprintf "[SKIP: %s]" reason)))
     (format_title test)
 
-let start_test worker (test : T.test) =
-  report_start_test test;
-  Multiprocess.Client.write worker (Start_test test.id)
+let report_timeout test max_duration =
+  printf "%s%s\n%!"
+    (Style.left_col
+       (Style.color Red (sprintf "[TIMEOUT: %gs]" max_duration)))
+    (format_title test)
 
-let feed_worker test_queue worker =
-  match Queue.take_opt test_queue with
-  | Some test -> start_test worker test
-  | None -> Multiprocess.Client.close_worker worker
-
-let run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
-    ~test_list_checksum tests =
-  let workers =
-    Multiprocess.Client.create ~num_workers ~original_argv:argv ~test_list_checksum
-  in
-  let get_test =
-    let tbl = Hashtbl.create (2 * List.length tests) in
-    List.iter (fun (x : T.test) -> Hashtbl.add tbl x.id x) tests;
-    fun test_id ->
-      try Hashtbl.find tbl test_id with
-      | Not_found ->
-          failwith
-            (sprintf "Internal error: received invalid test ID from worker: %S"
-               test_id)
-  in
-  let test_queue = tests |> List.to_seq |> Queue.of_seq in
-  (* Send a first task (test) to each worker *)
-  Multiprocess.Client.iter_workers workers (fun worker ->
-      feed_worker test_queue worker);
-  (* Wait for responses from workers and feed them until the queue is empty *)
-  let rec loop () =
-    match Multiprocess.Client.read workers with
-    | None ->
-        (* There are no more workers = they were closed after we
-           tried to feed each of them from the empty queue. *)
-        ()
-    | Some (worker, msg) ->
-        let worker_id = Multiprocess.Client.worker_id worker in
-        (match msg with
-        | End_test test_id ->
-            let test = get_test test_id in
-            (match test.skipped with
-            | Some reason -> report_skip_test test reason
-            | None ->
-                get_test_with_status test
-                |> print_status ~highlight_test:false
-                     ~always_show_unchecked_output);
-            feed_worker test_queue worker
-        | Error msg ->
-            eprintf "*** Internal error in worker %s: %s\n%!" worker_id msg;
-            Multiprocess.Client.close workers;
-            exit exit_internal_error
-        | Junk line -> printf "[worker %s] %s\n%!" worker_id line);
-        loop ()
-  in
-  loop ()
+(* Identify timed-out tests, record and print their status, and return the
+   list of timed-out workers so they can be killed and restarted. *)
+let get_timed_out_workers timers =
+  let timed_out = Timers.remove_timeouts timers in
+  (* TODO: record test status *)
+  (* print *)
+  List.iter (fun (test, max_duration, _worker) ->
+    report_timeout test max_duration
+  ) timed_out;
+  (* report workers to kill *)
+  Helpers.list_map (fun (test, _max_duration, worker) ->
+    let on_worker_termination () =
+      Store.mark_test_as_timed_out test
+    in
+    (worker, on_worker_termination)
+  ) timed_out
 
 (*
    Run tests and report progress. This is done in the main process when
@@ -885,9 +897,9 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
           report_skip_test test reason;
           P.return ()
       | None ->
-          report_start_test test;
+          report_start_test None None test;
           P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-          report_end_test ~always_show_unchecked_output test;
+          report_end_sequential_test ~always_show_unchecked_output test;
           P.return ())
     (P.return ()) tests
 
@@ -1004,13 +1016,33 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       |> List.partition (fun (test : T.test) ->
              all_sequential || test.solo <> None)
     in
+    let timers = Timers.create () in
+    let on_end_test (test : T.test) =
+      Timers.remove_test timers test;
+      match test.skipped with
+      | Some reason -> report_skip_test test reason
+      | None ->
+          get_test_with_status test
+          |> print_status ~highlight_test:false
+            ~always_show_unchecked_output
+    in
     (* Run in the same process. This is for situations or platforms where
        multiprocessing might not work for whatever reason. *)
     run_tests_sequentially ~always_show_unchecked_output sequential_tests
     >>= fun () ->
     if num_workers > 0 then
-      run_tests_in_workers ~always_show_unchecked_output ~argv ~num_workers
-        ~test_list_checksum:(get_checksum tests) parallel_tests;
+      (match Multiprocess.Client.run_tests_in_workers
+        ~argv
+        ~get_test_id:(fun (x : T.test) -> x.id)
+        ~get_timed_out_workers:(fun () -> get_timed_out_workers timers)
+        ~num_workers
+        ~on_start_test:(report_start_test (Some timers))
+        ~on_end_test
+        ~test_list_checksum:(get_checksum tests) parallel_tests
+      with Ok () -> ()
+         | Error msg ->
+             eprintf "Internal error: %s\n%!" msg;
+             exit exit_internal_error);
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
       after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests
