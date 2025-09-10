@@ -14,6 +14,10 @@ Try '--help' for options.
 [32m[PASS]  [0m68018e4a009a [36mdoes not time out[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/68018e4a009a/log
 [2m• [0mTime limit: 15 seconds
+[32m[PASS]  [0me923b1ebf4b6 [36msolo test with unenforceable timeout[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
+[2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/e923b1ebf4b6/log
+[2m• [0mTime limit: 0.0001 seconds (unenforceable due to solo setting)
 [31m[FAIL]  [0m9f23c62e5bdb [36mtaking too long[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/9f23c62e5bdb/log
 [2m• [0m[31mTimed out[0m. Current time limit: 0.2 seconds
@@ -30,7 +34,7 @@ Try '--help' for options.
 [2m• [0m[31mTimed out[0m. Current time limit: 0.2 seconds
 [2m• [0mLog (stdout, stderr) is empty.
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-4/4 selected tests:
-  3 successful (3 pass, 0 xfail)
+5/5 selected tests:
+  4 successful (4 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
