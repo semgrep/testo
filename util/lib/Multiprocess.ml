@@ -47,6 +47,7 @@ module Client = struct
 
   let close_worker (x : worker) =
     if x.running then (
+      (* Assume the worker process still exists, hasn't been waitpidded. *)
       x.running <- false;
       Debug.log (fun () -> sprintf "close worker %s" x.name);
       let t1 = Unix.gettimeofday () in
@@ -60,7 +61,41 @@ module Client = struct
          to console or to files. Then the process will block until the
          child process terminates naturally. Only then the expected
          physical writes will take place and our process will resume
-         normally. *)
+         normally.
+
+         If you want to debug this, do the following:
+         1. Remove the Unix.kill call.
+         2. Run 'make test' to recompile.
+         3. Run './timeout-test --debug'. It will hang until the test
+            running in the worker is finished (at which point the worker
+            would try to write something on the pipe connected to our
+            master process) but it will output something like this:
+
+[DEBUG] [1757469030.653667] close worker 2/16
+<5-second pause>
+[DEBUG] [1757469030.655928] closed worker 2/16: WEXITED 0 (took 0.002222s)
+
+            -> The second DEBUG line shows up on the console after a
+               5-second delay as expected but reports 0.002 s instead
+               of 5 seconds!
+
+         I haven't managed to reproduce the bug with the following repro.ml:
+
+         (*
+            Program that attempts to reproduce the bug but works correctly
+
+            Build command: ocamlopt -o repro -I +unix unix.cmxa repro.ml
+            Run: ./repro
+            Expectation and actual behavior: reports about 1 second elapsed
+            Bug expectation: reports under a millisecond
+         *)
+         let () =
+           let process = Unix.open_process "sleep 1" in
+           let t1 = Unix.gettimeofday () in
+           let _status = Unix.close_process process in
+           let t2 = Unix.gettimeofday () in
+           Printf.printf "elapsed: %.6f\n%!" (t2 -. t1)
+      *)
       Unix.kill pid Sys.sigkill;
       let status = Unix.close_process x.process in
       let t2 = Unix.gettimeofday () in
