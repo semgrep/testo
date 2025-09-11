@@ -1,3 +1,6 @@
+0.2.0 (2025-09-11)
+------------------
+
 * Fix: handle windows paths correctly CLI help output
   (https://github.com/semgrep/testo/pull/121)
 * Fix: correct path masking on Windows paths
