@@ -30,6 +30,9 @@ build:
 	# Markdown source -> HTML
 	$(MAKE) $(HTML)
 	cp generic.css $(DOCROOT)/
+	# This file proves ownership to Google Search Console, helping us
+	# to figure out why the docs are not being indexed.
+	cp googlea3b4cee899c0b364.html $(DOCROOT)/
 	# OCaml source -> HTML
 	# We need to run 'dune build @doc' from the project root. Why?
 	(cd .. && dune build @doc)
