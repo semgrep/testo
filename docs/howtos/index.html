@@ -43,6 +43,9 @@ Alcotest?</a></li>
 <li><a href="#how-to-write-an-assertion-for-a-custom-type"
 id="toc-how-to-write-an-assertion-for-a-custom-type">How to write an
 assertion for a custom type?</a></li>
+<li><a href="#how-to-check-stdout-or-stderr"
+id="toc-how-to-check-stdout-or-stderr">How to check stdout or
+stderr?</a></li>
 <li><a href="#how-to-write-tests-ahead-of-time"
 id="toc-how-to-write-tests-ahead-of-time">How to write tests ahead of
 time?</a></li>
@@ -188,6 +191,83 @@ let thing = Alcotest.testable print_thing equal_thing</code></pre>
       let expected_thing = ... in
       Alcotest.check thing &quot;equal&quot; expected_thing result
     )</code></pre>
+<h2 id="how-to-check-stdout-or-stderr">How to check stdout or
+stderr?</h2>
+<p>There are two ways. If you want to match the output exactly and
+review any differences conveniently, you should use the built-in
+snapshotting mechanism. It is sufficient to pass the
+<code>~checked_output:(Testo.stdout ())</code> option to
+<code>Testo.create</code> to check stdout. Similarly, you can check
+stderr alone, stderr combined with stdout, or check stderr separately
+from stdout (see <a
+href="../reference/testo/Testo/index.html#val-stdout">API
+reference</a>).</p>
+<pre><code>let print_welcome_message () =
+  (* Typically, we would print something more complicated *)
+  print_endline (&quot;hello &quot; ^ Unix.getenv &quot;USER&quot;)
+
+let test_welcome_message =
+  Testo.create &quot;welcome message&quot;
+    ~checked_output:(Testo.stdout ())
+    print_welcome_message</code></pre>
+<p>When running the test, any line difference would be highlighted and
+would make the test fail. It is then your responsibility to either fix
+the source code until the test passes or to approve the new output by
+running <code>./test approve -s 'welcome message'</code>. This saves the
+expected output as a snapshot file that you must track with Git or your
+favorite VCS.</p>
+<p>A common problem is that the output contains variable parts such as
+timestamps or random identifiers, causing the test to fail from one run
+to another or from one host to another. In our example, we want to hide
+the user name taken from the <code>USER</code> environment variable. It
+can be masked using masking functions provided by the <code>Testo</code>
+module or by any function that takes a string and returns a new string.
+Check out the API for the <a
+href="../reference/testo/Testo/index.html#output-masking-functions">list
+of built-in <code>mask_</code>* functions</a>. Multiple masking
+functions can be applied successively if needed. You must pass them as a
+list to <code>Testo.create</code> as the <code>~normalize</code>
+argument. In the following example, we replace anything that follows
+<code>hello</code> by <code>&lt;MASKED&gt;</code>:</p>
+<pre><code>let test_welcome_message =
+  Testo.create &quot;welcome message&quot;
+    ~checked_output:(Testo.stdout ())
+    ~normalize:[Testo.mask_line ~after:&quot;hello &quot; ()]
+    print_welcome_message</code></pre>
+<p>If masking is too cumbersome or too brittle, a better approach is to
+only check for the presence of this or that substring or pattern. Here,
+we capture the standard output of our <code>print_welcome_message</code>
+function directly as <code>out_str</code> and then we check that it
+looks right:</p>
+<pre><code>let test_welcome_message =
+  Testo.create &quot;welcome message&quot;
+    (fun () -&gt;
+       let _res, out_str = Testo.with_capture stdout print_welcome_message in
+       if not (Testo.contains_substring ~sub:&quot;hello&quot; out_str) then
+         failwith &quot;standard output doesn&#39;t contain &#39;hello&#39;&quot;
+    )</code></pre>
+<p>In this case, <code>failwith</code> raises an exception to signal the
+test failure in the usual fashion. Note that
+<code>Testo.with_capture</code> is an ordinary function that we could
+outside of Testo to capture stdout or stderr. To capture stdout and
+stderr, use two calls to <code>Testo.with_capture</code>:</p>
+<pre><code>let test_welcome_message =
+  Testo.create &quot;welcome message&quot;
+    (fun () -&gt;
+      (* capture stderr (outer wrapper) and stdout (inner wrapper) *)
+      let out_str, err_str =
+        Testo.with_capture stderr (fun () -&gt;
+          let (), out_str =
+            Testo.with_capture stdout print_welcome_message in
+          out_str
+        )
+      in
+      (* check out_str and err_str *)
+      if not (Testo.contains_substring ~sub:&quot;hello&quot; out_str) then
+        failwith &quot;standard output doesn&#39;t contain &#39;hello&#39;&quot;;
+      if err_str &lt;&gt; &quot;&quot; then
+        failwith (&quot;unexpected error output: &quot; ^ err_str)
+   )</code></pre>
 <h2 id="how-to-write-tests-ahead-of-time">How to write tests ahead of
 time?</h2>
 <p>Testo supports two ways of writing tests that are known to fail. If
