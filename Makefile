@@ -15,13 +15,14 @@ symlinks:
 	ln -sf _build/default/tests/test_alcotest.exe test-alcotest
 	ln -sf _build/default/tests/meta_test.exe meta-test
 	ln -sf _build/default/tests/timeout_test.exe timeout-test
-	# testo-diff
+	ln -sf ../../bin/testo-diff tests/diff-data/testo-diff
+	# expose testo-diff in bin/
 	ln -sf _build/install/default/bin .
 
 .PHONY: delete-symlinks
 delete-symlinks:
 	rm -f test failing-test parallel-test test-alcotest meta-test \
-	  timeout-test bin
+	  timeout-test tests/diff-data/testo-diff bin
 
 # Install opam dependencies. This requires pre-commit which requires
 # Python. See scripts/dev-setup-alpine for an example of how to install
