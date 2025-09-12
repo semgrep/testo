@@ -58,40 +58,28 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install OCaml with winget
+          name: Install Opam
           shell: bash.exe
           command: |
-            pwd
-            echo "$PATH"
-            winget install Git.Git OCaml.opam
+            url="https://github.com/ocaml/opam/releases/download/2.4.1/opam-2.4.1-x86_64-windows.exe"
+            dst="$HOME/AppData/Local/Microsoft/WindowsApps/opam"
+            curl -L "$url" -o "$dst"
+            opam --version
       - run:
           name: Set up OCaml and opam environment
           shell: bash.exe
           command: |
-            # Initialize opam, picking the native Windows (mingw) environment.
-            # Use --no-setup and --bare because we will do the path setup manually.
-            opam init --bare --compiler=5.3.0 --no-setup -y
-            # Use `opam env --revert` to get the necessary environment variables
-            # and append to the current process's shell profile.
-            opam env --revert >> $BASH_ENV
-            # Execute the environment changes to activate opam in this and subsequent steps.
-            source $BASH_ENV
-            # Verify the opam and ocaml versions.
-            opam --version
+            opam init --compiler=5.3.0 -y
             ocaml --version
       - run:
-          name: Install dune and build the project
-          shell: bash.exe
-          command: |
-            # Source the opam environment for this step.
-            source $BASH_ENV
-            # Install build dependencies.
-            opam install dune -y
-            # Build your OCaml project using dune.
-            dune build
-            # Is 'make' available?
-            make
-            make test
+          name: Install dependencies
+          command: ./scripts/dev-setup-all-platforms -y
+      - run:
+          name: Build
+          command: opam exec -- make
+      - run:
+          name: Test
+          command: opam exec -- make test
 
   semgrep-full-scan:
     docker:
