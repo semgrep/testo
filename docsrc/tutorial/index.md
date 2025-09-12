@@ -8,7 +8,7 @@ description: "A hands-on tutorial that introduces Testo step by
 Introduction
 --
 
-[Testo](https://github.com/semgrep/testo)
+[Testo](../)
 is a test framework for [OCaml](https://ocaml.org/). Like with
 [OUnit](https://github.com/gildor478/ounit) or
 [Alcotest](https://github.com/mirage/alcotest), the
@@ -42,6 +42,10 @@ Main features
 * Provides various utilities for capturing stdout or stderr, and
   masking variable parts of test output such as temporary file paths.
 * Support for tests that return Lwt promises.
+* Fast parallel execution using multiprocessing.
+* Non-intrusive support for timeouts.
+* Support for older OCaml versions starting from OCaml 4.08.
+* Experimental Windows support.
 
 XFAIL outcomes and snapshot files are two features borrowed from
 [Pytest](https://docs.pytest.org/)

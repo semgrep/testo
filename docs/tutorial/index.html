@@ -62,8 +62,8 @@ fails</a></li>
 </ul>
 </nav>
 <h2 id="introduction">Introduction</h2>
-<p><a href="https://github.com/semgrep/testo">Testo</a> is a test
-framework for <a href="https://ocaml.org/">OCaml</a>. Like with <a
+<p><a href="../">Testo</a> is a test framework for <a
+href="https://ocaml.org/">OCaml</a>. Like with <a
 href="https://github.com/gildor478/ounit">OUnit</a> or <a
 href="https://github.com/mirage/alcotest">Alcotest</a>, the user writes
 a collection of tests. A test consists of a name and an OCaml test
@@ -93,6 +93,10 @@ tests.</li>
 <li>Provides various utilities for capturing stdout or stderr, and
 masking variable parts of test output such as temporary file paths.</li>
 <li>Support for tests that return Lwt promises.</li>
+<li>Fast parallel execution using multiprocessing.</li>
+<li>Non-intrusive support for timeouts.</li>
+<li>Support for older OCaml versions starting from OCaml 4.08.</li>
+<li>Experimental Windows support.</li>
 </ul>
 <p>XFAIL outcomes and snapshot files are two features borrowed from <a
 href="https://docs.pytest.org/">Pytest</a> that would have required
