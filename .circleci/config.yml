@@ -7,6 +7,9 @@
 
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.0
+
 # TODO: check that the docs are up-to-date (requires odoc and pandoc)
 jobs:
   build:
@@ -49,6 +52,43 @@ jobs:
           name: Test
           command: opam exec -- make test
 
+  windows_build:
+    executor:
+      name: win/default
+    steps:
+      - checkout
+      - run:
+          name: Install OCaml with winget
+          command: winget install Git.Git OCaml.opam
+      - run:
+          name: Set up OCaml and opam environment
+          shell: bash.exe
+          command: |
+            # Initialize opam, picking the native Windows (mingw) environment.
+            # Use --no-setup and --bare because we will do the path setup manually.
+            opam init --bare --compiler=5.3.0 --no-setup -y
+            # Use `opam env --revert` to get the necessary environment variables
+            # and append to the current process's shell profile.
+            opam env --revert >> $BASH_ENV
+            # Execute the environment changes to activate opam in this and subsequent steps.
+            source $BASH_ENV
+            # Verify the opam and ocaml versions.
+            opam --version
+            ocaml --version
+      - run:
+          name: Install dune and build the project
+          shell: bash.exe
+          command: |
+            # Source the opam environment for this step.
+            source $BASH_ENV
+            # Install build dependencies.
+            opam install dune -y
+            # Build your OCaml project using dune.
+            dune build
+            # Is 'make' available?
+            make
+            make test
+
   semgrep-full-scan:
     docker:
       - image: semgrep/semgrep
@@ -78,6 +118,7 @@ workflows:
     jobs:
       - build
       - build_legacy
+      - windows_build
   semgrep:
     jobs:
       - semgrep-full-scan:
