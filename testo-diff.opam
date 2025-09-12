@@ -13,7 +13,7 @@ license: "ISC"
 homepage: "https://github.com/semgrep/testo"
 bug-reports: "https://github.com/semgrep/testo/issues"
 depends: [
-  "dune" {>= "3.7"}
+  "dune" {>= "3.18"}
   "ocaml" {>= "4.08.0"}
   "ppx_deriving"
   "odoc" {with-doc}
@@ -33,3 +33,4 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/semgrep/testo.git"
+x-maintenance-intent: ["(latest)"]

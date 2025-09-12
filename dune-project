@@ -1,4 +1,4 @@
-(lang dune 3.7)
+(lang dune 3.18)
 (name testo)
 (using menhir 2.1)
 
@@ -31,6 +31,7 @@ See https://github.com/paulgb/simplediff")
     (ocaml (>= 4.08.0))
     ppx_deriving
   )
+  (maintenance_intent "(latest)")
 )
 
 (package
@@ -45,6 +46,7 @@ Testo is a test framework for OCaml.")
     ppx_deriving
     (testo-diff (= :version))
   )
+  (maintenance_intent "(latest)")
 )
 
 (package
@@ -61,6 +63,7 @@ checking, and approving the output of tests.")
     (re (>= 1.10.0))
     (testo-util (= :version))
   )
+  (maintenance_intent "(latest)")
 )
 
 (package
@@ -79,4 +82,5 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     (re (>= 1.10.0))
     (testo-util (= :version))
   )
+  (maintenance_intent "(latest)")
 )
