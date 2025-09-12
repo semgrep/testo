@@ -8,7 +8,7 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@5.0
+  win: circleci/windows@5.1.0
 
 # TODO: check that the docs are up-to-date (requires odoc and pandoc)
 jobs:
@@ -59,7 +59,11 @@ jobs:
       - checkout
       - run:
           name: Install OCaml with winget
-          command: winget install Git.Git OCaml.opam
+          shell: bash.exe
+          command: |
+            pwd
+            echo "$PATH"
+            winget install Git.Git OCaml.opam
       - run:
           name: Set up OCaml and opam environment
           shell: bash.exe
