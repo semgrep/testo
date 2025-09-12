@@ -1,4 +1,8 @@
-% Testo howtos
+---
+title: "Testo Howtos: Practical Guides and Examples"
+description: "Step-by-step howtos for Testo — practical guides, tips, and
+  examples to test OCaml code."
+---
 
 <!-- note to authors:
 We don't have automatic validation of the code snippets shown here.

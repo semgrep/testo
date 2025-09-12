@@ -1,4 +1,9 @@
-% Testo tutorial
+---
+title: "Getting Started with Testo: A Hands-On Tutorial"
+description: "A hands-on tutorial that introduces Testo step by
+  step. Learn what Testo can do, explore its core features, and get
+  started with practical examples in minutes."
+---
 
 Introduction
 --
