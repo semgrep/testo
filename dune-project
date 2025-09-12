@@ -43,7 +43,7 @@ Testo is a test framework for OCaml.")
     fpath
     (re (>= 1.10.0))
     ppx_deriving
-    testo-diff
+    (testo-diff (>= 0.2.0))
   )
 )
 
@@ -59,7 +59,7 @@ checking, and approving the output of tests.")
     (cmdliner (>= 1.1.0))
     fpath
     (re (>= 1.10.0))
-    testo-util
+    (testo-util (>= 0.2.0))
   )
 )
 
@@ -77,6 +77,6 @@ because 'Lwt_main.run' is not supported by your platform e.g. JavaScript.")
     (cmdliner (>= 1.1.0))
     fpath
     (re (>= 1.10.0))
-    testo-util
+    (testo-util (>= 0.2.0))
   )
 )
