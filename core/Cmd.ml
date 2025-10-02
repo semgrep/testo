@@ -213,8 +213,8 @@ let strict_term : bool Term.t =
     Arg.info [ "strict" ]
       ~doc:
         "Treat broken tests as ordinary tests. This disables the default \
-         behavior consisting in ignoring failing tests that were marked as \
-         broken by the programmer when it comes to determining the overall \
+         behavior of ignoring failing tests that were marked as \
+         broken by the programmer when determining the overall \
          success of the test run."
   in
   Arg.value (Arg.flag info)
