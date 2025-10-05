@@ -368,6 +368,9 @@ val with_chdir : Fpath.t -> (unit -> 'a) -> 'a
     The original value of the current directory is restored when the function
     terminates. *)
 
+val get_current_test : unit -> t option
+(** Return the test currently running. *)
+
 (** {2 Output masking functions}
 
    Functions with the [mask_] prefix are string replacement

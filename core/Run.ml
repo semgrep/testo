@@ -368,15 +368,37 @@ let with_flip_xfail_outcome (test : T.test) func =
               (Printexc.raw_backtrace_to_string trace);
             P.return ())
 
+let current_test : T.test option ref = ref None
+
+let get_current_test () = !current_test
+
+(* Set the current_test ref for the duration of the test.
+
+   The user-specified test function must have access to the current test.
+   Some of the other wrappers such as the calling the 'normalize' function
+   on captured output might want to access the current test, so we
+   make this the outmost wrapper in 'wrap_test_function'.
+*)
+let with_current_test_ref test func =
+  fun () ->
+  P.protect
+    (fun () ->
+       current_test := Some test;
+       func ()
+    )
+    ~finally:(fun () -> current_test := None; P.return ())
+
 let conditional_wrap condition wrapper func =
   if condition then wrapper func else func
 
-let wrap_test_function ~with_storage ~flip_xfail_outcome test func =
+let wrap_test_function ~with_storage ~flip_xfail_outcome test
+    (func : unit -> unit Promise.t) : unit -> unit Promise.t =
   func
   |> conditional_wrap with_storage (with_store_exception test)
   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
   |> protect_globals test
   |> conditional_wrap with_storage (Store.with_result_capture test)
+  |> with_current_test_ref test
 
 let to_alcotest_internal ~alcotest_skip ~with_storage ~flip_xfail_outcome tests
     =

@@ -475,6 +475,11 @@ let tests env =
     test_diff "trailing-context";
     test_diff "joined-context";
     test_diff "gap-in-context";
+    t "current test" (fun () ->
+      match Testo.get_current_test () with
+      | None -> Alcotest.fail "current test is unset"
+      | Some test -> Alcotest.(check string) "test name" "current test" test.name
+    )
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"
