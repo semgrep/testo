@@ -111,6 +111,25 @@ val split_stdout_stderr :
   checked_output_kind
 (** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
 
+type checked_output_file
+(** A test's output file whose contents should be checked and reported
+    when it changes. *)
+
+val checked_output_file :
+  ?snapshot_path:Fpath.t ->
+  name:string ->
+  Fpath.t ->
+  checked_output_file
+(** Create the specification for a checked output file.
+    The [path] is the path of the file created by the test function.
+    The [name] must be a non-empty sequence of
+    ASCII letters, digits, underscores, and dashes. It will be used to
+    store the file after running a test, and by default as the name for
+    the persistent snapshot.
+    The [snapshot_path] can be specified as an alternate location to
+    store the snapshot file. A relative path is recommended.
+*)
+
 module Promise : module type of Promise
 (** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 
@@ -140,6 +159,7 @@ type t = private {
           command-line option causes the broken status to be ignored i.e.
           a test run will fail if a broken test fails. *)
   checked_output : checked_output_kind;
+  checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
   max_duration : float option;
       (** A time limit for the test when running in a detached worker,
@@ -147,7 +167,11 @@ type t = private {
           in the master process such as with [-j0] or in [solo] mode. *)
   normalize : (string -> string) list;
       (** An optional function to rewrite any output data so as to mask the
-        variable parts. *)
+        variable parts. This is normalization is only applied to captured
+        stdout or stderr, not to output files. If you wish to normalize
+        output files, the test function should handle it, possibly with
+        the provided {!map_file} function.
+      *)
   skipped : string option;
       (** If not [None], the [skipped] property causes a test to be skipped
           by Alcotest but still shown as ["[SKIP]"] rather than being
@@ -213,6 +237,7 @@ val create :
   ?broken:string ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
+  ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
   ?max_duration:float ->
   ?normalize:(string -> string) list ->
@@ -232,8 +257,10 @@ val create :
       can be nested further using {!categorize} or {!categorize_suites}.}
    {- [checked_output]: determines how to capture the test's output. Defaults
       to no capture.}
+   {- [checked_output_files]: specifies the test's output files that should
+      remain the same from one test run to another.}
    {- [expected_outcome]: whether a test is expected to complete without
-      raising an exception (default) or by raising an exception. }
+      raising an exception (default) or by raising an exception.}
    {- [max_duration]: a time limit to run the test, in seconds.
       It is honored only in tests running in workers i.e. not with the [-j0]
       option of the test program.}
@@ -260,6 +287,7 @@ val update :
   ?broken:string option ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
+  ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> unit Promise.t) ->
   ?max_duration:float option ->

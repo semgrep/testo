@@ -27,8 +27,6 @@ val init_workspace : unit -> unit
    for a test after applying all defaults and options.
 *)
 type capture_paths = {
-  (* Human-friendly name: "stdout", "stderr", or "stdxxx" *)
-  standard_name : string;
   (* Human-friendly name: "stdout" or the basename of user-specified file
      path. *)
   short_name : string;
