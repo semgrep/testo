@@ -46,6 +46,23 @@ type passing_status =
   | XPASS
   | MISS of missing_files
 
+type checked_output_options = {
+  (* If specified, this is where the output file will be stored instead
+     of the default location. A relative path is recommended. *)
+  snapshot_path : Fpath.t option;
+}
+
+type checked_output_file = {
+  name : string; (* file identifier used for the copy of the output file and
+                    used by default as the snapshot file name *)
+  options : checked_output_options;
+}
+
+type checked_output_file_with_contents = {
+  checked_file : checked_output_file;
+  contents : string;
+}
+
 type captured_output =
   | Ignored of string (* unchecked combined output *)
   | Captured_stdout of string * string (* stdout, unchecked output *)
@@ -97,12 +114,6 @@ type status_summary = {
   has_expected_output : bool;
 }
 
-type checked_output_options = {
-  (* If specified, this is where the output file will be stored instead
-     of the default location. A relative path is recommended. *)
-  expected_output_path : Fpath.t option;
-}
-
 type checked_output_kind =
   | Ignore_output
   | Stdout of checked_output_options
@@ -126,6 +137,7 @@ type test = {
   (* Options (alphabetical order) *)
   broken : string option;
   checked_output : checked_output_kind;
+  checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
   max_duration (* seconds *) : float option;
   normalize : (string -> string) list;
