@@ -26,3 +26,5 @@ val contains_pcre_pattern : pat:string -> string -> bool
 val contains_substring : sub:string -> string -> bool
 val write_file : Fpath.t -> string -> unit
 val read_file : Fpath.t -> string
+val map_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
+val copy_file : Fpath.t -> Fpath.t -> unit

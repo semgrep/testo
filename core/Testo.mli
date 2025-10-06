@@ -116,18 +116,31 @@ type checked_output_file
     when it changes. *)
 
 val checked_output_file :
+  ?path:Fpath.t ->
   ?snapshot_path:Fpath.t ->
-  name:string ->
-  Fpath.t ->
+  string ->
   checked_output_file
-(** Create the specification for a checked output file.
-    The [path] is the path of the file created by the test function.
-    The [name] must be a non-empty sequence of
-    ASCII letters, digits, underscores, and dashes. It will be used to
-    store the file after running a test, and by default as the name for
-    the persistent snapshot.
-    The [snapshot_path] can be specified as an alternate location to
-    store the snapshot file. A relative path is recommended.
+(** [checked_output_file name] creates the specification for a checked output
+    file identified by the name [name]. Popular names include ["results.txt"]
+    and ["results.json"].
+    The name must be a nonempty sequence of ASCII letters, digits,
+    underscores, dashes, or periods. Periods are not allowed in first or last
+    position. The name is used by Testo in messaging and in file names.
+    The [path] option indicates where the test function puts the file
+    so it can be picked up by {!stash_output_file} or {!stash_output_files}.
+    It defaults to the simple relative path [Fpath.v name].
+    The [snapshot_path] option specifies an alternate location for
+    the snapshot file that serves as the expectation for future test runs.
+*)
+
+val stash_output_file : string -> unit
+(** Copy a checked output file of the current test identified by its name
+    to Testo's status workspace.
+*)
+
+val stash_output_files : unit -> unit
+(** Copy all checked output files of the current test
+    to Testo's status workspace.
 *)
 
 module Promise : module type of Promise
