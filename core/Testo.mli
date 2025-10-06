@@ -129,6 +129,15 @@ val checked_output_file :
     the snapshot file that serves as the expectation for future test runs.
 *)
 
+val stash_output_file : Fpath.t -> string -> unit
+(** [stash_output_file src_path dst_name] copies a checked output file
+    of the current test identified by its name [dst_name]
+    into Testo's status workspace.
+
+    This function must be called by the test function for each checked
+    output file.
+*)
+
 module Promise : module type of Promise
 (** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 

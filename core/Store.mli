@@ -117,6 +117,9 @@ val remove_dead_snapshot : dead_snapshot -> unit
    that worker doesn't try to write another status at the same time. *)
 val mark_test_as_timed_out : Types.test -> unit
 
+(* Copy a checked output file identified by its unique name (not its path) *)
+val stash_output_file : Types.test -> Fpath.t -> Types.checked_output_file -> unit
+
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)
