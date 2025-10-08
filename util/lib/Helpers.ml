@@ -111,3 +111,11 @@ let read_file path =
       let len = in_channel_length ic in
       really_input_string ic len)
     ~finally:(fun () -> close_in_noerr ic)
+
+let map_file func src_path dst_path =
+  let old_contents = read_file src_path in
+  let new_contents = func old_contents in
+  write_file dst_path new_contents
+
+let copy_file src_path dst_path =
+  map_file (fun data -> data) src_path dst_path

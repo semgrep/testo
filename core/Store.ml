@@ -639,6 +639,11 @@ let with_result_capture (test : T.test) func : unit -> unit Promise.t =
 let mark_test_as_timed_out (test : T.test) =
   set_completion_status test Test_timeout
 
+let stash_output_file (test : T.test) (x : T.checked_output_file) : unit =
+  let src = x.path in
+  let dst = get_output_file_path test x in
+  Helpers.copy_file src dst
+
 (**************************************************************************)
 (* High-level interface *)
 (**************************************************************************)
