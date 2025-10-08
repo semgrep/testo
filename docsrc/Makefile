@@ -8,8 +8,8 @@
 # The destination folder mandated by GitHub Pages (web server)
 DOCROOT = ../docs
 
-# The pages are served at https://semgrep.github.io/testo/
-WWWROOT = /testo
+# The pages are served at https://testocaml.net/
+WWWROOT =
 
 PAGES = tutorial howtos
 
