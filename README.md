@@ -8,9 +8,9 @@ Testo [![CircleCI badge](https://circleci.com/gh/semgrep/testo.svg?style=svg)](h
 [Documentation](https://semgrep.github.io/testo/)
 --
 
-* [Getting started](https://semgrep.github.io/testo/tutorial)
-* [Howtos](https://semgrep.github.io/testo/howtos)
-* [API reference](https://semgrep.github.io/testo/reference/testo/Testo/index.html)
+* [Getting started](https://testocaml.net/tutorial)
+* [Howtos](https://testocaml.net/howtos)
+* [API reference](https://testocaml.net/reference/testo/Testo/index.html)
 
 Features
 --
