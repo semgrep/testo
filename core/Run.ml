@@ -393,12 +393,15 @@ let conditional_wrap condition wrapper func =
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test
     (func : unit -> unit Promise.t) : unit -> unit Promise.t =
-  func
-  |> conditional_wrap with_storage (with_store_exception test)
-  |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
-  |> protect_globals test
-  |> conditional_wrap with_storage (Store.with_result_capture test)
-  |> with_current_test_ref test
+  fun () ->
+  Store.remove_stashed_output_files test;
+  (func
+   |> conditional_wrap with_storage (with_store_exception test)
+   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
+   |> protect_globals test
+   |> conditional_wrap with_storage (Store.with_result_capture test)
+   |> with_current_test_ref test
+  ) ()
 
 let to_alcotest_internal ~alcotest_skip ~with_storage ~flip_xfail_outcome tests
     =
@@ -571,6 +574,14 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | Split_stdout_stderr _ -> "separate stdout and stderr"
               in
               printf "%sChecked output: %s\n" bullet text);
+          (match test.checked_output_files with
+          | [] -> ()
+          | xs ->
+              let names =
+                Helpers.list_map (fun (x : T.checked_output_file) -> x.name) xs
+              in
+              printf "%sChecked output files: %s\n"
+                bullet (String.concat ", " names));
           (* Details about results *)
           (match status.expectation.expected_output with
           | Error (Missing_files [ path ]) ->

@@ -26,6 +26,11 @@ type completion_status = T.completion_status =
 type fail_reason = T.fail_reason = Raised_exception | Incorrect_output | Timeout
 type outcome = T.outcome = Succeeded | Failed of fail_reason
 
+(* abstract types *)
+type checked_output_kind = T.checked_output_kind
+type checked_output_file = T.checked_output_file
+type checked_output_file_with_contents = T.checked_output_file_with_contents
+
 type captured_output = T.captured_output =
   | Ignored of string
   | Captured_stdout of string * string
@@ -43,6 +48,7 @@ type expected_output = T.expected_output =
 type result = T.result = {
   completion_status : completion_status;
   captured_output : captured_output;
+  captured_output_files : checked_output_file_with_contents list;
 }
 
 type missing_files = T.missing_files = Missing_files of Fpath.t list
@@ -50,6 +56,8 @@ type missing_files = T.missing_files = Missing_files of Fpath.t list
 type expectation = T.expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
+  expected_output_files :
+    (checked_output_file_with_contents, checked_output_file) Result.t list;
 }
 
 type status = T.status = {
@@ -80,10 +88,6 @@ type subcommand_result = Cmd.subcommand_result =
 (* export *)
 module Promise = Promise
 module Tag = Tag
-
-(* abstract types *)
-type checked_output_kind = T.checked_output_kind
-type checked_output_file = T.checked_output_file
 
 type t = T.test = {
   id : string;

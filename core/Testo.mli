@@ -34,6 +34,14 @@ type completion_status =
 type fail_reason = Raised_exception | Incorrect_output | Timeout
 type outcome = Succeeded | Failed of fail_reason
 
+type checked_output_file
+(** A test's output file whose contents captured from stdout or stderr
+    should be checked and reported when it changes. *)
+
+type checked_output_file_with_contents
+(** A test's output file that is produced by the test function, checked,
+    and reported when it changes. *)
+
 type captured_output =
   | Ignored of string  (** unchecked combined output *)
   | Captured_stdout of string * string  (** stdout, unchecked output *)
@@ -51,6 +59,7 @@ type expected_output =
 type result = {
   completion_status : completion_status;
   captured_output : captured_output;
+  captured_output_files : checked_output_file_with_contents list;
 }
 
 type missing_files = Types.missing_files = Missing_files of Fpath.t list
@@ -58,6 +67,8 @@ type missing_files = Types.missing_files = Missing_files of Fpath.t list
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
+  expected_output_files :
+    (checked_output_file_with_contents, checked_output_file) Result.t list;
 }
 
 type status = {
@@ -110,10 +121,6 @@ val split_stdout_stderr :
   unit ->
   checked_output_kind
 (** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
-
-type checked_output_file
-(** A test's output file whose contents should be checked and reported
-    when it changes. *)
 
 val checked_output_file :
   ?path:Fpath.t ->
