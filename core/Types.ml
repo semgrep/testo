@@ -81,6 +81,7 @@ type expected_output =
 type result = {
   completion_status : completion_status;
   captured_output : captured_output;
+  captured_output_files : checked_output_file_with_contents list;
 }
 
 type expected_outcome =
@@ -95,6 +96,7 @@ type expected_outcome =
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
+  expected_output_files : (checked_output_file_with_contents, checked_output_file) Result.t list;
 }
 
 (*

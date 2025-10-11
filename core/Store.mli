@@ -120,6 +120,9 @@ val mark_test_as_timed_out : Types.test -> unit
 (* Copy a checked output file identified by its unique name (not its path) *)
 val stash_output_file : Types.test -> Types.checked_output_file -> unit
 
+(* Clean up stashed output files from previous runs. *)
+val remove_stashed_output_files : Types.test -> unit
+
 (**************************************************************************)
 (* User-facing utilities *)
 (**************************************************************************)
