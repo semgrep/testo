@@ -15,7 +15,8 @@ type completion_status =
 
 (* If a test failed with an exception, we don't check the output.
    Incorrect_output implies the test returned without raising an exception. *)
-type fail_reason = Raised_exception | Incorrect_output | Timeout
+type fail_reason =
+    Raised_exception | Missing_output_file | Incorrect_output | Timeout
 
 (*
    The outcome defines whether a test succeeded or failed.
@@ -80,6 +81,8 @@ type expected_output =
 type result = {
   completion_status : completion_status;
   captured_output : captured_output;
+  captured_output_files : checked_output_file_with_contents list;
+  missing_output_files : Fpath.t list;
 }
 
 type expected_outcome =
@@ -94,6 +97,7 @@ type expected_outcome =
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
+  expected_output_files : (checked_output_file_with_contents, Fpath.t) Result.t list;
 }
 
 (*

@@ -116,45 +116,49 @@ let clear_snapshots ~__LOC__:loc () =
 (* FIXME: This integration test fails on Windows because the expected output
    includes paths generated on POSIX systems. It runs correctly however. *)
 let test_standard_flow () =
-  section "Clean start";
-  clear_status ~__LOC__ ();
-  clear_snapshots ~__LOC__ ();
-  test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_run ~__LOC__ "" ~expected_exit_code:1;
-  test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
-  test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_approve ~__LOC__ "-s auto-approve";
-  test_approve ~__LOC__ "-s environment-sensitive";
-  test_status ~__LOC__ "";
-  test_status ~__LOC__ "--expert";
-  test_status ~__LOC__ "--env A_b123=xxx";
-  test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
-  test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
-  test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
-  test_status ~__LOC__ "-a -t testing";
-  test_status ~__LOC__ "--strict" ~expected_exit_code:1;
-  (* Modify the output of the test named 'environment-sensitive'
-     by setting an environment variable it consults, simulating a bug *)
-  with_env ("TESTO_TEST", Some "hello") (fun () ->
+  Fun.protect (fun () ->
+    section "Clean start";
+    clear_status ~__LOC__ ();
+    clear_snapshots ~__LOC__ ();
+    test_status ~__LOC__ "" ~expected_exit_code:1;
+    test_run ~__LOC__ "" ~expected_exit_code:1;
+    test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
+    test_status ~__LOC__ "" ~expected_exit_code:1;
+    test_approve ~__LOC__ "-s auto-approve";
+    test_approve ~__LOC__ "-s environment-sensitive";
+    test_status ~__LOC__ "";
+    test_status ~__LOC__ "--expert";
+    test_status ~__LOC__ "--env A_b123=xxx";
+    test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
+    test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
+    test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
+    test_status ~__LOC__ "-a -t testing";
+    test_status ~__LOC__ "--strict" ~expected_exit_code:1;
+    (* Modify the output of the test named 'environment-sensitive'
+       by setting an environment variable it consults, simulating a bug *)
+    with_env ("TESTO_TEST", Some "hello") (fun () ->
       test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
-  (* "Fix the bug" in test 'environment-sensitive' *)
-  test_run ~__LOC__ "-s environment-sensitive";
-  section "Delete statuses but not snapshots";
-  clear_status ~__LOC__ ();
-  test_status ~__LOC__ "-v" ~expected_exit_code:1;
-  test_status ~__LOC__ "-l" ~expected_exit_code:1;
-  test_status ~__LOC__ "-a" ~expected_exit_code:1;
-  test_run ~__LOC__ "";
-  section "Delete snapshots but not statuses";
-  clear_snapshots ~__LOC__ ();
-  test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_approve ~__LOC__ "-s auto-approve";
-  section "Delete the dead snapshots with --autoclean";
-  test_status ~__LOC__ "-l --autoclean";
-  section "Check that the dead snapshots are gone";
-  test_status ~__LOC__ "-l";
-  section "Restore the dead snapshots";
-  shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
+    (* "Fix the bug" in test 'environment-sensitive' *)
+    test_run ~__LOC__ "-s environment-sensitive";
+    section "Delete statuses but not snapshots";
+    clear_status ~__LOC__ ();
+    test_status ~__LOC__ "-v" ~expected_exit_code:1;
+    test_status ~__LOC__ "-l" ~expected_exit_code:1;
+    test_status ~__LOC__ "-a" ~expected_exit_code:1;
+    test_run ~__LOC__ "";
+    section "Delete snapshots but not statuses";
+    clear_snapshots ~__LOC__ ();
+    test_status ~__LOC__ "" ~expected_exit_code:1;
+    test_approve ~__LOC__ "-s auto-approve";
+    section "Delete the dead snapshots with --autoclean";
+    test_status ~__LOC__ "-l --autoclean";
+    section "Check that the dead snapshots are gone";
+    test_status ~__LOC__ "-l"
+  )
+    ~finally:(fun () ->
+      section "Restore any deleted snapshots";
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
+    )
 
 let test_multi_selection () =
   let (), capture =

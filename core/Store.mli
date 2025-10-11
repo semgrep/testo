@@ -18,9 +18,18 @@ val init_settings :
   unit
 
 (*
-   Create missing folders.
+   Create missing base folders.
 *)
 val init_workspace : unit -> unit
+
+(*
+   Create the test's workspace folders:
+   - status workspace: this folder holds test results, captured output
+     (stdout, stderr, stashed output files)
+   - snapshot workspace: this folder holds reference output (snapshots);
+     it's optional.
+*)
+val init_test_workspace : Types.test -> unit
 
 (*
    All the data we need to handle the files that contain the captured output
@@ -38,10 +47,20 @@ type capture_paths = {
 }
 
 (*
+   Return the location of the files that store captured stdout/stderr output:
    - For diffing output against expected output.
    - For checking uniqueness of custom storage paths.
 *)
-val capture_paths_of_test : Types.test -> capture_paths list
+val std_capture_paths_of_test : Types.test -> capture_paths list
+
+(*
+   Return the location of the files that store captured output files,
+   similarly to 'std_capture_paths_of_test'.
+*)
+val file_capture_paths_of_test : Types.test -> capture_paths list
+
+(* Union of std_capture_paths_of_test and file_capture_paths_of_test *)
+val all_capture_paths_of_test : Types.test -> capture_paths list
 
 (*
    Record exception and stack trace raised by a test in a file.
@@ -119,6 +138,9 @@ val mark_test_as_timed_out : Types.test -> unit
 
 (* Copy a checked output file identified by its unique name (not its path) *)
 val stash_output_file : Types.test -> Fpath.t -> Types.checked_output_file -> unit
+
+(* Clean up stashed output files from previous runs. *)
+val remove_stashed_output_files : Types.test -> unit
 
 (**************************************************************************)
 (* User-facing utilities *)

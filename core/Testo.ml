@@ -23,8 +23,13 @@ type completion_status = T.completion_status =
   | Test_function_raised_an_exception
   | Test_timeout
 
-type fail_reason = T.fail_reason = Raised_exception | Incorrect_output | Timeout
+type fail_reason = T.fail_reason = Raised_exception | Missing_output_file | Incorrect_output | Timeout
 type outcome = T.outcome = Succeeded | Failed of fail_reason
+
+(* abstract types *)
+type checked_output_kind = T.checked_output_kind
+type checked_output_file = T.checked_output_file
+type checked_output_file_with_contents = T.checked_output_file_with_contents
 
 type captured_output = T.captured_output =
   | Ignored of string
@@ -43,6 +48,8 @@ type expected_output = T.expected_output =
 type result = T.result = {
   completion_status : completion_status;
   captured_output : captured_output;
+  captured_output_files : checked_output_file_with_contents list;
+  missing_output_files : Fpath.t list;
 }
 
 type missing_files = T.missing_files = Missing_files of Fpath.t list
@@ -50,6 +57,8 @@ type missing_files = T.missing_files = Missing_files of Fpath.t list
 type expectation = T.expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
+  expected_output_files :
+    (checked_output_file_with_contents, Fpath.t) Result.t list;
 }
 
 type status = T.status = {
@@ -80,10 +89,6 @@ type subcommand_result = Cmd.subcommand_result =
 (* export *)
 module Promise = Promise
 module Tag = Tag
-
-(* abstract types *)
-type checked_output_kind = T.checked_output_kind
-type checked_output_file = T.checked_output_file
 
 type t = T.test = {
   id : string;
@@ -257,6 +262,20 @@ let with_chdir path func =
     ~finally:(fun () -> Unix.chdir orig_cwd)
     func
 
+let with_temp_dir
+    ?(chdir = false) ?parent ?perms ?(prefix = "testo-") ?(suffix = "") func =
+  let dir =
+    Filename.temp_dir ?temp_dir:(Option.map Fpath.to_string parent) ?perms prefix suffix
+    |> Fpath.v
+  in
+  Fun.protect
+    ~finally:(fun () -> Helpers.remove_file_or_dir dir)
+    (fun () ->
+       if chdir then
+         with_chdir dir (fun () -> func dir)
+       else
+         func dir)
+
 (* We need this to allow the user's test function to call
    'stash_output_file' *)
 let get_current_test () = Run.get_current_test ()
@@ -335,7 +354,7 @@ let mask_pcre_pattern ?replace pat =
          | `Delim (* match *) groups ->
              let match_start, match_stop =
                try Re.Group.offset groups 0 with
-               | Not_found -> assert false
+               | Not_found -> Error.assert_false ~__LOC__ ()
              in
              let group_start, group_stop =
                try Re.Group.offset groups 1 with
