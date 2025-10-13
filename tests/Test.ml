@@ -350,6 +350,38 @@ let test_diff name =
                        ~expected_stdout_path:(dir / (name ^ ".diff"))
                        ())
 
+let test_write_read_map () =
+  let contents = "hello" in
+  Testo.with_temp_file (fun src_path ->
+    Testo.write_file src_path contents;
+    Testo.with_temp_file (fun dst_path ->
+      let contents2 = Testo.read_file src_path in
+      Alcotest.(check string) "read" contents contents2;
+      let new_contents = "new" in
+      Testo.map_file (fun contents3 ->
+        Alcotest.(check string) "map_file input" contents contents3;
+        new_contents
+      ) src_path dst_path;
+      let new_contents2 = Testo.read_file dst_path in
+      Alcotest.(check string) "map_file output" new_contents new_contents2;
+    )
+  )
+
+let test_write_read_map_in_place () =
+  let contents = "hello" in
+  Testo.with_temp_file (fun path ->
+    Testo.write_file path contents;
+    let contents2 = Testo.read_file path in
+    Alcotest.(check string) "read" contents contents2;
+    let new_contents = "new" in
+    Testo.map_file (fun contents3 ->
+      Alcotest.(check string) "map_file input" contents contents3;
+      new_contents
+    ) path path;
+    let new_contents2 = Testo.read_file path in
+    Alcotest.(check string) "map_file output" new_contents new_contents2;
+  )
+
 (*
    The tests marked as "auto-approve" are tests that capture their output
    and will be automatically approved by the meta test suite.
@@ -529,7 +561,9 @@ let tests env =
       match Testo.get_current_test () with
       | None -> Alcotest.fail "current test is unset"
       | Some test -> Alcotest.(check string) "test name" "current test" test.name
-    )
+    );
+    t "write/read/map file" test_write_read_map;
+    t "write/read/map file in place" test_write_read_map_in_place;
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"
