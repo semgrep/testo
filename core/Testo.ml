@@ -262,10 +262,44 @@ let with_chdir path func =
     ~finally:(fun () -> Unix.chdir orig_cwd)
     func
 
+module Filename_old = struct
+  (* The code in this submodule was copied from 'filename.ml' in
+     OCaml 4.14.2 *)
+  let prng = lazy (Random.State.make_self_init ())
+
+  let temp_file_name temp_dir prefix suffix =
+    let rnd = (Random.State.bits (Lazy.force prng)) land 0xFFFFFF in
+    Filename.concat temp_dir (Printf.sprintf "%s%06x%s" prefix rnd suffix)
+end
+
+module Filename_new = struct
+  (*
+     Backport 'Filename.temp_dir' which is available only starting with
+     OCaml 5.1.
+
+     The following code was minimally adapted from OCaml 5.3's
+     implementation of 'Filename.temp_dir'.
+  *)
+  let temp_dir ?(temp_dir = Filename.get_temp_dir_name ())
+      ?(perms = 0o700) prefix suffix =
+    let rec try_name counter =
+      let name = Filename_old.temp_file_name temp_dir prefix suffix in
+      try
+        Unix.mkdir name perms;
+        name
+      with Unix.Unix_error _ as e ->
+        if counter >= 20 then
+          (* nosemgrep: bad-reraise *)
+          raise e
+        else
+          try_name (counter + 1)
+    in try_name 0
+end
+
 let with_temp_dir
     ?(chdir = false) ?parent ?perms ?(prefix = "testo-") ?(suffix = "") func =
   let dir =
-    Filename.temp_dir ?temp_dir:(Option.map Fpath.to_string parent) ?perms prefix suffix
+    Filename_new.temp_dir ?temp_dir:(Option.map Fpath.to_string parent) ?perms prefix suffix
     |> Fpath.v
   in
   Fun.protect

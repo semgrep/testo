@@ -7,7 +7,6 @@ open Printf
 let ( !! ) = Fpath.to_string
 let ( / ) = Fpath.( / )
 
-(* We should consider a shorter name for this library. *)
 let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
 let tags_tag = Testo.Tag.declare "tags"

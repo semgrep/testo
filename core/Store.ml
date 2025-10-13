@@ -779,18 +779,22 @@ let get_result (test : T.test) (paths : capture_paths list) :
         |> Result.map (captured_output_of_data test.checked_output)
       in
       (*
-         - Missing output files are due to a test function that didn't
-           complete either because the stash_output_file function wasn't
-           called. This could be an omission by the user or that the
-           test raised an exception before the stashing could happen.
+         - If the test ran previously and nobody messed with Testo's
+           workspace, missing output files are due to a test function
+           that didn't make all the calls to 'stash_output_file' it should
+           have. It could be because the test raised an exception because
+           it could happen or it could be that programmer forgot or
+           didn't realize they should have called 'stash_output_file'.
          - Missing files for captured stdout or stderr on the other hand
-           indicate that the test didn't run or a bug in Testo.
+           are restricted to the former cases i.e. not an error in the test
+           function.
       *)
       match opt_captured_output, missing_output_files with
       | Ok captured_output, missing_output_files ->
           (* This is most likely a test failure (see above).
              It's more important to report the exception if there was one
-             than a missing output file. *)
+             than a missing output file. This is why we don't return an Error
+             here even if some checked output files are missing. *)
           Ok { completion_status;
                captured_output;
                captured_output_files;
