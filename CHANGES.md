@@ -1,3 +1,10 @@
+x.x.x (xxxx-xx-xx)
+------------------
+
+* Add an option `inline_logs` to create a test for which logs are
+  always or never shown inline
+  (https://github.com/semgrep/testo/issues/142).
+
 0.2.0 (2025-09-11)
 ------------------
 

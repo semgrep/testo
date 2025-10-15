@@ -29,6 +29,12 @@ junk printed on stdout...
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
 [33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m
 [33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
+[33m[MISS]  [0m57fbfca04c25 [36minline logs[0m
+[33m[MISS]  [0m9c3540949276 [36mauto inline logs[0m
+[33m[MISS]  [0m33c81575317c [36mno inline logs[0m
+[33m[MISS]  [0mc86c9fc3ac85 [36mshow exception on xfail[0m
+[33m[MISS]  [0m0ac34585feff [36mauto show exception on xfail[0m
+[33m[MISS]  [0md01c1bdbafaa [36mdon't show exception on xfail[0m
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [33m[MISS]  [0m05dd9a9f220b [36mxfail due to invalid output[0m
@@ -197,6 +203,37 @@ Try '--help' for options.
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to expected results.json: tests/snapshots/testo_tests/0658581e95c7/file-results.json
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
+[33m[RUN][0m   57fbfca04c25 [36minline logs[0m
+[32m[PASS]  [0m57fbfca04c25 [36minline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m• [0mLog (stdout, stderr):
+ Hello. This is a log.
+ 
+[33m[RUN][0m   9c3540949276 [36mauto inline logs[0m
+[32m[PASS]  [0m9c3540949276 [36mauto inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[33m[RUN][0m   33c81575317c [36mno inline logs[0m
+[32m[PASS]  [0m33c81575317c [36mno inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+[33m[RUN][0m   c86c9fc3ac85 [36mshow exception on xfail[0m
+[32m[XFAIL] [0mc86c9fc3ac85 [36mshow exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
+[2m• [0mLog (stdout, stderr) is empty.
+[2m• [0mException raised by the test:
+[32m Failure("This exception was raised on purpose")
+ Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ 
+[0m[33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
+[32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
+[33m[RUN][0m   d01c1bdbafaa [36mdon't show exception on xfail[0m
+[32m[XFAIL] [0md01c1bdbafaa [36mdon't show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d01c1bdbafaa/log
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
@@ -529,9 +566,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
-  73 successful (70 pass, 3 xfail)
+  79 successful (73 pass, 6 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -621,6 +658,31 @@ Try '--help' for options.
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to expected results.json: tests/snapshots/testo_tests/0658581e95c7/file-results.json
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
+[32m[PASS]  [0m57fbfca04c25 [36minline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m• [0mLog (stdout, stderr):
+ Hello. This is a log.
+ 
+[32m[PASS]  [0m9c3540949276 [36mauto inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[32m[PASS]  [0m33c81575317c [36mno inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+[32m[XFAIL] [0mc86c9fc3ac85 [36mshow exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
+[2m• [0mLog (stdout, stderr) is empty.
+[2m• [0mException raised by the test:
+[32m Failure("This exception was raised on purpose")
+ Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ 
+[0m[32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
+[32m[XFAIL] [0md01c1bdbafaa [36mdon't show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d01c1bdbafaa/log
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
@@ -894,9 +956,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
-  73 successful (70 pass, 3 xfail)
+  79 successful (73 pass, 6 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -1013,7 +1075,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/75 selected tests:
+1/81 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -1043,7 +1105,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/75 selected tests:
+1/81 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -1136,6 +1198,27 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
+[33m[MISS]  [0m57fbfca04c25 [36minline logs[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57fbfca04c25/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[33m[MISS]  [0m9c3540949276 [36mauto inline logs[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c3540949276/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[33m[MISS]  [0m33c81575317c [36mno inline logs[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33c81575317c/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+[33m[MISS]  [0mc86c9fc3ac85 [36mshow exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c86c9fc3ac85/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
+[33m[MISS]  [0m0ac34585feff [36mauto show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0ac34585feff/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
+[33m[MISS]  [0md01c1bdbafaa [36mdon't show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d01c1bdbafaa/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d01c1bdbafaa/log
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/completion_status[0m
@@ -1470,6 +1553,45 @@ Try '--help' for options.
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m57fbfca04c25 [36minline logs[0m                                             [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57fbfca04c25/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m9c3540949276 [36mauto inline logs[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c3540949276/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m33c81575317c [36mno inline logs[0m                                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33c81575317c/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc86c9fc3ac85 [36mshow exception on xfail[0m                                 [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c86c9fc3ac85/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0ac34585feff [36mauto show exception on xfail[0m                            [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0ac34585feff/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md01c1bdbafaa [36mdon't show exception on xfail[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d01c1bdbafaa/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d01c1bdbafaa/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -1859,11 +1981,11 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-74 new tests
+80 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -1988,6 +2110,45 @@ junk printed on stdout...
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m57fbfca04c25 [36minline logs[0m                                             [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/57fbfca04c25/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m9c3540949276 [36mauto inline logs[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/9c3540949276/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m33c81575317c [36mno inline logs[0m                                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33c81575317c/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc86c9fc3ac85 [36mshow exception on xfail[0m                                 [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c86c9fc3ac85/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0ac34585feff [36mauto show exception on xfail[0m                            [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0ac34585feff/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md01c1bdbafaa [36mdon't show exception on xfail[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d01c1bdbafaa/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d01c1bdbafaa/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -2377,11 +2538,11 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-74 new tests
+80 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2404,6 +2565,12 @@ junk printed on stdout...
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
 [33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m
 [33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
+[33m[MISS]  [0m57fbfca04c25 [36minline logs[0m
+[33m[MISS]  [0m9c3540949276 [36mauto inline logs[0m
+[33m[MISS]  [0m33c81575317c [36mno inline logs[0m
+[33m[MISS]  [0mc86c9fc3ac85 [36mshow exception on xfail[0m
+[33m[MISS]  [0m0ac34585feff [36mauto show exception on xfail[0m
+[33m[MISS]  [0md01c1bdbafaa [36mdon't show exception on xfail[0m
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [33m[MISS]  [0m05dd9a9f220b [36mxfail due to invalid output[0m
@@ -2571,6 +2738,37 @@ Try '--help' for options.
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to expected results.json: tests/snapshots/testo_tests/0658581e95c7/file-results.json
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
+[33m[RUN][0m   57fbfca04c25 [36minline logs[0m
+[32m[PASS]  [0m57fbfca04c25 [36minline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m• [0mLog (stdout, stderr):
+ Hello. This is a log.
+ 
+[33m[RUN][0m   9c3540949276 [36mauto inline logs[0m
+[32m[PASS]  [0m9c3540949276 [36mauto inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[33m[RUN][0m   33c81575317c [36mno inline logs[0m
+[32m[PASS]  [0m33c81575317c [36mno inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+[33m[RUN][0m   c86c9fc3ac85 [36mshow exception on xfail[0m
+[32m[XFAIL] [0mc86c9fc3ac85 [36mshow exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
+[2m• [0mLog (stdout, stderr) is empty.
+[2m• [0mException raised by the test:
+[32m Failure("This exception was raised on purpose")
+ Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ 
+[0m[33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
+[32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
+[33m[RUN][0m   d01c1bdbafaa [36mdon't show exception on xfail[0m
+[32m[XFAIL] [0md01c1bdbafaa [36mdon't show exception on xfail[0m
+[2m• [0mExpected to fail: raises Failure exception on purpose
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d01c1bdbafaa/log
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
@@ -2818,9 +3016,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
-  73 successful (70 pass, 3 xfail)
+  79 successful (73 pass, 6 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -2877,9 +3075,9 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
-  73 successful (70 pass, 3 xfail)
+  79 successful (73 pass, 6 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -2903,9 +3101,9 @@ junk printed on stdout...
  Called from <MASKED>
  
 [0m[2m────────────────────────────────────────────────────────────────────────────────[0m
-75/75 selected tests:
+81/81 selected tests:
   1 skipped
-  73 successful (70 pass, 3 xfail)
+  79 successful (73 pass, 6 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m

@@ -126,6 +126,9 @@ type checked_output_kind =
   | Split_stdout_stderr of checked_output_options * checked_output_options
 
 (* public *)
+type inline_logs = On | Off | Auto
+
+(* public *)
 type test = {
   (* The ID will be used as a compact key
      for referencing tests in filters and in file names.
@@ -143,6 +146,7 @@ type test = {
   checked_output : checked_output_kind;
   checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
+  inline_logs : inline_logs;
   max_duration (* seconds *) : float option;
   normalize : (string -> string) list;
   skipped : string option;
