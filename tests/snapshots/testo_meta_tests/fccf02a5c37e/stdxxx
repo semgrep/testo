@@ -221,12 +221,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[32m Failure("This exception was raised on purpose")
+ Failure("This exception was raised on purpose")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
+[33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
 [32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
 [2m• [0mExpected to fail: raises Failure exception on purpose
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
@@ -259,12 +259,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[33m[RUN][0m   a55170a13733 [36mtracking URL[0m
+[33m[RUN][0m   a55170a13733 [36mtracking URL[0m
 [32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
 [2m• [0mTracking URL: https://example.com/issue/1234
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a55170a13733/log
@@ -538,12 +538,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -672,12 +672,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[32m Failure("This exception was raised on purpose")
+ Failure("This exception was raised on purpose")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
+[32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
 [2m• [0mExpected to fail: raises Failure exception on purpose
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
 [32m[XFAIL] [0md01c1bdbafaa [36mdon't show exception on xfail[0m
@@ -704,12 +704,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
+[32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
 [2m• [0mTracking URL: https://example.com/issue/1234
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a55170a13733/log
 [32m[PASS]  [0m91a3c9030236 [36mchdir[0m
@@ -938,12 +938,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m        [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -2756,12 +2756,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/c86c9fc3ac85/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[32m Failure("This exception was raised on purpose")
+ Failure("This exception was raised on purpose")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
+[33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
 [32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
 [2m• [0mExpected to fail: raises Failure exception on purpose
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0ac34585feff/log
@@ -2794,12 +2794,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[33m[RUN][0m   a55170a13733 [36mtracking URL[0m
+[33m[RUN][0m   a55170a13733 [36mtracking URL[0m
 [32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
 [2m• [0mTracking URL: https://example.com/issue/1234
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a55170a13733/log
@@ -3006,12 +3006,12 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
@@ -3066,12 +3066,12 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
@@ -3095,12 +3095,12 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
-[31m Failure("I am broken")
+ Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
  
-[0m[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 81/81 selected tests:
   1 skipped
   79 successful (73 pass, 6 xfail)

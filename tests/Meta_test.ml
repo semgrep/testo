@@ -21,7 +21,7 @@ let t = T.create
 *)
 let shell_command ?(expected_exit_code = 0) ~__LOC__:loc command =
   printf "RUN %s\n%!" command;
-  let bash_command = sprintf "bash -c '%s'" command in
+  let bash_command = sprintf "bash -c \"%s\"" command in
   let exit_code = Sys.command bash_command in
   if exit_code <> expected_exit_code then
     failwith
@@ -227,6 +227,10 @@ let test_updated_output_file_capture () =
       shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
     )
 
+let test_max_inline_log_size ~limit () =
+  test_run ~__LOC__ (sprintf
+                       "-s 'inline logs' --max-inline-log-bytes %s" limit)
+
 (*****************************************************************************)
 (* Exercise the parallel test suite *)
 (*****************************************************************************)
@@ -359,6 +363,12 @@ let tests =
     t "multi selection" test_multi_selection;
     t "new output file capture" test_new_output_file_capture;
     t "updated output file capture" test_updated_output_file_capture;
+    t "max inline log size"
+      ~checked_output:(T.stdout ())
+      (test_max_inline_log_size ~limit:"5");
+    t "no max inline log size"
+      ~checked_output:(T.stdout ())
+      (test_max_inline_log_size ~limit:"unlimited");
   ]
 
 let () =

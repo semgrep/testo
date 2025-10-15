@@ -1,0 +1,39 @@
+RUN ./test run -e foo=bar -j 1 -s 'inline logs' --max-inline-log-bytes 5
+junk printed on stdout...
+... when creating the test suite
+Legend:
+[2m• [0m[PASS]: a successful test that was expected to succeed (good);
+[2m• [0m[FAIL]: a failing test that was expected to succeed (needs fixing);
+[2m• [0m[XFAIL]: a failing test that was expected to fail (tolerated failure);
+[2m• [0m[XPASS]: a successful test that was expected to fail (progress?).
+[2m• [0m[MISS]: a test that never ran;
+[2m• [0m[SKIP]: a test that is always skipped but kept around for some reason;
+[2m• [0m[xxxx*]: a new test for which there's no expected output yet.
+  In this case, you should review the test output and run the 'approve'
+  subcommand once you're satisfied with the output.
+Try '--help' for options.
+[33m[RUN][0m   57fbfca04c25 [36minline logs[0m
+[worker 1/1] junk printed on stdout...
+[worker 1/1] ... when creating the test suite
+[32m[PASS]  [0m57fbfca04c25 [36minline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m• [0mLog (stdout, stderr):
+ [33m###### Warning: bytes 2-18 below were elided ######
+ [0mHe[33m
+ ###### [hidden: 17 bytes] ######
+ [0mg.
+ 
+[33m[RUN][0m   9c3540949276 [36mauto inline logs[0m
+[32m[PASS]  [0m9c3540949276 [36mauto inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[33m[RUN][0m   33c81575317c [36mno inline logs[0m
+[32m[PASS]  [0m33c81575317c [36mno inline logs[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
+2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
+  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
+  tests/snapshots/testo_tests/unnamed-junk ??
+3/81 selected tests:
+  3 successful (3 pass, 0 xfail)
+  0 unsuccessful (0 fail, 0 xpass)
+overall status: [32msuccess[0m
+<handling result before exiting>

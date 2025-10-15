@@ -19,7 +19,7 @@ val to_alcotest :
   alcotest_skip:(unit -> _) -> Types.test list -> alcotest_test list
 
 val cmd_run :
-  always_show_unchecked_output:bool ->
+  always_show_unchecked_output:(bool * int option) ->
   argv:string array ->
   autoclean:bool ->
   filter_by_substring:string list option ->
@@ -39,7 +39,7 @@ val cmd_run :
    Return a non-zero exit status if any of the tests is not a success
    (PASS or XFAIL). *)
 val cmd_status :
-  always_show_unchecked_output:bool ->
+  always_show_unchecked_output:(bool * int option) ->
   autoclean:bool ->
   filter_by_substring:string list option ->
   filter_by_tag:Testo_util.Tag.t option ->
