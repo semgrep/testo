@@ -8,4 +8,9 @@ at [Semgrep](https://semgrep.dev/).
 * [Getting Started with Testo: A Hands-On Tutorial](tutorial)
 * [Testo Howtos: Practical Guides and Examples](howtos)
 * [API reference](reference/)
-* [Contributing: Source Code and Issue Tracking on GitHub](https://github.com/semgrep/testo)
+* Command-line interface reference:
+  - [`./test --help`](cli-reference/help.html)
+  - [`./test run --help`](cli-reference/run-help.html)
+  - [`./test status --help`](cli-reference/status-help.html)
+  - [`./test approve --help`](cli-reference/approve-help.html)
+* [Contributing: source code and issue tracking on GitHub](https://github.com/semgrep/testo)

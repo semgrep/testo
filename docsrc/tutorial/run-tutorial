@@ -123,4 +123,10 @@ EOF
 
   # List all the tests
   ./test status -a
+
+  # Save '--help' output for the online documentation
+  ./test --help=pager > help.term
+  ./test run --help=pager > run-help.term
+  ./test status --help=pager > status-help.term
+  ./test approve --help=pager > approve-help.term
 )
