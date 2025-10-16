@@ -1,6 +1,8 @@
 x.x.x (xxxx-xx-xx)
 ------------------
 
+* Add support for checked output files
+  ([#134](https://github.com/semgrep/testo/issues/134)).
 * Add an option `inline_logs` to create a test for which logs are
   always or never shown inline
   (https://github.com/semgrep/testo/issues/142).
@@ -38,8 +40,6 @@ x.x.x (xxxx-xx-xx)
   ([#126](https://github.com/semgrep/testo/pull/126)).
 * Add support for timeouts
   ([#127](https://github.com/semgrep/testo/issues/127)).
-* Add support for checked output files
-  ([#134](https://github.com/semgrep/testo/issues/134)).
 
 0.1.0 (2024-11-10)
 ------------------
