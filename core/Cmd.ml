@@ -21,6 +21,7 @@ type conf = {
   intro : string;
   show_output : bool;
   autoclean : bool;
+  max_inline_log_bytes : int option;
   (* Status *)
   status_output_style : Run.status_output_style;
   (* Run *)
@@ -33,6 +34,8 @@ type conf = {
   test_list_checksum : string option;
 }
 
+let default_max_inline_log_bytes = 1_000_000
+
 let default_conf =
   {
     debug = false;
@@ -41,6 +44,7 @@ let default_conf =
     env = [];
     show_output = false;
     autoclean = false;
+    max_inline_log_bytes = Some default_max_inline_log_bytes;
     status_output_style = Compact_important;
     argv = Sys.argv;
     intro = Run.introduction_text;
@@ -102,7 +106,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       Debug.debug := conf.debug;
       let tests = get_tests conf.env in
       Run.cmd_run
-        ~always_show_unchecked_output:conf.show_output ~argv:conf.argv
+        ~always_show_unchecked_output:(conf.show_output,
+                                       conf.max_inline_log_bytes)
+        ~argv:conf.argv
         ~autoclean:conf.autoclean
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag
@@ -121,7 +127,8 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       Debug.debug := conf.debug;
       let exit_code, tests_with_status =
         Run.cmd_status
-          ~always_show_unchecked_output:conf.show_output
+          ~always_show_unchecked_output:(conf.show_output,
+                                         conf.max_inline_log_bytes)
           ~autoclean:conf.autoclean
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag
@@ -207,6 +214,47 @@ let show_output_term : bool Term.t =
          that may be captured explicitly to be compared against expectations."
   in
   Arg.value (Arg.flag info)
+
+let nonnegative_int_limit =
+  let parse_nonnegative_int_limit str =
+    match str with
+    | "unlimited" -> Ok None
+    | _ ->
+        match int_of_string_opt str with
+        | None ->
+            Error (`Msg (Printf.sprintf "not a nonnegative int or 'unlimited': %s" str))
+        | Some n ->
+            if n < 0 then
+              Error (`Msg (
+                Printf.sprintf
+                  "A negative integer is not a valid upper limit for a \
+                   nonnegative int: %s. \
+                   To suppress the default limit, use 'unlimited'" str
+              ))
+            else Ok (Some n)
+  in
+  let print_nonnegative_int_limit ppf opt_int =
+    match opt_int with
+    | None -> Format.fprintf ppf "unlimited"
+    | Some n -> Format.fprintf ppf "%d" n
+  in
+  Cmdliner.Arg.conv
+    ~docv:"LIMIT"
+    (parse_nonnegative_int_limit, print_nonnegative_int_limit)
+
+let max_inline_log_bytes_term : int option Term.t =
+  let info =
+    Arg.info [ "max-inline-log-bytes" ]
+      ~docv:"LIMIT"
+      ~doc:(sprintf
+              "When displaying logs (unchecked stdout or stderr output), \
+               show at most that many bytes for each test.
+               The default limit is %d bytes. To remove the default limit, \
+               specify 'unlimited'."
+              default_max_inline_log_bytes)
+  in
+  Arg.value (Arg.opt nonnegative_int_limit
+               (Some default_max_inline_log_bytes) info)
 
 let strict_term : bool Term.t =
   let info =
@@ -365,7 +413,8 @@ let optional_nonempty_list xs =
 
 let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     unit Term.t =
-  let combine autoclean debug env expert filter_by_substring filter_by_tag jobs lazy_ show_output
+  let combine autoclean debug env expert filter_by_substring filter_by_tag
+      jobs lazy_ max_inline_log_bytes show_output
       slice strict test_list_checksum verbose worker =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
@@ -387,6 +436,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
         is_worker = worker;
         jobs;
         lazy_;
+        max_inline_log_bytes;
         show_output;
         slice;
         strict;
@@ -399,7 +449,8 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     const combine $ autoclean_term $ debug_term
     $ env_term $ expert_term $ filter_by_substring_term
     $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
-    $ show_output_term $ slice_term $ strict_term $ test_list_checksum_term
+    $ max_inline_log_bytes_term $ show_output_term $ slice_term
+    $ strict_term $ test_list_checksum_term
     $ verbose_run_term $ worker_term)
 
 let subcmd_run ~argv ~default_workers test_spec =
@@ -443,7 +494,7 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all autoclean debug env expert filter_by_substring filter_by_tag long show_output
+  let combine all autoclean debug env expert filter_by_substring filter_by_tag long max_inline_log_bytes show_output
       strict verbose =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
@@ -466,6 +517,7 @@ let subcmd_status_term tests : unit Term.t =
         filter_by_substring;
         filter_by_tag = check_tag filter_by_tag;
         intro;
+        max_inline_log_bytes;
         show_output;
         status_output_style;
         strict;
@@ -474,7 +526,8 @@ let subcmd_status_term tests : unit Term.t =
   in
   Term.(
     const combine $ all_term $ autoclean_term $ debug_term $ env_term $ expert_term $ filter_by_substring_term
-    $ filter_by_tag_term $ long_term $ show_output_term $ strict_term
+    $ filter_by_tag_term $ long_term $ max_inline_log_bytes_term
+    $ show_output_term $ strict_term
     $ verbose_status_term)
 
 let subcmd_status tests =

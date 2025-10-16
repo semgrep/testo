@@ -542,7 +542,9 @@ let ends_with_newline str =
   *)
   str <> "" && str.[String.length str - 1] = '\n'
 
-let print_status ~highlight_test ~always_show_unchecked_output
+let print_status ~highlight_test
+    ~always_show_unchecked_output:(always_show_unchecked_output,
+                                   max_inline_log_bytes)
     (((test : T.test), (status : T.status), sum) as test_with_status) =
   let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
@@ -713,7 +715,9 @@ let print_status ~highlight_test ~always_show_unchecked_output
                  | "" -> printf "%sLog (%s) is empty.\n" bullet log_description
                  | _ ->
                      printf "%sLog (%s):\n%s" bullet log_description
-                       (Style.quote_multiline_text data);
+                       (Style.quote_multiline_text
+                          ?max_bytes:max_inline_log_bytes
+                          data);
                      if not (ends_with_newline data) then print_char '\n'));
           (* Show the exception in case of a test failure due to an exception *)
           if show_unchecked_output then
@@ -722,7 +726,9 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 match Store.get_exception test with
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
-                      (Style.color Red (Style.quote_multiline_text msg))
+                      (Style.quote_multiline_text
+                         ~decorate_data_fragment:(Style.color Red)
+                         msg)
                 | None ->
                     (* = assert false *)
                     ())
@@ -734,7 +740,9 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 match Store.get_exception test with
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
-                      (Style.color Green (Style.quote_multiline_text msg))
+                      (Style.quote_multiline_text
+                         ~decorate_data_fragment:(Style.color Green)
+                         msg)
                 | None -> ())
             | OK
             | OK_but_new
