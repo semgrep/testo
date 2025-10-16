@@ -5,7 +5,7 @@ Testo [![CircleCI badge](https://circleci.com/gh/semgrep/testo.svg?style=svg)](h
 
 ![image](https://github.com/semgrep/testo/assets/343265/51f3e6a0-fdb1-400b-a146-4312746ae8d0)
 
-[Documentation](https://semgrep.github.io/testo/)
+Documentation: [testocaml.net](https://testocaml.net)
 --
 
 * [Getting started](https://testocaml.net/tutorial)
@@ -21,7 +21,7 @@ predecessor [Alcotest](https://github.com/mirage/alcotest) and from
 Features include:
 
 - support for explicit XFAIL tests i.e. tests that are expected to fail, indicating that they should be fixed eventually;
-- support for test snapshots i.e. persistent storage of captured stdout or stderr;
+- support for test snapshots i.e. persistent storage of captured stdout, stderr, or output files;
 - reviewing and approving tests without re-running them;
 - nested test suites;
 - various ways to select tests;
