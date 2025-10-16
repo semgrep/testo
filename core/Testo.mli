@@ -337,7 +337,22 @@ val write_file : Fpath.t -> string -> unit
 *)
 
 val read_file : Fpath.t -> string
-(** Read the contents of a regular file. *)
+(** Read the contents of a regular file or symbolic link to a regular file. *)
+
+val map_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
+(** [map_file func src dst] reads the contents of file (regular or symlink)
+    [src], applies [func] to its contents, and writes the result into
+    file [dst]. If file [dst] already exists, it is truncated and overwritten.
+    Otherwise, a regular file is created.
+    If [src] and [dst] represent the same file, [src] will be overwritten
+    with the new contents.
+*)
+
+val copy_file : Fpath.t -> Fpath.t -> unit
+(** Copy a file.
+    [copy_file src dst] is a shortcut for
+    [map_file (fun data -> data) src dst].
+*)
 
 val with_temp_file :
   ?contents:string ->

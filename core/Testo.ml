@@ -227,6 +227,15 @@ let fail = Testo_util.Error.fail_test
 
 let write_file = Helpers.write_file
 let read_file = Helpers.read_file
+
+let map_file func src_path dst_path =
+  let old_contents = read_file src_path in
+  let new_contents = func old_contents in
+  write_file dst_path new_contents
+
+let copy_file src_path dst_path =
+  map_file (fun data -> data) src_path dst_path
+
 let with_temp_file = Temp_file.with_temp_file
 let with_capture = Store.with_capture
 
@@ -473,6 +482,7 @@ let mask_not_substrings ?mask substrings =
     |> String.concat "|")
 
 let mask_not_substring ?mask substring = mask_not_substrings ?mask [ substring ]
+
 let has_tag tag test = List.mem tag test.tags
 
 let categorize name (tests : _ list) : _ list =
