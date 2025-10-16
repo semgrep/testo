@@ -5,11 +5,11 @@ x.x.x (xxxx-xx-xx)
   ([#134](https://github.com/semgrep/testo/issues/134)).
 * Add an option `inline_logs` to create a test for which logs are
   always or never shown inline
-  (https://github.com/semgrep/testo/issues/142).
+  ([#142](https://github.com/semgrep/testo/issues/142)).
 * Add a command-line option `--max-inline-log-bytes` to limit the size
   of unchecked test output (logs) shown inline when reporting the
   status of a test. The default limit is 1MB
-  (https://github.com/semgrep/testo/issues/144).
+  ([#144](https://github.com/semgrep/testo/issues/144)).
 
 0.2.0 (2025-09-11)
 ------------------
