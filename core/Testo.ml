@@ -144,6 +144,23 @@ let checked_output_file ?snapshot_path name : checked_output_file =
     options = { snapshot_path };
   }
 
+let stash_output_file src_path name =
+  match Run.get_current_test () with
+  | None ->
+      failwith "Testo.stash_output_file is being called outside of a test"
+  | Some test ->
+      match List.find_opt (fun (x : T.checked_output_file) -> x.name = name)
+              test.checked_output_files with
+      | None ->
+          invalid_arg (
+            sprintf
+              "Testo.stash_output_file: invalid output file name \
+               for test '%s': '%s'"
+              test.name name
+          )
+      | Some x ->
+          Store.stash_output_file test src_path x
+
 (*
    Create an hexadecimal hash that is just long enough to not suffer from
    collisions in realistic use cases defined as:
@@ -227,14 +244,8 @@ let fail = Testo_util.Error.fail_test
 
 let write_file = Helpers.write_file
 let read_file = Helpers.read_file
-
-let map_file func src_path dst_path =
-  let old_contents = read_file src_path in
-  let new_contents = func old_contents in
-  write_file dst_path new_contents
-
-let copy_file src_path dst_path =
-  map_file (fun data -> data) src_path dst_path
+let map_file = Helpers.map_file
+let copy_file = Helpers.copy_file
 
 let with_temp_file = Temp_file.with_temp_file
 let with_capture = Store.with_capture
@@ -247,11 +258,8 @@ let with_chdir path func =
     func
 
 (* We need this to allow the user's test function to call
-   'stash_output_files' *)
+   'stash_output_file' *)
 let get_current_test () = Run.get_current_test ()
-
-(* TODO: stash_output_files: copy the output files to compare against
-   snapshots before cleaning up the workspace *)
 
 (**************************************************************************)
 (* Hygiene *)
