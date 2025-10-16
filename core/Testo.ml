@@ -90,6 +90,8 @@ type subcommand_result = Cmd.subcommand_result =
 module Promise = Promise
 module Tag = Tag
 
+type inline_logs = T.inline_logs = On | Off | Auto
+
 type t = T.test = {
   id : string;
   internal_full_name : string;
@@ -100,6 +102,7 @@ type t = T.test = {
   checked_output : checked_output_kind;
   checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
+  inline_logs : inline_logs;
   max_duration : float option;
   normalize : (string -> string) list;
   skipped : string option;
@@ -186,7 +189,10 @@ let update_id (test : t) =
 
 let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
     ?(checked_output_files = [])
-    ?(expected_outcome = Should_succeed) ?max_duration ?(normalize = []) ?skipped ?solo
+    ?(expected_outcome = Should_succeed)
+    ?(inline_logs = Auto)
+    ?max_duration
+    ?(normalize = []) ?skipped ?solo
     ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
     id = "";
@@ -198,6 +204,7 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
     checked_output;
     checked_output_files;
     expected_outcome;
+    inline_logs;
     max_duration;
     normalize;
     skipped;
@@ -214,7 +221,7 @@ let opt option default = Option.value option ~default
 let update
     ?broken ?category ?checked_output ?checked_output_files
     ?expected_outcome ?func
-    ?max_duration ?normalize
+    ?inline_logs ?max_duration ?normalize
     ?name ?skipped ?solo ?tags ?tolerate_chdir ?tracking_url old =
   {
     id = "";
@@ -227,6 +234,7 @@ let update
     checked_output = opt checked_output old.checked_output;
     checked_output_files = opt checked_output_files old.checked_output_files;
     expected_outcome = opt expected_outcome old.expected_outcome;
+    inline_logs = opt inline_logs old.inline_logs;
     max_duration = opt max_duration old.max_duration;
     normalize = opt normalize old.normalize;
     skipped = opt skipped old.skipped;

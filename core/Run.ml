@@ -662,12 +662,25 @@ let print_status ~highlight_test ~always_show_unchecked_output
            | _, Not_OK (None | Some (Raised_exception | Missing_output_file | Incorrect_output)) -> ()
           );
           let show_unchecked_output =
-            always_show_unchecked_output
-            ||
-            match success with
-            | OK -> false
-            | OK_but_new -> true
-            | Not_OK _ -> true
+            (* Test settings override '--show-output' *)
+            match test.inline_logs with
+            | On -> true
+            | Off -> false
+            | Auto ->
+                (always_show_unchecked_output
+                 ||
+                 match success with
+                 | OK -> false
+                 | OK_but_new -> true
+                 | Not_OK _ -> true)
+          in
+          (* Whether we show exceptions for tests that are expected to
+             raise an exception (XFAIL) *)
+          let show_ok_exceptions =
+            match test.inline_logs with
+            | On -> true
+            | Off -> false
+            | Auto -> always_show_unchecked_output
           in
           (* TODO: show the checked output to be approved? *)
           (if show_unchecked_output then
@@ -715,7 +728,9 @@ let print_status ~highlight_test ~always_show_unchecked_output
                     ())
             | OK
             | OK_but_new
-              when always_show_unchecked_output -> (
+              when show_ok_exceptions -> (
+                (* Show the exception even though an exception was expected
+                   (XFAIL status) *)
                 match Store.get_exception test with
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet

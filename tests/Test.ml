@@ -472,6 +472,25 @@ let tests env =
            Testo.stash_output_file json_path "results.json";
          )
       );
+    t "inline logs"
+      ~inline_logs:On
+      (fun () -> print_endline "Hello. This is a log.");
+    t "auto inline logs"
+      (fun () -> print_endline "Hello. This is a log.");
+    t "no inline logs"
+      ~inline_logs:Off
+      (fun () -> print_endline "Hello. This is a log.");
+    t "show exception on xfail"
+      ~expected_outcome:(Should_fail "raises Failure exception on purpose")
+      ~inline_logs:On
+      (fun () -> failwith "This exception was raised on purpose");
+    t "auto show exception on xfail"
+      ~expected_outcome:(Should_fail "raises Failure exception on purpose")
+      (fun () -> failwith "This exception was raised on purpose");
+    t "don't show exception on xfail"
+      ~expected_outcome:(Should_fail "raises Failure exception on purpose")
+      ~inline_logs:Off
+      (fun () -> failwith "This exception was raised on purpose");
     t
       "environment-sensitive"
       (* We use an environment variable to make the output of the test

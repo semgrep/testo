@@ -152,6 +152,8 @@ module Promise : module type of Promise
 module Tag : module type of Testo_util.Tag
 (** The type of tags which can be used to define subsets of tests precisely. *)
 
+type inline_logs = On | Off | Auto
+
 type t = private {
   id : string;
       (** Hash of the full name of the test, computed automatically. *)
@@ -181,6 +183,7 @@ type t = private {
           The test function must copy its checked output files into
           Testo's workspace using {!stash_output_files}. *)
   expected_outcome : expected_outcome;
+  inline_logs : inline_logs;
   max_duration : float option;
       (** A time limit for the test when running in a detached worker,
           in seconds. This setting is ignored when running tests sequentially
@@ -259,6 +262,7 @@ val create :
   ?checked_output:checked_output_kind ->
   ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
+  ?inline_logs:inline_logs ->
   ?max_duration:float ->
   ?normalize:(string -> string) list ->
   ?skipped:string ->
@@ -281,6 +285,16 @@ val create :
       remain the same from one test run to another.}
    {- [expected_outcome]: whether a test is expected to complete without
       raising an exception (default) or by raising an exception.}
+   {- [inline_logs]: determines whether to show the test's logs
+      inline when running a test or showing its status.
+      For the sake of this option, logs include uncaptured stdout or
+      stderr output and any information about exceptions produced by the test.
+      [Auto] is the default behavior and currently consists of printing
+      the logs only if the test fails or if [-w]/[--show-output] is on.
+      [On] and [Off] unconditionally enable or disable inline logs,
+      overriding the command-line option [-w]/[--show-output].
+      Note that logs are saved in files in Testo's workspace regardless
+      of these settings.
    {- [max_duration]: a time limit to run the test, in seconds.
       It is honored only in tests running in workers i.e. not with the [-j0]
       option of the test program.}
@@ -310,6 +324,7 @@ val update :
   ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> unit Promise.t) ->
+  ?inline_logs:inline_logs ->
   ?max_duration:float option ->
   ?normalize:(string -> string) list ->
   ?name:string ->
