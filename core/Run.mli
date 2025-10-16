@@ -56,3 +56,10 @@ val cmd_approve :
   int
 
 val introduction_text : string
+
+(* This returns the test being executed, if any.
+   It allows a test function to obtain the test object or to call functions
+   that depend on the test object while keeping the type of the test
+   function simple.
+*)
+val get_current_test : unit -> Types.test option

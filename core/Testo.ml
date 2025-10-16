@@ -213,6 +213,13 @@ let with_chdir path func =
     ~finally:(fun () -> Unix.chdir orig_cwd)
     func
 
+(* We need this to allow the user's test function to call
+   'stash_output_files' *)
+let get_current_test () = Run.get_current_test ()
+
+(* TODO: stash_output_files: copy the output files to compare against
+   snapshots before cleaning up the workspace *)
+
 (**************************************************************************)
 (* Hygiene *)
 (**************************************************************************)
