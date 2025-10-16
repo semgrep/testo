@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {background-color: black;}
+pre {
+	font-weight: normal;
+	color: #bbb;
+	white-space: -moz-pre-wrap;
+	white-space: -o-pre-wrap;
+	white-space: -pre-wrap;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+b {font-weight: normal}
+b.BOLD {color: #fff}
+b.ITA {font-style: italic}
+b.UND {text-decoration: underline}
+b.STR {text-decoration: line-through}
+b.UNDSTR {text-decoration: underline line-through}
+b.BLK {color: #000000}
+b.RED {color: #aa0000}
+b.GRN {color: #00aa00}
+b.YEL {color: #aa5500}
+b.BLU {color: #0000aa}
+b.MAG {color: #aa00aa}
+b.CYN {color: #00aaaa}
+b.WHI {color: #aaaaaa}
+b.HIK {color: #555555}
+b.HIR {color: #ff5555}
+b.HIG {color: #55ff55}
+b.HIY {color: #ffff55}
+b.HIB {color: #5555ff}
+b.HIM {color: #ff55ff}
+b.HIC {color: #55ffff}
+b.HIW {color: #ffffff}
+b.BBLK {background-color: #000000}
+b.BRED {background-color: #aa0000}
+b.BGRN {background-color: #00aa00}
+b.BYEL {background-color: #aa5500}
+b.BBLU {background-color: #0000aa}
+b.BMAG {background-color: #aa00aa}
+b.BCYN {background-color: #00aaaa}
+b.BWHI {background-color: #aaaaaa}
+</style>
+</head>
+<body>
+<pre><b class=UND>TEST-APPROVE</b>(1)                   Test Manual                  <b class=UND>TEST-APPROVE</b>(1)
+
+<b class="BOLD">NAME</b>
+       test-approve - approve new test output
+
+<b class="BOLD">SYNOPSIS</b>
+       <b class="BOLD">test approve </b>[<b class=UND>OPTION</b>]
+
+<b class="BOLD">OPTIONS</b>
+       <b class="BOLD">--debug</b>
+           Log information that can be useful for debugging the Testo library.
+
+       <b class="BOLD">-e </b><b class="BOLD UND"></b><b class=UND>KEY=VALUE</b>, <b class="BOLD">--env</b>=<b class=UND>KEY=VALUE</b>
+           Pass  a key/value pair to the function that creates the test suite.
+           KEY   must   be   an   alphanumeric   identifier   of   the    form
+           [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for
+           passing  arbitrary runtime settings to the test suite is offered as
+           a safer alternative to  environment  variables.  Multiple  -e/--env
+           options  are  supported  in  the  same  command,  each defining one
+           key/value pair.
+
+       <b class="BOLD">-s </b><b class="BOLD UND"></b><b class=UND>SUBSTRING</b>, <b class="BOLD">--filter-substring</b>=<b class=UND>SUBSTRING</b>
+           Select tests whose description contains  <b class=UND>SUBSTRING</b>.  Multiple  '-s'
+           search  queries  can  be  specified  in which case only one of them
+           needs to match.
+
+       <b class="BOLD">-t </b><b class="BOLD UND"></b><b class=UND>TAG</b>, <b class="BOLD">--filter-tag</b>=<b class=UND>TAG</b>
+           Select tests tagged with <b class=UND>TAG</b>. Filtering by tag  is  generally  more
+           robust  than  selecting  tests by text contained in their name with
+           '-s'.
+
+<b class="BOLD">COMMON OPTIONS</b>
+       <b class="BOLD">--help</b>[=<b class=UND>FMT</b>] (default=<b class="BOLD">auto</b>)
+           Show this help in format <b class=UND>FMT</b>. The value <b class=UND>FMT</b> must be  one  of  <b class="BOLD">auto</b>,
+           <b class="BOLD">pager</b>,  <b class="BOLD">groff  </b>or  <b class="BOLD">plain</b>.  With  <b class="BOLD">auto</b>, the format is <b class="BOLD">pager </b>or <b class="BOLD">plain</b>
+           whenever the <b class="BOLD">TERM </b>env var is <b class="BOLD">dumb </b>or undefined.
+
+<b class="BOLD">EXIT STATUS</b>
+       <b class="BOLD">test approve </b>exits with:
+
+       0   on success.
+
+       123 on indiscriminate errors reported on standard error.
+
+       124 on command line parsing errors.
+
+       125 on unexpected internal errors (bugs).
+
+<b class="BOLD">SEE ALSO</b>
+       test(1)
+
+Test                                                           <b class=UND>TEST-APPROVE</b>(1)
+</pre>
+</body>
+</html>

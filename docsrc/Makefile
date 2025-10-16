@@ -27,6 +27,13 @@ CONVERT_MARKDOWN_TO_HTML = \
 
 .PHONY: build
 build:
+	# Check that everything is fine and dump the --help pages
+	$(MAKE) test
+	# Convert the help pages to HTML
+	$(MAKE) -C cli-reference
+	# Publish the help pages
+	mkdir -p $(DOCROOT)/cli-reference
+	cp cli-reference/*.html $(DOCROOT)/cli-reference/
 	# Markdown source -> HTML
 	$(MAKE) $(HTML)
 	cp generic.css $(DOCROOT)/
@@ -39,7 +46,8 @@ build:
 	rm -rf $(DOCROOT)/reference
 	cp -a ../_build/default/_doc/_html $(DOCROOT)/reference
 
-# Check that the tutorial's sample code works
+# Check that the tutorial's sample code works.
+# + dump the '--help' pages.
 .PHONY: test
 test:
 	cd tutorial && ./run-tutorial
