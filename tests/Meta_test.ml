@@ -115,46 +115,53 @@ let clear_snapshots ~__LOC__:loc () =
 
 (* FIXME: This integration test fails on Windows because the expected output
    includes paths generated on POSIX systems. It runs correctly however. *)
+(* TODO: split this test into smaller tests because right now the changes
+   are so frequent and so big that unwanted changes may be accidentally
+   approved. *)
 let test_standard_flow () =
-  section "Clean start";
-  clear_status ~__LOC__ ();
-  clear_snapshots ~__LOC__ ();
-  test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_run ~__LOC__ "" ~expected_exit_code:1;
-  test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
-  test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_approve ~__LOC__ "-s auto-approve";
-  test_approve ~__LOC__ "-s environment-sensitive";
-  test_status ~__LOC__ "";
-  test_status ~__LOC__ "--expert";
-  test_status ~__LOC__ "--env A_b123=xxx";
-  test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
-  test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
-  test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
-  test_status ~__LOC__ "-a -t testing";
-  test_status ~__LOC__ "--strict" ~expected_exit_code:1;
-  (* Modify the output of the test named 'environment-sensitive'
-     by setting an environment variable it consults, simulating a bug *)
-  with_env ("TESTO_TEST", Some "hello") (fun () ->
+  Fun.protect (fun () ->
+    section "Clean start";
+    clear_status ~__LOC__ ();
+    clear_snapshots ~__LOC__ ();
+    test_status ~__LOC__ "" ~expected_exit_code:1;
+    test_run ~__LOC__ "" ~expected_exit_code:1;
+    test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
+    test_status ~__LOC__ "" ~expected_exit_code:1;
+    test_approve ~__LOC__ "-s auto-approve";
+    test_approve ~__LOC__ "-s environment-sensitive";
+    test_status ~__LOC__ "";
+    test_status ~__LOC__ "--expert";
+    test_status ~__LOC__ "--env A_b123=xxx";
+    test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
+    test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
+    test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
+    test_status ~__LOC__ "-a -t testing";
+    test_status ~__LOC__ "--strict" ~expected_exit_code:1;
+    (* Modify the output of the test named 'environment-sensitive'
+       by setting an environment variable it consults, simulating a bug *)
+    with_env ("TESTO_TEST", Some "hello") (fun () ->
       test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
-  (* "Fix the bug" in test 'environment-sensitive' *)
-  test_run ~__LOC__ "-s environment-sensitive";
-  section "Delete statuses but not snapshots";
-  clear_status ~__LOC__ ();
-  test_status ~__LOC__ "-v" ~expected_exit_code:1;
-  test_status ~__LOC__ "-l" ~expected_exit_code:1;
-  test_status ~__LOC__ "-a" ~expected_exit_code:1;
-  test_run ~__LOC__ "";
-  section "Delete snapshots but not statuses";
-  clear_snapshots ~__LOC__ ();
-  test_status ~__LOC__ "" ~expected_exit_code:1;
-  test_approve ~__LOC__ "-s auto-approve";
-  section "Delete the dead snapshots with --autoclean";
-  test_status ~__LOC__ "-l --autoclean";
-  section "Check that the dead snapshots are gone";
-  test_status ~__LOC__ "-l";
-  section "Restore the dead snapshots";
-  shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
+    (* "Fix the bug" in test 'environment-sensitive' *)
+    test_run ~__LOC__ "-s environment-sensitive";
+    section "Delete statuses but not snapshots";
+    clear_status ~__LOC__ ();
+    test_status ~__LOC__ "-v" ~expected_exit_code:1;
+    test_status ~__LOC__ "-l" ~expected_exit_code:1;
+    test_status ~__LOC__ "-a" ~expected_exit_code:1;
+    test_run ~__LOC__ "";
+    section "Delete snapshots but not statuses";
+    clear_snapshots ~__LOC__ ();
+    test_status ~__LOC__ "" ~expected_exit_code:1;
+    test_approve ~__LOC__ "-s auto-approve";
+    section "Delete the dead snapshots with --autoclean";
+    test_status ~__LOC__ "-l --autoclean";
+    section "Check that the dead snapshots are gone";
+    test_status ~__LOC__ "-l"
+  )
+    ~finally:(fun () ->
+      section "Restore any deleted snapshots";
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
+    )
 
 let test_multi_selection () =
   let (), capture =
@@ -180,6 +187,45 @@ let test_approve_xfail () =
   section "Clean up";
   shell_command ~__LOC__
     "git restore tests/snapshots/testo_tests/05dd9a9f220b/stdout"
+
+(*
+   Delete test snapshots to simulate a fresh test then check that approving
+   output files works.
+*)
+let test_new_output_file_capture () =
+  Fun.protect (fun () ->
+    let test_name = "capture multiple files and stdout" in
+    let test_id = "0658581e95c7" in
+      section (sprintf "Delete snapshots for test %s '%s'" test_id test_name);
+      shell_command ~__LOC__
+        (sprintf "rm -rf tests/snapshots/testo_tests/%s" test_id);
+      section "Run test without snapshots";
+      test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
+      section "Approve captured output";
+      test_approve ~__LOC__ (sprintf "-s %s" test_id);
+  )
+    ~finally:(fun () ->
+      section "Restore any deleted snapshots";
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
+    )
+
+let test_updated_output_file_capture () =
+  Fun.protect (fun () ->
+    let test_name = "capture multiple files and stdout" in
+    let test_id = "0658581e95c7" in
+      section (sprintf "Edit snapshot for test %s '%s'" test_id test_name);
+      shell_command ~__LOC__
+        (sprintf "echo outdated_contents >> \
+                  tests/snapshots/testo_tests/%s/file-results.txt" test_id);
+      section "Run test with updated output in results.txt";
+      test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
+      section "Approve updated captured output";
+      test_approve ~__LOC__ (sprintf "-s %s" test_id);
+  )
+    ~finally:(fun () ->
+      section "Restore any modified snapshot";
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
+    )
 
 (*****************************************************************************)
 (* Exercise the parallel test suite *)
@@ -311,6 +357,8 @@ let tests =
       ~checked_output:(T.stdxxx ())
       test_approve_xfail;
     t "multi selection" test_multi_selection;
+    t "new output file capture" test_new_output_file_capture;
+    t "updated output file capture" test_updated_output_file_capture;
   ]
 
 let () =

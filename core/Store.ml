@@ -93,6 +93,37 @@ let with_file_out path f =
 let write_file path data = with_file_out path (fun oc -> output_string oc data)
 let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
 
+(*
+   Keep track of a user-provided relative path and keep it in its original
+   form for as a long as the current folder is still the same.
+
+   We use this for the workspace folder paths from which other file paths
+   are derived.
+*)
+type friendly_path = {
+  cwd : Fpath.t;
+  (* A relative or absolute path *)
+  path : Fpath.t;
+  (* The absolute path precomputed from the other fields *)
+  abs_path : Fpath.t;
+}
+
+let create_friendly_path path : friendly_path =
+  let cwd = Fpath.v (Sys.getcwd ()) in
+  {
+    cwd;
+    path = path;
+    abs_path = Fpath.(cwd // path);
+  }
+
+(* Return a relative path if the current folder hasn't changed since
+   the path was provided. *)
+let get_short_path (x : friendly_path) : Fpath.t =
+  if Sys.getcwd () = !!(x.cwd) then
+    x.path
+  else
+    x.abs_path
+
 (**************************************************************************)
 (* Global settings *)
 (**************************************************************************)
@@ -131,8 +162,13 @@ let make_late_init () =
   in
   (get, set)
 
-let get_status_workspace, set_status_workspace = make_late_init ()
-let get_expectation_workspace, set_expectation_workspace = make_late_init ()
+let get_full_status_workspace, set_status_workspace = make_late_init ()
+let get_full_expectation_workspace, set_expectation_workspace = make_late_init ()
+
+(* These functions return the original relative paths when possible
+   i.e. if the current folder is the same as when starting the test program. *)
+let get_status_workspace () = get_full_status_workspace () |> get_short_path
+let get_expectation_workspace () = get_full_expectation_workspace () |> get_short_path
 
 let init_settings
     ?(expectation_workspace_root = default_expectation_workspace_root)
@@ -144,8 +180,10 @@ let init_settings
 but they are both set to the following path:
   %s|}
          !!status_workspace_root);
-  set_status_workspace (status_workspace_root / project_name);
-  set_expectation_workspace (expectation_workspace_root / project_name)
+  set_status_workspace
+    (create_friendly_path (status_workspace_root / project_name));
+  set_expectation_workspace
+    (create_friendly_path (expectation_workspace_root / project_name))
 
 let init_workspace () =
   Helpers.make_dir_if_not_exists ~recursive:true (get_status_workspace ());
@@ -171,6 +209,8 @@ let write_name_file (test : T.test) =
   Helpers.write_file (get_name_file_path test) contents
 
 let must_create_expectation_workspace_for_test (test : T.test) =
+  test.checked_output_files <> []
+  ||
   let uses_internal_storage (x : T.checked_output_options) =
     match x.snapshot_path with
     | None -> true
@@ -192,8 +232,11 @@ let init_expectation_workspace test =
     Helpers.make_dir_if_not_exists (get_test_expectation_workspace test);
     write_name_file test)
 
+let init_status_workspace test =
+  Helpers.make_dir_if_not_exists (get_test_status_workspace test)
+
 let init_test_workspace test =
-  Helpers.make_dir_if_not_exists (get_test_status_workspace test);
+  init_status_workspace test;
   init_expectation_workspace test
 
 (**************************************************************************)
@@ -257,7 +300,7 @@ let get_std_snapshot_path (test : T.test) default_name
 
 let get_file_snapshot_path (test : T.test) (x : T.checked_output_file) =
   match x.options.snapshot_path with
-  | None -> get_expectation_workspace () / test.id / x.name
+  | None -> get_expectation_workspace () / test.id / ("file-" ^ x.name)
   | Some path -> path
 
 let short_name_of_checked_output_options default_name
@@ -293,7 +336,7 @@ let get_exception (test : T.test) =
    Derive the various file paths related to a given test, but excluding
    unchecked output (logs).
 *)
-let capture_paths_of_test (test : T.test) : capture_paths list =
+let std_capture_paths_of_test (test : T.test) : capture_paths list =
   let unchecked_paths =
     {
       short_name = unchecked_filename;
@@ -301,71 +344,70 @@ let capture_paths_of_test (test : T.test) : capture_paths list =
       path_to_output = get_std_output_path test unchecked_filename;
     }
   in
-  let std_output_paths =
-    match test.checked_output with
-    | Ignore_output -> [ unchecked_paths ]
-    | Stdout options ->
-        [
-          {
-            short_name =
-              short_name_of_checked_output_options stdout_filename options;
-            path_to_expected_output =
-              Some (get_std_snapshot_path test stdout_filename options);
-            path_to_output = get_std_output_path test stdout_filename;
-          };
-          unchecked_paths;
-        ]
-    | Stderr options ->
-        [
-          {
-            short_name =
-              short_name_of_checked_output_options stderr_filename options;
-            path_to_expected_output =
-              Some (get_std_snapshot_path test stderr_filename options);
-            path_to_output = get_std_output_path test stderr_filename;
-          };
-          unchecked_paths;
-        ]
-    | Stdxxx options ->
-        [
-          {
-            short_name =
-              short_name_of_checked_output_options stdxxx_filename options;
-            path_to_expected_output =
-              Some (get_std_snapshot_path test stdxxx_filename options);
-            path_to_output = get_std_output_path test stdxxx_filename;
-          };
-        ]
-    | Split_stdout_stderr (stdout_options, stderr_options) ->
-        [
-          {
-            short_name =
-              short_name_of_checked_output_options stdout_filename stdout_options;
-            path_to_expected_output =
-              Some (get_std_snapshot_path test stdout_filename stdout_options);
-            path_to_output = get_std_output_path test stdout_filename;
-          };
-          {
-            short_name =
-              short_name_of_checked_output_options stderr_filename stderr_options;
-            path_to_expected_output =
-              Some (get_std_snapshot_path test stderr_filename stderr_options);
-            path_to_output = get_std_output_path test stderr_filename;
-          };
-        ]
-  in
-  let output_file_paths =
-    test.checked_output_files
-    |> Helpers.list_map (fun (x : T.checked_output_file) ->
-      {
-        short_name = x.name;
-        path_to_expected_output =
-          Some (get_file_snapshot_path test x);
-        path_to_output = get_output_file_path test x;
-      }
-    )
-  in
-  std_output_paths @ output_file_paths
+  match test.checked_output with
+  | Ignore_output -> [ unchecked_paths ]
+  | Stdout options ->
+      [
+        {
+          short_name =
+            short_name_of_checked_output_options stdout_filename options;
+          path_to_expected_output =
+            Some (get_std_snapshot_path test stdout_filename options);
+          path_to_output = get_std_output_path test stdout_filename;
+        };
+        unchecked_paths;
+      ]
+  | Stderr options ->
+      [
+        {
+          short_name =
+            short_name_of_checked_output_options stderr_filename options;
+          path_to_expected_output =
+            Some (get_std_snapshot_path test stderr_filename options);
+          path_to_output = get_std_output_path test stderr_filename;
+        };
+        unchecked_paths;
+      ]
+  | Stdxxx options ->
+      [
+        {
+          short_name =
+            short_name_of_checked_output_options stdxxx_filename options;
+          path_to_expected_output =
+            Some (get_std_snapshot_path test stdxxx_filename options);
+          path_to_output = get_std_output_path test stdxxx_filename;
+        };
+      ]
+  | Split_stdout_stderr (stdout_options, stderr_options) ->
+      [
+        {
+          short_name =
+            short_name_of_checked_output_options stdout_filename stdout_options;
+          path_to_expected_output =
+            Some (get_std_snapshot_path test stdout_filename stdout_options);
+          path_to_output = get_std_output_path test stdout_filename;
+        };
+        {
+          short_name =
+            short_name_of_checked_output_options stderr_filename stderr_options;
+          path_to_expected_output =
+            Some (get_std_snapshot_path test stderr_filename stderr_options);
+          path_to_output = get_std_output_path test stderr_filename;
+        };
+      ]
+
+let file_capture_paths_of_test (test : T.test) : capture_paths list =
+  test.checked_output_files
+  |> Helpers.list_map (fun (x : T.checked_output_file) ->
+    {
+      short_name = x.name;
+      path_to_expected_output = Some (get_file_snapshot_path test x);
+      path_to_output = get_output_file_path test x;
+    }
+  )
+
+let all_capture_paths_of_test (test : T.test) =
+  std_capture_paths_of_test test @ file_capture_paths_of_test test
 
 let describe_unchecked_output (output : T.checked_output_kind) : string option =
   match output with
@@ -421,8 +463,12 @@ let set_expected_output (test : T.test) (capture_paths : capture_paths list)
     List.iter2 (fun path data -> Helpers.write_file path data) paths data)
 
 let clear_expected_output (test : T.test) =
-  test |> capture_paths_of_test
-  |> List.iter (fun x -> Option.iter remove_file x.path_to_expected_output)
+  test |> std_capture_paths_of_test
+  |> List.iter (fun x -> Option.iter remove_file x.path_to_expected_output);
+  test.checked_output_files
+  |> List.iter (fun (x : T.checked_output_file) ->
+    remove_file (get_file_snapshot_path test x)
+  )
 
 let read_name_file ~dir =
   let name_file_path = get_name_file_path_from_dir dir in
@@ -560,13 +606,18 @@ let compose_functions_left_to_right funcs x =
 
 (* Iff the test is configured to rewrite its output so as to mask the
    unpredicable parts, we rewrite the standard output file and we make a
-   backup of the original. *)
+   backup of the original.
+
+   We normalize only the captured stdout/stderr output, not checked output
+   files (because the user can do it themselves from within the test
+   function).
+*)
 let normalize_output (test : T.test) =
   match get_orig_output_suffix test with
   | None -> ()
   | Some orig_suffix ->
       let rewrite_string = compose_functions_left_to_right test.normalize in
-      let paths = capture_paths_of_test test in
+      let paths = std_capture_paths_of_test test in
       get_checked_output_paths paths
       |> List.iter (fun std_path ->
              let backup_path = Fpath.v (!!std_path ^ orig_suffix) in
@@ -589,7 +640,7 @@ let with_redirect_merged_stdout_stderr path func =
   with_redirects_to_file [stdout; stderr] path func
 
 let with_output_capture (test : T.test) (func : unit -> 'unit_promise) =
-  let capture_paths = capture_paths_of_test test in
+  let capture_paths = std_capture_paths_of_test test in
   let func =
     match (test.checked_output, capture_paths) with
     | Ignore_output, [ log_paths ] ->
@@ -634,7 +685,6 @@ let with_completion_status_capture (test : T.test) func : unit -> unit Promise.t
       Testo's errors with the test's execution.
 *)
 let with_result_capture (test : T.test) func : unit -> unit Promise.t =
-  init_test_workspace test;
   let func = with_output_capture test func in
   let func = with_completion_status_capture test func in
   func
@@ -645,6 +695,12 @@ let mark_test_as_timed_out (test : T.test) =
 let stash_output_file (test : T.test) src_path (x : T.checked_output_file) : unit =
   let dst_path = get_output_file_path test x in
   Helpers.copy_file src_path dst_path
+
+let remove_stashed_output_files (test : T.test) =
+    test.checked_output_files
+  |> List.iter (fun (x : T.checked_output_file) ->
+      remove_file (get_output_file_path test x)
+  )
 
 (**************************************************************************)
 (* High-level interface *)
@@ -662,6 +718,7 @@ let captured_output_of_data (kind : T.checked_output_kind) (data : string list)
     ->
       Error.assert_false ~__LOC__ ()
 
+(* This is rather horrible. Simplify? *)
 let expected_output_of_data (kind : T.checked_output_kind) (data : string list)
     : T.expected_output =
   match (kind, data) with
@@ -674,57 +731,149 @@ let expected_output_of_data (kind : T.checked_output_kind) (data : string list)
     ->
       Error.assert_false ~__LOC__ ()
 
-let get_expectation (test : T.test) (paths : capture_paths list) : T.expectation
+let get_expectation
+    (test : T.test)
+    ~(std_capture_paths : capture_paths list) : T.expectation
     =
   let expected_output =
-    paths |> get_expected_output |> list_result_of_result_list |> function
+    std_capture_paths
+    |> get_expected_output |> list_result_of_result_list |> function
     | Ok x -> Ok (expected_output_of_data test.checked_output x)
     | Error missing_files -> Error (T.Missing_files missing_files)
   in
-  { expected_outcome = test.expected_outcome; expected_output }
+  let expected_output_files =
+    test.checked_output_files
+    |> Helpers.list_map (fun (checked_file : T.checked_output_file) ->
+      match read_file (get_file_snapshot_path test checked_file) with
+      | Ok contents ->
+          Ok ({ checked_file; contents } : T.checked_output_file_with_contents)
+      | Error path ->
+          Error path
+    )
+  in
+  { expected_outcome = test.expected_outcome;
+    expected_output;
+    expected_output_files }
 
+(* Fail if any capture file is missing *)
 let get_result (test : T.test) (paths : capture_paths list) :
     (T.result, T.missing_files) Result.t =
   match get_completion_status test with
-  | Error missing_file -> Error (Missing_files [ missing_file ])
+  | Error missing_file ->
+      Error (Missing_files [ missing_file ])
   | Ok completion_status -> (
+      (* captured output files *)
+      let captured_output_files, missing_output_files =
+        test.checked_output_files
+        |> Helpers.list_map (fun (checked_file : T.checked_output_file) ->
+          match read_file (get_output_file_path test checked_file) with
+          | Ok contents ->
+              Ok ({ checked_file; contents } : T.checked_output_file_with_contents)
+          | Error missing_file -> Error missing_file
+        )
+        |> Helpers.split_result_list
+      in
+      (* captured standard output *)
       let opt_captured_output =
         paths |> get_output |> list_result_of_result_list
         |> Result.map (captured_output_of_data test.checked_output)
       in
-      match opt_captured_output with
-      | Error missing_files -> Error (Missing_files missing_files)
-      | Ok captured_output -> Ok { completion_status; captured_output })
+      (*
+         - If the test ran previously and nobody messed with Testo's
+           workspace, missing output files are due to a test function
+           that didn't make all the calls to 'stash_output_file' it should
+           have. It could be because the test raised an exception because
+           it could happen or it could be that programmer forgot or
+           didn't realize they should have called 'stash_output_file'.
+         - Missing files for captured stdout or stderr on the other hand
+           are restricted to the former cases i.e. not an error in the test
+           function.
+      *)
+      match opt_captured_output, missing_output_files with
+      | Ok captured_output, missing_output_files ->
+          (* This is most likely a test failure (see above).
+             It's more important to report the exception if there was one
+             than a missing output file. This is why we don't return an Error
+             here even if some checked output files are missing. *)
+          Ok { completion_status;
+               captured_output;
+               captured_output_files;
+               missing_output_files; }
+      | Error missing_std_files, missing_output_files ->
+          Error (Missing_files (missing_std_files @ missing_output_files))
+    )
 
 let get_status (test : T.test) : T.status =
-  let paths = capture_paths_of_test test in
-  let expectation = get_expectation test paths in
+  let paths = std_capture_paths_of_test test in
+  let expectation = get_expectation test ~std_capture_paths:paths in
   let result = get_result test paths in
   { expectation; result }
 
-let outcome_of_pair
+let create_outcome
     (completion_status : T.completion_status)
-    (output_matches : bool) : T.outcome =
+    ~(has_all_output_files : bool)
+    ~(output_matches : bool) : T.outcome =
   match completion_status with
-  | Test_function_raised_an_exception -> Failed Raised_exception
+  | Test_function_raised_an_exception ->
+      (* If the test raised an exception, there's a good chance we don't
+         have some of the output files. In this case, we report the cause
+         of failure as the exception, not as the missing output files. *)
+      Failed Raised_exception
   | Test_function_returned ->
-      (match output_matches with
-       | false -> Failed Incorrect_output
-       | true -> Succeeded)
+      if has_all_output_files then
+        (match output_matches with
+         | false -> Failed Incorrect_output
+         | true -> Succeeded)
+      else
+        Failed Missing_output_file
   | Test_timeout ->
       Failed Timeout
 
 let outcome_of_expectation_and_result
     (expect : T.expectation) (result : T.result)
   : T.outcome * bool =
-  let has_expected_output, output_matches =
-    match (expect.expected_output, result.captured_output) with
+  let has_expected_std_output, output_matches =
+    match expect.expected_output, result.captured_output with
     | Ok output1, output2 when T.equal_checked_output output1 output2 ->
         (true, true)
     | Ok _, _ -> (true, false)
     | Error _, _ -> (false, true)
   in
-  outcome_of_pair result.completion_status output_matches, has_expected_output
+  let has_expected_output_files, output_files_match =
+    match result.missing_output_files with
+    | [] ->
+        (* Assume the lists of expected files and captured files are complete
+           and in the same order. *)
+        List.fold_left2 (
+          fun
+            (has_expected_output_files, output_files_match)
+            (expect : (T.checked_output_file_with_contents,
+                       Fpath.t) Result.t)
+            (result : T.checked_output_file_with_contents) ->
+            match expect with
+            | Ok expected ->
+                assert (expected.checked_file = result.checked_file);
+                if expected.contents = result.contents then
+                  has_expected_output_files, output_files_match
+                else
+                  has_expected_output_files, false
+            | Error _missing_expected_file ->
+                false, false
+        ) (true, true)
+          expect.expected_output_files result.captured_output_files
+    | _ ->
+        false, false
+  in
+  let outcome =
+    create_outcome
+      result.completion_status
+      ~has_all_output_files:has_expected_output_files
+      ~output_matches:(output_matches && output_files_match)
+  in
+  let has_expected_output =
+    has_expected_std_output && has_expected_output_files
+  in
+  outcome, has_expected_output
 
 let status_summary_of_status (status : T.status) : T.status_summary =
   match status.result with
@@ -753,15 +902,21 @@ let check_status_before_approval (test : T.test) =
   let status_summary = status_summary_of_status status in
   match status_summary.passing_status with
   | PASS
-  | XPASS
-  | FAIL Incorrect_output
-  | XFAIL Incorrect_output ->
+  | XPASS ->
       Ok ()
   | FAIL Raised_exception
   | XFAIL Raised_exception ->
       Error
         (sprintf "Cannot approve test because it raised an exception: %s '%s'"
            test.id test.internal_full_name)
+  | FAIL Missing_output_file
+  | XFAIL Missing_output_file ->
+      (* Approving the test will create the missing snapshot file *)
+      Ok ()
+  | FAIL Incorrect_output
+  | XFAIL Incorrect_output ->
+      (* The user is approving the new output reported as incorrect *)
+      Ok ()
   | FAIL Timeout
   | XFAIL Timeout ->
       Error
@@ -777,22 +932,24 @@ let approve_new_output (test : T.test) : (changed, string) Result.t =
   match test.skipped with
   | Some _reason -> Ok Unchanged
   | None -> (
-      let paths = capture_paths_of_test test in
+      let std_capture_paths = std_capture_paths_of_test test in
+      let file_capture_paths = file_capture_paths_of_test test in
+      let all_capture_paths = std_capture_paths @ file_capture_paths in
       match check_status_before_approval test with
       | Error _ as res -> res
       | Ok () -> (
-          let old_expectation = get_expectation test paths in
+          let old_expectation = get_expectation test ~std_capture_paths in
           clear_expected_output test;
           try
             let data =
-              paths |> get_checked_output
+              all_capture_paths |> get_checked_output
               |> list_map (function
                    | Ok data -> data
                    | Error missing_file ->
                        raise (Local_error (errmsg_of_missing_file missing_file)))
             in
-            set_expected_output test paths data;
-            let new_expectation = get_expectation test paths in
+            set_expected_output test all_capture_paths data;
+            let new_expectation = get_expectation test ~std_capture_paths in
             let changed =
               if old_expectation = new_expectation then Unchanged else Changed
             in

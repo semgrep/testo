@@ -108,7 +108,7 @@ let check_snapshot_uniqueness (tests : T.test list) =
   let path_tbl = Hashtbl.create 1000 in
   tests
   |> List.iter (fun (test : T.test) ->
-         test |> Store.capture_paths_of_test
+         test |> Store.all_capture_paths_of_test
          |> List.iter (fun (paths : Store.capture_paths) ->
                 match paths.path_to_expected_output with
                 | None -> ()
@@ -203,7 +203,9 @@ let stats_of_tests tests tests_with_status =
              (match sum.passing_status with
              | MISS _ -> ()
              | _ ->
-                 if not sum.has_expected_output then incr stats.needs_approval);
+                 if not sum.has_expected_output then
+                   incr stats.needs_approval
+             );
              incr
                (match sum.passing_status with
                | PASS -> stats.pass
@@ -393,12 +395,16 @@ let conditional_wrap condition wrapper func =
 
 let wrap_test_function ~with_storage ~flip_xfail_outcome test
     (func : unit -> unit Promise.t) : unit -> unit Promise.t =
-  func
-  |> conditional_wrap with_storage (with_store_exception test)
-  |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
-  |> protect_globals test
-  |> conditional_wrap with_storage (Store.with_result_capture test)
-  |> with_current_test_ref test
+  fun () ->
+  Store.init_test_workspace test;
+  Store.remove_stashed_output_files test;
+  (func
+   |> conditional_wrap with_storage (with_store_exception test)
+   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
+   |> protect_globals test
+   |> conditional_wrap with_storage (Store.with_result_capture test)
+   |> with_current_test_ref test
+  ) ()
 
 let to_alcotest_internal ~alcotest_skip ~with_storage ~flip_xfail_outcome tests
     =
@@ -493,6 +499,7 @@ let show_output_details (test : T.test) (sum : T.status_summary)
          ({ short_name; path_to_expected_output; path_to_output; _ } :
            Store.capture_paths)
        ->
+         (* TODO: why do we flush stdout and stderr here? *)
          flush stdout;
          flush stderr;
          (match path_to_expected_output with
@@ -514,6 +521,8 @@ let show_output_details (test : T.test) (sum : T.status_summary)
            | None -> ""))
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
+
+let print_hint text = printf "%s%s\n" bullet (Style.color Faint text)
 
 let format_one_line_status ((test : T.test), (_status : T.status), sum) =
   sprintf "%s%s" (format_status_summary sum) (format_title test)
@@ -571,6 +580,16 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | Split_stdout_stderr _ -> "separate stdout and stderr"
               in
               printf "%sChecked output: %s\n" bullet text);
+          (match test.checked_output_files with
+          | [] -> ()
+          | xs ->
+              let names =
+                Helpers.list_map (fun (x : T.checked_output_file) -> x.name) xs
+              in
+              printf "%sChecked output file%s: %s\n"
+                bullet
+                (if_plural (List.length names) "s")
+                (String.concat ", " names));
           (* Details about results *)
           (match status.expectation.expected_output with
           | Error (Missing_files [ path ]) ->
@@ -582,17 +601,38 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 (sprintf "Missing files containing the expected output: %s"
                    (String.concat ", " (Fpath_.to_string_list paths)))
           | Ok _expected_output -> (
-              match status.result with
-              | Error (Missing_files [ path ]) ->
-                  print_error
-                    (sprintf "Missing file containing the test output: %s"
-                       !!path)
-              | Error (Missing_files paths) ->
-                  print_error
-                    (sprintf "Missing files containing the test output: %s"
-                       (String.concat ", " (Fpath_.to_string_list paths)))
-              | Ok _ -> ()));
-          let capture_paths = Store.capture_paths_of_test test in
+              (match status.result with
+               | Error (Missing_files [ path ]) ->
+                   print_error
+                     (sprintf "Missing file containing the test output: %s"
+                        !!path)
+               | Error (Missing_files paths) ->
+                   print_error
+                     (sprintf "Missing files containing the test output: %s"
+                        (String.concat ", " (Fpath_.to_string_list paths)))
+               | Ok result ->
+                   match result.missing_output_files with
+                   | [] -> ()
+                   | missing_files ->
+                       print_error
+                         (sprintf "Missing captured output files: %s"
+                            (String.concat ", "
+                               (Fpath_.to_string_list missing_files)));
+                       print_hint "If you ran the test already, you may have \
+                                   forgotten to call \
+                                   'Testo.stash_output_file' in the test function."
+              )
+            )
+          );
+          status.expectation.expected_output_files
+          |> List.iter (function
+            | Error missing_file ->
+                print_error
+                  (sprintf "Missing file containing the expected output: %s"
+                     !!missing_file)
+            | Ok _ -> ()
+          );
+          let capture_paths = Store.all_capture_paths_of_test test in
           show_output_details test sum capture_paths;
           let success = success_of_status_summary sum in
           (* Show timeout info *)
@@ -619,7 +659,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                  (Style.color Red "Timed out")
                  current_max_duration
              )
-           | _, Not_OK (None | Some (Raised_exception | Incorrect_output)) -> ()
+           | _, Not_OK (None | Some (Raised_exception | Missing_output_file | Incorrect_output)) -> ()
           );
           let show_unchecked_output =
             always_show_unchecked_output
@@ -640,6 +680,8 @@ let print_status ~highlight_test ~always_show_unchecked_output
                      printf
                        "%sFailed due to an exception. See captured output.\n"
                        bullet
+                 | Not_OK (Some Missing_output_file) ->
+                     printf "%sFailed due to one or more missing output files.\n" bullet
                  | Not_OK (Some Incorrect_output) ->
                      printf "%sFailed due to wrong output.\n" bullet
                  | Not_OK (Some Timeout) ->
@@ -681,7 +723,7 @@ let print_status ~highlight_test ~always_show_unchecked_output
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some (Incorrect_output | Timeout) | None) ->
+            | Not_OK (Some (Missing_output_file | Incorrect_output | Timeout) | None) ->
                 ()));
   flush stdout
 
@@ -867,7 +909,7 @@ let report_start_test
   match timers, worker with
   | None, None -> () (* single process mode: timeouts are not supported *)
   | Some timers, Some worker -> Timers.add_test timers test worker
-  | _ -> (* bad combination *) assert false
+  | _ -> (* bad combination *) Error.assert_false ~__LOC__ ()
 
 let report_end_sequential_test ~always_show_unchecked_output test =
   get_test_with_status test

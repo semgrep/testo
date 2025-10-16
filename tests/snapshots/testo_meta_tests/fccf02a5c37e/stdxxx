@@ -27,6 +27,8 @@ junk printed on stdout...
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m
+[33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [33m[MISS]  [0m05dd9a9f220b [36mxfail due to invalid output[0m
@@ -178,6 +180,23 @@ Try '--help' for options.
 [2m• [0m[31mMissing files containing the expected output: tests/custom-snapshots/split-stdout, tests/custom-snapshots/split-stderr[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[33m[RUN][0m   d0fb18eaf104 [36mcapture one file[0m
+[32m[PASS]  [0md0fb18eaf104 [36mcapture one file[0m
+[2m• [0mChecked output file: results.txt
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d0fb18eaf104/log
+[2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/d0fb18eaf104/file-results.txt
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/d0fb18eaf104/file-results.txt
+[33m[RUN][0m   0658581e95c7 [36mcapture multiple files and stdout[0m
+[32m[PASS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mChecked output files: results.txt, results.json
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
+[2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to expected results.json: tests/snapshots/testo_tests/0658581e95c7/file-results.json
+[2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
@@ -510,9 +529,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
-  71 successful (68 pass, 3 xfail)
+  73 successful (70 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -587,6 +606,21 @@ Try '--help' for options.
 [2m• [0m[31mMissing files containing the expected output: tests/custom-snapshots/split-stdout, tests/custom-snapshots/split-stderr[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[32m[PASS]  [0md0fb18eaf104 [36mcapture one file[0m
+[2m• [0mChecked output file: results.txt
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d0fb18eaf104/log
+[2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/d0fb18eaf104/file-results.txt
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/d0fb18eaf104/file-results.txt
+[32m[PASS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mChecked output files: results.txt, results.json
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
+[2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to expected results.json: tests/snapshots/testo_tests/0658581e95c7/file-results.json
+[2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/5eff5d8ffb2b/stdout
@@ -860,9 +894,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
-  71 successful (68 pass, 3 xfail)
+  73 successful (70 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -979,7 +1013,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/73 selected tests:
+1/75 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -1009,7 +1043,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/73 selected tests:
+1/75 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -1089,6 +1123,19 @@ Try '--help' for options.
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d7f47c9a03b6/completion_status[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m
+[2m• [0mChecked output file: results.txt
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d0fb18eaf104/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d0fb18eaf104/log
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/d0fb18eaf104/file-results.txt
+[33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mChecked output files: results.txt, results.json
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0658581e95c7/completion_status[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/5eff5d8ffb2b/completion_status[0m
@@ -1404,6 +1451,25 @@ Try '--help' for options.
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output file: results.txt
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d0fb18eaf104/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d0fb18eaf104/log
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/d0fb18eaf104/file-results.txt
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0mChecked output files: results.txt, results.json
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0658581e95c7/completion_status[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -1793,11 +1859,11 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-72 new tests
+74 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -1903,6 +1969,25 @@ junk printed on stdout...
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m                                        [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output file: results.txt
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d0fb18eaf104/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d0fb18eaf104/log
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/d0fb18eaf104/file-results.txt
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m                       [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mChecked output: stdout
+[2m• [0mChecked output files: results.txt, results.json
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0658581e95c7/completion_status[0m
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -2292,11 +2377,11 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-72 new tests
+74 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2317,6 +2402,8 @@ junk printed on stdout...
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
+[33m[MISS]  [0md0fb18eaf104 [36mcapture one file[0m
+[33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
 [33m[MISS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [33m[MISS]  [0m85349a4a9157 [36mxfail[0m
 [33m[MISS]  [0m05dd9a9f220b [36mxfail due to invalid output[0m
@@ -2467,6 +2554,23 @@ Try '--help' for options.
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_tests/d7f47c9a03b6/stdout
 [2m• [0mPath to expected split-stderr: tests/custom-snapshots/split-stderr
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_tests/d7f47c9a03b6/stderr
+[33m[RUN][0m   d0fb18eaf104 [36mcapture one file[0m
+[32m[PASS]  [0md0fb18eaf104 [36mcapture one file[0m
+[2m• [0mChecked output file: results.txt
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d0fb18eaf104/log
+[2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/d0fb18eaf104/file-results.txt
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/d0fb18eaf104/file-results.txt
+[33m[RUN][0m   0658581e95c7 [36mcapture multiple files and stdout[0m
+[32m[PASS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
+[2m• [0mChecked output: stdout
+[2m• [0mChecked output files: results.txt, results.json
+[2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
+[2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
+[2m• [0mPath to expected results.json: tests/snapshots/testo_tests/0658581e95c7/file-results.json
+[2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
 [33m[RUN][0m   5eff5d8ffb2b [36menvironment-sensitive[0m
 [32m[PASS]  [0m5eff5d8ffb2b [36menvironment-sensitive[0m
 [2m• [0mChecked output: stdout
@@ -2714,9 +2818,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
-  71 successful (68 pass, 3 xfail)
+  73 successful (70 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -2773,9 +2877,9 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
-  71 successful (68 pass, 3 xfail)
+  73 successful (70 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -2799,14 +2903,14 @@ junk printed on stdout...
  Called from <MASKED>
  
 [0m[2m────────────────────────────────────────────────────────────────────────────────[0m
-73/73 selected tests:
+75/75 selected tests:
   1 skipped
-  71 successful (68 pass, 3 xfail)
+  73 successful (70 pass, 3 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
 #####################################################################
-# Restore the dead snapshots
+# Restore any deleted snapshots
 #####################################################################
 RUN git restore tests/snapshots/testo_tests

@@ -31,8 +31,16 @@ type completion_status =
   | Test_function_raised_an_exception
   | Test_timeout
 
-type fail_reason = Raised_exception | Incorrect_output | Timeout
+type fail_reason = Raised_exception | Missing_output_file | Incorrect_output | Timeout
 type outcome = Succeeded | Failed of fail_reason
+
+type checked_output_file
+(** A test's output file whose contents captured from stdout or stderr
+    should be checked and reported when it changes. *)
+
+type checked_output_file_with_contents
+(** A test's output file that is produced by the test function, checked,
+    and reported when it changes. *)
 
 type captured_output =
   | Ignored of string  (** unchecked combined output *)
@@ -51,6 +59,8 @@ type expected_output =
 type result = {
   completion_status : completion_status;
   captured_output : captured_output;
+  captured_output_files : checked_output_file_with_contents list;
+  missing_output_files : Fpath.t list;
 }
 
 type missing_files = Types.missing_files = Missing_files of Fpath.t list
@@ -58,6 +68,8 @@ type missing_files = Types.missing_files = Missing_files of Fpath.t list
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
+  expected_output_files :
+    (checked_output_file_with_contents, Fpath.t) Result.t list;
 }
 
 type status = {
@@ -110,10 +122,6 @@ val split_stdout_stderr :
   unit ->
   checked_output_kind
 (** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
-
-type checked_output_file
-(** A test's output file whose contents should be checked and reported
-    when it changes. *)
 
 val checked_output_file :
   ?snapshot_path:Fpath.t ->
@@ -421,7 +429,28 @@ val with_chdir : Fpath.t -> (unit -> 'a) -> 'a
 (** [with_chdir path func] changes the current directory associated with
     the process to [path] before calling the function [func].
     The original value of the current directory is restored when the function
-    terminates. *)
+    returns or raises an exception. *)
+
+val with_temp_dir :
+  ?chdir:bool ->
+  ?parent:Fpath.t ->
+  ?perms:int ->
+  ?prefix:string ->
+  ?suffix:string ->
+  (Fpath.t -> 'a) -> 'a
+(** [with_temp_dir func] creates temporary folder [dir],
+    calls the function [func dir] and returns its result.
+    [dir] and its contents are removed before [with_temp_dir] returns
+    or raises an exception.
+    If [chdir] is set to true, the current folder is set to [dir]
+    during the execution of [func] (default: false).
+    [parent] is the parent folder of the temporary folder to create
+    and defaults to [Filename.get_temp_dir_name ()].
+    [perms] is the Unix-style permission mask used when creating [dir]
+    with [Sys.mkdir] or equivalent.
+    [prefix] and [suffix] are a prefix and a suffix to use for the name
+    of [dir] (defaults: unspecified and subject to change).
+*)
 
 val get_current_test : unit -> t option
 (** Return the test currently running. *)

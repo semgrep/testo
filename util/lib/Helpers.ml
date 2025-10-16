@@ -12,6 +12,16 @@ let list_map f l = List.rev_map f l |> List.rev
 let list_flatten ll =
   List.fold_left (fun acc l -> List.rev_append l acc) [] ll |> List.rev
 
+let split_result_list xs =
+  let oks, errs =
+    List.fold_left (fun (oks, errs) x ->
+      match x with
+      | Ok ok -> (ok :: oks), errs
+      | Error err -> oks, (err :: errs)
+    ) ([], []) xs
+  in
+  (List.rev oks, List.rev errs)
+
 let string_for_all func str =
   try
     for i = 0 to String.length str - 1 do

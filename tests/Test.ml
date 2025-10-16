@@ -7,7 +7,6 @@ open Printf
 let ( !! ) = Fpath.to_string
 let ( / ) = Fpath.( / )
 
-(* We should consider a shorter name for this library. *)
 let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
 let tags_tag = Testo.Tag.declare "tags"
@@ -445,6 +444,34 @@ let tests env =
       (fun () ->
         print_string "hello\n";
         prerr_string "error\n");
+    t "capture one file"
+      ~checked_output_files:[
+        Testo.checked_output_file "results.txt"
+      ]
+      (fun () ->
+         Testo.with_temp_dir ~chdir:true (fun _dir ->
+           let output_file = Fpath.v "results" in
+           Testo.write_file output_file "hello world\n";
+           Testo.stash_output_file output_file "results.txt"
+         )
+      );
+    t "capture multiple files and stdout"
+      ~checked_output:(Testo.stdout ())
+      ~checked_output_files:[
+        Testo.checked_output_file "results.txt";
+        Testo.checked_output_file "results.json";
+      ]
+      (fun () ->
+         Testo.with_temp_dir ~chdir:true (fun _dir ->
+           print_endline "this is a message on stdout";
+           let txt_path = Fpath.v "results.txt" in
+           Testo.write_file txt_path "hello world\n";
+           Testo.stash_output_file txt_path "results.txt";
+           let json_path = Fpath.v "results.json" in
+           Testo.write_file json_path "{}\n";
+           Testo.stash_output_file json_path "results.json";
+         )
+      );
     t
       "environment-sensitive"
       (* We use an environment variable to make the output of the test
