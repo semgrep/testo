@@ -36,8 +36,6 @@ module P = Promise
 (* All the data we need to handle the files that contain the captured output
    for a test after applying all defaults and options. *)
 type capture_paths = {
-  (* Human-friendly name: "stdout", "stderr", or "stdxxx" *)
-  standard_name : string;
   (* Human-friendly name: "stdout" or the basename of user-specified file
      path. *)
   short_name : string;
@@ -174,7 +172,7 @@ let write_name_file (test : T.test) =
 
 let must_create_expectation_workspace_for_test (test : T.test) =
   let uses_internal_storage (x : T.checked_output_options) =
-    match x.expected_output_path with
+    match x.snapshot_path with
     | None -> true
     | Some _user_provided_path -> false
   in
@@ -251,22 +249,33 @@ let get_orig_output_suffix (test : T.test) =
   | [] -> None
   | _ -> Some orig_suffix
 
-let get_expected_output_path (test : T.test) default_name
+let get_std_snapshot_path (test : T.test) default_name
     (options : T.checked_output_options) =
-  match options.expected_output_path with
+  match options.snapshot_path with
   | None -> get_expectation_workspace () / test.id / default_name
+  | Some path -> path
+
+let get_file_snapshot_path (test : T.test) (x : T.checked_output_file) =
+  match x.options.snapshot_path with
+  | None -> get_expectation_workspace () / test.id / x.name
   | Some path -> path
 
 let short_name_of_checked_output_options default_name
     (options : T.checked_output_options) =
-  match options.expected_output_path with
+  match options.snapshot_path with
   | None -> default_name
   | Some path -> Fpath.basename path
 
-let get_output_path (test : T.test) filename =
+(* This function may be used only for fixed, reserved filenames *)
+let get_std_output_path (test : T.test) filename =
   get_status_workspace () / test.id / filename
 
-let get_exception_path (test : T.test) = get_output_path test "exception"
+(* This reserves the "file-" prefix to store all the captured output files
+   named by the user *)
+let get_output_file_path (test : T.test) (x : T.checked_output_file) =
+  get_status_workspace () / test.id / ("file-" ^ x.name)
+
+let get_exception_path (test : T.test) = get_std_output_path test "exception"
 
 let store_exception (test : T.test) opt_msg =
   let path = get_exception_path test in
@@ -287,68 +296,76 @@ let get_exception (test : T.test) =
 let capture_paths_of_test (test : T.test) : capture_paths list =
   let unchecked_paths =
     {
-      standard_name = unchecked_filename;
       short_name = unchecked_filename;
       path_to_expected_output = None;
-      path_to_output = get_output_path test unchecked_filename;
+      path_to_output = get_std_output_path test unchecked_filename;
     }
   in
-  match test.checked_output with
-  | Ignore_output -> [ unchecked_paths ]
-  | Stdout options ->
-      [
-        {
-          standard_name = stdout_filename;
-          short_name =
-            short_name_of_checked_output_options stdout_filename options;
-          path_to_expected_output =
-            Some (get_expected_output_path test stdout_filename options);
-          path_to_output = get_output_path test stdout_filename;
-        };
-        unchecked_paths;
-      ]
-  | Stderr options ->
-      [
-        {
-          standard_name = stderr_filename;
-          short_name =
-            short_name_of_checked_output_options stderr_filename options;
-          path_to_expected_output =
-            Some (get_expected_output_path test stderr_filename options);
-          path_to_output = get_output_path test stderr_filename;
-        };
-        unchecked_paths;
-      ]
-  | Stdxxx options ->
-      [
-        {
-          standard_name = stdxxx_filename;
-          short_name =
-            short_name_of_checked_output_options stdxxx_filename options;
-          path_to_expected_output =
-            Some (get_expected_output_path test stdxxx_filename options);
-          path_to_output = get_output_path test stdxxx_filename;
-        };
-      ]
-  | Split_stdout_stderr (stdout_options, stderr_options) ->
-      [
-        {
-          standard_name = stdout_filename;
-          short_name =
-            short_name_of_checked_output_options stdout_filename stdout_options;
-          path_to_expected_output =
-            Some (get_expected_output_path test stdout_filename stdout_options);
-          path_to_output = get_output_path test stdout_filename;
-        };
-        {
-          standard_name = stderr_filename;
-          short_name =
-            short_name_of_checked_output_options stderr_filename stderr_options;
-          path_to_expected_output =
-            Some (get_expected_output_path test stderr_filename stderr_options);
-          path_to_output = get_output_path test stderr_filename;
-        };
-      ]
+  let std_output_paths =
+    match test.checked_output with
+    | Ignore_output -> [ unchecked_paths ]
+    | Stdout options ->
+        [
+          {
+            short_name =
+              short_name_of_checked_output_options stdout_filename options;
+            path_to_expected_output =
+              Some (get_std_snapshot_path test stdout_filename options);
+            path_to_output = get_std_output_path test stdout_filename;
+          };
+          unchecked_paths;
+        ]
+    | Stderr options ->
+        [
+          {
+            short_name =
+              short_name_of_checked_output_options stderr_filename options;
+            path_to_expected_output =
+              Some (get_std_snapshot_path test stderr_filename options);
+            path_to_output = get_std_output_path test stderr_filename;
+          };
+          unchecked_paths;
+        ]
+    | Stdxxx options ->
+        [
+          {
+            short_name =
+              short_name_of_checked_output_options stdxxx_filename options;
+            path_to_expected_output =
+              Some (get_std_snapshot_path test stdxxx_filename options);
+            path_to_output = get_std_output_path test stdxxx_filename;
+          };
+        ]
+    | Split_stdout_stderr (stdout_options, stderr_options) ->
+        [
+          {
+            short_name =
+              short_name_of_checked_output_options stdout_filename stdout_options;
+            path_to_expected_output =
+              Some (get_std_snapshot_path test stdout_filename stdout_options);
+            path_to_output = get_std_output_path test stdout_filename;
+          };
+          {
+            short_name =
+              short_name_of_checked_output_options stderr_filename stderr_options;
+            path_to_expected_output =
+              Some (get_std_snapshot_path test stderr_filename stderr_options);
+            path_to_output = get_std_output_path test stderr_filename;
+          };
+        ]
+  in
+  let output_file_paths =
+    test.checked_output_files
+    |> Helpers.list_map (fun (x : T.checked_output_file) ->
+      {
+        short_name = x.name;
+        path_to_expected_output =
+          Some (get_file_snapshot_path test x);
+        path_to_output = get_output_file_path test x;
+      }
+    )
+  in
+  std_output_paths @ output_file_paths
 
 let describe_unchecked_output (output : T.checked_output_kind) : string option =
   match output with
@@ -369,7 +386,7 @@ let get_checked_output_paths (paths : capture_paths list) =
   |> get_output_paths
 
 let get_unchecked_output_path (test : T.test) =
-  get_output_path test unchecked_filename
+  get_std_output_path test unchecked_filename
 
 let get_output (paths : capture_paths list) =
   paths |> get_output_paths |> list_map read_file
@@ -386,15 +403,15 @@ let get_unchecked_output (test : T.test) =
       | Error _cant_read_file -> None)
   | None -> None
 
-let get_expected_output_paths (paths : capture_paths list) =
+let get_snapshot_paths (paths : capture_paths list) =
   paths |> List.filter_map (fun x -> x.path_to_expected_output)
 
 let get_expected_output (paths : capture_paths list) =
-  paths |> get_expected_output_paths |> list_map read_file
+  paths |> get_snapshot_paths |> list_map read_file
 
 let set_expected_output (test : T.test) (capture_paths : capture_paths list)
     (data : string list) =
-  let paths = capture_paths |> get_expected_output_paths in
+  let paths = capture_paths |> get_snapshot_paths in
   if List.length data <> List.length paths then
     Error.invalid_arg ~__LOC__
       (sprintf "Store.set_expected_output: test %s, data:%i, paths:%i" test.name

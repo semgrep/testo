@@ -111,6 +111,24 @@ val split_stdout_stderr :
   checked_output_kind
 (** Same as {!val:stdxxx} but keep stdout and stderr separate. *)
 
+type checked_output_file
+(** A test's output file whose contents should be checked and reported
+    when it changes. *)
+
+val checked_output_file :
+  ?snapshot_path:Fpath.t ->
+  string ->
+  checked_output_file
+(** [checked_output_file name] creates the specification for a checked output
+    file identified by the name [name]. Popular names include ["results.txt"]
+    and ["results.json"].
+    [name] must be a nonempty sequence of ASCII letters, digits,
+    underscores, dashes, or periods. Periods are not allowed in first or last
+    position. It is used by Testo in messaging and in file names.
+    The [snapshot_path] option specifies an alternate location for
+    the snapshot file that serves as the expectation for future test runs.
+*)
+
 module Promise : module type of Promise
 (** Wrapper allowing for asynchronous test functions (Lwt and such). *)
 
@@ -140,6 +158,11 @@ type t = private {
           command-line option causes the broken status to be ignored i.e.
           a test run will fail if a broken test fails. *)
   checked_output : checked_output_kind;
+  checked_output_files : checked_output_file list;
+      (** Files created by the test function whose contents must match
+          a reference snapshot.
+          The test function must copy its checked output files into
+          Testo's workspace using {!stash_output_files}. *)
   expected_outcome : expected_outcome;
   max_duration : float option;
       (** A time limit for the test when running in a detached worker,
@@ -147,7 +170,11 @@ type t = private {
           in the master process such as with [-j0] or in [solo] mode. *)
   normalize : (string -> string) list;
       (** An optional function to rewrite any output data so as to mask the
-        variable parts. *)
+        variable parts. This normalization is only applied to captured
+        stdout or stderr, not to output files. If you wish to normalize
+        output files, the test function should handle it, possibly with
+        the provided {!map_file} function.
+      *)
   skipped : string option;
       (** If not [None], the [skipped] property causes a test to be skipped
           by Alcotest but still shown as ["[SKIP]"] rather than being
@@ -213,6 +240,7 @@ val create :
   ?broken:string ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
+  ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
   ?max_duration:float ->
   ?normalize:(string -> string) list ->
@@ -232,8 +260,10 @@ val create :
       can be nested further using {!categorize} or {!categorize_suites}.}
    {- [checked_output]: determines how to capture the test's output. Defaults
       to no capture.}
+   {- [checked_output_files]: specifies the test's output files that should
+      remain the same from one test run to another.}
    {- [expected_outcome]: whether a test is expected to complete without
-      raising an exception (default) or by raising an exception. }
+      raising an exception (default) or by raising an exception.}
    {- [max_duration]: a time limit to run the test, in seconds.
       It is honored only in tests running in workers i.e. not with the [-j0]
       option of the test program.}
@@ -260,6 +290,7 @@ val update :
   ?broken:string option ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
+  ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
   ?func:(unit -> unit Promise.t) ->
   ?max_duration:float option ->

@@ -81,7 +81,9 @@ type subcommand_result = Cmd.subcommand_result =
 module Promise = Promise
 module Tag = Tag
 
+(* abstract types *)
 type checked_output_kind = T.checked_output_kind
+type checked_output_file = T.checked_output_file
 
 type t = T.test = {
   id : string;
@@ -91,6 +93,7 @@ type t = T.test = {
   func : unit -> unit Promise.t;
   broken : string option;
   checked_output : checked_output_kind;
+  checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
   max_duration : float option;
   normalize : (string -> string) list;
@@ -111,20 +114,35 @@ type alcotest_test = string * alcotest_test_case list
 (* Conversions *)
 (****************************************************************************)
 
+(* TODO: rename expected_stdout_path -> snapshot_path *)
 let stdout ?expected_stdout_path () : T.checked_output_kind =
-  Stdout { expected_output_path = expected_stdout_path }
+  Stdout { snapshot_path = expected_stdout_path }
 
 let stderr ?expected_stderr_path () : T.checked_output_kind =
-  Stderr { expected_output_path = expected_stderr_path }
+  Stderr { snapshot_path = expected_stderr_path }
 
 let stdxxx ?expected_stdxxx_path () : T.checked_output_kind =
-  Stdxxx { expected_output_path = expected_stdxxx_path }
+  Stdxxx { snapshot_path = expected_stdxxx_path }
 
 let split_stdout_stderr ?expected_stdout_path ?expected_stderr_path () :
     T.checked_output_kind =
   Split_stdout_stderr
-    ( { expected_output_path = expected_stdout_path },
-      { expected_output_path = expected_stderr_path } )
+    ( { snapshot_path = expected_stdout_path },
+      { snapshot_path = expected_stderr_path } )
+
+let validate_name =
+  let rex = Re.Pcre.regexp {|\A[a-zA-Z0-9_-](?:[.a-zA-Z0-9_-]*[a-zA-Z0-9_-])?\z|} in
+  fun str ->
+    Re.Pcre.pmatch ~rex str
+
+let checked_output_file ?snapshot_path name : checked_output_file =
+  if not (validate_name name) then
+    invalid_arg
+      ("Invalid 'name' argument for Testo.checked_output_file: " ^ name);
+  {
+    name;
+    options = { snapshot_path };
+  }
 
 (*
    Create an hexadecimal hash that is just long enough to not suffer from
@@ -145,6 +163,7 @@ let update_id (test : t) =
   { test with id; internal_full_name }
 
 let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
+    ?(checked_output_files = [])
     ?(expected_outcome = Should_succeed) ?max_duration ?(normalize = []) ?skipped ?solo
     ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
@@ -155,6 +174,7 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
     func;
     broken;
     checked_output;
+    checked_output_files;
     expected_outcome;
     max_duration;
     normalize;
@@ -166,9 +186,12 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
   }
   |> update_id
 
+(* Update a setting if the new value 'option' is not None *)
 let opt option default = Option.value option ~default
 
-let update ?broken ?category ?checked_output ?expected_outcome ?func
+let update
+    ?broken ?category ?checked_output ?checked_output_files
+    ?expected_outcome ?func
     ?max_duration ?normalize
     ?name ?skipped ?solo ?tags ?tolerate_chdir ?tracking_url old =
   {
@@ -180,6 +203,7 @@ let update ?broken ?category ?checked_output ?expected_outcome ?func
     (* requires same type for func and old.func *)
     broken = opt broken old.broken;
     checked_output = opt checked_output old.checked_output;
+    checked_output_files = opt checked_output_files old.checked_output_files;
     expected_outcome = opt expected_outcome old.expected_outcome;
     max_duration = opt max_duration old.max_duration;
     normalize = opt normalize old.normalize;

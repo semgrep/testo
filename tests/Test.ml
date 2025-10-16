@@ -20,6 +20,55 @@ let animal_tests = Testo.categorize "animal" [ t "banana slug" (fun () -> ()) ]
 let categorized =
   Testo.categorize_suites "biohazard" [ fruit_tests; animal_tests ]
 
+(*
+   Test the 'validate_name' function used by 'checked_output_file'.
+*)
+let test_checked_output_file_names () =
+  let invalid_names = [
+    "";
+    ".";
+    "..";
+    "a/b";
+    "a\\b";
+    "a:b";
+    " ";
+    "a b";
+    "a\nb";
+    "a\n";
+    "\na";
+    "+";
+    "a+b";
+    ".a";
+    "a.";
+  ] in
+  let valid_names = [
+    "a";
+    "A";
+    "aaa";
+    "AAA";
+    "_";
+    "___";
+    "-";
+    "---";
+    "a-b";
+    "a.b";
+    "3";
+    "333";
+    "ab.cd.ef";
+    "a..b";
+  ] in
+  List.iter (fun name ->
+    printf "Check that name is invalid: %S\n%!" name;
+    try
+      ignore (Testo.checked_output_file name);
+      Alcotest.fail "failed to raise Invalid_argument"
+    with Invalid_argument _ -> ()
+  ) invalid_names;
+  List.iter (fun name ->
+    printf "Check that name is valid: %S\n%!" name;
+    ignore (Testo.checked_output_file name)
+  ) valid_names
+
 let test_internal_files =
   let category = [ "auto-approve"; "internal files" ] in
   let test_create_name_file =
@@ -313,6 +362,7 @@ let tests env =
     t "simple" (fun () -> ());
     t "tags" ~tags:[ testing_tag; tags_tag ] (fun () -> ());
     t "category" ~category:[ "category"; "subcategory" ] (fun () -> ());
+    t "checked output file names" test_checked_output_file_names;
     t "unchecked stdout" (fun () -> print_endline "hello\nworld");
     t "unchecked stderr" (fun () -> prerr_string "hello\n");
     t "capture stdout" ~category:[ "auto-approve" ]
