@@ -590,7 +590,7 @@ The latter should be kept under version control (git or similar).
          !!(Store.get_status_workspace ())
          !!(Store.get_expectation_workspace ()));
 
-    `P {|Visit https://semgrep.github.io/testo/ to learn how to
+    `P {|Visit https://testocaml.net/ to learn how to
 create and manage test suites with Testo.|};
   ]
 
