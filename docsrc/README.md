@@ -8,7 +8,8 @@ The online documentation for Testo consists of:
 * Handwritten documentation for the tutorial and the howtos, converted
   from Markdown to HTML with Pandoc.
 * An HTTP server provided by GitHub Pages. It serves the HTML files
-  found under `/docs` on the main branch at https://semgrep.github.io/testo.
+  found under `/docs` on the main branch at
+  https://semgrep.github.io/testo, redirected to https://testocaml.net/.
 
 See https://ocaml.org/docs/generating-documentation to understand the
 Odoc setup.

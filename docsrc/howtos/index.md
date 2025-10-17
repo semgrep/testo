@@ -381,7 +381,7 @@ let tests = [
 On some platforms such as a JavaScript runtime, there is no equivalent
 of `Lwt_main.run`. For these cases, we provide the library
 `testo-lwt`. It exposes a
-[`Testo_lwt` module](https://semgrep.github.io/testo/reference/testo-lwt/index.html)
+[`Testo_lwt` module](https://testocaml.net/reference/testo-lwt/index.html)
 whose interface is almost identical to `Testo` except that
 test functions have type `unit -> unit Lwt.t` instead of `unit ->
 unit`.
