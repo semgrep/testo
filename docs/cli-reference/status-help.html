@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8" />
 <style type="text/css">
 body {background-color: black;}
 pre {
@@ -52,7 +53,7 @@ b.BWHI {background-color: #aaaaaa}
        test-status - show test status
 
 <b class="BOLD">SYNOPSIS</b>
-       <b class="BOLD">test status </b>[<b class=UND>OPTION</b>]
+       <b class="BOLD">test status </b>[<b class=UND>OPTION</b>]…
 
 <b class="BOLD">OPTIONS</b>
        <b class="BOLD">-a</b>, <b class="BOLD">--all</b>
@@ -80,6 +81,11 @@ b.BWHI {background-color: #aaaaaa}
 
        <b class="BOLD">-l</b>, <b class="BOLD">--long</b>
            Print details instead of just a one-line summary for each test.
+
+       <b class="BOLD">--max-inline-log-bytes</b>=<b class=UND>LIMIT</b> (absent=<b class="BOLD">1000000</b>)
+           When  displaying  logs (unchecked stdout or stderr output), show at
+           most that many bytes for each test. The default  limit  is  1000000
+           bytes. To remove the default limit, specify 'unlimited'.
 
        <b class="BOLD">-s </b><b class="BOLD UND"></b><b class=UND>SUBSTRING</b>, <b class="BOLD">--filter-substring</b>=<b class=UND>SUBSTRING</b>
            Select  tests  whose  description contains <b class=UND>SUBSTRING</b>. Multiple '-s'

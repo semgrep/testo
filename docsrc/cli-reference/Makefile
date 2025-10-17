@@ -9,6 +9,5 @@ build: help.html run-help.html status-help.html approve-help.html
 	# ansi2html is installed on Ubuntu as part of the 'colorized-logs'
 	# package. Run 'sudo apt install colorized-logs' if ansi2html
 	# is missing.
-	# Not using a pipe (|) to fail if the first command fails.
 	ansi2html < $< > $@
-	LANG=iso-8859-1 sed -i -e 's/[\d128-\d255]//g' $@
+	sed -i -e 's:<head>:<head>\n<meta charset="utf-8" />:g' $@

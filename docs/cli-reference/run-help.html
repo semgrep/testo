@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8" />
 <style type="text/css">
 body {background-color: black;}
 pre {
@@ -52,19 +53,19 @@ b.BWHI {background-color: #aaaaaa}
        test-run - run the tests
 
 <b class="BOLD">SYNOPSIS</b>
-       <b class="BOLD">test run </b>[<b class=UND>OPTION</b>]
+       <b class="BOLD">test run </b>[<b class=UND>OPTION</b>]…
 
 <b class="BOLD">DESCRIPTION</b>
        Run all or only some of the tests. By default, the status of each test
        is reported as they are executed. Here's the legend for test statuses:
 
-        [PASS]: a successful test that was expected to succeed (good);
-        [FAIL]: a failing test that was expected to succeed (needs fixing);
-        [XFAIL]: a failing test that was expected to fail (tolerated failure);
-        [XPASS]: a successful test that was expected to fail (progress?).
-        [MISS]: a test that never ran;
-        [SKIP]: a test that is always skipped but kept around for some reason;
-        [xxxx*]: a new test for which there's no expected output yet.
+       • [PASS]: a successful test that was expected to succeed (good);
+       • [FAIL]: a failing test that was expected to succeed (needs fixing);
+       • [XFAIL]: a failing test that was expected to fail (tolerated failure);
+       • [XPASS]: a successful test that was expected to fail (progress?).
+       • [MISS]: a test that never ran;
+       • [SKIP]: a test that is always skipped but kept around for some reason;
+       • [xxxx*]: a new test for which there's no expected output yet.
          In this case, you should review the test output and run the 'approve'
          subcommand once you're satisfied with the output.
 
@@ -103,6 +104,11 @@ b.BWHI {background-color: #aaaaaa}
 
        <b class="BOLD">--lazy</b>
            Run only the tests that were not previously successful.
+
+       <b class="BOLD">--max-inline-log-bytes</b>=<b class=UND>LIMIT</b> (absent=<b class="BOLD">1000000</b>)
+           When  displaying  logs (unchecked stdout or stderr output), show at
+           most that many bytes for each test. The default  limit  is  1000000
+           bytes. To remove the default limit, specify 'unlimited'.
 
        <b class="BOLD">-s </b><b class="BOLD UND"></b><b class=UND>SUBSTRING</b>, <b class="BOLD">--filter-substring</b>=<b class=UND>SUBSTRING</b>
            Select  tests  whose  description contains <b class=UND>SUBSTRING</b>. Multiple '-s'

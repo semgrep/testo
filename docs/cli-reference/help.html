@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8" />
 <style type="text/css">
 body {background-color: black;}
 pre {
@@ -52,7 +53,7 @@ b.BWHI {background-color: #aaaaaa}
        test - run tests for my_project
 
 <b class="BOLD">SYNOPSIS</b>
-       <b class="BOLD">test </b>[<b class=UND>COMMAND</b>] 
+       <b class="BOLD">test </b>[<b class=UND>COMMAND</b>] …
 
 <b class="BOLD">DESCRIPTION</b>
        This is the program built for running and managing the tests for this
@@ -71,13 +72,13 @@ b.BWHI {background-color: #aaaaaa}
        manage test suites with Testo.
 
 <b class="BOLD">COMMANDS</b>
-       <b class="BOLD">approve </b>[<b class=UND>OPTION</b>]
+       <b class="BOLD">approve </b>[<b class=UND>OPTION</b>]…
            approve new test output
 
-       <b class="BOLD">run </b>[<b class=UND>OPTION</b>]
+       <b class="BOLD">run </b>[<b class=UND>OPTION</b>]…
            run the tests
 
-       <b class="BOLD">status </b>[<b class=UND>OPTION</b>]
+       <b class="BOLD">status </b>[<b class=UND>OPTION</b>]…
            show test status
 
 <b class="BOLD">OPTIONS</b>
@@ -111,6 +112,11 @@ b.BWHI {background-color: #aaaaaa}
 
        <b class="BOLD">--lazy</b>
            Run only the tests that were not previously successful.
+
+       <b class="BOLD">--max-inline-log-bytes</b>=<b class=UND>LIMIT</b> (absent=<b class="BOLD">1000000</b>)
+           When  displaying  logs (unchecked stdout or stderr output), show at
+           most that many bytes for each test. The default  limit  is  1000000
+           bytes. To remove the default limit, specify 'unlimited'.
 
        <b class="BOLD">-s </b><b class="BOLD UND"></b><b class=UND>SUBSTRING</b>, <b class="BOLD">--filter-substring</b>=<b class=UND>SUBSTRING</b>
            Select  tests  whose  description contains <b class=UND>SUBSTRING</b>. Multiple '-s'
