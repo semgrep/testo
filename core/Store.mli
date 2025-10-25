@@ -32,10 +32,18 @@ val init_workspace : unit -> unit
 val init_test_workspace : Types.test -> unit
 
 (*
+   Std: checked output (stdout and/or stderr)
+   File: checked output file
+   Log: unchecked output
+*)
+type capture_kind = Std | File | Log
+
+(*
    All the data we need to handle the files that contain the captured output
    for a test after applying all defaults and options.
 *)
 type capture_paths = {
+  kind : capture_kind;
   (* Human-friendly name: "stdout" or the basename of user-specified file
      path. *)
   short_name : string;
@@ -115,6 +123,8 @@ val approve_new_output : Types.test -> (changed, string) Result.t
 (*
    If a test is configured to normalize its output, this returns the
    suffix for the backup file holding the original captured output.
+   This is only for stdout/stderr checked output, not for
+   checked output files.
 *)
 val get_orig_output_suffix : Types.test -> string option
 
