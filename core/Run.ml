@@ -32,10 +32,20 @@ type success = OK | OK_but_new | Not_OK of T.fail_reason option
 type alcotest_test_case = string * [ `Quick | `Slow ] * (unit -> unit Promise.t)
 type alcotest_test = string * alcotest_test_case list
 
-(* The exit codes used by the built-in test runner. *)
-let exit_success = 0
-let exit_failure = 1
-let exit_internal_error = 2
+type caught_exn = {
+  (* Human-readable exception + stack backtrace *)
+  exn_txt: string;
+  (* For translations to Alcotest, we keep the original exception and its
+     backtrace around: *)
+  exn: exn;
+  trace: Printexc.raw_backtrace;
+}
+
+(* The result of running a test function before or after flipping the outcome.
+   Flipping the outcome consists of logging any caught Error exception and
+   returning Ok while an Ok result is turned into an Error with a made-up
+   exception. *)
+type test_result = (unit, caught_exn) result Promise.t
 
 (* Left margin for text relating to a test *)
 let bullet = Style.color Faint "• "
@@ -303,7 +313,8 @@ let protect_globals (test : T.test) (func : unit -> 'promise) : unit -> 'promise
 (* TODO: more universal settings to protect? *)
 
 let to_alcotest_gen ~(alcotest_skip : unit -> _)
-    ~(wrap_test_function : T.test -> (unit -> 'a) -> unit -> 'a)
+    ~(wrap_test_function :
+        T.test -> (unit -> unit Promise.t) -> unit -> test_result)
     (tests : T.test list) : _ list =
   tests
   |> Helpers.list_map (fun (test : T.test) ->
@@ -335,40 +346,88 @@ let to_alcotest_gen ~(alcotest_skip : unit -> _)
                     an exception as expected. 'Testo.to_alcotest' should be \
                     called with\n\
                     '~alcotest_skip:Alcotest.skip'."
-           | None -> (wrap_test_function test test.func : unit -> _)
+           | None ->
+               let func = wrap_test_function test test.func in
+               let func () =
+                 func () >>= function
+                 | Ok () -> P.return ()
+                 | Error e ->
+                     Printexc.raise_with_backtrace e.exn e.trace
+               in
+               func
          in
          (* This is the format expected by Alcotest: *)
          (suite_name, (test.name, `Quick, func)))
   |> group_by_key
 
-let with_store_exception (test : T.test) func () =
+(* Catch any exception and return it converted to a human-readable
+   message including the backtrace.
+   Beyond this point, any other exception that we catch is an
+   internal error.
+
+   This also takes care of storing the exception.
+   The result indicates whether the test was successful:
+   - Ok: PASS or XFAIL
+   - Error: FAIL or XPASS
+
+   The with_storage and flip_xfail_outcome are for translations to Alcotest.
+*)
+let catch_user_exception
+    ~with_storage
+    ~flip_xfail_outcome
+    test func () : (unit, caught_exn) result Promise.t =
+  let func =
+    (* Wrap the test function so as to redirect stdout/stderr captures *)
+    if with_storage then
+      Store.with_result_capture test func
+    else
+      func
+  in
+  let flip_outcome =
+    match test.expected_outcome with
+    | Should_succeed -> false
+    | Should_fail _reason -> flip_xfail_outcome
+  in
   P.catch
     (fun () ->
-      func () >>= fun () ->
-      Store.store_exception test None;
-      P.return ())
+       (* Make sure to only catch exceptions raised by the used-defined
+          test function. *)
+       func () >>= fun () ->
+       P.return (Ok ())
+    )
     (fun exn trace ->
-      let msg =
+      let exn_txt =
         sprintf "%s\n%s" (Printexc.to_string exn)
           (Printexc.raw_backtrace_to_string trace)
       in
-      Store.store_exception test (Some msg);
-      (Printexc.raise_with_backtrace exn trace : unit Promise.t))
-
-let with_flip_xfail_outcome (test : T.test) func =
-  match test.expected_outcome with
-  | Should_succeed -> func
-  | Should_fail _reason ->
-      fun () ->
-        P.catch
-          (fun () ->
-            func () >>= fun () ->
-            Error.fail_test "XPASS: This test failed to raise an exception")
-          (fun exn trace ->
-            eprintf "XFAIL: As expected, an exception was raised: %s\n%s\n"
-              (Printexc.to_string exn)
-              (Printexc.raw_backtrace_to_string trace);
-            P.return ())
+      P.return (Error { exn_txt; exn; trace })
+    )
+  >>= function
+  | Ok () ->
+      if with_storage then
+        Store.store_exception test None;
+      let res =
+        if flip_outcome then
+          Error { exn_txt = "Test failed to raise an exception";
+                  (* Fake exception for Alcotest *)
+                  exn = Error.Test_failure "failed to raise an exception";
+                  trace = Printexc.get_raw_backtrace () }
+        else
+          Ok ()
+      in
+      P.return res
+  | Error e ->
+      if with_storage then
+        Store.store_exception test (Some e.exn_txt);
+      let res =
+        if flip_outcome then (
+          eprintf "XFAIL: As expected, an exception was raised: %s\n" e.exn_txt;
+          Ok ()
+        )
+        else
+          Error e
+      in
+      P.return res
 
 let current_test : T.test option ref = ref None
 
@@ -390,33 +449,41 @@ let with_current_test_ref test func =
     )
     ~finally:(fun () -> current_test := None; P.return ())
 
-let conditional_wrap condition wrapper func =
-  if condition then wrapper func else func
-
-let wrap_test_function ~with_storage ~flip_xfail_outcome test
-    (func : unit -> unit Promise.t) : unit -> unit Promise.t =
+(* The options and the detailed result are for the interface with Alcotest *)
+let wrap_test_function_internal ~with_storage ~flip_xfail_outcome test
+    (func : unit -> unit Promise.t) : unit ->
+    (unit, caught_exn) result Promise.t =
   fun () ->
   Store.init_test_workspace test;
   Store.remove_stashed_output_files test;
   (func
-   |> conditional_wrap with_storage (with_store_exception test)
-   |> conditional_wrap flip_xfail_outcome (with_flip_xfail_outcome test)
+   |> catch_user_exception ~with_storage ~flip_xfail_outcome test
    |> protect_globals test
-   |> conditional_wrap with_storage (Store.with_result_capture test)
    |> with_current_test_ref test
   ) ()
 
-let to_alcotest_internal ~alcotest_skip ~with_storage ~flip_xfail_outcome tests
-    =
-  to_alcotest_gen ~alcotest_skip
-    ~wrap_test_function:(wrap_test_function ~with_storage ~flip_xfail_outcome)
-    tests
+(* Wrap the test function for Testo *)
+let wrap_test_function test (func : unit -> unit Promise.t)
+  : unit -> unit Promise.t =
+  (* Ignore the result because it's already stored *)
+  fun () ->
+  wrap_test_function_internal
+    ~with_storage:true
+    ~flip_xfail_outcome:false
+    test
+    func
+    ()
+  >>= fun _res -> P.return ()
 
-(* Exported versions that exposes a plain Alcotest test suite that doesn't
+(* Wrapper that exposes a plain Alcotest test suite that doesn't
    write test statuses and prints "OK" for XFAIL statuses. *)
 let to_alcotest ~alcotest_skip tests =
-  to_alcotest_internal ~alcotest_skip ~with_storage:false
-    ~flip_xfail_outcome:true tests
+  to_alcotest_gen
+    ~alcotest_skip
+    ~wrap_test_function:(wrap_test_function_internal
+                           ~with_storage:false
+                           ~flip_xfail_outcome:true)
+    tests
 
 let filter ~filter_by_substring ~filter_by_tag tests =
   let filter_sub =
@@ -458,7 +525,7 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
   printf "Expected output changed for %i test%s.\n%!" changed
     (if_plural changed "s");
   match error_messages with
-  | [] -> exit_success
+  | [] -> Error.Exit_code.success
   | xs ->
       let n_errors = List.length xs in
       let error_str =
@@ -467,7 +534,7 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
       in
       let msg = String.concat "\n" error_messages in
       eprintf "%s%s\n%!" error_str msg;
-      exit_failure
+      Error.Exit_code.test_failure
 
 let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
   test.skipped = None
@@ -799,8 +866,8 @@ let print_compact_status ?(important = false) ~strict tests_with_status =
     else tests_with_status
   in
   List.iter print_one_line_status tests_with_status;
-  if is_overall_success ~strict tests_with_status then exit_success
-  else exit_failure
+  if is_overall_success ~strict tests_with_status then Error.Exit_code.success
+  else Error.Exit_code.test_failure
 
 let print_short_status ~always_show_unchecked_output tests_with_status =
   let tests_with_status = List.filter is_important_status tests_with_status in
@@ -873,7 +940,8 @@ let print_status_summary ~autoclean ~strict tests tests_with_status : int =
              override."
             stats.broken_tests
             (if_plural stats.broken_tests "s")));
-  if overall_success then exit_success else exit_failure
+  if overall_success then Error.Exit_code.success
+  else Error.Exit_code.test_failure
 
 let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro tests tests_with_status =
   print_introduction intro;
@@ -975,23 +1043,36 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
     'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
-      let test_func : unit -> 'unit_promise =
-        wrap_test_function ~with_storage:true ~flip_xfail_outcome:false test
-          test.func
-      in
-      previous >>= fun () ->
-      match test.skipped with
-      | Some reason ->
-          report_skip_test test reason;
-          P.return ()
-      | None ->
-          report_start_test None None test;
-          P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
-          report_end_sequential_test ~always_show_unchecked_output test;
-          P.return ())
+       (* Catch internal errors *)
+       P.catch (fun () ->
+         let test_func : unit -> unit Promise.t =
+           wrap_test_function test test.func
+         in
+         previous >>= fun () ->
+         match test.skipped with
+         | Some reason ->
+             report_skip_test test reason;
+             P.return ()
+         | None ->
+             report_start_test None None test;
+             test_func () >>= fun () ->
+             report_end_sequential_test ~always_show_unchecked_output test;
+             P.return ()
+       )
+         (fun exn trace ->
+            (* For now, we abort in case of an internal error.
+               We could try to be more tolerant and keep going anyway? *)
+            eprintf "Internal error encountered in the master process \
+                     while processing test %s:\n%s\n%s\n%!"
+              test.name
+              (Printexc.to_string exn)
+              (Printexc.raw_backtrace_to_string trace);
+            exit Error.Exit_code.internal_error
+         )
+    )
     (P.return ()) tests
 
-let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
+let run_tests_requested_by_master (tests : T.test list) : unit Promise.t =
   let get_test =
     let tbl = Hashtbl.create (2 * List.length tests) in
     List.iter (fun (test : T.test) -> Hashtbl.add tbl test.id test) tests;
@@ -1003,12 +1084,11 @@ let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
   let rec loop previous =
     previous >>= fun () ->
     match Multiprocess.Server.read () with
-    | None -> exit 0
+    | None -> exit Error.Exit_code.success
     | Some (Start_test test_id) ->
         let test = get_test test_id in
         let test_func : unit -> 'unit_promise =
-          wrap_test_function ~with_storage:true ~flip_xfail_outcome:false test
-            test.func
+          wrap_test_function test test.func
         in
         let job =
           match test.skipped with
@@ -1017,7 +1097,15 @@ let run_tests_requested_by_master (tests : T.test list) : 'unit_promise =
               Multiprocess.Server.write (End_test test_id);
               P.return ()
           | None ->
-              P.catch test_func (fun _exn _trace -> P.return ()) >>= fun () ->
+              P.catch test_func
+                (fun exn trace ->
+                   let msg =
+                     sprintf "Uncaught exception: %s %s"
+                       (Printexc.to_string exn)
+                       (Printexc.raw_backtrace_to_string trace)
+                   in
+                   Multiprocess.Server.fatal_error msg) >>=
+              fun () ->
               Multiprocess.Server.write (End_test test_id);
               P.return ()
         in
@@ -1085,7 +1173,8 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
     let selected_tests =
       select_tests ~filter_by_substring ~filter_by_tag ~lazy_ ~slice tests
     in
-    run_tests_requested_by_master selected_tests >>= fun () -> exit 0)
+    run_tests_requested_by_master selected_tests >>= fun () ->
+    exit Error.Exit_code.success)
   else
     let num_workers =
       match jobs with
@@ -1130,7 +1219,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       with Ok () -> ()
          | Error msg ->
              eprintf "Internal error: %s\n%!" msg;
-             exit exit_internal_error);
+             exit Error.Exit_code.internal_error);
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
       after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests

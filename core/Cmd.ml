@@ -77,9 +77,9 @@ type 'continuation_result test_spec =
 (* Dispatch subcommands to do real work *)
 (****************************************************************************)
 
-let fatal_error msg =
-  eprintf "Error: %s\n%!" msg;
-  exit 1
+let fatal_configuration_error msg =
+  eprintf "Fatal configuration error: %s\n%!" msg;
+  exit Error.Exit_code.configuration_error
 
 (*
    A "broken pipe" signal is delivered to a worker process when the worker
@@ -92,7 +92,8 @@ let fatal_error msg =
 let ignore_broken_pipe () =
   (* There are no signals to handle on Windows *)
   if not Sys.win32 then
-    Sys.set_signal Sys.sigpipe (Signal_handle (fun _signal -> exit 0))
+    Sys.set_signal Sys.sigpipe
+      (Signal_handle (fun _signal -> exit Error.Exit_code.success))
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
@@ -191,7 +192,9 @@ let check_tag filter_by_tag =
   |> Option.map (fun str ->
          match Tag.of_string_opt str with
          | Some tag -> tag
-         | None -> fatal_error (sprintf "Unknown or misspelled tag: %s" str))
+         | None ->
+             fatal_configuration_error
+               (sprintf "Unknown or misspelled tag: %s" str))
 
 (* This option currently supports only one tag. In the future, we might
    want to support boolean queries e.g. '-t "lang.python and not todo"' *)

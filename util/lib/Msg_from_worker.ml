@@ -36,6 +36,8 @@ let of_string str =
       | "ERROR" -> Error payload
       | _ -> Junk str)
 
+(* TODO: properly encode newlines so that we can decode long messages such
+   as stack traces into something more readable *)
 let replace_newlines str =
   String.map
     (function

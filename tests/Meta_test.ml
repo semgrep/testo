@@ -134,7 +134,7 @@ let test_standard_flow () =
     test_status ~__LOC__ "--env A_b123=xxx";
     test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
     test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
-    test_status ~__LOC__ "-a -t testin" ~expected_exit_code:1;
+    test_status ~__LOC__ "-a -t testin" ~expected_exit_code:2;
     test_status ~__LOC__ "-a -t testing";
     test_status ~__LOC__ "--strict" ~expected_exit_code:1;
     (* Modify the output of the test named 'environment-sensitive'

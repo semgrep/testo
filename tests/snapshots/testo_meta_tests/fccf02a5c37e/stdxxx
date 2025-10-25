@@ -225,6 +225,24 @@ Try '--help' for options.
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
 [32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
@@ -261,6 +279,24 @@ Try '--help' for options.
 [2m• [0mException raised by the test:
  Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
  Called from <MASKED>
  Called from <MASKED>
  
@@ -542,6 +578,24 @@ Try '--help' for options.
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -676,6 +730,24 @@ Try '--help' for options.
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
 [2m• [0mExpected to fail: raises Failure exception on purpose
@@ -706,6 +778,24 @@ Try '--help' for options.
 [2m• [0mException raised by the test:
  Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
  Called from <MASKED>
  Called from <MASKED>
  
@@ -942,6 +1032,24 @@ Try '--help' for options.
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -1012,7 +1120,7 @@ test: option '-e': Malformed KEY=VALUE pair: b@d_key=42
 Usage: test status [OPTION]…
 Try 'test status --help' or 'test --help' for more information.
 RUN ./test status -e foo=bar -a -t testin
-Error: Unknown or misspelled tag: testin
+Fatal configuration error: Unknown or misspelled tag: testin
 RUN ./test status -e foo=bar -a -t testing
 junk printed on stdout...
 ... when creating the test suite
@@ -2760,6 +2868,24 @@ Try '--help' for options.
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [33m[RUN][0m   0ac34585feff [36mauto show exception on xfail[0m
 [32m[XFAIL] [0m0ac34585feff [36mauto show exception on xfail[0m
@@ -2796,6 +2922,24 @@ Try '--help' for options.
 [2m• [0mException raised by the test:
  Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
  Called from <MASKED>
  Called from <MASKED>
  
@@ -3010,6 +3154,24 @@ Try '--help' for options.
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
@@ -3070,6 +3232,24 @@ junk printed on stdout...
  Raised at <MASKED>, line 29, characters 17-33
  Called from <MASKED>
  Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and are being removed:
@@ -3097,6 +3277,24 @@ junk printed on stdout...
 [2m• [0mException raised by the test:
  Failure("I am broken")
  Raised at <MASKED>, line 29, characters 17-33
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
+ Called from <MASKED>
+ Called from <MASKED>
+ Re-raised at <MASKED>
  Called from <MASKED>
  Called from <MASKED>
  
