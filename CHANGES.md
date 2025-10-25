@@ -10,6 +10,7 @@ x.x.x (xxxx-xx-xx)
   of unchecked test output (logs) shown inline when reporting the
   status of a test. The default limit is 1MB
   ([#144](https://github.com/semgrep/testo/issues/144)).
+* Improve internal error handling ([#153](https://github.com/semgrep/testo/pull/153), [#154](https://github.com/semgrep/testo/pull/154)).
 
 0.2.0 (2025-09-11)
 ------------------

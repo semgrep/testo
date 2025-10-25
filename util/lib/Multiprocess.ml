@@ -105,7 +105,19 @@ module Client = struct
       )
     )
 
-  let close (workers : t) = Array.iter close_worker workers.array
+  (* This should be used only during final cleanup operations because
+     it doesn't guarantee that the worker actually gets closed, potentially
+     hiding problems. We don't want to hide problems so it's better to
+     use the regular 'close_worker' if we're not about to exit. *)
+  let safe_close_worker (x : worker) =
+    try close_worker x
+    with exn ->
+      eprintf "Failed to close worker %s: %s\n%!"
+        x.name
+        (Printexc.to_string exn)
+
+  let safe_close (workers : t) =
+    Array.iter safe_close_worker workers.array
 
   (* Used when a worker times out *)
   let replace_worker workers worker =
@@ -238,7 +250,7 @@ module Client = struct
                     Debug.log (fun () ->
                       "'select' returned nothing. Did a worker exit \
                        prematurely?");
-                    close workers;
+                    safe_close workers;
                     None)
             )
     in
@@ -381,18 +393,29 @@ module Client = struct
                let test = get_test test_id in
                on_end_test test;
                feed_or_terminate_worker worker;
-               loop ()
+               safe_loop ()
            | Error msg ->
                let msg =
                  sprintf "error in worker %s: %s" worker.name msg
                in
-               close workers;
+               safe_close workers;
                Error msg
            | Junk line ->
                printf "[worker %s] %s\n%!" worker.name line;
-               loop ())
+               safe_loop ())
+    and safe_loop () =
+      try loop ()
+      with exn ->
+        let trace = Printexc.get_backtrace () in
+        safe_close workers;
+        eprintf "\
+Fatal internal error in Testo's master process:\n%s\n%s
+Please report this bug at https://github.com/semgrep/testo/issues.\n%!"
+            (Printexc.to_string exn)
+            trace;
+        exit Error.Exit_code.internal_error
     in
-    loop ()
+    safe_loop ()
 end
 
 module Server = struct
