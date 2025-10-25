@@ -11,6 +11,8 @@ x.x.x (xxxx-xx-xx)
   status of a test. The default limit is 1MB
   ([#144](https://github.com/semgrep/testo/issues/144)).
 * Improve internal error handling ([#153](https://github.com/semgrep/testo/pull/153), [#154](https://github.com/semgrep/testo/pull/154)).
+* Fix internal error that occurs when diffing checked output
+  files that don't exist ([#155](https://github.com/semgrep/testo/pull/155)).
 
 0.2.0 (2025-09-11)
 ------------------

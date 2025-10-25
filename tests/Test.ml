@@ -455,6 +455,12 @@ let tests env =
            Testo.stash_output_file output_file "results.txt"
          )
       );
+    t "fail to capture one file"
+      ~expected_outcome:(Should_fail "must raise exception")
+      ~checked_output_files:[
+        Testo.checked_output_file "results.txt"
+      ]
+      (fun () -> failwith "I am failing on purpose");
     t "capture multiple files and stdout"
       ~normalize:[(fun s -> "[normalized] " ^ s)]
       ~checked_output:(Testo.stdout ())
