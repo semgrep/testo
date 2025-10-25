@@ -456,6 +456,7 @@ let tests env =
          )
       );
     t "capture multiple files and stdout"
+      ~normalize:[(fun s -> "[normalized] " ^ s)]
       ~checked_output:(Testo.stdout ())
       ~checked_output_files:[
         Testo.checked_output_file "results.txt";

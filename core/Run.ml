@@ -496,7 +496,7 @@ let show_output_details (test : T.test) (sum : T.status_summary)
   capture_paths
   |> List.iter
        (fun
-         ({ short_name; path_to_expected_output; path_to_output; _ } :
+         ({ kind; short_name; path_to_expected_output; path_to_output } :
            Store.capture_paths)
        ->
          (* TODO: why do we flush stdout and stderr here? *)
@@ -516,9 +516,10 @@ let show_output_details (test : T.test) (sum : T.status_summary)
                  !!path_to_expected_output);
          printf "%sPath to captured %s: %s%s\n" bullet short_name
            !!path_to_output
-           (match Store.get_orig_output_suffix test with
-           | Some suffix -> sprintf " [%s]" suffix
-           | None -> ""))
+           (match Store.get_orig_output_suffix test, kind with
+           | Some suffix, Std -> sprintf " [%s]" suffix
+           | None, _
+           | Some _, (Log | File) -> ""))
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
 

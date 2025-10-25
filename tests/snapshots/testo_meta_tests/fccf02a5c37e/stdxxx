@@ -197,7 +197,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mChecked output files: results.txt, results.json
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0658581e95c7/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
@@ -283,7 +283,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log
 [33m[RUN][0m   3b24997d50c8 [36mmask_pcre_pattern[0m
 [32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
@@ -313,25 +313,25 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/d5b0041ea8f4/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log
 [33m[RUN][0m   99746f633129 [36mcheck words in stdout[0m
 [32m[PASS]  [0m99746f633129 [36mcheck words in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/99746f633129/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log
 [33m[RUN][0m   7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [32m[PASS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/7e7e7c09bfff/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log
 [33m[RUN][0m   065cc54b852b [36malcotest error formatting[0m
 [32m[PASS]  [0m065cc54b852b [36malcotest error formatting[0m
 [2m• [0mChecked output: stderr
 [2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log
 [33m[RUN][0m   afc104393bac [36mtemporary files[0m
 [32m[PASS]  [0mafc104393bac [36mtemporary files[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
@@ -652,7 +652,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mChecked output files: results.txt, results.json
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0658581e95c7/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
@@ -723,7 +723,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log
 [32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
 [32m[PASS]  [0me8a3ba3cf9b4 [36mmask_temp_paths[0m
@@ -744,22 +744,22 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/d5b0041ea8f4/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log
 [32m[PASS]  [0m99746f633129 [36mcheck words in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/99746f633129/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log
 [32m[PASS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/7e7e7c09bfff/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log
 [32m[PASS]  [0m065cc54b852b [36malcotest error formatting[0m
 [2m• [0mChecked output: stderr
 [2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log
 [32m[PASS]  [0mafc104393bac [36mtemporary files[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
 [32m[PASS]  [0m1f85f39d5e9a [36muser output capture[0m
@@ -1194,7 +1194,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mChecked output files: results.txt, results.json
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0658581e95c7/completion_status[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
@@ -1258,7 +1258,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log
 [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/3b24997d50c8/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
@@ -1287,22 +1287,22 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log
 [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log
 [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log
 [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m
 [2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log
 [33m[MISS]  [0mafc104393bac [36mtemporary files[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/afc104393bac/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log
@@ -1547,7 +1547,7 @@ Try '--help' for options.
 [0m[2m• [0mChecked output: stdout
 [2m• [0mChecked output files: results.txt, results.json
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0658581e95c7/completion_status[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
@@ -1654,7 +1654,7 @@ Try '--help' for options.
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m                                       [2m│[0m
@@ -1710,7 +1710,7 @@ Try '--help' for options.
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
@@ -1718,7 +1718,7 @@ Try '--help' for options.
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m                          [2m│[0m
@@ -1726,7 +1726,7 @@ Try '--help' for options.
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m                               [2m│[0m
@@ -1734,7 +1734,7 @@ Try '--help' for options.
 [0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mafc104393bac [36mtemporary files[0m                                         [2m│[0m
@@ -2104,7 +2104,7 @@ junk printed on stdout...
 [0m[2m• [0mChecked output: stdout
 [2m• [0mChecked output files: results.txt, results.json
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0658581e95c7/completion_status[0m
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.json: _build/testo/status/testo_tests/0658581e95c7/file-results.json
@@ -2211,7 +2211,7 @@ junk printed on stdout...
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/a3e1a604f579/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m                                       [2m│[0m
@@ -2267,7 +2267,7 @@ junk printed on stdout...
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/d5b0041ea8f4/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m99746f633129 [36mcheck words in stdout[0m                                   [2m│[0m
@@ -2275,7 +2275,7 @@ junk printed on stdout...
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/99746f633129/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m                          [2m│[0m
@@ -2283,7 +2283,7 @@ junk printed on stdout...
 [0m[2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/7e7e7c09bfff/completion_status[0m
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m065cc54b852b [36malcotest error formatting[0m                               [2m│[0m
@@ -2291,7 +2291,7 @@ junk printed on stdout...
 [0m[2m• [0mChecked output: stderr
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/065cc54b852b/completion_status[0m
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mafc104393bac [36mtemporary files[0m                                         [2m│[0m
@@ -2732,7 +2732,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mChecked output files: results.txt, results.json
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/0658581e95c7/stdout
-[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout
+[2m• [0mPath to captured stdout: _build/testo/status/testo_tests/0658581e95c7/stdout [.orig]
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0658581e95c7/log
 [2m• [0mPath to expected results.txt: tests/snapshots/testo_tests/0658581e95c7/file-results.txt
 [2m• [0mPath to captured results.txt: _build/testo/status/testo_tests/0658581e95c7/file-results.txt
@@ -2818,7 +2818,7 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/a3e1a604f579/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/a3e1a604f579/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/a3e1a604f579/log
 [33m[RUN][0m   3b24997d50c8 [36mmask_pcre_pattern[0m
 [32m[PASS]  [0m3b24997d50c8 [36mmask_pcre_pattern[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/3b24997d50c8/log
@@ -2848,25 +2848,25 @@ Try '--help' for options.
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/d5b0041ea8f4/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/d5b0041ea8f4/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/d5b0041ea8f4/log
 [33m[RUN][0m   99746f633129 [36mcheck words in stdout[0m
 [32m[PASS]  [0m99746f633129 [36mcheck words in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/99746f633129/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/99746f633129/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/99746f633129/log
 [33m[RUN][0m   7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [32m[PASS]  [0m7e7e7c09bfff [36mcheck for substrings in stdout[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected stdout: tests/snapshots/testo_tests/7e7e7c09bfff/stdout
 [2m• [0mPath to captured stdout: _build/testo/status/testo_tests/7e7e7c09bfff/stdout [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/7e7e7c09bfff/log
 [33m[RUN][0m   065cc54b852b [36malcotest error formatting[0m
 [32m[PASS]  [0m065cc54b852b [36malcotest error formatting[0m
 [2m• [0mChecked output: stderr
 [2m• [0mPath to expected stderr: tests/snapshots/testo_tests/065cc54b852b/stderr
 [2m• [0mPath to captured stderr: _build/testo/status/testo_tests/065cc54b852b/stderr [.orig]
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log [.orig]
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/065cc54b852b/log
 [33m[RUN][0m   afc104393bac [36mtemporary files[0m
 [32m[PASS]  [0mafc104393bac [36mtemporary files[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/afc104393bac/log

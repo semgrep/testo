@@ -33,9 +33,12 @@ module P = Promise
    that all library authors should be able to use.
 *)
 
+type capture_kind = Std | File | Log
+
 (* All the data we need to handle the files that contain the captured output
    for a test after applying all defaults and options. *)
 type capture_paths = {
+  kind : capture_kind;
   (* Human-friendly name: "stdout" or the basename of user-specified file
      path. *)
   short_name : string;
@@ -339,6 +342,7 @@ let get_exception (test : T.test) =
 let std_capture_paths_of_test (test : T.test) : capture_paths list =
   let unchecked_paths =
     {
+      kind = Log;
       short_name = unchecked_filename;
       path_to_expected_output = None;
       path_to_output = get_std_output_path test unchecked_filename;
@@ -349,6 +353,7 @@ let std_capture_paths_of_test (test : T.test) : capture_paths list =
   | Stdout options ->
       [
         {
+          kind = Std;
           short_name =
             short_name_of_checked_output_options stdout_filename options;
           path_to_expected_output =
@@ -360,6 +365,7 @@ let std_capture_paths_of_test (test : T.test) : capture_paths list =
   | Stderr options ->
       [
         {
+          kind = Std;
           short_name =
             short_name_of_checked_output_options stderr_filename options;
           path_to_expected_output =
@@ -371,6 +377,7 @@ let std_capture_paths_of_test (test : T.test) : capture_paths list =
   | Stdxxx options ->
       [
         {
+          kind = Std;
           short_name =
             short_name_of_checked_output_options stdxxx_filename options;
           path_to_expected_output =
@@ -381,6 +388,7 @@ let std_capture_paths_of_test (test : T.test) : capture_paths list =
   | Split_stdout_stderr (stdout_options, stderr_options) ->
       [
         {
+          kind = Std;
           short_name =
             short_name_of_checked_output_options stdout_filename stdout_options;
           path_to_expected_output =
@@ -388,6 +396,7 @@ let std_capture_paths_of_test (test : T.test) : capture_paths list =
           path_to_output = get_std_output_path test stdout_filename;
         };
         {
+          kind = Std;
           short_name =
             short_name_of_checked_output_options stderr_filename stderr_options;
           path_to_expected_output =
@@ -400,6 +409,7 @@ let file_capture_paths_of_test (test : T.test) : capture_paths list =
   test.checked_output_files
   |> Helpers.list_map (fun (x : T.checked_output_file) ->
     {
+      kind = File;
       short_name = x.name;
       path_to_expected_output = Some (get_file_snapshot_path test x);
       path_to_output = get_output_file_path test x;
