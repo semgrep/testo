@@ -39,3 +39,16 @@ val assert_false : __LOC__:string -> unit -> 'a
 
 (* A replacement for the standard 'invalid_arg' function and exception. *)
 val invalid_arg : __LOC__:string -> string -> 'a
+
+module Exit_code : sig
+  val success : int
+
+  (* one or more tests failed *)
+  val test_failure : int
+
+  (* misconfiguration or other misuse fixable by the user *)
+  val configuration_error : int
+
+  (* other errors: bugs, broken files reserved for Testo's use *)
+  val internal_error : int
+end

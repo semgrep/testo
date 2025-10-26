@@ -410,5 +410,6 @@ module Server = struct
 
   let fatal_error str =
     write (Error str);
-    exit 1
+    (* Internal error: see exit codes in Error.ml *)
+    exit 3
 end

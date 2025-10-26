@@ -25,3 +25,10 @@ let () =
     | Internal_error { loc; msg } ->
         Some (sprintf "Internal error in the Testo library at %s: %s" loc msg)
     | _ -> None)
+
+module Exit_code = struct
+  let success = 0
+  let test_failure = 1
+  let configuration_error = 2
+  let internal_error = 3
+end
