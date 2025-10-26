@@ -150,7 +150,11 @@ let check_test_definitions tests =
   check_snapshot_uniqueness tests
 
 let string_of_status_summary (sum : T.status_summary) =
-  let approval_suffix = if sum.has_expected_output then "" else "*" in
+  let approval_suffix =
+    if sum.has_expected_output then
+      ""
+    else "*"
+  in
   match sum.passing_status with
   | PASS -> "PASS" ^ approval_suffix
   | FAIL _ -> "FAIL" ^ approval_suffix
@@ -160,9 +164,15 @@ let string_of_status_summary (sum : T.status_summary) =
 
 let success_of_status_summary (sum : T.status_summary) =
   match sum.passing_status with
-  | PASS
-  | XFAIL _ ->
+  | PASS ->
       if sum.has_expected_output then OK else OK_but_new
+  | XFAIL _ ->
+      (* If a test raises an exception, it's normal that some of the checked
+         output snapshosts (std or files) are missing.
+         'Should_fail' doesn't specify what kind of failure is expected,
+         so in doubt, we treat any kind of failure as OK.
+         Missing output files won't be reported. *)
+      OK
   | FAIL fail_reason -> Not_OK (Some fail_reason)
   | XPASS -> Not_OK None
   | MISS _ -> OK_but_new
@@ -211,7 +221,8 @@ let stats_of_tests tests tests_with_status =
          | Some _reason -> incr stats.skipped_tests
          | None ->
              (match sum.passing_status with
-             | MISS _ -> ()
+             | MISS _
+             | XFAIL _ -> ()
              | _ ->
                  if not sum.has_expected_output then
                    incr stats.needs_approval
@@ -511,8 +522,17 @@ let filter ~filter_by_substring ~filter_by_tag tests =
       |> List.filter (fun test ->
              List.for_all (fun filter -> filter test) filters)
 
+let print_error (msg : Error.msg) =
+  match msg with
+  | Error msg ->
+      eprintf "%s%s\n"
+        (Style.color Red "Error: ") msg
+  | Warning msg ->
+      eprintf "%s%s\n"
+        (Style.color Yellow "Warning: ") msg
+
 (* Returns an exit code *)
-let print_errors (xs : (Store.changed, string) Result.t list) : int =
+let print_errors (xs : (Store.changed, Error.msg) Result.t list) : int =
   let changed = ref 0 in
   let error_messages = ref [] in
   xs
@@ -527,31 +547,25 @@ let print_errors (xs : (Store.changed, string) Result.t list) : int =
   match error_messages with
   | [] -> Error.Exit_code.success
   | xs ->
-      let n_errors = List.length xs in
-      let error_str =
-        if n_errors >= 2 then Style.color Red "Errors:\n"
-        else Style.color Red "Error: "
-      in
-      let msg = String.concat "\n" error_messages in
-      eprintf "%s%s\n%!" error_str msg;
+      List.iter print_error xs;
+      flush stderr;
       Error.Exit_code.test_failure
 
 let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
   test.skipped = None
-  && ((not sum.has_expected_output)
-     ||
-     match success_of_status_summary sum with
-     | OK -> false
-     | OK_but_new
-     | Not_OK _ ->
-         true)
+  && (match success_of_status_summary sum with
+    | OK -> false
+    | OK_but_new
+    | Not_OK _ ->
+        true)
 
 (*
    Show difference between expected and actual output if both files are
    available.
 *)
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
-  if Sys.file_exists !!path_to_expected_output then
+  if Sys.file_exists !!path_to_output
+  && Sys.file_exists !!path_to_expected_output then
     let equal, diffs = Diff.files path_to_expected_output path_to_output in
     if not equal then
       printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
@@ -685,7 +699,8 @@ let print_status ~highlight_test
                    | [] -> ()
                    | missing_files ->
                        print_error
-                         (sprintf "Missing captured output files: %s"
+                         (sprintf "Missing captured output file%s: %s"
+                            (if List.length missing_files > 1 then "s" else "")
                             (String.concat ", "
                                (Fpath_.to_string_list missing_files)));
                        print_hint "If you ran the test already, you may have \

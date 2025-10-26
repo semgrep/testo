@@ -32,7 +32,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-3/81 selected tests:
+3/82 selected tests:
   3 successful (3 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m

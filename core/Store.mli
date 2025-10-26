@@ -118,7 +118,7 @@ type changed = Changed | Unchanged
 
    Returns an error message if the test status is not PASS or XFAIL.
 *)
-val approve_new_output : Types.test -> (changed, string) Result.t
+val approve_new_output : Types.test -> (changed, Testo_util.Error.msg) Result.t
 
 (*
    If a test is configured to normalize its output, this returns the

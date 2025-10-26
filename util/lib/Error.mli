@@ -2,6 +2,11 @@
    Error management and exception printing
 *)
 
+(* A type for carrying informational messages *)
+type msg =
+  | Error of string
+  | Warning of string
+
 (*
    An exception that can be used in a test function to signal a test failure.
    The advantage over using the built-in 'Failure' exception is that

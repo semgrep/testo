@@ -880,10 +880,7 @@ let outcome_of_expectation_and_result
       ~has_all_output_files:has_expected_output_files
       ~output_matches:(output_matches && output_files_match)
   in
-  let has_expected_output =
-    has_expected_std_output && has_expected_output_files
-  in
-  outcome, has_expected_output
+  outcome, (has_expected_std_output && has_expected_output_files)
 
 let status_summary_of_status (status : T.status) : T.status_summary =
   match status.result with
@@ -907,7 +904,7 @@ let status_summary_of_status (status : T.status) : T.status_summary =
       in
       { passing_status; outcome; has_expected_output }
 
-let check_status_before_approval (test : T.test) =
+let check_status_before_approval (test : T.test) : (unit, Error.msg) result =
   let status = get_status test in
   let status_summary = status_summary_of_status status in
   match status_summary.passing_status with
@@ -917,8 +914,9 @@ let check_status_before_approval (test : T.test) =
   | FAIL Raised_exception
   | XFAIL Raised_exception ->
       Error
-        (sprintf "Cannot approve test because it raised an exception: %s '%s'"
-           test.id test.internal_full_name)
+        (Error.Warning
+           (sprintf "Cannot approve test because it raised an exception: %s '%s'"
+           test.id test.internal_full_name))
   | FAIL Missing_output_file
   | XFAIL Missing_output_file ->
       (* Approving the test will create the missing snapshot file *)
@@ -930,15 +928,19 @@ let check_status_before_approval (test : T.test) =
   | FAIL Timeout
   | XFAIL Timeout ->
       Error
-        (sprintf "Cannot approve test because it timed out: %s '%s'"
-           test.id test.internal_full_name)
-  | MISS missing_files -> Error (errmsg_of_missing_files missing_files)
+        (Error.Error
+           (sprintf "Cannot approve test because it timed out: %s '%s'"
+              test.id test.internal_full_name))
+  | MISS missing_files ->
+    Error (
+      (Error.Error (errmsg_of_missing_files missing_files))
+    )
 
 type changed = Changed | Unchanged
 
 exception Local_error of string
 
-let approve_new_output (test : T.test) : (changed, string) Result.t =
+let approve_new_output (test : T.test) : (changed, Error.msg) Result.t =
   match test.skipped with
   | Some _reason -> Ok Unchanged
   | None -> (
@@ -966,5 +968,9 @@ let approve_new_output (test : T.test) : (changed, string) Result.t =
             Ok changed
           with
           | Local_error msg ->
-              Error
-                (sprintf "Cannot approve output for test %s: %s" test.id msg)))
+              Error (
+                Error.Error (
+                  (sprintf "Cannot approve output for test %s: %s" test.id msg))
+              )
+        )
+    )
