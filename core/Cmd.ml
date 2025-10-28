@@ -15,7 +15,7 @@ type conf = {
   (* All subcommands *)
   debug : bool;
   filter_by_substring : string list option;
-  filter_by_tag : Tag.t option;
+  filter_by_tag : Tag_query.t option;
   env : (string * string) list;
   (* Run and Status *)
   intro : string;
@@ -62,7 +62,8 @@ let default_conf =
    - status
    - approve
 *)
-type cmd_conf = Run_tests of conf | Status of conf | Approve of conf
+type cmd_conf =
+  | Run_tests of conf | Status of conf | Approve of conf | Show_tags
 
 type subcommand_result =
   | Run_result of Types.test_with_status list
@@ -77,10 +78,6 @@ type 'continuation_result test_spec =
 (* Dispatch subcommands to do real work *)
 (****************************************************************************)
 
-let fatal_configuration_error msg =
-  eprintf "Fatal configuration error: %s\n%!" msg;
-  exit Error.Exit_code.configuration_error
-
 (*
    A "broken pipe" signal is delivered to a worker process when the worker
    is trying to write something to a closed pipe. This can happen when:
@@ -94,6 +91,10 @@ let ignore_broken_pipe () =
   if not Sys.win32 then
     Sys.set_signal Sys.sigpipe
       (Signal_handle (fun _signal -> exit Error.Exit_code.success))
+
+let show_tags () =
+  Tag.list ()
+  |> List.iter (fun tag -> printf "%s\n" (Tag.to_string tag))
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
@@ -145,6 +146,8 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
           ~filter_by_tag:conf.filter_by_tag (get_tests conf.env)
       in
       handle_subcommand_result exit_code Approve_result
+  | Show_tags ->
+      show_tags ()
 
 (****************************************************************************)
 (* Command-line options *)
@@ -187,26 +190,35 @@ of them needs to match.|}
   in
   Arg.value (Arg.opt_all Arg.string [] info)
 
-let check_tag filter_by_tag =
-  filter_by_tag
-  |> Option.map (fun str ->
-         match Tag.of_string_opt str with
-         | Some tag -> tag
-         | None ->
-             fatal_configuration_error
-               (sprintf "Unknown or misspelled tag: %s" str))
+let tag_query_conv =
+  let parse str =
+    match Tag_query.parse str with
+    | Ok x -> Ok x
+    | Error msg -> Error (`Msg msg)
+  in
+  Cmdliner.Arg.conv
+    ~docv:"QUERY"
+    (parse, Tag_query.pp)
 
 (* This option currently supports only one tag. In the future, we might
    want to support boolean queries e.g. '-t "lang.python and not todo"' *)
-let filter_by_tag_term : string option Term.t =
+let filter_by_tag_term : Tag_query.t option Term.t =
   let info =
-    Arg.info [ "t"; "filter-tag" ] ~docv:"TAG"
+    Arg.info [ "t"; "filter-tag" ] ~docv:"QUERY"
       ~doc:
-        "Select tests tagged with $(docv). Filtering by tag is generally more \
-         robust than selecting tests by text contained in their name with \
-         '-s'."
+        (sprintf
+           "Select tests whose tags match $(docv). \
+            Filtering by tag is generally \
+            more robust than selecting tests by text contained in their \
+            name with '-s'. This is a boolean query combining tags with \
+            'and', 'or', 'not' and parentheses using the usual \
+            precedence rules. For example, '(foo or bar) and not e2e' \
+            will select any test with the tag 'foo' or the tag 'bar' \
+            but not the tag 'e2e'. Run '%s show-tags' to see the list \
+            of tags defined for the current test suite."
+           Sys.argv.(0))
   in
-  Arg.value (Arg.opt (Arg.some Arg.string) None info)
+  Arg.value (Arg.opt (Arg.some tag_query_conv) None info)
 
 let show_output_term : bool Term.t =
   let info =
@@ -434,7 +446,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
         debug;
         env;
         filter_by_substring;
-        filter_by_tag = check_tag filter_by_tag;
+        filter_by_tag;
         intro;
         is_worker = worker;
         jobs;
@@ -518,7 +530,7 @@ let subcmd_status_term tests : unit Term.t =
         debug;
         env;
         filter_by_substring;
-        filter_by_tag = check_tag filter_by_tag;
+        filter_by_tag;
         intro;
         max_inline_log_bytes;
         show_output;
@@ -552,7 +564,7 @@ let subcmd_approve_term tests : unit Term.t =
         debug;
         env;
         filter_by_substring;
-        filter_by_tag = check_tag filter_by_tag;
+        filter_by_tag;
       }
     |> run_with_conf tests
   in
@@ -563,6 +575,20 @@ let subcmd_approve_term tests : unit Term.t =
 let subcmd_approve tests =
   let info = Cmd.info "approve" ~doc:approve_doc in
   Cmd.v info (subcmd_approve_term tests)
+
+(****************************************************************************)
+(* Subcommand: show-tags *)
+(****************************************************************************)
+
+let show_tags_doc = "show the list of valid tags for this test suite"
+
+let subcmd_show_tags_term tests : unit Term.t =
+  let combine () = run_with_conf tests Show_tags in
+  Term.(const combine $ const ())
+
+let subcmd_show_tags tests =
+  let info = Cmd.info "show-tags" ~doc:show_tags_doc in
+  Cmd.v info (subcmd_show_tags_term tests)
 
 (****************************************************************************)
 (* Main command *)
@@ -612,6 +638,7 @@ let subcommands ~argv ~default_workers test_spec =
     subcmd_run ~argv ~default_workers test_spec;
     subcmd_status test_spec;
     subcmd_approve test_spec;
+    subcmd_show_tags test_spec;
   ]
 
 let with_record_backtrace func =

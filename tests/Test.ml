@@ -349,6 +349,32 @@ let test_diff name =
                        ~expected_stdout_path:(dir / (name ^ ".diff"))
                        ())
 
+let test_tag_selector =
+  let _tag_a = Testo.Tag.declare "a" in
+  let _tag_b = Testo.Tag.declare "b" in
+  let _tag_c = Testo.Tag.declare "c" in
+  fun query_str tags expected_match ->
+    let query =
+      match Testo_util.Tag_query.parse query_str with
+      | Ok x -> x
+      | Error msg -> Alcotest.fail msg
+    in
+    let tags = List.map Testo_util.Tag.of_string_exn tags in
+    let res = Testo_util.Tag_query.match_ tags query in
+    Alcotest.(check bool) "" expected_match res
+
+let tag_selection_tests = [
+  "simple in", "a", ["a"], true;
+  "simple out", "a", ["b"], false;
+  "complex in", "(a or b) and not c", ["a"], true;
+  "complex out", "(a or b) and not c", ["a"; "c"], false;
+  "not", "not c", ["a"; "b"], true;
+]
+  |> List.map (fun (name, query, tags, expect) ->
+    Testo.create name (fun () -> test_tag_selector query tags expect)
+  )
+  |> Testo.categorize "tag selection"
+
 let test_write_read_map () =
   let contents = "hello" in
   Testo.with_temp_file (fun src_path ->
@@ -623,6 +649,7 @@ let tests env =
       (List.map
          (fun (name, func) -> Testo.create name func)
          Testo_util.Slice.tests)
+  @ tag_selection_tests
 
 let () =
   (* stdout and stderr are in "text mode" by default, and on windows this

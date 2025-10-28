@@ -13,4 +13,5 @@ at [Semgrep](https://semgrep.dev/).
   - [`./test run --help`](cli-reference/run-help.html)
   - [`./test status --help`](cli-reference/status-help.html)
   - [`./test approve --help`](cli-reference/approve-help.html)
+  - [`./test show-tags --help`](cli-reference/show-tags.html)
 * [Contributing: source code and issue tracking on GitHub](https://github.com/semgrep/testo)
