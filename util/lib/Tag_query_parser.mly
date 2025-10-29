@@ -9,8 +9,9 @@
 
 %token <Tag.t> TAG
 %token AND OR NOT LPAREN RPAREN EOF
-%left OR          /* lower precedence */
-%left AND         /* higher precedence */
+%left OR          /* lowest precedence */
+%left AND
+%nonassoc NOT     /* highest precedence */
 %start main
 %type <Tag.query> main
 %%
