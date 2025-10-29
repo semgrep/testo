@@ -10,6 +10,11 @@ end
 
 open Operators
 
+let catch_result func =
+  catch
+    (fun () -> func () >>= fun res -> return (Ok res))
+    (fun e trace -> return (Error (e, trace)))
+
 let protect func ~finally =
   let safe_finally () =
     catch finally (fun exn trace ->
