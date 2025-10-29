@@ -101,27 +101,27 @@ b.BWHI {background-color: #aaaaaa}
        <b class="BOLD">-t </b><b class="BOLD UND"></b><b class=UND>QUERY</b>, <b class="BOLD">--filter-tag</b>=<b class=UND>QUERY</b>
            Select tests whose tags match <b class=UND>QUERY</b>. Filtering by tag is  generally
            more  robust  than  selecting tests by text contained in their name
-           with '-s'. This is a boolean query combining tags with 'and', 'or',
-           'not'  and  parentheses  using  the  usual  precedence  rules.  For
-           example,  '(foo  or bar) and not e2e' will select any test with the
-           tag 'foo' or the tag 'bar' but not if it has  the  tag  'e2e'.  Run
-           './test  show-tags' to see the list of tags defined for the current
+           with '-s'. <b class=UND>QUERY</b> is a boolean  query  combining  tags  with  'and',
+           'or',  'not', and parentheses using the usual precedence rules. For
+           example, '(foo or bar) and not e2e' will select any test  with  the
+           tag  'foo'  or  the  tag 'bar' but not if it has the tag 'e2e'. Run
+           './test show-tags' to see the list of tags defined for the  current
            test suite.
 
        <b class="BOLD">-v</b>, <b class="BOLD">--verbose</b>
-           Report the status of the tests  with  maximum  verbosity.  This  is
+           Report  the  status  of  the  tests with maximum verbosity. This is
            currently equivalent to '-alw'.
 
        <b class="BOLD">-w</b>, <b class="BOLD">--show-output</b>
            Show the output of all tests rather than only showing the output of
-           the  failed  tests.  This  excludes  the output (stdout, stderr, or
-           both) that may  be  captured  explicitly  to  be  compared  against
+           the failed tests. This excludes  the  output  (stdout,  stderr,  or
+           both)  that  may  be  captured  explicitly  to  be compared against
            expectations.
 
 <b class="BOLD">COMMON OPTIONS</b>
        <b class="BOLD">--help</b>[=<b class=UND>FMT</b>] (default=<b class="BOLD">auto</b>)
-           Show  this  help  in format <b class=UND>FMT</b>. The value <b class=UND>FMT</b> must be one of <b class="BOLD">auto</b>,
-           <b class="BOLD">pager</b>, <b class="BOLD">groff </b>or <b class="BOLD">plain</b>. With <b class="BOLD">auto</b>, the  format  is  <b class="BOLD">pager  </b>or  <b class="BOLD">plain</b>
+           Show this help in format <b class=UND>FMT</b>. The value <b class=UND>FMT</b> must be  one  of  <b class="BOLD">auto</b>,
+           <b class="BOLD">pager</b>,  <b class="BOLD">groff  </b>or  <b class="BOLD">plain</b>.  With  <b class="BOLD">auto</b>, the format is <b class="BOLD">pager </b>or <b class="BOLD">plain</b>
            whenever the <b class="BOLD">TERM </b>env var is <b class="BOLD">dumb </b>or undefined.
 
 <b class="BOLD">EXIT STATUS</b>

@@ -8,6 +8,8 @@ type t = (* private *) string
 
 type query =
   | Has_tag of t
+  | All
+  | None
   | Not of query
   | And of query * query
   | Or of query * query
@@ -27,18 +29,21 @@ let has_valid_tag_syntax =
   (* We use the same regexp library as Alcotest to facilitate
      future integration efforts. *)
   let re = Re.Pcre.regexp tag_syntax in
-  fun tag -> Re.execp re tag
+  fun tag ->
+    match tag with
+    | "and" | "or" | "not" | "all" | "none" -> false
+    | tag -> Re.execp re tag
 
 let check_tag_syntax tag =
   if not (has_valid_tag_syntax tag) then
     Error.invalid_arg ~__LOC__
       (sprintf
-         "Testo.declare_tag: invalid syntax for test tag %S.\n\
-          It must be a dot-separated sequence of one or more lowercase \
-          alphanumeric\n\
-          identifiers e.g. \"foo_bar.v2.todo\" . It must match the following \
-          regexp:\n\
-         \  %s" tag tag_syntax)
+         "Testo.declare_tag: invalid syntax for test tag '%s'.\n\
+          A tag must be a dot-separated sequence of one or more lowercase \
+          identifiers of the form '[a-z_][a-z_0-9]*' \
+          such as 'foo_bar.v2.todo'. \
+          Additionally, a tag may not be a reserved \
+          keyword ('and', 'or', 'not', 'all', 'none')." tag)
 
 (* no duplicates are allowed *)
 let declared_tags : (t, unit) Hashtbl.t = Hashtbl.create 100

@@ -15,6 +15,8 @@ type t = private string
 
 type query =
   | Has_tag of t
+  | All
+  | None
   | Not of query
   | And of query * query
   | Or of query * query
