@@ -9,6 +9,18 @@ workspace=my_project
 # Clean up
 rm -rf "$workspace"
 
+testo_repo_url=https://github.com/semgrep/testo.git
+git_clone_options="--depth=1"
+
+# Detect Testo's local repo and current branch if applicable.
+# This allows us to update the docs derived from new code in the
+# current branch.
+if local_repo_path=$(git rev-parse --show-toplevel); then
+  # 'git clone' will preserve the current branch of the local repo
+  testo_repo_url=$local_repo_path
+  git_clone_options=""
+fi
+
 # Create an empty dune/git project
 dune init project my_project
 (
@@ -19,8 +31,10 @@ dune init project my_project
   # Make git ignore '_build/' (used by both dune and testo)
   echo _build >> .gitignore
 
-  # Install testo as a git submodule
-  git submodule add --depth=1 https://github.com/semgrep/testo.git
+  # Install testo as a git submodule (with config to allow cloning a local
+  # repo specified by an absolute path)
+  git -c protocol.file.allow=always \
+    submodule add $git_clone_options "$testo_repo_url"
 
   # Create the './test' symlink
   ln -s _build/default/tests/test.exe test

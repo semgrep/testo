@@ -210,11 +210,12 @@ let filter_by_tag_term : Tag_query.t option Term.t =
            "Select tests whose tags match $(docv). \
             Filtering by tag is generally \
             more robust than selecting tests by text contained in their \
-            name with '-s'. This is a boolean query combining tags with \
-            'and', 'or', 'not' and parentheses using the usual \
+            name with '-s'. $(docv) is a boolean query combining tags with \
+            'and', 'or', 'not', and parentheses using the usual \
             precedence rules. For example, '(foo or bar) and not e2e' \
             will select any test with the tag 'foo' or the tag 'bar' \
-            but not the tag 'e2e'. Run '%s show-tags' to see the list \
+            but not if it has the tag 'e2e'. \
+            Run '%s show-tags' to see the list \
             of tags defined for the current test suite."
            Sys.argv.(0))
   in
