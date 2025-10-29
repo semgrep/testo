@@ -212,7 +212,8 @@ let filter_by_tag_term : Tag_query.t option Term.t =
             more robust than selecting tests by text contained in their \
             name with '-s'. $(docv) is a boolean query combining tags with \
             'and', 'or', 'not', and parentheses using the usual \
-            precedence rules. For example, '(foo or bar) and not e2e' \
+            precedence rules. Tag-like selectors 'all' and 'none' are \
+            also supported. For example, '(foo or bar) and not e2e' \
             will select any test with the tag 'foo' or the tag 'bar' \
             but not if it has the tag 'e2e'. \
             Run '%s show-tags' to see the list \

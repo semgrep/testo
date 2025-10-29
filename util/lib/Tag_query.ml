@@ -8,6 +8,8 @@ open Printf
 
 type t = Tag.query =
   | Has_tag of Tag.t
+  | All
+  | None
   | Not of t
   | And of t * t
   | Or of t * t
@@ -24,12 +26,16 @@ let parse str =
 let rec match_ tags q =
   match q with
   | Has_tag t -> List.exists (Tag.equal t) tags
+  | All -> true
+  | None -> false
   | Not q -> not (match_ tags q)
   | And (a, b) -> match_ tags a && match_ tags b
   | Or (a, b) -> match_ tags a || match_ tags b
 
 let needs_parens = function
   | Has_tag _
+  | All
+  | None
   | Not _ -> false
   | And _
   | Or _ -> true
@@ -37,6 +43,8 @@ let needs_parens = function
 let show q =
   let rec show buf = function
     | Has_tag x -> Buffer.add_string buf (Tag.show x)
+    | All -> Buffer.add_string buf "all"
+    | None -> Buffer.add_string buf "none"
     | Not x -> bprintf buf "not %a" show_inner x
     | And (a, b) -> bprintf buf "%a and %a" show_inner a show_inner b
     | Or (a, b) -> bprintf buf "%a or %a" show_inner a show_inner b

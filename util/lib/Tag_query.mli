@@ -6,6 +6,8 @@
 
 type t = Tag.query =
   | Has_tag of Tag.t
+  | All
+  | None
   | Not of t
   | And of t * t
   | Or of t * t

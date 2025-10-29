@@ -11,10 +11,10 @@ x.x.x (xxxx-xx-xx)
   status of a test. The default limit is 1MB
   ([#144](https://github.com/semgrep/testo/issues/144)).
 * Improve internal error handling ([#153](https://github.com/semgrep/testo/pull/153), [#154](https://github.com/semgrep/testo/pull/154)).
-* Fix internal error that occurs when diffing checked output
-  files that don't exist ([#155](https://github.com/semgrep/testo/pull/155)).
 * Add support for boolean selection queries on test tags, extending
-  `-t` ([#5](https://github.com/semgrep/testo/issues/5)).
+  `-t` ([#5](https://github.com/semgrep/testo/issues/5)). The query
+  language keywords `and`, `or`, `not`, `all`, and `none` can no
+  longer be used as tag names.
 
 0.2.0 (2025-09-11)
 ------------------

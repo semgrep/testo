@@ -8,7 +8,7 @@
 */
 
 %token <Tag.t> TAG
-%token AND OR NOT LPAREN RPAREN EOF
+%token AND OR NOT ALL NONE LPAREN RPAREN EOF
 %left OR          /* lowest precedence */
 %left AND
 %nonassoc NOT     /* highest precedence */
@@ -20,6 +20,8 @@ main:
 ;
 expr:
   | TAG                   { Has_tag $1 }
+  | ALL                   { All }
+  | NONE                  { None }
   | LPAREN expr RPAREN    { $2 }
   | expr OR expr          { Or ($1, $3) }
   | expr AND expr         { And ($1, $3) }

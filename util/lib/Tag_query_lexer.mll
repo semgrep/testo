@@ -9,6 +9,8 @@ rule token = parse
   | "or"              { OR }
   | "and"             { AND }
   | "not"             { NOT }
+  | "all"             { ALL }
+  | "none"            { NONE }
   | '('               { LPAREN }
   | ')'               { RPAREN }
   (* Tag regexp: must come after the alphanumeric keywords (or, and, not) *)
