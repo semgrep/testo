@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style type="text/css">
+body {background-color: black;}
+pre {
+	font-weight: normal;
+	color: #bbb;
+	white-space: -moz-pre-wrap;
+	white-space: -o-pre-wrap;
+	white-space: -pre-wrap;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+}
+b {font-weight: normal}
+b.BOLD {color: #fff}
+b.ITA {font-style: italic}
+b.UND {text-decoration: underline}
+b.STR {text-decoration: line-through}
+b.UNDSTR {text-decoration: underline line-through}
+b.BLK {color: #000000}
+b.RED {color: #aa0000}
+b.GRN {color: #00aa00}
+b.YEL {color: #aa5500}
+b.BLU {color: #0000aa}
+b.MAG {color: #aa00aa}
+b.CYN {color: #00aaaa}
+b.WHI {color: #aaaaaa}
+b.HIK {color: #555555}
+b.HIR {color: #ff5555}
+b.HIG {color: #55ff55}
+b.HIY {color: #ffff55}
+b.HIB {color: #5555ff}
+b.HIM {color: #ff55ff}
+b.HIC {color: #55ffff}
+b.HIW {color: #ffffff}
+b.BBLK {background-color: #000000}
+b.BRED {background-color: #aa0000}
+b.BGRN {background-color: #00aa00}
+b.BYEL {background-color: #aa5500}
+b.BBLU {background-color: #0000aa}
+b.BMAG {background-color: #aa00aa}
+b.BCYN {background-color: #00aaaa}
+b.BWHI {background-color: #aaaaaa}
+</style>
+</head>
+<body>
+<pre><b class=UND>TEST</b>(1)                           Test Manual                          <b class=UND>TEST</b>(1)
+
+<b class="BOLD">NAME</b>
+       test - run tests for my_project
+
+<b class="BOLD">SYNOPSIS</b>
+       <b class="BOLD">test </b>[<b class=UND>COMMAND</b>] …
+
+<b class="BOLD">DESCRIPTION</b>
+       This is the program built for running and managing the tests for this
+       project, my_project. It revolves around 3 main subcommands: 'run',
+       'status', and 'approve'. Use the 'status' subcommand to check the
+       status of each test without having to re-run them. 'approve' must be
+       used on tests whose output is captured so as to make their latest
+       output the new reference.
+
+       This test program was configured to store the temporary results in
+       "_build/testo/status/my_project" and the expected test output in the
+       persistent folder "tests/snapshots/my_project". The latter should be
+       kept under version control (git or similar).
+
+       Visit https://testocaml.net/ to learn how to create and manage test
+       suites with Testo.
+
+<b class="BOLD">COMMANDS</b>
+       <b class="BOLD">approve </b>[<b class=UND>OPTION</b>]…
+           approve new test output
+
+       <b class="BOLD">run </b>[<b class=UND>OPTION</b>]…
+           run the tests
+
+       <b class="BOLD">status </b>[<b class=UND>OPTION</b>]…
+           show test status
+
+<b class="BOLD">OPTIONS</b>
+       <b class="BOLD">--autoclean</b>
+           Remove test snapshots that don't match any test.
+
+       <b class="BOLD">--debug</b>
+           Log information that can be useful for debugging the Testo library.
+
+       <b class="BOLD">-e </b><b class="BOLD UND"></b><b class=UND>KEY=VALUE</b>, <b class="BOLD">--env</b>=<b class=UND>KEY=VALUE</b>
+           Pass  a key/value pair to the function that creates the test suite.
+           KEY   must   be   an   alphanumeric   identifier   of   the    form
+           [A-Za-z_][A-Za-z_0-9]*. VALUE can be any string. This mechanism for
+           passing  arbitrary runtime settings to the test suite is offered as
+           a safer alternative to  environment  variables.  Multiple  -e/--env
+           options  are  supported  in  the  same  command,  each defining one
+           key/value pair.
+
+       <b class="BOLD">--expert</b>
+           Assume the user is familiar with Testo and don't show non-essential
+           messages or tips targeted at new users.
+
+       <b class="BOLD">-j </b><b class="BOLD UND"></b><b class=UND>NUM</b>, <b class="BOLD">--jobs</b>=<b class=UND>NUM</b>
+           Specify the number of jobs to run in  parallel.  By  default,  this
+           value  is  set  to the number of CPUs detected on the machine. Both
+           '-j0' and '-j1' ensure sequential, non-overlapping execution of the
+           tests. Unlike '-j1',  '-j0'  will  not  create  a  separate  worker
+           process  to  run  the  tests. The default can be changed by passing
+           '~default_workers' to the  OCaml  function  'Testo.interpret_argv'.
+           NOTE: Parallel executation of tests is not stable on Windows.
+
+       <b class="BOLD">--lazy</b>
+           Run only the tests that were not previously successful.
+
+       <b class="BOLD">--max-inline-log-bytes</b>=<b class=UND>LIMIT</b> (absent=<b class="BOLD">1000000</b>)
+           When  displaying  logs (unchecked stdout or stderr output), show at
+           most that many bytes for each test. The default  limit  is  1000000
+           bytes. To remove the default limit, specify 'unlimited'.
+
+       <b class="BOLD">-s </b><b class="BOLD UND"></b><b class=UND>SUBSTRING</b>, <b class="BOLD">--filter-substring</b>=<b class=UND>SUBSTRING</b>
+           Select  tests  whose  description contains <b class=UND>SUBSTRING</b>. Multiple '-s'
+           search queries can be specified in which  case  only  one  of  them
+           needs to match.
+
+       <b class="BOLD">--slice</b>=<b class=UND>NUM/NUM_SLICES</b>
+           Divide  the  test  suite into NUM_SLICES and work on slice NUM only
+           (1-based). For example, '1/4' is the first of four slices and '4/4'
+           is the last one. If multiple '--slice' options are specified,  they
+           are  applied sequentially from left to right. If the original suite
+           defines 23 tests,  '--slice  2/4'  selects  tests  [7,8,9,10,11,12]
+           (1-based).  If  additionally '--slice 1/3' is specified after it on
+           the same command line, the remaining  tests  will  be  [7,8].  This
+           filter  is  meant  for  running  tests in parallel, possibly across
+           multiple hosts. It is applied after any  other  filters  to  as  to
+           divide the work more evenly.
+
+       <b class="BOLD">--strict</b>
+           Treat  broken  tests  as  ordinary tests. This disables the default
+           behavior of ignoring failing tests that were marked  as  broken  by
+           the  programmer  when  determining  the overall success of the test
+           run.
+
+       <b class="BOLD">-t </b><b class="BOLD UND"></b><b class=UND>TAG</b>, <b class="BOLD">--filter-tag</b>=<b class=UND>TAG</b>
+           Select tests tagged with <b class=UND>TAG</b>. Filtering by tag  is  generally  more
+           robust  than  selecting  tests by text contained in their name with
+           '-s'.
+
+       <b class="BOLD">--test-list-checksum</b>=<b class=UND>STR</b>
+           Internal use only. This is a checksum used to check that  the  list
+           of  tests  generated  in  a worker is the same as the list of tests
+           generated by the master.
+
+       <b class="BOLD">-v</b>, <b class="BOLD">--verbose</b>
+           Print more details than by default. Currently, this  is  equivalent
+           to  '--show-output'  but it may be extended in the future to bundle
+           up more options.
+
+       <b class="BOLD">-w</b>, <b class="BOLD">--show-output</b>
+           Show the output of all tests rather than only showing the output of
+           the failed tests. This excludes  the  output  (stdout,  stderr,  or
+           both)  that  may  be  captured  explicitly  to  be compared against
+           expectations.
+
+       <b class="BOLD">--worker</b>
+           Internal option used to launch a parallel worker.
+
+<b class="BOLD">COMMON OPTIONS</b>
+       <b class="BOLD">--help</b>[=<b class=UND>FMT</b>] (default=<b class="BOLD">auto</b>)
+           Show this help in format <b class=UND>FMT</b>. The value <b class=UND>FMT</b> must be  one  of  <b class="BOLD">auto</b>,
+           <b class="BOLD">pager</b>,  <b class="BOLD">groff  </b>or  <b class="BOLD">plain</b>.  With  <b class="BOLD">auto</b>, the format is <b class="BOLD">pager </b>or <b class="BOLD">plain</b>
+           whenever the <b class="BOLD">TERM </b>env var is <b class="BOLD">dumb </b>or undefined.
+
+<b class="BOLD">EXIT STATUS</b>
+       <b class="BOLD">test </b>exits with:
+
+       0   on success.
+
+       123 on indiscriminate errors reported on standard error.
+
+       124 on command line parsing errors.
+
+       125 on unexpected internal errors (bugs).
+
+Test                                                                   <b class=UND>TEST</b>(1)
+</pre>
+</body>
+</html>

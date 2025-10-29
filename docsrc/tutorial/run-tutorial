@@ -129,4 +129,5 @@ EOF
   ./test run --help=pager > run-help.term
   ./test status --help=pager > status-help.term
   ./test approve --help=pager > approve-help.term
+  ./test show-tags --help=pager > show-tags-help.term
 )

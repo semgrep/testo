@@ -1,6 +1,11 @@
 # Convert the output of '--help' for the various subcommands into HTML pages
+#
+# When adding a new subcommand, add it here to the list of .html targets
+# and also in the 'run-tutorial' script under '/docsrc/tutorial/'.
+#
 .PHONY: build
-build: help.html run-help.html status-help.html approve-help.html
+build: help.html run-help.html status-help.html approve-help.html \
+ show-tags-help.html
 
 # Convert ansiterm data to HTML, remove junk sequences by
 # removing all non-ascii characters (may remove too much).

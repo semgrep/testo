@@ -6,6 +6,12 @@ open Printf
 
 type t = (* private *) string
 
+type query =
+  | Has_tag of t
+  | Not of query
+  | And of query * query
+  | Or of query * query
+
 let compare = String.compare
 let equal = String.equal
 let show x = x
@@ -37,6 +43,11 @@ let check_tag_syntax tag =
 (* no duplicates are allowed *)
 let declared_tags : (t, unit) Hashtbl.t = Hashtbl.create 100
 let of_string_opt str = if Hashtbl.mem declared_tags str then Some str else None
+
+let of_string_exn str =
+  match of_string_opt str with
+  | Some tag -> tag
+  | None -> failwith ("Not a valid tag for this test suite: " ^ str)
 
 let declare tag =
   check_tag_syntax tag;

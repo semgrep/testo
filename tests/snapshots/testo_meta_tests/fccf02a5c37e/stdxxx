@@ -94,6 +94,11 @@ junk printed on stdout...
 [33m[MISS]  [0m8a4a3d95651b [36mSlice[0m > [36mchained 1/3 2/2[0m
 [33m[MISS]  [0ma8cc405c1f92 [36mSlice[0m > [36mchained 2/3 1/2[0m
 [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
+[33m[MISS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[33m[MISS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 
 junk printed on stdout...
@@ -512,6 +517,21 @@ Try '--help' for options.
 [33m[RUN][0m   74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 [32m[PASS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
+[33m[RUN][0m   f53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[32m[PASS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f53b982bad4a/log
+[33m[RUN][0m   fede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[32m[PASS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/fede921dbdf2/log
+[33m[RUN][0m   76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[32m[PASS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/76f34458096c/log
+[33m[RUN][0m   b347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[32m[PASS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
+[33m[RUN][0m   0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[32m[PASS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -631,9 +651,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
-  80 successful (73 pass, 7 xfail)
+  85 successful (78 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -974,6 +994,16 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/a8cc405c1f92/log
 [32m[PASS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
+[32m[PASS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f53b982bad4a/log
+[32m[PASS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/fede921dbdf2/log
+[32m[PASS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/76f34458096c/log
+[32m[PASS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
+[32m[PASS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
@@ -1084,9 +1114,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
-  80 successful (73 pass, 7 xfail)
+  85 successful (78 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -1140,7 +1170,10 @@ test: option '-e': Malformed KEY=VALUE pair: b@d_key=42
 Usage: test status [OPTION]…
 Try 'test status --help' or 'test --help' for more information.
 RUN ./test status -e foo=bar -a -t testin
-Fatal configuration error: Unknown or misspelled tag: testin
+test: option '-t': Syntax error in tag query 'testin': Failure("Not a valid
+      tag for this test suite: testin")
+Usage: test status [OPTION]…
+Try 'test status --help' or 'test --help' for more information.
 RUN ./test status -e foo=bar -a -t testing
 junk printed on stdout...
 ... when creating the test suite
@@ -1203,7 +1236,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/82 selected tests:
+1/87 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -1233,7 +1266,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/82 selected tests:
+1/87 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -1569,6 +1602,21 @@ Try '--help' for options.
 [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
+[33m[MISS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f53b982bad4a/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f53b982bad4a/log
+[33m[MISS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fede921dbdf2/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/fede921dbdf2/log
+[33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/76f34458096c/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/76f34458096c/log
+[33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b347f3932e7d/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
+[33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0e636dc9c20f/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
@@ -2123,14 +2171,44 @@ Try '--help' for options.
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m                               [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f53b982bad4a/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f53b982bad4a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m                              [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fede921dbdf2/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/fede921dbdf2/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m                              [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/76f34458096c/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/76f34458096c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m                             [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b347f3932e7d/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m                                     [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0e636dc9c20f/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-81 new tests
+86 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2690,14 +2768,44 @@ junk printed on stdout...
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/74333515fe26/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m                               [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/f53b982bad4a/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f53b982bad4a/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m                              [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/fede921dbdf2/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/fede921dbdf2/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m                              [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/76f34458096c/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/76f34458096c/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m                             [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b347f3932e7d/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m                                     [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0e636dc9c20f/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-81 new tests
+86 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2786,6 +2894,11 @@ junk printed on stdout...
 [33m[MISS]  [0m8a4a3d95651b [36mSlice[0m > [36mchained 1/3 2/2[0m
 [33m[MISS]  [0ma8cc405c1f92 [36mSlice[0m > [36mchained 2/3 1/2[0m
 [33m[MISS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
+[33m[MISS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[33m[MISS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 
 junk printed on stdout...
@@ -3201,6 +3314,21 @@ Try '--help' for options.
 [33m[RUN][0m   74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 [32m[PASS]  [0m74333515fe26 [36mSlice[0m > [36mchained 2/3 2/2[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/74333515fe26/log
+[33m[RUN][0m   f53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[32m[PASS]  [0mf53b982bad4a [36mtag selection[0m > [36msimple in[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/f53b982bad4a/log
+[33m[RUN][0m   fede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[32m[PASS]  [0mfede921dbdf2 [36mtag selection[0m > [36msimple out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/fede921dbdf2/log
+[33m[RUN][0m   76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[32m[PASS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/76f34458096c/log
+[33m[RUN][0m   b347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[32m[PASS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
+[33m[RUN][0m   0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[32m[PASS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
@@ -3236,9 +3364,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
-  80 successful (73 pass, 7 xfail)
+  85 successful (78 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3313,9 +3441,9 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
-  80 successful (73 pass, 7 xfail)
+  85 successful (78 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3357,9 +3485,9 @@ junk printed on stdout...
  Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-82/82 selected tests:
+87/87 selected tests:
   1 skipped
-  80 successful (73 pass, 7 xfail)
+  85 successful (78 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m

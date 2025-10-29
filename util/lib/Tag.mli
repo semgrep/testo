@@ -13,6 +13,13 @@ type t = private string
    using {!declare}.
 *)
 
+type query =
+  | Has_tag of t
+  | Not of query
+  | And of query * query
+  | Or of query * query
+(** Type of a query for selecting tests based on their tags *)
+
 val declare : string -> t
 (** Create and register a tag. This function raises exceptions if used
     improperly.
@@ -35,6 +42,10 @@ val to_string : t -> string
 
 val of_string_opt : string -> t option
 (** Convert a tag from a string, failing is the tag wasn't declared. *)
+
+val of_string_exn : string -> t
+(** Convert a tag from a string, raising a [Failure] exception is the tag
+    wasn't declared. *)
 
 val show : t -> string
 (** Convert the tag to human-readable form (which happens to be the same as

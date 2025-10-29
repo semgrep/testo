@@ -511,8 +511,8 @@ let filter ~filter_by_substring ~filter_by_tag tests =
   let filter_tag =
     match filter_by_tag with
     | None -> None
-    | Some tag ->
-        Some (fun (test : T.test) -> List.exists (Tag.equal tag) test.tags)
+    | Some tag_query ->
+        Some (fun (test : T.test) -> Tag_query.match_ test.tags tag_query)
   in
   let filters = [ filter_sub; filter_tag ] |> List.filter_map (fun x -> x) in
   match filters with
