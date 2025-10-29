@@ -87,6 +87,7 @@ type subcommand_result = Cmd.subcommand_result =
   | Approve_result
 
 (* export *)
+module Lazy_with_output = Lazy_with_output
 module Promise = Promise
 module Tag = Tag
 
