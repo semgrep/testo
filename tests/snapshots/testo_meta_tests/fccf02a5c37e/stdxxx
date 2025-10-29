@@ -99,6 +99,10 @@ junk printed on stdout...
 [33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
 [33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
 [33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[33m[MISS]  [0m2e4063b681b3 [36mshared context merged output 1[0m
+[33m[MISS]  [0m1ca04c6d775f [36mshared context merged output 2[0m
+[33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
+[33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 
 junk printed on stdout...
@@ -122,6 +126,22 @@ Try '--help' for options.
 [32m[PASS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
 [2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
+[33m[RUN SOLO: run in same process so as to share context][0m 2e4063b681b3 [36mshared context merged output 1[0m
+[32m[PASS]  [0m2e4063b681b3 [36mshared context merged output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2e4063b681b3/log
+[33m[RUN SOLO: run in same process so as to share context][0m 1ca04c6d775f [36mshared context merged output 2[0m
+[32m[PASS]  [0m1ca04c6d775f [36mshared context merged output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1ca04c6d775f/log
+[33m[RUN SOLO: run in same process so as to share context][0m bf55db9dc3f0 [36mshared context split output 1[0m
+[32m[PASS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf55db9dc3f0/log
+[33m[RUN SOLO: run in same process so as to share context][0m cb28cacab289 [36mshared context split output 2[0m
+[32m[PASS]  [0mcb28cacab289 [36mshared context split output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/cb28cacab289/log
 [33m[RUN][0m   8dbdda48fb87 [36msimple[0m
 [worker 1/1] junk printed on stdout...
 [worker 1/1] ... when creating the test suite
@@ -651,9 +671,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
-  85 successful (78 pass, 7 xfail)
+  89 successful (82 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -1004,6 +1024,18 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b347f3932e7d/log
 [32m[PASS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
+[32m[PASS]  [0m2e4063b681b3 [36mshared context merged output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2e4063b681b3/log
+[32m[PASS]  [0m1ca04c6d775f [36mshared context merged output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1ca04c6d775f/log
+[32m[PASS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf55db9dc3f0/log
+[32m[PASS]  [0mcb28cacab289 [36mshared context split output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/cb28cacab289/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[PASS*] [0m9c96a5aa8b4b [36mauto-approve[0m > [36mcapture stdout[0m                           [2m│[0m
@@ -1114,9 +1146,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
-  85 successful (78 pass, 7 xfail)
+  89 successful (82 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -1236,7 +1268,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/87 selected tests:
+1/91 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -1266,7 +1298,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/87 selected tests:
+1/91 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -1617,6 +1649,22 @@ Try '--help' for options.
 [33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0e636dc9c20f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
+[33m[MISS]  [0m2e4063b681b3 [36mshared context merged output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2e4063b681b3/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2e4063b681b3/log
+[33m[MISS]  [0m1ca04c6d775f [36mshared context merged output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1ca04c6d775f/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1ca04c6d775f/log
+[33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bf55db9dc3f0/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf55db9dc3f0/log
+[33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb28cacab289/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/cb28cacab289/log
 
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m                                                  [2m│[0m
@@ -2201,14 +2249,42 @@ Try '--help' for options.
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0e636dc9c20f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m2e4063b681b3 [36mshared context merged output 1[0m                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2e4063b681b3/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2e4063b681b3/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m1ca04c6d775f [36mshared context merged output 2[0m                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1ca04c6d775f/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1ca04c6d775f/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bf55db9dc3f0/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf55db9dc3f0/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb28cacab289/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/cb28cacab289/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-86 new tests
+90 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2798,14 +2874,42 @@ junk printed on stdout...
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0e636dc9c20f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/0e636dc9c20f/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m2e4063b681b3 [36mshared context merged output 1[0m                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/2e4063b681b3/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2e4063b681b3/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m1ca04c6d775f [36mshared context merged output 2[0m                          [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/1ca04c6d775f/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1ca04c6d775f/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/bf55db9dc3f0/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf55db9dc3f0/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m                           [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/cb28cacab289/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/cb28cacab289/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-86 new tests
+90 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2899,6 +3003,10 @@ junk printed on stdout...
 [33m[MISS]  [0m76f34458096c [36mtag selection[0m > [36mcomplex in[0m
 [33m[MISS]  [0mb347f3932e7d [36mtag selection[0m > [36mcomplex out[0m
 [33m[MISS]  [0m0e636dc9c20f [36mtag selection[0m > [36mnot[0m
+[33m[MISS]  [0m2e4063b681b3 [36mshared context merged output 1[0m
+[33m[MISS]  [0m1ca04c6d775f [36mshared context merged output 2[0m
+[33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
+[33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m
 <handling result before exiting>
 RUN ./test run -e foo=bar -j 1 
 junk printed on stdout...
@@ -2922,6 +3030,22 @@ Try '--help' for options.
 [32m[PASS]  [0mb10dcbd5d4b9 [36msolo 2/2[0m
 [2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: testing
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/b10dcbd5d4b9/log
+[33m[RUN SOLO: run in same process so as to share context][0m 2e4063b681b3 [36mshared context merged output 1[0m
+[32m[PASS]  [0m2e4063b681b3 [36mshared context merged output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/2e4063b681b3/log
+[33m[RUN SOLO: run in same process so as to share context][0m 1ca04c6d775f [36mshared context merged output 2[0m
+[32m[PASS]  [0m1ca04c6d775f [36mshared context merged output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/1ca04c6d775f/log
+[33m[RUN SOLO: run in same process so as to share context][0m bf55db9dc3f0 [36mshared context split output 1[0m
+[32m[PASS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/bf55db9dc3f0/log
+[33m[RUN SOLO: run in same process so as to share context][0m cb28cacab289 [36mshared context split output 2[0m
+[32m[PASS]  [0mcb28cacab289 [36mshared context split output 2[0m
+[2m• [0mThis is a solo test, set to not run concurrently with other tests. Reason: run in same process so as to share context
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/cb28cacab289/log
 [33m[RUN][0m   8dbdda48fb87 [36msimple[0m
 [worker 1/1] junk printed on stdout...
 [worker 1/1] ... when creating the test suite
@@ -3364,9 +3488,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
-  85 successful (78 pass, 7 xfail)
+  89 successful (82 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3441,9 +3565,9 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
-  85 successful (78 pass, 7 xfail)
+  89 successful (82 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3485,9 +3609,9 @@ junk printed on stdout...
  Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-87/87 selected tests:
+91/91 selected tests:
   1 skipped
-  85 successful (78 pass, 7 xfail)
+  89 successful (82 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
