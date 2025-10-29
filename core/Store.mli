@@ -164,5 +164,11 @@ val with_capture :
 (* Wrappers for capturing test output *)
 (**************************************************************************)
 
+(* for use by Lazy_with_output *)
+val with_redirect_fds :
+  from:Unix.file_descr list ->
+  to_:Unix.file_descr ->
+  (unit -> 'a Promise.t) -> unit -> 'a Promise.t
+
 val with_result_capture :
   Types.test -> (unit -> unit Promise.t) -> unit -> unit Promise.t
