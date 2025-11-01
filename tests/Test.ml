@@ -369,6 +369,8 @@ let tag_selection_tests = [
   "complex in", "(a or b) and not c", ["a"], true;
   "complex out", "(a or b) and not c", ["a"; "c"], false;
   "not", "not c", ["a"; "b"], true;
+  "all", "all", ["a"; "b"], true;
+  "none", "none", ["a"; "b"], false;
 ]
   |> List.map (fun (name, query, tags, expect) ->
     Testo.create name (fun () -> test_tag_selector query tags expect)
