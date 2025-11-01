@@ -37,10 +37,15 @@ build:
 	# Markdown source -> HTML
 	$(MAKE) $(HTML)
 	cp generic.css $(DOCROOT)/
+	mkdir -p $(DOCROOT)/img
+	cp img/* $(DOCROOT)/img/
 	# This file proves ownership to Google Search Console, helping us
 	# to figure out why the docs are not being indexed.
 	cp googlea3b4cee899c0b364.html $(DOCROOT)/
 	# OCaml source -> HTML
+	# Clean up in case of leftover HTML docs from new modules
+	# in unmerged branches
+	rm -rf ../_build/default/_doc/_html
 	# We need to run 'dune build @doc' from the project root. Why?
 	(cd .. && dune build @doc)
 	rm -rf $(DOCROOT)/reference

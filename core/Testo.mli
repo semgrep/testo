@@ -294,7 +294,7 @@ val create :
       [On] and [Off] unconditionally enable or disable inline logs,
       overriding the command-line option [-w]/[--show-output].
       Note that logs are saved in files in Testo's workspace regardless
-      of these settings.
+      of these settings.}
    {- [max_duration]: a time limit to run the test, in seconds.
       It is honored only in tests running in workers i.e. not with the [-j0]
       option of the test program.}

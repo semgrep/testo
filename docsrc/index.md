@@ -15,3 +15,11 @@ at [Semgrep](https://semgrep.dev/).
   - [`approve --help`](cli-reference/approve-help.html)
   - [`show-tags --help`](cli-reference/show-tags-help.html)
 * [Contributing: source code and issue tracking on GitHub](https://github.com/semgrep/testo)
+
+<div style="margin-top:5em">
+  <img src="img/Test_Os.png" width="100%"
+       alt="SpaghettiOs but in space"
+       title="Artist's impression of Test Os"/>
+</div>
+
+_Artist's impression of Test Os_
