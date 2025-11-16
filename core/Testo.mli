@@ -147,7 +147,55 @@ val stash_output_file : Fpath.t -> string -> unit
 *)
 
 module Promise : module type of Promise
-(** Wrapper allowing for asynchronous test functions (Lwt and such). *)
+(** Wrapper allowing for asynchronous test functions (Lwt and such).
+
+    For ordinary Testo use where test function computations are synchronous
+    (i.e. not Lwt), any occurrence of the type [xxx Promise.t] is the same
+    as just [xxx].
+*)
+
+module Lazy_with_output : sig
+  (** {b EXPERIMENTAL}
+
+    A lazy computation similar to OCaml's [Lazy.t] that also captures and
+    restores stdout and stderr output just like it catches, stores
+    and re-raises exceptions. *)
+  type 'a t
+
+  (** [Stdout_to_stderr] cause all stdout output to be printed on stderr.
+      [Stderr_to_stdout] is the other way around. *)
+  type redirect = Stdout_to_stderr | Stderr_to_stdout
+
+  (** {b EXPERIMENTAL}
+
+     Store a lazy computation. This doesn't compute it yet.
+
+      During the computation, Stdout and stderr outputs are captured
+      separately, then printed out one after the other, with stdout
+      coming first before stderr.
+      To preserve the original interleaving of standard output and error output
+      as it would normally appear in a console, use a redirect from stdout
+      to stderr or vice-versa with the [redirect] option so as to merge the
+      two streams into one for the duration of the computation.
+  *)
+  val create : ?redirect:redirect -> (unit -> 'a Promise.t) -> 'a t
+
+  (** {b EXPERIMENTAL}
+
+      Run the lazy computation if it hasn't run yet.
+      If the computation was already performed, the original standard and
+      error outputs are printed again. The original result is returned or
+      the original exception is re-raised with the original stack backtrace
+      if applicable.
+  *)
+  val force : 'a t -> 'a Promise.t
+end
+(**
+   {b EXPERIMENTAL} Lazy computations that capture and restore stdout/stderr.
+
+   This is intended to save computation time when multiple tests
+   share the same preliminary, costly computation.
+*)
 
 module Tag : module type of Testo_util.Tag
 (** The type of tags which can be used to define subsets of tests precisely. *)

@@ -409,6 +409,70 @@ let test_write_read_map_in_place () =
     Alcotest.(check string) "map_file output" new_contents new_contents2;
   )
 
+let shared_context_merged_output =
+  (* get_count is used to check that the lazy block is evaluated only once *)
+  let counter = ref 0 in
+  let get_count () =
+    incr counter;
+    !counter
+  in
+  Testo.Lazy_with_output.create ~redirect:Stderr_to_stdout (fun () ->
+    printf "stdout a\n%!";
+    eprintf "stderr b\n%!";
+    printf "stdout c\n%!";
+    get_count ()
+  )
+
+(* This test function will run twice in the same process *)
+let test_shared_context_merged_output test_name =
+  Testo.create
+    ~solo:"run in same process so as to share context"
+    test_name
+    (fun () ->
+    let (res, out), err =
+      Testo.with_capture stderr (fun () ->
+        Testo.with_capture stdout (fun () ->
+          Testo.Lazy_with_output.force shared_context_merged_output
+        )
+      )
+    in
+    Alcotest.(check int) "" 1 res;
+    Alcotest.(check string) "error output" "" err;
+    Alcotest.(check string) "standard output"
+      "stdout a\nstderr b\nstdout c\n" out;
+  )
+
+let shared_context_split_output =
+  Testo.Lazy_with_output.create (fun () ->
+    printf "stdout a\n%!";
+    eprintf "stderr b\n%!";
+    printf "stdout c\n%!";
+  )
+
+(* This test function will run twice in the same process *)
+let test_shared_context_split_output test_name =
+  Testo.create
+    ~solo:"run in same process so as to share context"
+    test_name
+    (fun () ->
+       let ((), out), err =
+         Testo.with_capture stderr (fun () ->
+           Testo.with_capture stdout (fun () ->
+             Testo.Lazy_with_output.force shared_context_split_output
+           )
+         )
+       in
+       Alcotest.(check string) "error output" "stderr b\n" err;
+       Alcotest.(check string) "standard output" "stdout a\nstdout c\n" out;
+    )
+
+let shared_context_tests = [
+  test_shared_context_merged_output "shared context merged output 1";
+  test_shared_context_merged_output "shared context merged output 2";
+  test_shared_context_split_output "shared context split output 1";
+  test_shared_context_split_output "shared context split output 2";
+]
+
 (*
    The tests marked as "auto-approve" are tests that capture their output
    and will be automatically approved by the meta test suite.
@@ -652,6 +716,7 @@ let tests env =
          (fun (name, func) -> Testo.create name func)
          Testo_util.Slice.tests)
   @ tag_selection_tests
+  @ shared_context_tests
 
 let () =
   (* stdout and stderr are in "text mode" by default, and on windows this

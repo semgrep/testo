@@ -15,6 +15,13 @@ x.x.x (xxxx-xx-xx)
   `-t` ([#5](https://github.com/semgrep/testo/issues/5)). The query
   language keywords `and`, `or`, `not`, `all`, and `none` can no
   longer be used as tag names.
+* New experimental submodule [Testo.Lazy_with_output] module for lazy
+  computations that cache standard output and error output in addition
+  to the computation's result or exception.
+  This allows for sharing context between tests running in the same
+  worker process. It saves unnecessary computations while providing
+  the same logs for each test sharing this context
+  ([#156](https://github.com/semgrep/testo/issues/156)).
 
 0.2.0 (2025-09-11)
 ------------------
