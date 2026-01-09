@@ -80,7 +80,8 @@ jobs:
             if [[ -d ~/AppData/Local/opam ]]; then
               echo "Using cached opam switch"
             else
-              opam init --compiler=5.3.0 -y --debug
+              # opam init --compiler=5.3.0 -y --debug
+              exit 1
             fi
 
       - save_cache:
