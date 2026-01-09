@@ -70,6 +70,7 @@ jobs:
             opam --version
 
       - run:
+          # takes ~13 min on a good day
           name: Set up OCaml and opam environment
           shell: bash.exe
           no_output_timeout: 30m
