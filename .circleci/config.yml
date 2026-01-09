@@ -76,7 +76,7 @@ jobs:
           shell: bash.exe
           no_output_timeout: 30m
           environment:
-            OPAMROOT: "C:\Users\circleci\AppData\Local\opam"
+            OPAMROOT: "C:\\Users\\circleci\\AppData\\Local\\opam"
           command: |
             if [[ -d ~/AppData/Local/opam ]]; then
               echo "Using cached opam switch"
