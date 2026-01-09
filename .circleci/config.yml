@@ -79,7 +79,6 @@ jobs:
           command: |
             mkdir -p "$OPAMROOT" ~/AppData/Local/opam
             touch ~/AppData/Local/opam/001
-            exit 1
             #if opam switch list --short | grep -q 5.3.0; then
             #  echo "Using cached opam switch"
             #else
