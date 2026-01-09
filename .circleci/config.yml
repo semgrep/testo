@@ -7,6 +7,9 @@
 
 version: 2.1
 
+orbs:
+  win: circleci/windows@5.1.0
+
 # TODO: check that the docs are up-to-date (requires odoc and pandoc)
 jobs:
   build:
@@ -49,6 +52,55 @@ jobs:
           name: Test
           command: opam exec -- make test
 
+  windows_build:
+    executor:
+      name: win/default
+    steps:
+      - checkout
+      - run:
+          name: Install Opam
+          shell: bash.exe
+          command: |
+            url="https://github.com/ocaml/opam/releases/download/2.4.1/opam-2.4.1-x86_64-windows.exe"
+            dst="$HOME/AppData/Local/Microsoft/WindowsApps/opam"
+            curl -L "$url" -o "$dst"
+            opam --version
+
+      - restore_cache:
+          keys:
+            - opam-win-5.3.0-v3
+
+      - run:
+          # takes ~13 min on a good day
+          name: Set up OCaml and opam environment
+          shell: bash.exe
+          no_output_timeout: 30m
+          environment:
+            OPAMROOT: "C:\\Users\\circleci\\AppData\\Local\\opam"
+          command: |
+            if [[ -d ~/AppData/Local/opam ]]; then
+              echo "Using cached opam switch"
+            else
+              opam init --compiler=5.3.0 -y --debug
+            fi
+
+      - save_cache:
+          # Increment the key version here and above if you want to
+          # refresh the cache!
+          key: opam-win-5.3.0-v3
+          paths:
+            - ~/AppData/Local/opam
+
+      - run:
+          name: Install dependencies
+          command: ./scripts/dev-setup-all-platforms -y
+      - run:
+          name: Build
+          command: opam exec -- make
+      - run:
+          name: Test
+          command: opam exec -- make test
+
   semgrep-full-scan:
     docker:
       - image: semgrep/semgrep
@@ -78,6 +130,7 @@ workflows:
     jobs:
       - build
       - build_legacy
+      - windows_build
   semgrep:
     jobs:
       - semgrep-full-scan:
