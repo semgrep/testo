@@ -73,15 +73,14 @@ jobs:
           name: Set up OCaml and opam environment
           shell: bash.exe
           no_output_timeout: 30m
+          environment:
+            OPAMROOT: ~/AppData/Local/opam
           command: |
-            export OPAMROOT="$HOME/AppData/Local/opam"
             if opam switch list --short | grep -q 5.3.0; then
               echo "Using cached opam switch"
             else
               opam init --compiler=5.3.0 -y --debug
             fi
-            eval "$(opam env)"
-            ocamlc -v
 
       - save_cache:
           key: opam-win-v1-5.3.0
