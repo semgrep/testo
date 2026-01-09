@@ -60,6 +60,7 @@ jobs:
       - restore_cache:
           keys:
             - opam-win-v1-5.3.0
+            - bskey1
       - run:
           name: Install Opam
           shell: bash.exe
@@ -87,6 +88,11 @@ jobs:
 
       - save_cache:
           key: opam-win-v1-5.3.0
+          paths:
+            - ~/AppData/Local/opam
+
+      - save_cache:
+          key: bskey1
           paths:
             - ~/AppData/Local/opam
 
