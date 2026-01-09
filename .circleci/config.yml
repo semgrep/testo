@@ -77,7 +77,7 @@ jobs:
           environment:
             OPAMROOT: ~/AppData/Local/opam
           command: |
-            if opam switch list --short | grep -q 5.3.0; then
+            if [[ -d ~/AppData/Local/opam ]]; then
               echo "Using cached opam switch"
             else
               opam init --compiler=5.3.0 -y --debug
