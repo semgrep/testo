@@ -57,9 +57,6 @@ jobs:
       name: win/default
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - opam-win-5.3.0-v2
       - run:
           name: Install Opam
           shell: bash.exe
@@ -69,25 +66,28 @@ jobs:
             curl -L "$url" -o "$dst"
             opam --version
 
+      - restore_cache:
+          keys:
+            - opam-win-5.3.0-v3
+
       - run:
           # takes ~13 min on a good day
           name: Set up OCaml and opam environment
           shell: bash.exe
           no_output_timeout: 30m
           environment:
-            OPAMROOT: ~/AppData/Local/opam
+            OPAMROOT: "C:\Users\circleci\AppData\Local\opam"
           command: |
             if [[ -d ~/AppData/Local/opam ]]; then
               echo "Using cached opam switch"
             else
-              # opam init --compiler=5.3.0 -y --debug
-              exit 1
+              opam init --compiler=5.3.0 -y --debug
             fi
 
       - save_cache:
           # Increment the key version here and above if you want to
           # refresh the cache!
-          key: opam-win-5.3.0-v2
+          key: opam-win-5.3.0-v3
           paths:
             - ~/AppData/Local/opam
 
