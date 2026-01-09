@@ -59,8 +59,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - opam-win-v1-5.3.0
-            - bskey2
+            - opam-win-5.3.0-v2
+            - bskey3
       - run:
           name: Install Opam
           shell: bash.exe
@@ -86,15 +86,15 @@ jobs:
             #  opam init --compiler=5.3.0 -y --debug
             #fi
 
-      - save_cache:
-          key: opam-win-v1-5.3.0
-          paths:
-            - ~/AppData/Local/opam
+      #- save_cache:
+      #    key: opam-win-5.3.0-v2
+      #    paths:
+      #      - C:\Users\circleci/AppData/Local/opam
 
       - save_cache:
-          key: bskey2
+          key: bskey3
           paths:
-            - C:\Users\circleci/AppData/Local/opam
+            - ~/AppData/Local/opam
 
       - run:
           name: DEBUG ABORT
