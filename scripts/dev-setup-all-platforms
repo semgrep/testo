@@ -5,7 +5,11 @@
 #
 set -eu
 
-eval "$(opam env)"
+# On Windows, sourcing the output of 'opam env' fails badly, causing
+# the 'opam' command to no longer be found by the shell.
+# Instead, use 'opam exec -- <command>' where needed.
+#eval "$(opam env)"
+
 opam update
 
 # This should not install 'testo' even though it's a dependency of 'testo-lwt'.
