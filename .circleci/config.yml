@@ -92,10 +92,6 @@ jobs:
             - ~/AppData/Local/opam
 
       - run:
-          name: DEBUG ABORT
-          command: exit 1
-
-      - run:
           name: Install dependencies
           command: ./scripts/dev-setup-all-platforms -y
       - run:
