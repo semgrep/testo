@@ -93,12 +93,15 @@ jobs:
 
       - run:
           name: Install dependencies
+          shell: bash.exe
           command: ./scripts/dev-setup-all-platforms -y
       - run:
           name: Build
+          shell: bash.exe
           command: opam exec -- make
       - run:
           name: Test
+          shell: bash.exe
           command: opam exec -- make test
 
   semgrep-full-scan:
