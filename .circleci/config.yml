@@ -78,17 +78,22 @@ jobs:
             OPAMROOT: ~/AppData/Local/opam
           command: |
             mkdir -p "$OPAMROOT" ~/AppData/Local/opam
+            touch ~/AppData/Local/opam/001
             exit 1
-            if opam switch list --short | grep -q 5.3.0; then
-              echo "Using cached opam switch"
-            else
-              opam init --compiler=5.3.0 -y --debug
-            fi
+            #if opam switch list --short | grep -q 5.3.0; then
+            #  echo "Using cached opam switch"
+            #else
+            #  opam init --compiler=5.3.0 -y --debug
+            #fi
 
       - save_cache:
           key: opam-win-v1-5.3.0
           paths:
             - ~/AppData/Local/opam
+
+      - run:
+          name: DEBUG ABORT
+          command: exit 1
 
       - run:
           name: Install dependencies
