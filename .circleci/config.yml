@@ -60,7 +60,6 @@ jobs:
       - restore_cache:
           keys:
             - opam-win-5.3.0-v2
-            - bskey3
       - run:
           name: Install Opam
           shell: bash.exe
@@ -78,21 +77,16 @@ jobs:
           environment:
             OPAMROOT: ~/AppData/Local/opam
           command: |
-            mkdir -p "$OPAMROOT" ~/AppData/Local/opam
-            date >> ~/AppData/Local/opam/dates
-            #if opam switch list --short | grep -q 5.3.0; then
-            #  echo "Using cached opam switch"
-            #else
-            #  opam init --compiler=5.3.0 -y --debug
-            #fi
-
-      #- save_cache:
-      #    key: opam-win-5.3.0-v2
-      #    paths:
-      #      - C:\Users\circleci/AppData/Local/opam
+            if opam switch list --short | grep -q 5.3.0; then
+              echo "Using cached opam switch"
+            else
+              opam init --compiler=5.3.0 -y --debug
+            fi
 
       - save_cache:
-          key: bskey3
+          # Increment the key version here and above if you want to
+          # refresh the cache!
+          key: opam-win-5.3.0-v2
           paths:
             - ~/AppData/Local/opam
 
