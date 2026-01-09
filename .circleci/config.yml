@@ -71,7 +71,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             opam init --compiler=5.3.0 -y --debug
-            ocaml --version
+            opam exec -- ocamlc -v
       - run:
           name: Install dependencies
           command: ./scripts/dev-setup-all-platforms -y
