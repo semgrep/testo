@@ -6,7 +6,6 @@ open Printf
 
 let ( !! ) = Fpath.to_string
 let ( / ) = Fpath.( / )
-
 let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
 let tags_tag = Testo.Tag.declare "tags"
@@ -23,50 +22,57 @@ let categorized =
    Test the 'validate_name' function used by 'checked_output_file'.
 *)
 let test_checked_output_file_names () =
-  let invalid_names = [
-    "";
-    ".";
-    "..";
-    "a/b";
-    "a\\b";
-    "a:b";
-    " ";
-    "a b";
-    "a\nb";
-    "a\n";
-    "\na";
-    "+";
-    "a+b";
-    ".a";
-    "a.";
-  ] in
-  let valid_names = [
-    "a";
-    "A";
-    "aaa";
-    "AAA";
-    "_";
-    "___";
-    "-";
-    "---";
-    "a-b";
-    "a.b";
-    "3";
-    "333";
-    "ab.cd.ef";
-    "a..b";
-  ] in
-  List.iter (fun name ->
-    printf "Check that name is invalid: %S\n%!" name;
-    try
-      ignore (Testo.checked_output_file name);
-      Alcotest.fail "failed to raise Invalid_argument"
-    with Invalid_argument _ -> ()
-  ) invalid_names;
-  List.iter (fun name ->
-    printf "Check that name is valid: %S\n%!" name;
-    ignore (Testo.checked_output_file name)
-  ) valid_names
+  let invalid_names =
+    [
+      "";
+      ".";
+      "..";
+      "a/b";
+      "a\\b";
+      "a:b";
+      " ";
+      "a b";
+      "a\nb";
+      "a\n";
+      "\na";
+      "+";
+      "a+b";
+      ".a";
+      "a.";
+    ]
+  in
+  let valid_names =
+    [
+      "a";
+      "A";
+      "aaa";
+      "AAA";
+      "_";
+      "___";
+      "-";
+      "---";
+      "a-b";
+      "a.b";
+      "3";
+      "333";
+      "ab.cd.ef";
+      "a..b";
+    ]
+  in
+  List.iter
+    (fun name ->
+      printf "Check that name is invalid: %S\n%!" name;
+      try
+        ignore (Testo.checked_output_file name);
+        Alcotest.fail "failed to raise Invalid_argument"
+      with
+      | Invalid_argument _ -> ())
+    invalid_names;
+  List.iter
+    (fun name ->
+      printf "Check that name is valid: %S\n%!" name;
+      ignore (Testo.checked_output_file name))
+    valid_names
 
 let test_internal_files =
   let category = [ "auto-approve"; "internal files" ] in
@@ -114,20 +120,22 @@ let test_mask_pcre_pattern () =
      of ocaml so we're not sure of the behavior of the re library here.
      The relevant fix in re is https://github.com/ocaml/ocaml-re/pull/233
   *)
-  let _tests_requiring_re_1_12 = [
-    ("", "", "<MASKED>", None);
-    ("", "aa", "XaXaX", Some "X");
-    ({|\b|}, "word", "XwordX", Some "X");
-    ("", "aa", "<MASKED>a<MASKED>a<MASKED>", None);
-  ]
+  let _tests_requiring_re_1_12 =
+    [
+      ("", "", "<MASKED>", None);
+      ("", "aa", "XaXaX", Some "X");
+      ({|\b|}, "word", "XwordX", Some "X");
+      ("", "aa", "<MASKED>a<MASKED>a<MASKED>", None);
+    ]
   in
   (* These tests require re 1.10 or 1.11: *)
-  let _tests_requiring_re_1_10 = [
-    ("", "", "", None);
-    ("", "aa", "XaXa", Some "X");
-    ({|\b|}, "word", "Xword", Some "X");
-    ("", "aa", "<MASKED>a<MASKED>a", None);
-  ]
+  let _tests_requiring_re_1_10 =
+    [
+      ("", "", "", None);
+      ("", "aa", "XaXa", Some "X");
+      ({|\b|}, "word", "Xword", Some "X");
+      ("", "aa", "<MASKED>a<MASKED>a", None);
+    ]
   in
   [
     ("a", "aa", "XX", Some "X");
@@ -196,33 +204,32 @@ let test_mask_exotic_temp_paths () =
       (sprintf "temp dir %S" temp_dir)
       expected_masked_data masked_data
   in
-  [
-    ("/", "/", "<TMP>");
-    (* Fpath normalizes multiple leading slashes into "//" rather than "/".
+  ([
+     ("/", "/", "<TMP>");
+     (* Fpath normalizes multiple leading slashes into "//" rather than "/".
        I don't know why or whether it matters in practice. *)
-    ("/", "/a", "<TMP>a");
-    ("a", "a", "<TMP>");
-    ("a/", "a", "<TMP>");
-    ("a////", "a", "<TMP>");
-    ("a////", "a/", "<TMP>/");
-    ("a////", "a/b", "<TMP>/b");
-    ("/a", "/a", "<TMP>");
-    ("/a/", "/a", "<TMP>");
-    ("/a////", "/a", "<TMP>");
-    ("/a////", "/a/", "<TMP>/");
-  ] @ (
-    if Sys.win32 then
-      []
-    else
-      (* [Fpath.v "////"] fails with `Exception: Invalid_argument "\"////\": invalid path".`
+     ("/", "/a", "<TMP>a");
+     ("a", "a", "<TMP>");
+     ("a/", "a", "<TMP>");
+     ("a////", "a", "<TMP>");
+     ("a////", "a/", "<TMP>/");
+     ("a////", "a/b", "<TMP>/b");
+     ("/a", "/a", "<TMP>");
+     ("/a/", "/a", "<TMP>");
+     ("/a////", "/a", "<TMP>");
+     ("/a////", "/a/", "<TMP>/");
+   ]
+  @
+  if Sys.win32 then []
+  else
+    (* [Fpath.v "////"] fails with `Exception: Invalid_argument "\"////\": invalid path".`
          on windows, but it *is* a valid path on POSIX systems. *)
-      [
-        (* Fpath normalizes multiple leading slashes into "//" rather than "/".
+    [
+      (* Fpath normalizes multiple leading slashes into "//" rather than "/".
            I don't know why or whether it matters in practice. *)
-        ("////", "//", "<TMP>");
-        ("////", "//a", "<TMP>a");
-      ]
- )
+      ("////", "//", "<TMP>");
+      ("////", "//a", "<TMP>a");
+    ])
   |> List.iter test_one
 
 let test_contains_substring () =
@@ -335,19 +342,17 @@ let test_diff name =
   let dir = Fpath.v "tests/diff-data/" in
   let func () =
     Testo.with_chdir dir (fun () ->
-      let equal, diff_text =
-        Testo_util.Diff.files
-          (Fpath.v (name ^ ".left"))
-          (Fpath.v (name ^ ".right"))
-      in
-      assert (not equal);
-      print_string diff_text
-    )
+        let equal, diff_text =
+          Testo_util.Diff.files
+            (Fpath.v (name ^ ".left"))
+            (Fpath.v (name ^ ".right"))
+        in
+        assert (not equal);
+        print_string diff_text)
   in
-  Testo.create name func ~category:["diff"]
-    ~checked_output:(Testo.stdout
-                       ~expected_stdout_path:(dir / (name ^ ".diff"))
-                       ())
+  Testo.create name func ~category:[ "diff" ]
+    ~checked_output:
+      (Testo.stdout ~expected_stdout_path:(dir / (name ^ ".diff")) ())
 
 let test_tag_selector =
   let _tag_a = Testo.Tag.declare "a" in
@@ -363,51 +368,50 @@ let test_tag_selector =
     let res = Testo_util.Tag_query.match_ tags query in
     Alcotest.(check bool) "" expected_match res
 
-let tag_selection_tests = [
-  "simple in", "a", ["a"], true;
-  "simple out", "a", ["b"], false;
-  "complex in", "(a or b) and not c", ["a"], true;
-  "complex out", "(a or b) and not c", ["a"; "c"], false;
-  "not", "not c", ["a"; "b"], true;
-  "all", "all", ["a"; "b"], true;
-  "none", "none", ["a"; "b"], false;
-]
+let tag_selection_tests =
+  [
+    ("simple in", "a", [ "a" ], true);
+    ("simple out", "a", [ "b" ], false);
+    ("complex in", "(a or b) and not c", [ "a" ], true);
+    ("complex out", "(a or b) and not c", [ "a"; "c" ], false);
+    ("not", "not c", [ "a"; "b" ], true);
+    ("all", "all", [ "a"; "b" ], true);
+    ("none", "none", [ "a"; "b" ], false);
+  ]
   |> List.map (fun (name, query, tags, expect) ->
-    Testo.create name (fun () -> test_tag_selector query tags expect)
-  )
+         Testo.create name (fun () -> test_tag_selector query tags expect))
   |> Testo.categorize "tag selection"
 
 let test_write_read_map () =
   let contents = "hello" in
   Testo.with_temp_file (fun src_path ->
-    Testo.write_file src_path contents;
-    Testo.with_temp_file (fun dst_path ->
-      let contents2 = Testo.read_file src_path in
-      Alcotest.(check string) "read" contents contents2;
-      let new_contents = "new" in
-      Testo.map_file (fun contents3 ->
-        Alcotest.(check string) "map_file input" contents contents3;
-        new_contents
-      ) src_path dst_path;
-      let new_contents2 = Testo.read_file dst_path in
-      Alcotest.(check string) "map_file output" new_contents new_contents2;
-    )
-  )
+      Testo.write_file src_path contents;
+      Testo.with_temp_file (fun dst_path ->
+          let contents2 = Testo.read_file src_path in
+          Alcotest.(check string) "read" contents contents2;
+          let new_contents = "new" in
+          Testo.map_file
+            (fun contents3 ->
+              Alcotest.(check string) "map_file input" contents contents3;
+              new_contents)
+            src_path dst_path;
+          let new_contents2 = Testo.read_file dst_path in
+          Alcotest.(check string) "map_file output" new_contents new_contents2))
 
 let test_write_read_map_in_place () =
   let contents = "hello" in
   Testo.with_temp_file (fun path ->
-    Testo.write_file path contents;
-    let contents2 = Testo.read_file path in
-    Alcotest.(check string) "read" contents contents2;
-    let new_contents = "new" in
-    Testo.map_file (fun contents3 ->
-      Alcotest.(check string) "map_file input" contents contents3;
-      new_contents
-    ) path path;
-    let new_contents2 = Testo.read_file path in
-    Alcotest.(check string) "map_file output" new_contents new_contents2;
-  )
+      Testo.write_file path contents;
+      let contents2 = Testo.read_file path in
+      Alcotest.(check string) "read" contents contents2;
+      let new_contents = "new" in
+      Testo.map_file
+        (fun contents3 ->
+          Alcotest.(check string) "map_file input" contents contents3;
+          new_contents)
+        path path;
+      let new_contents2 = Testo.read_file path in
+      Alcotest.(check string) "map_file output" new_contents new_contents2)
 
 let shared_context_merged_output =
   (* get_count is used to check that the lazy block is evaluated only once *)
@@ -417,61 +421,50 @@ let shared_context_merged_output =
     !counter
   in
   Testo.Lazy_with_output.create ~redirect:Stderr_to_stdout (fun () ->
-    printf "stdout a\n%!";
-    eprintf "stderr b\n%!";
-    printf "stdout c\n%!";
-    get_count ()
-  )
+      printf "stdout a\n%!";
+      eprintf "stderr b\n%!";
+      printf "stdout c\n%!";
+      get_count ())
 
 (* This test function will run twice in the same process *)
 let test_shared_context_merged_output test_name =
-  Testo.create
-    ~solo:"run in same process so as to share context"
-    test_name
+  Testo.create ~solo:"run in same process so as to share context" test_name
     (fun () ->
-    let (res, out), err =
-      Testo.with_capture stderr (fun () ->
-        Testo.with_capture stdout (fun () ->
-          Testo.Lazy_with_output.force shared_context_merged_output
-        )
-      )
-    in
-    Alcotest.(check int) "" 1 res;
-    Alcotest.(check string) "error output" "" err;
-    Alcotest.(check string) "standard output"
-      "stdout a\nstderr b\nstdout c\n" out;
-  )
+      let (res, out), err =
+        Testo.with_capture stderr (fun () ->
+            Testo.with_capture stdout (fun () ->
+                Testo.Lazy_with_output.force shared_context_merged_output))
+      in
+      Alcotest.(check int) "" 1 res;
+      Alcotest.(check string) "error output" "" err;
+      Alcotest.(check string)
+        "standard output" "stdout a\nstderr b\nstdout c\n" out)
 
 let shared_context_split_output =
   Testo.Lazy_with_output.create (fun () ->
-    printf "stdout a\n%!";
-    eprintf "stderr b\n%!";
-    printf "stdout c\n%!";
-  )
+      printf "stdout a\n%!";
+      eprintf "stderr b\n%!";
+      printf "stdout c\n%!")
 
 (* This test function will run twice in the same process *)
 let test_shared_context_split_output test_name =
-  Testo.create
-    ~solo:"run in same process so as to share context"
-    test_name
+  Testo.create ~solo:"run in same process so as to share context" test_name
     (fun () ->
-       let ((), out), err =
-         Testo.with_capture stderr (fun () ->
-           Testo.with_capture stdout (fun () ->
-             Testo.Lazy_with_output.force shared_context_split_output
-           )
-         )
-       in
-       Alcotest.(check string) "error output" "stderr b\n" err;
-       Alcotest.(check string) "standard output" "stdout a\nstdout c\n" out;
-    )
+      let ((), out), err =
+        Testo.with_capture stderr (fun () ->
+            Testo.with_capture stdout (fun () ->
+                Testo.Lazy_with_output.force shared_context_split_output))
+      in
+      Alcotest.(check string) "error output" "stderr b\n" err;
+      Alcotest.(check string) "standard output" "stdout a\nstdout c\n" out)
 
-let shared_context_tests = [
-  test_shared_context_merged_output "shared context merged output 1";
-  test_shared_context_merged_output "shared context merged output 2";
-  test_shared_context_split_output "shared context split output 1";
-  test_shared_context_split_output "shared context split output 2";
-]
+let shared_context_tests =
+  [
+    test_shared_context_merged_output "shared context merged output 1";
+    test_shared_context_merged_output "shared context merged output 2";
+    test_shared_context_split_output "shared context split output 1";
+    test_shared_context_split_output "shared context split output 2";
+  ]
 
 (*
    The tests marked as "auto-approve" are tests that capture their output
@@ -537,59 +530,49 @@ let tests env =
         print_string "hello\n";
         prerr_string "error\n");
     t "capture one file"
-      ~checked_output_files:[
-        Testo.checked_output_file "results.txt"
-      ]
+      ~checked_output_files:[ Testo.checked_output_file "results.txt" ]
       (fun () ->
-         Testo.with_temp_dir ~chdir:true (fun _dir ->
-           let output_file = Fpath.v "results" in
-           Testo.write_file output_file "hello world\n";
-           Testo.stash_output_file output_file "results.txt"
-         )
-      );
+        Testo.with_temp_dir ~chdir:true (fun _dir ->
+            let output_file = Fpath.v "results" in
+            Testo.write_file output_file "hello world\n";
+            Testo.stash_output_file output_file "results.txt"));
     t "fail to capture one file"
       ~expected_outcome:(Should_fail "must raise exception")
-      ~checked_output_files:[
-        Testo.checked_output_file "results.txt"
-      ]
+      ~checked_output_files:[ Testo.checked_output_file "results.txt" ]
       (fun () -> failwith "I am failing on purpose");
     t "capture multiple files and stdout"
-      ~normalize:[(fun s -> "[normalized] " ^ s)]
+      ~normalize:[ (fun s -> "[normalized] " ^ s) ]
       ~checked_output:(Testo.stdout ())
-      ~checked_output_files:[
-        Testo.checked_output_file "results.txt";
-        Testo.checked_output_file "results.json";
-      ]
+      ~checked_output_files:
+        [
+          Testo.checked_output_file "results.txt";
+          Testo.checked_output_file "results.json";
+        ]
       (fun () ->
-         Testo.with_temp_dir ~chdir:true (fun _dir ->
-           print_endline "this is a message on stdout";
-           let txt_path = Fpath.v "results.txt" in
-           Testo.write_file txt_path "hello world\n";
-           Testo.stash_output_file txt_path "results.txt";
-           let json_path = Fpath.v "results.json" in
-           Testo.write_file json_path "{}\n";
-           Testo.stash_output_file json_path "results.json";
-         )
-      );
-    t "inline logs"
-      ~inline_logs:On
-      (fun () -> print_endline "Hello. This is a log.");
-    t "auto inline logs"
-      (fun () -> print_endline "Hello. This is a log.");
-    t "no inline logs"
-      ~inline_logs:Off
-      (fun () -> print_endline "Hello. This is a log.");
+        Testo.with_temp_dir ~chdir:true (fun _dir ->
+            print_endline "this is a message on stdout";
+            let txt_path = Fpath.v "results.txt" in
+            Testo.write_file txt_path "hello world\n";
+            Testo.stash_output_file txt_path "results.txt";
+            let json_path = Fpath.v "results.json" in
+            Testo.write_file json_path "{}\n";
+            Testo.stash_output_file json_path "results.json"));
+    t "inline logs" ~inline_logs:On (fun () ->
+        print_endline "Hello. This is a log.");
+    t "auto inline logs" (fun () -> print_endline "Hello. This is a log.");
+    t "no inline logs" ~inline_logs:Off (fun () ->
+        print_endline "Hello. This is a log.");
     t "show exception on xfail"
       ~expected_outcome:(Should_fail "raises Failure exception on purpose")
-      ~inline_logs:On
-      (fun () -> failwith "This exception was raised on purpose");
+      ~inline_logs:On (fun () ->
+        failwith "This exception was raised on purpose");
     t "auto show exception on xfail"
       ~expected_outcome:(Should_fail "raises Failure exception on purpose")
       (fun () -> failwith "This exception was raised on purpose");
     t "don't show exception on xfail"
       ~expected_outcome:(Should_fail "raises Failure exception on purpose")
-      ~inline_logs:Off
-      (fun () -> failwith "This exception was raised on purpose");
+      ~inline_logs:Off (fun () ->
+        failwith "This exception was raised on purpose");
     t
       "environment-sensitive"
       (* We use an environment variable to make the output of the test
@@ -606,8 +589,8 @@ let tests env =
       (fun () -> failwith "this exception is expected");
     t "xfail due to invalid output"
       ~expected_outcome:(Should_fail "produces incorrect output on purpose")
-      ~checked_output:(Testo.stdout ())
-      (fun () -> print_endline "incorrect output printed by the test");
+      ~checked_output:(Testo.stdout ()) (fun () ->
+        print_endline "incorrect output printed by the test");
     t "skipped" ~skipped:"some reason" (fun () ->
         failwith "this shouldn't happen");
     t "broken" ~broken:"this test is super flaky" (fun () ->
@@ -638,7 +621,8 @@ let tests env =
           (* On Windows, [Sys.getenv_opt v = None] for empty variables *)
           if Sys.win32 then None else Some ""
         in
-        Alcotest.(check (option string)) "equal" expected_unset_B (Sys.getenv_opt "B"));
+        Alcotest.(check (option string))
+          "equal" expected_unset_B (Sys.getenv_opt "B"));
     t "with environment variables bad"
       ~expected_outcome:(Should_fail "fail to restore environment variable")
       (fun () ->
@@ -703,10 +687,10 @@ let tests env =
     test_diff "joined-context";
     test_diff "gap-in-context";
     t "current test" (fun () ->
-      match Testo.get_current_test () with
-      | None -> Alcotest.fail "current test is unset"
-      | Some test -> Alcotest.(check string) "test name" "current test" test.name
-    );
+        match Testo.get_current_test () with
+        | None -> Alcotest.fail "current test is unset"
+        | Some test ->
+            Alcotest.(check string) "test name" "current test" test.name);
     t "write/read/map file" test_write_read_map;
     t "write/read/map file in place" test_write_read_map_in_place;
   ]
@@ -715,16 +699,9 @@ let tests env =
       (List.map
          (fun (name, func) -> Testo.create name func)
          Testo_util.Slice.tests)
-  @ tag_selection_tests
-  @ shared_context_tests
+  @ tag_selection_tests @ shared_context_tests
 
 let () =
-  (* stdout and stderr are in "text mode" by default, and on windows this
-     entails rewriting line endings to CLRF. This makes the test output
-     incompatible between Windows and POSIX platforms. Setting the channels to
-     binary mode ensures consistent output. *)
-  set_binary_mode_out stdout true;
-  set_binary_mode_out stderr true;
   Testo.interpret_argv ~project_name:"testo_tests"
     ~handle_subcommand_result:(fun exit_code _ ->
       print_endline "<handling result before exiting>";
