@@ -107,24 +107,35 @@ let contains_pcre_pattern ~pat =
 
 let contains_substring ~sub = contains_pcre_pattern ~pat:(Re.Pcre.quote sub)
 
-let write_file path data =
-  let oc = open_out_bin !!path in
+let write_text_file path data =
+  let oc = open_out !!path in
   Fun.protect
     (fun () -> output_string oc data)
     ~finally:(fun () -> close_out_noerr oc)
 
-let read_file path =
-  let ic = open_in_bin !!path in
-  Fun.protect
-    (fun () ->
-      (* This fails for named pipes *)
-      let len = in_channel_length ic in
-      really_input_string ic len)
-    ~finally:(fun () -> close_in_noerr ic)
+(* 'In_channel.input_all' is available in the standard library starting with
+   OCaml 4.14 *)
+let input_all ic =
+  let buf = Buffer.create 4096 in
+  let tmp = Bytes.create 4096 in
+  let rec loop () =
+    match input ic tmp 0 (Bytes.length tmp) with
+    | 0 -> ()
+    | n ->
+        Buffer.add_subbytes buf tmp 0 n;
+        loop ()
+  in
+  loop ();
+  Buffer.contents buf
 
-let map_file func src_path dst_path =
-  let old_contents = read_file src_path in
+let read_text_file path =
+  let ic = open_in !!path in
+  Fun.protect (fun () -> input_all ic) ~finally:(fun () -> close_in_noerr ic)
+
+let map_text_file func src_path dst_path =
+  let old_contents = read_text_file src_path in
   let new_contents = func old_contents in
-  write_file dst_path new_contents
+  write_text_file dst_path new_contents
 
-let copy_file src_path dst_path = map_file (fun data -> data) src_path dst_path
+let copy_text_file src_path dst_path =
+  map_text_file (fun data -> data) src_path dst_path

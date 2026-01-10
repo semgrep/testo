@@ -2,6 +2,7 @@
    Tokenizer for tag queries
 *)
 {
+  open Printf
   open Tag_query_parser
 }
 rule token = parse
@@ -18,3 +19,5 @@ rule token = parse
       TAG (Tag.of_string_exn tag_str)
     }
   | eof               { EOF }
+  | _ as c            { failwith (sprintf
+                                    "invalid character in tag query: %C" c) }

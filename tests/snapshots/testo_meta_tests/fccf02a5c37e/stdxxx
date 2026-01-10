@@ -10,7 +10,7 @@ RUN rm -rf tests/snapshots/testo_tests/f66d12950c64
 RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
 RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
-RUN ./test status -e foo=bar 
+RUN ./test status -t 'not unix_only' -e foo=bar 
 junk printed on stdout...
 ... when creating the test suite
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
@@ -69,10 +69,6 @@ junk printed on stdout...
 [33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
 [33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
 [33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
-[33m[MISS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[33m[MISS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[33m[MISS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[33m[MISS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
 [33m[MISS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [33m[MISS]  [0mca552d6359ef [36mdiff[0m > [36mmissing-eol[0m
 [33m[MISS]  [0m08e4221951ee [36mcurrent test[0m
@@ -112,7 +108,7 @@ junk printed on stdout...
 [33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
 [33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m
 <handling result before exiting>
-RUN ./test run -e foo=bar -j 1 
+RUN ./test run -e foo=bar -j 1  -t 'not unix_only'
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -466,30 +462,6 @@ Try '--help' for options.
 [2m• [0mPath to expected gap-in-context.diff: tests/diff-data/gap-in-context.diff
 [2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
-[33m[RUN][0m   e9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[32m[PASS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected lf-crlf-only.diff: tests/diff-data/lf-crlf-only.diff
-[2m• [0mPath to captured lf-crlf-only.diff: _build/testo/status/testo_tests/e9a14b7e5dd9/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/e9a14b7e5dd9/log
-[33m[RUN][0m   8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[32m[PASS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected crlf-lf-only.diff: tests/diff-data/crlf-lf-only.diff
-[2m• [0mPath to captured crlf-lf-only.diff: _build/testo/status/testo_tests/8f4b9e56ac4d/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8f4b9e56ac4d/log
-[33m[RUN][0m   8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[32m[PASS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected lf-crlf.diff: tests/diff-data/lf-crlf.diff
-[2m• [0mPath to captured lf-crlf.diff: _build/testo/status/testo_tests/8339c60608b4/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8339c60608b4/log
-[33m[RUN][0m   ee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
-[32m[PASS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected crlf-lf.diff: tests/diff-data/crlf-lf.diff
-[2m• [0mPath to captured crlf-lf.diff: _build/testo/status/testo_tests/ee1aad685657/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/ee1aad685657/log
 [33m[RUN][0m   b23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [32m[PASS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [2m• [0mChecked output: stdout
@@ -721,15 +693,15 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
-  97 successful (90 pass, 7 xfail)
+  93 successful (86 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar --all --long
+RUN ./test status -t 'not unix_only' -e foo=bar --all --long
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -1010,26 +982,6 @@ Try '--help' for options.
 [2m• [0mPath to expected gap-in-context.diff: tests/diff-data/gap-in-context.diff
 [2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
-[32m[PASS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected lf-crlf-only.diff: tests/diff-data/lf-crlf-only.diff
-[2m• [0mPath to captured lf-crlf-only.diff: _build/testo/status/testo_tests/e9a14b7e5dd9/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/e9a14b7e5dd9/log
-[32m[PASS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected crlf-lf-only.diff: tests/diff-data/crlf-lf-only.diff
-[2m• [0mPath to captured crlf-lf-only.diff: _build/testo/status/testo_tests/8f4b9e56ac4d/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8f4b9e56ac4d/log
-[32m[PASS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected lf-crlf.diff: tests/diff-data/lf-crlf.diff
-[2m• [0mPath to captured lf-crlf.diff: _build/testo/status/testo_tests/8339c60608b4/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8339c60608b4/log
-[32m[PASS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected crlf-lf.diff: tests/diff-data/crlf-lf.diff
-[2m• [0mPath to captured crlf-lf.diff: _build/testo/status/testo_tests/ee1aad685657/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/ee1aad685657/log
 [32m[PASS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [2m• [0mChecked output: stdout
 [2m• [0mPath to expected missing-eol-only.diff: tests/diff-data/missing-eol-only.diff
@@ -1230,15 +1182,15 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
-  97 successful (90 pass, 7 xfail)
+  93 successful (86 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar 
+RUN ./test status -t 'not unix_only' -e foo=bar 
 junk printed on stdout...
 ... when creating the test suite
 [33m[PASS*] [0m9c96a5aa8b4b ([1mmeta[0m) [36mauto-approve[0m > [36mcapture stdout[0m
@@ -1252,55 +1204,55 @@ junk printed on stdout...
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
 [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 <handling result before exiting>
-RUN ./test approve -e foo=bar -s auto-approve
+RUN ./test approve -t 'not unix_only' -e foo=bar -s auto-approve
 junk printed on stdout...
 ... when creating the test suite
 Expected output changed for 9 tests.
 <handling result before exiting>
-RUN ./test approve -e foo=bar -s environment-sensitive
+RUN ./test approve -t 'not unix_only' -e foo=bar -s environment-sensitive
 junk printed on stdout...
 ... when creating the test suite
 Expected output changed for 0 test.
 <handling result before exiting>
-RUN ./test status -e foo=bar 
+RUN ./test status -t 'not unix_only' -e foo=bar 
 junk printed on stdout...
 ... when creating the test suite
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar --expert
+RUN ./test status -t 'not unix_only' -e foo=bar --expert
 junk printed on stdout...
 ... when creating the test suite
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar --env A_b123=xxx
+RUN ./test status -t 'not unix_only' -e foo=bar --env A_b123=xxx
 junk printed on stdout...
 ... when creating the test suite
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar -e novalue
+RUN ./test status -t 'not unix_only' -e foo=bar -e novalue
 test.exe: option '-e': Malformed KEY=VALUE pair: novalue
 Usage: test.exe status [OPTION]…
 Try 'test.exe status --help' or 'test.exe --help' for more information.
-RUN ./test status -e foo=bar -e b@d_key=42
+RUN ./test status -t 'not unix_only' -e foo=bar -e b@d_key=42
 test.exe: option '-e': Malformed KEY=VALUE pair: b@d_key=42
 Usage: test.exe status [OPTION]…
 Try 'test.exe status --help' or 'test.exe --help' for more information.
-RUN ./test status -e foo=bar -a -t testin
+RUN ./test status -t 'testin' -e foo=bar -a
 test.exe: option '-t': Syntax error in tag query 'testin': Failure("Not a
           valid tag for this test suite: testin")
 Usage: test.exe status [OPTION]…
 Try 'test.exe status --help' or 'test.exe --help' for more information.
-RUN ./test status -e foo=bar -a -t testing
+RUN ./test status -t 'testing' -e foo=bar -a
 junk printed on stdout...
 ... when creating the test suite
 [32m[PASS]  [0md57ac4525684 ([1mtags[0m [1mtesting[0m) [36mtags[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar --strict
+RUN ./test status -t 'not unix_only' -e foo=bar --strict
 junk printed on stdout...
 ... when creating the test suite
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
 <handling result before exiting>
-RUN ./test run -e foo=bar -j 1 -s environment-sensitive
+RUN ./test run -e foo=bar -j 1 -s environment-sensitive -t 'not unix_only'
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -1355,7 +1307,7 @@ Try '--help' for options.
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
 <handling result before exiting>
-RUN ./test run -e foo=bar -j 1 -s environment-sensitive
+RUN ./test run -e foo=bar -j 1 -s environment-sensitive -t 'not unix_only'
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -1389,7 +1341,7 @@ overall status: [32msuccess[0m
 # Delete statuses but not snapshots
 #####################################################################
 RUN rm -rf _build/testo/status/testo_tests
-RUN ./test status -e foo=bar -v
+RUN ./test status -t 'not unix_only' -e foo=bar -v
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -1639,26 +1591,6 @@ Try '--help' for options.
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/360c4b690be4/completion_status[0m
 [2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
-[33m[MISS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e9a14b7e5dd9/completion_status[0m
-[2m• [0mPath to captured lf-crlf-only.diff: _build/testo/status/testo_tests/e9a14b7e5dd9/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/e9a14b7e5dd9/log
-[33m[MISS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8f4b9e56ac4d/completion_status[0m
-[2m• [0mPath to captured crlf-lf-only.diff: _build/testo/status/testo_tests/8f4b9e56ac4d/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8f4b9e56ac4d/log
-[33m[MISS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8339c60608b4/completion_status[0m
-[2m• [0mPath to captured lf-crlf.diff: _build/testo/status/testo_tests/8339c60608b4/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8339c60608b4/log
-[33m[MISS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
-[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ee1aad685657/completion_status[0m
-[2m• [0mPath to captured crlf-lf.diff: _build/testo/status/testo_tests/ee1aad685657/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/ee1aad685657/log
 [33m[MISS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [2m• [0mChecked output: stdout
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/b23196a133ca/completion_status[0m
@@ -2186,38 +2118,6 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m                                     [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e9a14b7e5dd9/completion_status[0m
-[2m• [0mPath to captured lf-crlf-only.diff: _build/testo/status/testo_tests/e9a14b7e5dd9/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/e9a14b7e5dd9/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m                                     [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8f4b9e56ac4d/completion_status[0m
-[2m• [0mPath to captured crlf-lf-only.diff: _build/testo/status/testo_tests/8f4b9e56ac4d/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8f4b9e56ac4d/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m                                          [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8339c60608b4/completion_status[0m
-[2m• [0mPath to captured lf-crlf.diff: _build/testo/status/testo_tests/8339c60608b4/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8339c60608b4/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m                                          [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ee1aad685657/completion_status[0m
-[2m• [0mPath to captured crlf-lf.diff: _build/testo/status/testo_tests/ee1aad685657/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/ee1aad685657/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -2458,15 +2358,15 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-98 new tests
+94 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar -l
+RUN ./test status -t 'not unix_only' -e foo=bar -l
 junk printed on stdout...
 ... when creating the test suite
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -2871,38 +2771,6 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m                                     [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/e9a14b7e5dd9/completion_status[0m
-[2m• [0mPath to captured lf-crlf-only.diff: _build/testo/status/testo_tests/e9a14b7e5dd9/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/e9a14b7e5dd9/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m                                     [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8f4b9e56ac4d/completion_status[0m
-[2m• [0mPath to captured crlf-lf-only.diff: _build/testo/status/testo_tests/8f4b9e56ac4d/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8f4b9e56ac4d/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m                                          [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/8339c60608b4/completion_status[0m
-[2m• [0mPath to captured lf-crlf.diff: _build/testo/status/testo_tests/8339c60608b4/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8339c60608b4/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m                                          [2m│[0m
-[2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mChecked output: stdout
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/ee1aad685657/completion_status[0m
-[2m• [0mPath to captured crlf-lf.diff: _build/testo/status/testo_tests/ee1aad685657/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/ee1aad685657/log
-[2m────────────────────────────────────────────────────────────────────────────────[0m
-[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m                                 [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0mChecked output: stdout
@@ -3143,15 +3011,15 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-98 new tests
+94 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
-RUN ./test status -e foo=bar -a
+RUN ./test status -t 'not unix_only' -e foo=bar -a
 junk printed on stdout...
 ... when creating the test suite
 [33m[MISS]  [0m8dbdda48fb87 [36msimple[0m
@@ -3211,10 +3079,6 @@ junk printed on stdout...
 [33m[MISS]  [0m1cf5a6371f59 [36mdiff[0m > [36mtrailing-context[0m
 [33m[MISS]  [0m8ae0ad03ce59 [36mdiff[0m > [36mjoined-context[0m
 [33m[MISS]  [0m360c4b690be4 [36mdiff[0m > [36mgap-in-context[0m
-[33m[MISS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[33m[MISS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[33m[MISS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[33m[MISS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
 [33m[MISS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [33m[MISS]  [0mca552d6359ef [36mdiff[0m > [36mmissing-eol[0m
 [33m[MISS]  [0m08e4221951ee [36mcurrent test[0m
@@ -3254,7 +3118,7 @@ junk printed on stdout...
 [33m[MISS]  [0mbf55db9dc3f0 [36mshared context split output 1[0m
 [33m[MISS]  [0mcb28cacab289 [36mshared context split output 2[0m
 <handling result before exiting>
-RUN ./test run -e foo=bar -j 1 
+RUN ./test run -e foo=bar -j 1  -t 'not unix_only'
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -3606,30 +3470,6 @@ Try '--help' for options.
 [2m• [0mPath to expected gap-in-context.diff: tests/diff-data/gap-in-context.diff
 [2m• [0mPath to captured gap-in-context.diff: _build/testo/status/testo_tests/360c4b690be4/stdout
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/360c4b690be4/log
-[33m[RUN][0m   e9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[32m[PASS]  [0me9a14b7e5dd9 [36mdiff[0m > [36mlf-crlf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected lf-crlf-only.diff: tests/diff-data/lf-crlf-only.diff
-[2m• [0mPath to captured lf-crlf-only.diff: _build/testo/status/testo_tests/e9a14b7e5dd9/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/e9a14b7e5dd9/log
-[33m[RUN][0m   8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[32m[PASS]  [0m8f4b9e56ac4d [36mdiff[0m > [36mcrlf-lf-only[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected crlf-lf-only.diff: tests/diff-data/crlf-lf-only.diff
-[2m• [0mPath to captured crlf-lf-only.diff: _build/testo/status/testo_tests/8f4b9e56ac4d/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8f4b9e56ac4d/log
-[33m[RUN][0m   8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[32m[PASS]  [0m8339c60608b4 [36mdiff[0m > [36mlf-crlf[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected lf-crlf.diff: tests/diff-data/lf-crlf.diff
-[2m• [0mPath to captured lf-crlf.diff: _build/testo/status/testo_tests/8339c60608b4/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/8339c60608b4/log
-[33m[RUN][0m   ee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
-[32m[PASS]  [0mee1aad685657 [36mdiff[0m > [36mcrlf-lf[0m
-[2m• [0mChecked output: stdout
-[2m• [0mPath to expected crlf-lf.diff: tests/diff-data/crlf-lf.diff
-[2m• [0mPath to captured crlf-lf.diff: _build/testo/status/testo_tests/ee1aad685657/stdout
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/ee1aad685657/log
 [33m[RUN][0m   b23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [32m[PASS]  [0mb23196a133ca [36mdiff[0m > [36mmissing-eol-only[0m
 [2m• [0mChecked output: stdout
@@ -3776,9 +3616,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
-  97 successful (90 pass, 7 xfail)
+  93 successful (86 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3794,7 +3634,7 @@ RUN rm -rf tests/snapshots/testo_tests/f66d12950c64
 RUN rm -rf tests/snapshots/testo_tests/caadabfd495c
 RUN mkdir -p tests/custom-snapshots
 RUN rm -f tests/custom-snapshots/*
-RUN ./test status -e foo=bar 
+RUN ./test status -t 'not unix_only' -e foo=bar 
 junk printed on stdout...
 ... when creating the test suite
 [33m[PASS*] [0m9c96a5aa8b4b ([1mmeta[0m) [36mauto-approve[0m > [36mcapture stdout[0m
@@ -3808,7 +3648,7 @@ junk printed on stdout...
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
 [33m[PASS*] [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 <handling result before exiting>
-RUN ./test approve -e foo=bar -s auto-approve
+RUN ./test approve -t 'not unix_only' -e foo=bar -s auto-approve
 junk printed on stdout...
 ... when creating the test suite
 Expected output changed for 9 tests.
@@ -3816,7 +3656,7 @@ Expected output changed for 9 tests.
 #####################################################################
 # Delete the dead snapshots with --autoclean
 #####################################################################
-RUN ./test status -e foo=bar -l --autoclean
+RUN ./test status -t 'not unix_only' -e foo=bar -l --autoclean
 junk printed on stdout...
 ... when creating the test suite
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3853,9 +3693,9 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
-  97 successful (90 pass, 7 xfail)
+  93 successful (86 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3863,7 +3703,7 @@ overall status: [32msuccess[0m
 #####################################################################
 # Check that the dead snapshots are gone
 #####################################################################
-RUN ./test status -e foo=bar -l
+RUN ./test status -t 'not unix_only' -e foo=bar -l
 junk printed on stdout...
 ... when creating the test suite
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3897,9 +3737,9 @@ junk printed on stdout...
  Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-99/99 selected tests:
+95/99 selected tests:
   1 skipped
-  97 successful (90 pass, 7 xfail)
+  93 successful (86 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m

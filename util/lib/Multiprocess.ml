@@ -272,6 +272,10 @@ module Client = struct
     let ((std_in_ch, std_out_ch) as process) =
       Unix.open_process_args program_name argv
     in
+    (* Make sure to communicate over the pipe in binary mode to avoid
+       CRLF<->LF conversions *)
+    set_binary_mode_in std_in_ch true;
+    set_binary_mode_out std_out_ch true;
     let std_in_fd = Unix.descr_of_in_channel std_in_ch in
     let worker =
       {

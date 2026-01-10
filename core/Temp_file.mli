@@ -1,5 +1,5 @@
 (* Work with a temporary file, ensuring its eventual deletion. *)
-val with_temp_file :
+val with_temp_text_file :
   ?contents:string ->
   ?persist:bool ->
   ?prefix:string ->

@@ -66,21 +66,33 @@ let test_subcommand ?expected_exit_code ~__LOC__:loc subcommand_name
   shell_command ?expected_exit_code ~__LOC__:loc command
 
 (*
+   The argument of '-t', a boolean query over tags.
+   TODO: select only a few tests so we can see what's going on
+*)
+let default_tags = "not unix_only"
+
+(*
    0 workers: no workers are created
    1 worker: one worker is created but the output is still deterministic
    more than one worker: the output won't be in a particular order, making it
    harder to test expectations.
 *)
-let test_run ?expected_exit_code ?(num_workers = 1) ~__LOC__:loc
-    shell_command_args =
+let test_run ?expected_exit_code ?(num_workers = 1) ?(tags = default_tags)
+    ~__LOC__:loc shell_command_args =
   test_subcommand ?expected_exit_code ~__LOC__:loc "run"
-    (sprintf "-j %d %s" num_workers shell_command_args)
+    (sprintf "-j %d %s -t '%s'" num_workers shell_command_args tags)
 
-let test_status ?expected_exit_code ~__LOC__:loc shell_command_args =
-  test_subcommand ?expected_exit_code ~__LOC__:loc "status" shell_command_args
+let test_status ?expected_exit_code ?(tags = default_tags) ~__LOC__:loc
+    shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc
+    (sprintf "status -t '%s'" tags)
+    shell_command_args
 
-let test_approve ?expected_exit_code ~__LOC__:loc shell_command_args =
-  test_subcommand ?expected_exit_code ~__LOC__:loc "approve" shell_command_args
+let test_approve ?expected_exit_code ?(tags = default_tags) ~__LOC__:loc
+    shell_command_args =
+  test_subcommand ?expected_exit_code ~__LOC__:loc
+    (sprintf "approve -t '%s'" tags)
+    shell_command_args
 
 let clear_status ~__LOC__:loc () =
   shell_command ~__LOC__:loc "rm -rf _build/testo/status/testo_tests"
@@ -135,8 +147,8 @@ let test_standard_flow () =
       test_status ~__LOC__ "--env A_b123=xxx";
       test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
       test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
-      test_status ~__LOC__ "-a -t testin" ~expected_exit_code:124;
-      test_status ~__LOC__ "-a -t testing";
+      test_status ~__LOC__ "-a" ~tags:"testin" ~expected_exit_code:124;
+      test_status ~__LOC__ "-a" ~tags:"testing";
       test_status ~__LOC__ "--strict" ~expected_exit_code:1;
       (* Modify the output of the test named 'environment-sensitive'
        by setting an environment variable it consults, simulating a bug *)

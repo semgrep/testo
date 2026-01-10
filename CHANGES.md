@@ -25,6 +25,19 @@ x.x.x (xxxx-xx-xx)
 * Report and highlight differences in Unix vs. Windows line endings as
   well as missing trailing newlines
   ([#163](https://github.com/semgrep/testo/pull/163).
+* Testo's snapshot files are now open in text mode for Windows-Unix
+  compatibility. When reading files on Windows, CRLFs are converted to
+  LFs. When writing, LFs are converted to CRLFs. Git or equivalent
+  must be set up to convert line endings appropriately when moving
+  files across platforms
+  ([#165](https://github.com/semgrep/testo/pull/165)).
+* A series of functions for reading and writing files has been deprecated
+  and renamed to hint that we're reading or writing in text mode on
+  Windows. These functions are `write_file`, `read_file`, `map_file`,
+  `copy_file`, and `with_temp_file`. The new names are
+  `write_text_file`, `read_text_file`, etc.
+  ([#165](https://github.com/semgrep/testo/pull/165)).
+* Testo's own test suite now passes successfully on Windows.
 
 0.2.0 (2025-09-11)
 ------------------

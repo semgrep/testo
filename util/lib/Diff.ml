@@ -43,7 +43,8 @@ type eol_analysis = {
   style1 : eol_style;
   style2 : eol_style;
   equal_after_normalization : bool;
-  same_consistent_style : bool;
+  consistent_style : bool;
+  same_style : bool;
 }
 [@@deriving show]
 
@@ -69,7 +70,7 @@ let classify_lines (lines : string list) : (string * eol) list =
   | [] -> []
 
 let read_lines path : (string * eol) list =
-  path |> Helpers.read_file |> String.split_on_char '\n' |> classify_lines
+  path |> Helpers.read_text_file |> String.split_on_char '\n' |> classify_lines
 
 let detect_eol_style lines : eol_style =
   let has_crlf = ref false in
@@ -107,14 +108,15 @@ let analyze_eol_style lines1 lines2 =
     with
     | Invalid_argument _ -> false
   in
-  let same_consistent_style =
+  let consistent_style = style1 <> Mixed && style2 <> Mixed in
+  let same_style =
     match (style1, style2) with
     | LF, LF
     | CRLF, CRLF ->
         true
     | _ -> false
   in
-  { style1; style2; equal_after_normalization; same_consistent_style }
+  { style1; style2; equal_after_normalization; consistent_style; same_style }
 
 (* Minimum number of lines of context to show before or after a deletion
    or an insertion when possible *)
@@ -335,10 +337,9 @@ let files ?color path1 path2 =
   if lines1 = lines2 then None
   else
     let eol_res = analyze_eol_style lines1 lines2 in
-    if eol_res.equal_after_normalization then
+    if eol_res.equal_after_normalization && eol_res.consistent_style then
       Some (print_eol_diff_to_string ?color path1 path2 eol_res)
     else
       Some
-        (lines ?color ~path1 ~path2
-           ~show_eol:(not eol_res.same_consistent_style)
+        (lines ?color ~path1 ~path2 ~show_eol:(not eol_res.same_style)
            (Array.of_list lines1) (Array.of_list lines2))
