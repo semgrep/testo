@@ -5,7 +5,6 @@
 /failing-test
 /meta-test
 /parallel-test
-/timeout-test
 /test-alcotest
 /bin
 /tests/diff-data/testo-diff
