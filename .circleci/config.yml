@@ -56,6 +56,13 @@ jobs:
     executor:
       name: win/default
     steps:
+      - run:
+          name: "Enable Git symlinks"
+          # Check out symlinks as copies of the file they're pointing
+          # to because Windows doesn't have symlinks and the default
+          # setting is useless.
+          command: git config --global core.symlinks true
+
       - checkout
 
       - run:
@@ -104,7 +111,10 @@ jobs:
             - ~/AppData/Local/opam
 
       - run:
-          # takes about 10 min without caching
+          # This takes about 10 min without caching.
+          # With caching, it still queries opam-repository for package
+          # updates but since most packages are already installed,
+          # it's usually fast (~40 s).
           name: Install dependencies
           shell: bash.exe
           command: ./scripts/dev-setup-all-platforms -y
