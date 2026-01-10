@@ -329,7 +329,8 @@ let skipped =
 
 let tests =
   [
-    t ~checked_output:(T.stdxxx ()) ~normalize:mask_alcotest_output
+    t ~checked_output:(T.stdxxx ())
+      ~normalize:(mask_alcotest_output @ mask_testo_output)
       "standard flow" test_standard_flow;
     t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort ?skipped
       "fewer workers than tests" test_fewer_workers_than_tests;
@@ -345,7 +346,7 @@ let tests =
       test_failing_flow_status;
     t "timeout flow run" test_timeout_flow_run;
     t "timeout flow status" ~checked_output:(T.stdxxx ())
-      test_timeout_flow_status;
+      ~normalize:mask_testo_output test_timeout_flow_status;
     t "output masking for failing tests"
       ~expected_outcome:(Should_fail "expected to fail")
       ~checked_output:(T.stdout ())
