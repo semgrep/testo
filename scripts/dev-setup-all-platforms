@@ -23,4 +23,8 @@ opam install --deps-only "$@" \
   ocamlformat
 
 # Install pre-commit hooks. See https://pre-commit.com/
-pre-commit install
+# but don't bother if we're on Windows
+if [[ -z "$SYSTEMROOT" ]]; then
+  # We're not on Windows
+  pre-commit install
+fi
