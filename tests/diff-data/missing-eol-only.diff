@@ -1,0 +1,8 @@
+[1m--- missing-eol-only.left[0m
+[1m+++ missing-eol-only.right[0m
+[36m@@ -2,4 +2,4 @@[0m
+ b
+ c
+ d
+[31m-e\ No newline at end of file[0m
+[32m+e[0m

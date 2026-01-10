@@ -342,13 +342,13 @@ let test_diff name =
   let dir = Fpath.v "tests/diff-data/" in
   let func () =
     Testo.with_chdir dir (fun () ->
-        let equal, diff_text =
+        match
           Testo_util.Diff.files
             (Fpath.v (name ^ ".left"))
             (Fpath.v (name ^ ".right"))
-        in
-        assert (not equal);
-        print_string diff_text)
+        with
+        | None -> assert false
+        | Some diff_text -> print_string diff_text)
   in
   Testo.create name func ~category:[ "diff" ]
     ~checked_output:
@@ -686,6 +686,12 @@ let tests env =
     test_diff "trailing-context";
     test_diff "joined-context";
     test_diff "gap-in-context";
+    test_diff "lf-crlf-only";
+    test_diff "crlf-lf-only";
+    test_diff "lf-crlf";
+    test_diff "crlf-lf";
+    test_diff "missing-eol-only";
+    test_diff "missing-eol";
     t "current test" (fun () ->
         match Testo.get_current_test () with
         | None -> Alcotest.fail "current test is unset"

@@ -11,3 +11,4 @@
 * text=auto
 
 # Add exceptions below
+tests/diff-data/* binary
