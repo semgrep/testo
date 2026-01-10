@@ -22,6 +22,9 @@ x.x.x (xxxx-xx-xx)
   worker process. It saves unnecessary computations while providing
   the same logs for each test sharing this context
   ([#156](https://github.com/semgrep/testo/issues/156)).
+* Report and highlight differences in Unix vs. Windows line endings as
+  well as missing trailing newlines
+  ([#163](https://github.com/semgrep/testo/pull/163).
 
 0.2.0 (2025-09-11)
 ------------------
