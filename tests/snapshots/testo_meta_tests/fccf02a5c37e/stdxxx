@@ -1206,18 +1206,18 @@ junk printed on stdout...
 [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
 <handling result before exiting>
 RUN ./test status -e foo=bar -e novalue
-test: option '-e': Malformed KEY=VALUE pair: novalue
-Usage: test status [OPTION]…
-Try 'test status --help' or 'test --help' for more information.
+test.exe: option '-e': Malformed KEY=VALUE pair: novalue
+Usage: test.exe status [OPTION]…
+Try 'test.exe status --help' or 'test.exe --help' for more information.
 RUN ./test status -e foo=bar -e b@d_key=42
-test: option '-e': Malformed KEY=VALUE pair: b@d_key=42
-Usage: test status [OPTION]…
-Try 'test status --help' or 'test --help' for more information.
+test.exe: option '-e': Malformed KEY=VALUE pair: b@d_key=42
+Usage: test.exe status [OPTION]…
+Try 'test.exe status --help' or 'test.exe --help' for more information.
 RUN ./test status -e foo=bar -a -t testin
-test: option '-t': Syntax error in tag query 'testin': Failure("Not a valid
-      tag for this test suite: testin")
-Usage: test status [OPTION]…
-Try 'test status --help' or 'test --help' for more information.
+test.exe: option '-t': Syntax error in tag query 'testin': Failure("Not a
+          valid tag for this test suite: testin")
+Usage: test.exe status [OPTION]…
+Try 'test.exe status --help' or 'test.exe --help' for more information.
 RUN ./test status -e foo=bar -a -t testing
 junk printed on stdout...
 ... when creating the test suite

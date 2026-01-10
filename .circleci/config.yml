@@ -56,7 +56,34 @@ jobs:
     executor:
       name: win/default
     steps:
+      - run:
+          name: "Enable Git symlinks"
+          # Check out symlinks as copies of the file they're pointing
+          # to because Windows doesn't have symlinks and the default
+          # setting is useless.
+          command: git config --global core.symlinks true
+
       - checkout
+
+      - run:
+          name: Set weekly cache key segment
+          shell: bash.exe
+          # These commands calculate a number that increments every 7 days
+          command: |
+            echo $(( ( $(date +%s) / 604800 ) )) > week_id.txt
+            echo $(( ( $(date +%s) / 604800 - 1 ) )) > previous_week_id.txt
+
+      # Caching: refreshing a cache entry requires changing the cache
+      # key. We refresh the caches once a week by using an identifier
+      # for the week. To force a refresh, append a version segment
+      # such as '-v123'.
+      - restore_cache:
+          keys:
+            # The first available key is the one being used
+            - opam-win-5.3.0-pkgs-{{ checksum "week_id.txt" }}
+            - opam-win-5.3.0-pkgs-{{ checksum "previous_week_id.txt" }}
+            - opam-win-5.3.0-v3
+
       - run:
           name: Install Opam
           shell: bash.exe
@@ -66,12 +93,8 @@ jobs:
             curl -L "$url" -o "$dst"
             opam --version
 
-      - restore_cache:
-          keys:
-            - opam-win-5.3.0-v3
-
       - run:
-          # takes ~13 min on a good day
+          # takes about 13 min without caching
           name: Set up OCaml and opam environment
           shell: bash.exe
           no_output_timeout: 30m
@@ -85,21 +108,38 @@ jobs:
             fi
 
       - save_cache:
-          # Increment the key version here and above if you want to
-          # refresh the cache!
           key: opam-win-5.3.0-v3
           paths:
             - ~/AppData/Local/opam
 
       - run:
+          # This takes about 10 min without caching.
+          # With caching, it still queries opam-repository for package
+          # updates but since most packages are already installed,
+          # it's usually fast (~40 s).
           name: Install dependencies
+          shell: bash.exe
           command: ./scripts/dev-setup-all-platforms -y
+
+      - save_cache:
+          key: opam-win-5.3.0-pkgs-{{ checksum "week_id.txt" }}
+          paths:
+            - ~/AppData/Local/opam
+
+      # We don't call 'make' since Windows doesn't have GNU Make
+      # and relying on it is not encouraged.
       - run:
           name: Build
-          command: opam exec -- make
+          shell: bash.exe
+          command: |
+            opam exec -- dune build .
       - run:
           name: Test
-          command: opam exec -- make test
+          shell: bash.exe
+          command: |
+            opam exec -- dune exec diff/tests/test.exe
+            opam exec -- dune exec tests/test_alcotest.exe
+            opam exec -- dune exec tests/meta_test.exe
 
   semgrep-full-scan:
     docker:

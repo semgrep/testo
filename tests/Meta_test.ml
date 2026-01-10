@@ -119,58 +119,56 @@ let clear_snapshots ~__LOC__:loc () =
    are so frequent and so big that unwanted changes may be accidentally
    approved. *)
 let test_standard_flow () =
-  Fun.protect (fun () ->
-    section "Clean start";
-    clear_status ~__LOC__ ();
-    clear_snapshots ~__LOC__ ();
-    test_status ~__LOC__ "" ~expected_exit_code:1;
-    test_run ~__LOC__ "" ~expected_exit_code:1;
-    test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
-    test_status ~__LOC__ "" ~expected_exit_code:1;
-    test_approve ~__LOC__ "-s auto-approve";
-    test_approve ~__LOC__ "-s environment-sensitive";
-    test_status ~__LOC__ "";
-    test_status ~__LOC__ "--expert";
-    test_status ~__LOC__ "--env A_b123=xxx";
-    test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
-    test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
-    test_status ~__LOC__ "-a -t testin" ~expected_exit_code:124;
-    test_status ~__LOC__ "-a -t testing";
-    test_status ~__LOC__ "--strict" ~expected_exit_code:1;
-    (* Modify the output of the test named 'environment-sensitive'
+  Fun.protect
+    (fun () ->
+      section "Clean start";
+      clear_status ~__LOC__ ();
+      clear_snapshots ~__LOC__ ();
+      test_status ~__LOC__ "" ~expected_exit_code:1;
+      test_run ~__LOC__ "" ~expected_exit_code:1;
+      test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
+      test_status ~__LOC__ "" ~expected_exit_code:1;
+      test_approve ~__LOC__ "-s auto-approve";
+      test_approve ~__LOC__ "-s environment-sensitive";
+      test_status ~__LOC__ "";
+      test_status ~__LOC__ "--expert";
+      test_status ~__LOC__ "--env A_b123=xxx";
+      test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
+      test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
+      test_status ~__LOC__ "-a -t testin" ~expected_exit_code:124;
+      test_status ~__LOC__ "-a -t testing";
+      test_status ~__LOC__ "--strict" ~expected_exit_code:1;
+      (* Modify the output of the test named 'environment-sensitive'
        by setting an environment variable it consults, simulating a bug *)
-    with_env ("TESTO_TEST", Some "hello") (fun () ->
-      test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
-    (* "Fix the bug" in test 'environment-sensitive' *)
-    test_run ~__LOC__ "-s environment-sensitive";
-    section "Delete statuses but not snapshots";
-    clear_status ~__LOC__ ();
-    test_status ~__LOC__ "-v" ~expected_exit_code:1;
-    test_status ~__LOC__ "-l" ~expected_exit_code:1;
-    test_status ~__LOC__ "-a" ~expected_exit_code:1;
-    test_run ~__LOC__ "";
-    section "Delete snapshots but not statuses";
-    clear_snapshots ~__LOC__ ();
-    test_status ~__LOC__ "" ~expected_exit_code:1;
-    test_approve ~__LOC__ "-s auto-approve";
-    section "Delete the dead snapshots with --autoclean";
-    test_status ~__LOC__ "-l --autoclean";
-    section "Check that the dead snapshots are gone";
-    test_status ~__LOC__ "-l"
-  )
+      with_env ("TESTO_TEST", Some "hello") (fun () ->
+          test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
+      (* "Fix the bug" in test 'environment-sensitive' *)
+      test_run ~__LOC__ "-s environment-sensitive";
+      section "Delete statuses but not snapshots";
+      clear_status ~__LOC__ ();
+      test_status ~__LOC__ "-v" ~expected_exit_code:1;
+      test_status ~__LOC__ "-l" ~expected_exit_code:1;
+      test_status ~__LOC__ "-a" ~expected_exit_code:1;
+      test_run ~__LOC__ "";
+      section "Delete snapshots but not statuses";
+      clear_snapshots ~__LOC__ ();
+      test_status ~__LOC__ "" ~expected_exit_code:1;
+      test_approve ~__LOC__ "-s auto-approve";
+      section "Delete the dead snapshots with --autoclean";
+      test_status ~__LOC__ "-l --autoclean";
+      section "Check that the dead snapshots are gone";
+      test_status ~__LOC__ "-l")
     ~finally:(fun () ->
       section "Restore any deleted snapshots";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
-    )
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests")
 
 let test_multi_selection () =
   let (), capture =
     Testo.with_capture stdout (fun () ->
-      (* Select two tests that have different names. We could pick
+        (* Select two tests that have different names. We could pick
          any two tests for this. *)
-      shell_command ~__LOC__
-        "./test status -a -s 'unchecked stdout' -s 'unchecked stderr'"
-    )
+        shell_command ~__LOC__
+          "./test status -a -s 'unchecked stdout' -s 'unchecked stderr'")
   in
   assert (Testo_util.Helpers.contains_substring capture ~sub:"unchecked stdout");
   assert (Testo_util.Helpers.contains_substring capture ~sub:"unchecked stderr")
@@ -193,43 +191,42 @@ let test_approve_xfail () =
    output files works.
 *)
 let test_new_output_file_capture () =
-  Fun.protect (fun () ->
-    let test_name = "capture multiple files and stdout" in
-    let test_id = "0658581e95c7" in
+  Fun.protect
+    (fun () ->
+      let test_name = "capture multiple files and stdout" in
+      let test_id = "0658581e95c7" in
       section (sprintf "Delete snapshots for test %s '%s'" test_id test_name);
       shell_command ~__LOC__
         (sprintf "rm -rf tests/snapshots/testo_tests/%s" test_id);
       section "Run test without snapshots";
       test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
       section "Approve captured output";
-      test_approve ~__LOC__ (sprintf "-s %s" test_id);
-  )
+      test_approve ~__LOC__ (sprintf "-s %s" test_id))
     ~finally:(fun () ->
       section "Restore any deleted snapshots";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
-    )
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests")
 
 let test_updated_output_file_capture () =
-  Fun.protect (fun () ->
-    let test_name = "capture multiple files and stdout" in
-    let test_id = "0658581e95c7" in
+  Fun.protect
+    (fun () ->
+      let test_name = "capture multiple files and stdout" in
+      let test_id = "0658581e95c7" in
       section (sprintf "Edit snapshot for test %s '%s'" test_id test_name);
       shell_command ~__LOC__
-        (sprintf "echo outdated_contents >> \
-                  tests/snapshots/testo_tests/%s/file-results.txt" test_id);
+        (sprintf
+           "echo outdated_contents >> \
+            tests/snapshots/testo_tests/%s/file-results.txt"
+           test_id);
       section "Run test with updated output in results.txt";
       test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
       section "Approve updated captured output";
-      test_approve ~__LOC__ (sprintf "-s %s" test_id);
-  )
+      test_approve ~__LOC__ (sprintf "-s %s" test_id))
     ~finally:(fun () ->
       section "Restore any modified snapshot";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests"
-    )
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests")
 
 let test_max_inline_log_size ~limit () =
-  test_run ~__LOC__ (sprintf
-                       "-s 'inline logs' --max-inline-log-bytes %s" limit)
+  test_run ~__LOC__ (sprintf "-s 'inline logs' --max-inline-log-bytes %s" limit)
 
 (*****************************************************************************)
 (* Exercise the parallel test suite *)
@@ -266,6 +263,7 @@ let timeout_test_subcommand ~loc shell_command_string =
 
 (* -j1 = sequential run that supports timeouts *)
 let test_timeout_flow_run () = timeout_test_subcommand ~loc:__LOC__ "run -j1"
+
 let test_timeout_flow_status () =
   timeout_test_subcommand ~loc:__LOC__ "status -al"
 
@@ -283,6 +281,11 @@ let delete pat = T.mask_pcre_pattern ~replace:(fun _ -> "") pat
 *)
 let mask_stack_backtrace =
   Testo.mask_line ~after:"Raised at " ~before:", line" ()
+
+(* Replace all backslashes with forward slashes to normalize Windows paths.
+   This may replace more backslashes than we want. *)
+let normalize_paths =
+  T.mask_pcre_pattern ~replace:(fun _backslash -> "/") {|\\|}
 
 let mask_alcotest_output =
   [
@@ -303,6 +306,8 @@ let mask_alcotest_output =
     mask_stack_backtrace;
   ]
 
+let mask_testo_output = [ normalize_paths ]
+
 let sort_lines str =
   str |> String.split_on_char '\n' |> List.sort String.compare
   |> String.concat "\n"
@@ -311,27 +316,25 @@ let sort_lines str =
 let remove_optional_lines =
   Testo.remove_matching_lines (Testo.contains_substring ~sub:"OPTIONAL")
 
-let mask_and_sort = mask_alcotest_output @ [ sort_lines; remove_optional_lines ]
+let mask_and_sort =
+  mask_alcotest_output @ mask_testo_output
+  @ [ sort_lines; remove_optional_lines ]
 
 (* FIXME: Running parallel jobs on Windows is unstable, producing
    Sys_error("Invalid argument")` during some attempts to flush channels.
    Perhaps related to https://github.com/ocaml/ocaml/issues/13586 *)
 let skipped =
-  if Sys.win32 then
-    Some "Running tests in parallel is unstable on Windows"
-  else
-    None
+  if Sys.win32 then Some "Running tests in parallel is unstable on Windows"
+  else None
 
 let tests =
   [
     t ~checked_output:(T.stdxxx ())
-      ~normalize:mask_alcotest_output
+      ~normalize:(mask_alcotest_output @ mask_testo_output)
       "standard flow" test_standard_flow;
-    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
-      ?skipped
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort ?skipped
       "fewer workers than tests" test_fewer_workers_than_tests;
-    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort
-      ?skipped
+    t ~checked_output:(T.stdxxx ()) ~normalize:mask_and_sort ?skipped
       "more workers than tests" test_more_workers_than_tests;
     t "failing flow run"
       ~expected_outcome:
@@ -341,11 +344,9 @@ let tests =
       ~expected_outcome:
         (Should_fail "the invoked test suite is designed to fail")
       test_failing_flow_status;
-    t "timeout flow run"
-      test_timeout_flow_run;
-    t "timeout flow status"
-      ~checked_output:(T.stdxxx ())
-      test_timeout_flow_status;
+    t "timeout flow run" test_timeout_flow_run;
+    t "timeout flow status" ~checked_output:(T.stdxxx ())
+      ~normalize:mask_testo_output test_timeout_flow_status;
     t "output masking for failing tests"
       ~expected_outcome:(Should_fail "expected to fail")
       ~checked_output:(T.stdout ())
@@ -357,17 +358,15 @@ let tests =
       (fun () ->
         print_string "not masked";
         failwith "this exception is expected");
-    t "approve xfail"
-      ~checked_output:(T.stdxxx ())
-      test_approve_xfail;
+    t "approve xfail" ~checked_output:(T.stdxxx ()) test_approve_xfail;
     t "multi selection" test_multi_selection;
     t "new output file capture" test_new_output_file_capture;
     t "updated output file capture" test_updated_output_file_capture;
-    t "max inline log size"
-      ~checked_output:(T.stdout ())
+    t "max inline log size" ~checked_output:(T.stdout ())
+      ~normalize:mask_testo_output
       (test_max_inline_log_size ~limit:"5");
-    t "no max inline log size"
-      ~checked_output:(T.stdout ())
+    t "no max inline log size" ~checked_output:(T.stdout ())
+      ~normalize:mask_testo_output
       (test_max_inline_log_size ~limit:"unlimited");
   ]
 

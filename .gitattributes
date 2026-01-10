@@ -1,0 +1,13 @@
+# The goal is to convert LF to CRLF when checking out text files on Windows.
+# This file specifies which file types should be treated as text or binary.
+#
+# Git config:
+# - core.autocrlf should be unset
+# - core.eol should be unset or set to 'native'
+#
+# See the official documentation for guidance.
+
+# Default: auto-detect text files
+* text=auto
+
+# Add exceptions below
