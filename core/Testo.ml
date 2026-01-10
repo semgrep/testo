@@ -254,12 +254,19 @@ let fail = Testo_util.Error.fail_test
 (* Files and output manipulation *)
 (**************************************************************************)
 
-let write_file = Helpers.write_file
-let read_file = Helpers.read_file
-let map_file = Helpers.map_file
-let copy_file = Helpers.copy_file
-let with_temp_file = Temp_file.with_temp_file
+let write_text_file = Helpers.write_text_file
+let read_text_file = Helpers.read_text_file
+let map_text_file = Helpers.map_text_file
+let copy_text_file = Helpers.copy_text_file
+let with_temp_text_file = Temp_file.with_temp_text_file
 let with_capture = Store.with_capture
+
+(* Deprecated function names *)
+let write_file = write_text_file
+let read_file = read_text_file
+let map_file = map_text_file
+let copy_file = copy_text_file
+let with_temp_file = with_temp_text_file
 
 let with_chdir path func =
   let orig_cwd = Unix.getcwd () in

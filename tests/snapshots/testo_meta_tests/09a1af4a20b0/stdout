@@ -1,4 +1,4 @@
-RUN ./test run -e foo=bar -j 1 -s 'inline logs' --max-inline-log-bytes 5
+RUN ./test run -e foo=bar -j 1 -s 'inline logs' --max-inline-log-bytes 5 -t 'not unix_only'
 junk printed on stdout...
 ... when creating the test suite
 Legend:

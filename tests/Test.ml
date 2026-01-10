@@ -26,6 +26,20 @@ let animal_tests = Testo.categorize "animal" [ t "banana slug" (fun () -> ()) ]
 let categorized =
   Testo.categorize_suites "biohazard" [ fruit_tests; animal_tests ]
 
+(* Tests that we don't run on Windows due to a different behavior:
+   CRLF is translated to LF when reading a text file on Windows but
+   not when reading the same file that wasn't translated when moved to Unix,
+   where ideally such files should not exist.
+
+   These tests are automatically skipped on Windows and we provide a
+   'unix' tag to deselect these tests when running the meta test suite
+   so that we run the same tests and get the same output on all platforms.
+*)
+let skipped_on_windows =
+  if Sys.win32 then Some "This test does not make sense on Windows" else None
+
+let unix_tag = Testo.Tag.declare "unix_only"
+
 (*
    Test the 'validate_name' function used by 'checked_output_file'.
 *)
@@ -305,12 +319,12 @@ let test_alcotest_error_formatting () =
 let test_temporary_files () =
   let path_ref = ref None in
   try
-    Testo.with_temp_file ~contents:"hello" (fun path ->
+    Testo.with_temp_text_file ~contents:"hello" (fun path ->
         path_ref := Some path;
-        let data = Testo.read_file path in
+        let data = Testo.read_text_file path in
         Alcotest.(check string) "file contents" "hello" data;
-        Testo.write_file path "";
-        let data = Testo.read_file path in
+        Testo.write_text_file path "";
+        let data = Testo.read_text_file path in
         Alcotest.(check string) "empty file contents" "" data;
         raise Exit |> ignore);
     assert false
@@ -347,7 +361,7 @@ let test_user_output_capture () =
    'bin/testo-diff' on the files in 'tests/diff-data' manually and
    compare with the output of 'diff -u --color'.
 *)
-let test_diff name =
+let test_diff ?skipped ?tags name =
   let dir = Fpath.v "tests/diff-data/" in
   let func () =
     Testo.with_chdir dir (fun () ->
@@ -359,7 +373,7 @@ let test_diff name =
         | None -> assert false
         | Some diff_text -> print_string diff_text)
   in
-  Testo.create name func ~category:[ "diff" ]
+  Testo.create name func ?skipped ?tags ~category:[ "diff" ]
     ~checked_output:
       (Testo.stdout ~expected_stdout_path:(dir / (name ^ ".diff")) ())
 
@@ -393,33 +407,33 @@ let tag_selection_tests =
 
 let test_write_read_map () =
   let contents = "hello" in
-  Testo.with_temp_file (fun src_path ->
-      Testo.write_file src_path contents;
-      Testo.with_temp_file (fun dst_path ->
-          let contents2 = Testo.read_file src_path in
+  Testo.with_temp_text_file (fun src_path ->
+      Testo.write_text_file src_path contents;
+      Testo.with_temp_text_file (fun dst_path ->
+          let contents2 = Testo.read_text_file src_path in
           Alcotest.(check string) "read" contents contents2;
           let new_contents = "new" in
-          Testo.map_file
+          Testo.map_text_file
             (fun contents3 ->
               Alcotest.(check string) "map_file input" contents contents3;
               new_contents)
             src_path dst_path;
-          let new_contents2 = Testo.read_file dst_path in
+          let new_contents2 = Testo.read_text_file dst_path in
           Alcotest.(check string) "map_file output" new_contents new_contents2))
 
 let test_write_read_map_in_place () =
   let contents = "hello" in
-  Testo.with_temp_file (fun path ->
-      Testo.write_file path contents;
-      let contents2 = Testo.read_file path in
+  Testo.with_temp_text_file (fun path ->
+      Testo.write_text_file path contents;
+      let contents2 = Testo.read_text_file path in
       Alcotest.(check string) "read" contents contents2;
       let new_contents = "new" in
-      Testo.map_file
+      Testo.map_text_file
         (fun contents3 ->
           Alcotest.(check string) "map_file input" contents contents3;
           new_contents)
         path path;
-      let new_contents2 = Testo.read_file path in
+      let new_contents2 = Testo.read_text_file path in
       Alcotest.(check string) "map_file output" new_contents new_contents2)
 
 let shared_context_merged_output =
@@ -547,7 +561,7 @@ let tests env =
       (fun () ->
         Testo.with_temp_dir ~chdir:true (fun _dir ->
             let output_file = Fpath.v "results" in
-            Testo.write_file output_file "hello world\n";
+            Testo.write_text_file output_file "hello world\n";
             Testo.stash_output_file output_file "results.txt"));
     t "fail to capture one file"
       ~expected_outcome:(Should_fail "must raise exception")
@@ -565,10 +579,10 @@ let tests env =
         Testo.with_temp_dir ~chdir:true (fun _dir ->
             print_endline "this is a message on stdout";
             let txt_path = Fpath.v "results.txt" in
-            Testo.write_file txt_path "hello world\n";
+            Testo.write_text_file txt_path "hello world\n";
             Testo.stash_output_file txt_path "results.txt";
             let json_path = Fpath.v "results.json" in
-            Testo.write_file json_path "{}\n";
+            Testo.write_text_file json_path "{}\n";
             Testo.stash_output_file json_path "results.json"));
     t "inline logs" ~inline_logs:On (fun () ->
         print_endline "Hello. This is a log.");
@@ -699,10 +713,12 @@ let tests env =
     test_diff "trailing-context";
     test_diff "joined-context";
     test_diff "gap-in-context";
-    test_diff "lf-crlf-only";
-    test_diff "crlf-lf-only";
-    test_diff "lf-crlf";
-    test_diff "crlf-lf";
+    (* These tests are about reading files with CRLF on Unix where they
+       don't get translated into LFs during reads like on Windows *)
+    test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "lf-crlf-only";
+    test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "crlf-lf-only";
+    test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "lf-crlf";
+    test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "crlf-lf";
     test_diff "missing-eol-only";
     test_diff "missing-eol";
     t "current test" (fun () ->

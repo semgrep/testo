@@ -106,7 +106,12 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   *)
   match cmd_conf with
   | Run_tests conf ->
-      if conf.is_worker then ignore_broken_pipe ();
+      if conf.is_worker then (
+        ignore_broken_pipe ();
+        (* Make sure to communicate over the pipe in binary mode to avoid
+           CRLF<->LF conversions *)
+        set_binary_mode_in stdin true;
+        set_binary_mode_out stdout true);
       Debug.debug := conf.debug;
       let tests = get_tests conf.env in
       Run.cmd_run

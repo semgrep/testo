@@ -65,14 +65,14 @@ let list_result_of_result_list (xs : ('a, 'b) Result.t list) :
   | [] -> Ok oks
   | errs -> Error errs
 
-let with_file_in path f =
+let with_text_file_in path f =
   if Sys.file_exists !!path then
-    let ic = open_in_bin !!path in
+    let ic = open_in !!path in
     Fun.protect ~finally:(fun () -> close_in_noerr ic) (fun () -> Ok (f ic))
   else Error path
 
-let read_file path : (string, Fpath.t (* missing file *)) Result.t =
-  with_file_in path (fun ic -> really_input_string ic (in_channel_length ic))
+let read_text_file path : (string, Fpath.t (* missing file *)) Result.t =
+  with_text_file_in path Helpers.input_all
 
 let errmsg_of_missing_file (path : Fpath.t) : string =
   sprintf "Missing or inaccessible file %s" !!path
@@ -84,16 +84,18 @@ let errmsg_of_missing_files (T.Missing_files paths) : string =
       sprintf "Missing or inaccessible files: %s"
         (paths |> List.map Fpath.to_string |> String.concat ", ")
 
-let read_file_exn path : string =
-  match read_file path with
+let read_text_file_exn path : string =
+  match read_text_file path with
   | Ok data -> data
   | Error path -> Error.user_error (errmsg_of_missing_file path)
 
-let with_file_out path f =
-  let oc = open_out_bin !!path in
+let with_text_file_out path f =
+  let oc = open_out !!path in
   Fun.protect ~finally:(fun () -> close_out_noerr oc) (fun () -> f oc)
 
-let write_file path data = with_file_out path (fun oc -> output_string oc data)
+let write_text_file path data =
+  with_text_file_out path (fun oc -> output_string oc data)
+
 let remove_file path = if Sys.file_exists !!path then Sys.remove !!path
 
 (*
@@ -206,7 +208,7 @@ let get_name_file_path (test : T.test) =
    test suite. *)
 let write_name_file (test : T.test) =
   let contents = test.internal_full_name ^ "\n" in
-  Helpers.write_file (get_name_file_path test) contents
+  Helpers.write_text_file (get_name_file_path test) contents
 
 let must_create_expectation_workspace_for_test (test : T.test) =
   test.checked_output_files <> []
@@ -268,12 +270,13 @@ let completion_status_of_string path data : T.completion_status =
 
 let set_completion_status (test : T.test) completion_status =
   let path = get_completion_status_path test in
-  completion_status |> string_of_completion_status |> Helpers.write_file path
+  completion_status |> string_of_completion_status
+  |> Helpers.write_text_file path
 
 let get_completion_status (test : T.test) :
     (T.completion_status, Fpath.t (* missing file *)) Result.t =
   let path = get_completion_status_path test in
-  match read_file path with
+  match read_text_file path with
   | Ok data -> Ok (completion_status_of_string path data)
   | Error path -> Error path
 
@@ -325,11 +328,11 @@ let store_exception (test : T.test) opt_msg =
   let path = get_exception_path test in
   match opt_msg with
   | None -> remove_file path
-  | Some msg -> write_file path msg
+  | Some msg -> write_text_file path msg
 
 let get_exception (test : T.test) =
   let path = get_exception_path test in
-  match read_file path with
+  match read_text_file path with
   | Ok data -> Some data
   | Error _path -> None
 
@@ -438,16 +441,16 @@ let get_unchecked_output_path (test : T.test) =
   get_std_output_path test unchecked_filename
 
 let get_output (paths : capture_paths list) =
-  paths |> get_output_paths |> list_map read_file
+  paths |> get_output_paths |> list_map read_text_file
 
 let get_checked_output (paths : capture_paths list) =
-  paths |> get_checked_output_paths |> list_map read_file
+  paths |> get_checked_output_paths |> list_map read_text_file
 
 let get_unchecked_output (test : T.test) =
   match describe_unchecked_output test.checked_output with
   | Some log_description -> (
       let path = get_unchecked_output_path test in
-      match read_file path with
+      match read_text_file path with
       | Ok data -> Some (log_description, data)
       | Error _cant_read_file -> None)
   | None -> None
@@ -456,7 +459,7 @@ let get_snapshot_paths (paths : capture_paths list) =
   paths |> List.filter_map (fun x -> x.path_to_expected_output)
 
 let get_expected_output (paths : capture_paths list) =
-  paths |> get_snapshot_paths |> list_map read_file
+  paths |> get_snapshot_paths |> list_map read_text_file
 
 let set_expected_output (test : T.test) (capture_paths : capture_paths list)
     (data : string list) =
@@ -467,7 +470,7 @@ let set_expected_output (test : T.test) (capture_paths : capture_paths list)
          (List.length data) (List.length paths))
   else (
     init_expectation_workspace test;
-    List.iter2 (fun path data -> Helpers.write_file path data) paths data)
+    List.iter2 (fun path data -> Helpers.write_text_file path data) paths data)
 
 let clear_expected_output (test : T.test) =
   test |> std_capture_paths_of_test
@@ -479,7 +482,7 @@ let clear_expected_output (test : T.test) =
 let read_name_file ~dir =
   let name_file_path = get_name_file_path_from_dir dir in
   if Sys.file_exists !!name_file_path then
-    let contents = Helpers.read_file name_file_path in
+    let contents = Helpers.read_text_file name_file_path in
     let len = String.length contents in
     if len > 0 && contents.[len - 1] = '\n' then
       Some (String.sub contents 0 (len - 1))
@@ -601,9 +604,9 @@ let with_redirect_to_file from filename func () =
 
 (* This is offered directly to users. *)
 let with_capture from func =
-  Temp_file.with_temp_file ~suffix:".out" (fun path ->
+  Temp_file.with_temp_text_file ~suffix:".out" (fun path ->
       with_redirects_to_file [ from ] path func () >>= fun res ->
-      let output = read_file_exn path in
+      let output = read_text_file_exn path in
       P.return (res, output))
 
 (* Apply functions to the data as a pipeline, from left to right. *)
@@ -629,7 +632,7 @@ let normalize_output (test : T.test) =
              let backup_path = Fpath.v (!!std_path ^ orig_suffix) in
              if Sys.file_exists !!backup_path then Sys.remove !!backup_path;
              Sys.rename !!std_path !!backup_path;
-             let orig_data = read_file_exn backup_path in
+             let orig_data = read_text_file_exn backup_path in
              let normalized_data =
                try rewrite_string orig_data with
                | e ->
@@ -639,7 +642,7 @@ let normalize_output (test : T.test) =
                          function: %s"
                         (Printexc.to_string e))
              in
-             Helpers.write_file std_path normalized_data)
+             Helpers.write_text_file std_path normalized_data)
 
 let with_redirect_merged_stdout_stderr path func =
   (* redirect stderr and stdout to a stdxxx file *)
@@ -702,7 +705,7 @@ let mark_test_as_timed_out (test : T.test) =
 let stash_output_file (test : T.test) src_path (x : T.checked_output_file) :
     unit =
   let dst_path = get_output_file_path test x in
-  Helpers.copy_file src_path dst_path
+  Helpers.copy_text_file src_path dst_path
 
 let remove_stashed_output_files (test : T.test) =
   test.checked_output_files
@@ -749,7 +752,7 @@ let get_expectation (test : T.test) ~(std_capture_paths : capture_paths list) :
   let expected_output_files =
     test.checked_output_files
     |> Helpers.list_map (fun (checked_file : T.checked_output_file) ->
-           match read_file (get_file_snapshot_path test checked_file) with
+           match read_text_file (get_file_snapshot_path test checked_file) with
            | Ok contents ->
                Ok
                  ({ checked_file; contents }
@@ -772,7 +775,9 @@ let get_result (test : T.test) (paths : capture_paths list) :
       let captured_output_files, missing_output_files =
         test.checked_output_files
         |> Helpers.list_map (fun (checked_file : T.checked_output_file) ->
-               match read_file (get_output_file_path test checked_file) with
+               match
+                 read_text_file (get_output_file_path test checked_file)
+               with
                | Ok contents ->
                    Ok
                      ({ checked_file; contents }

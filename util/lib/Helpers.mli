@@ -23,11 +23,15 @@ val make_dir_if_not_exists : ?recursive:bool -> Fpath.t -> unit
    Files are sorted alphabetically and don't include "." or "..". *)
 val list_files : Fpath.t -> string list
 
+(* Similar to In_channel.input_all which is available starting with
+   OCaml 4.14 *)
+val input_all : in_channel -> string
+
 (* Delete files recursively *)
 val remove_file_or_dir : Fpath.t -> unit
 val contains_pcre_pattern : pat:string -> string -> bool
 val contains_substring : sub:string -> string -> bool
-val write_file : Fpath.t -> string -> unit
-val read_file : Fpath.t -> string
-val map_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
-val copy_file : Fpath.t -> Fpath.t -> unit
+val write_text_file : Fpath.t -> string -> unit
+val read_text_file : Fpath.t -> string
+val map_text_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
+val copy_text_file : Fpath.t -> Fpath.t -> unit
