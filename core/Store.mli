@@ -147,7 +147,8 @@ val remove_dead_snapshot : dead_snapshot -> unit
 val mark_test_as_timed_out : Types.test -> unit
 
 (* Copy a checked output file identified by its unique name (not its path) *)
-val stash_output_file : Types.test -> Fpath.t -> Types.checked_output_file -> unit
+val stash_output_file :
+  Types.test -> Fpath.t -> Types.checked_output_file -> unit
 
 (* Clean up stashed output files from previous runs. *)
 val remove_stashed_output_files : Types.test -> unit
@@ -168,7 +169,9 @@ val with_capture :
 val with_redirect_fds :
   from:Unix.file_descr list ->
   to_:Unix.file_descr ->
-  (unit -> 'a Promise.t) -> unit -> 'a Promise.t
+  (unit -> 'a Promise.t) ->
+  unit ->
+  'a Promise.t
 
 val with_result_capture :
   Types.test -> (unit -> unit Promise.t) -> unit -> unit Promise.t

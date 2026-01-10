@@ -14,11 +14,12 @@ let list_flatten ll =
 
 let split_result_list xs =
   let oks, errs =
-    List.fold_left (fun (oks, errs) x ->
-      match x with
-      | Ok ok -> (ok :: oks), errs
-      | Error err -> oks, (err :: errs)
-    ) ([], []) xs
+    List.fold_left
+      (fun (oks, errs) x ->
+        match x with
+        | Ok ok -> (ok :: oks, errs)
+        | Error err -> (oks, err :: errs))
+      ([], []) xs
   in
   (List.rev oks, List.rev errs)
 
@@ -104,8 +105,7 @@ let contains_pcre_pattern ~pat =
   let rex = Re.Pcre.regexp pat in
   fun str -> Re.execp rex str
 
-let contains_substring ~sub =
-  contains_pcre_pattern ~pat:(Re.Pcre.quote sub)
+let contains_substring ~sub = contains_pcre_pattern ~pat:(Re.Pcre.quote sub)
 
 let write_file path data =
   let oc = open_out_bin !!path in
@@ -127,5 +127,4 @@ let map_file func src_path dst_path =
   let new_contents = func old_contents in
   write_file dst_path new_contents
 
-let copy_file src_path dst_path =
-  map_file (fun data -> data) src_path dst_path
+let copy_file src_path dst_path = map_file (fun data -> data) src_path dst_path

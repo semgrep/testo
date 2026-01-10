@@ -13,8 +13,6 @@ type t = Tag.query =
   | Or of t * t
 
 val parse : string -> (t, string) result
-
 val match_ : Tag.t list -> t -> bool
-
 val show : t -> string
 val pp : Format.formatter -> t -> unit

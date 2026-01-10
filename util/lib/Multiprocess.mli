@@ -24,7 +24,8 @@ module Client : sig
     on_end_test:('test -> unit) ->
     on_start_test:(worker option -> 'test -> unit) ->
     test_list_checksum:string ->
-    'test list -> (unit, string) result
+    'test list ->
+    (unit, string) result
 end
 
 (* Worker side *)

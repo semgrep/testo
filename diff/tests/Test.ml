@@ -3,14 +3,12 @@
 *)
 
 open Printf
-module Diff = Testo_diff.Make (
-  struct
-    type t = string
-    [@@deriving show]
 
-    let compare = String.compare
-  end
-)
+module Diff = Testo_diff.Make (struct
+  type t = string [@@deriving show]
+
+  let compare = String.compare
+end)
 
 (* OCaml syntax for copy-pasting *)
 let ocaml_string_of_array a =
@@ -147,10 +145,10 @@ let tests =
           "g";
           "h";
         |] );
-    ("bug",
-     roundtrip_sym 1
-       [| "1"; "2"; "3"; "4"; "5"; "6"; |]
-       [| "Inserted"; "1"; "2"; "3"; "4"; "5"; "6"; |]);
+    ( "bug",
+      roundtrip_sym 1
+        [| "1"; "2"; "3"; "4"; "5"; "6" |]
+        [| "Inserted"; "1"; "2"; "3"; "4"; "5"; "6" |] );
   ]
 
 (* Who needs a test framework anyway? *)

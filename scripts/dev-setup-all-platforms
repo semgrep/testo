@@ -20,7 +20,7 @@ opam install --deps-only --with-test "$@" \
   ./testo-util.opam \
   ./testo.opam \
   ./testo-lwt.opam \
-  ocamlformat
+  ocamlformat.0.27.0
 
 # Install pre-commit hooks. See https://pre-commit.com/
 # but don't bother if we're on Windows

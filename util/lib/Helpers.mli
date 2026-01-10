@@ -9,7 +9,7 @@ val list_map : ('a -> 'b) -> 'a list -> 'b list
 val list_flatten : 'a list list -> 'a list
 
 (* Split ok results from errors *)
-val split_result_list : ('a, 'b) Result.t list -> ('a list * 'b list)
+val split_result_list : ('a, 'b) Result.t list -> 'a list * 'b list
 
 (* String.for_all is only available from OCaml 4.13 *)
 val string_for_all : (char -> bool) -> string -> bool

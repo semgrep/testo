@@ -19,9 +19,10 @@ let parse str =
     let lexbuf = Lexing.from_string str in
     let query = Tag_query_parser.main Tag_query_lexer.token lexbuf in
     Ok query
-  with e ->
-    Error (sprintf "Syntax error in tag query '%s': %s"
-             str (Printexc.to_string e))
+  with
+  | e ->
+      Error
+        (sprintf "Syntax error in tag query '%s': %s" str (Printexc.to_string e))
 
 let rec match_ tags q =
   match q with
@@ -36,9 +37,11 @@ let needs_parens = function
   | Has_tag _
   | All
   | None
-  | Not _ -> false
+  | Not _ ->
+      false
   | And _
-  | Or _ -> true
+  | Or _ ->
+      true
 
 let show q =
   let rec show buf = function
@@ -49,10 +52,7 @@ let show q =
     | And (a, b) -> bprintf buf "%a and %a" show_inner a show_inner b
     | Or (a, b) -> bprintf buf "%a or %a" show_inner a show_inner b
   and show_inner buf x =
-    if needs_parens x then
-      bprintf buf "(%a)" show x
-    else
-      show buf x
+    if needs_parens x then bprintf buf "(%a)" show x else show buf x
   in
   let buf = Buffer.create 100 in
   show buf q;

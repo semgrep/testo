@@ -3,9 +3,7 @@
 *)
 
 (* A type for carrying informational messages *)
-type msg =
-  | Error of string
-  | Warning of string
+type msg = Error of string | Warning of string
 
 (*
    An exception that can be used in a test function to signal a test failure.

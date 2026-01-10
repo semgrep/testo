@@ -7,15 +7,13 @@
 *)
 
 module type Comparable = sig
-  type t
-  [@@deriving show]
+  type t [@@deriving show]
 
   val compare : t -> t -> int
 end
 
 module type S = sig
-  type item
-  [@@deriving show]
+  type item [@@deriving show]
 
   type diff =
     | Deleted of item array
@@ -23,8 +21,7 @@ module type S = sig
     | Equal of item array
   [@@deriving show]
 
-  type t = diff list
-  [@@deriving show]
+  type t = diff list [@@deriving show]
 
   val get_diff : item array -> item array -> t
 
@@ -33,8 +30,7 @@ module type S = sig
 end
 
 module Make (Item : Comparable) = struct
-  type item = Item.t
-  [@@deriving show]
+  type item = Item.t [@@deriving show]
 
   type diff =
     | Deleted of item array
@@ -42,8 +38,7 @@ module Make (Item : Comparable) = struct
     | Equal of item array
   [@@deriving show { with_path = false }]
 
-  type t = diff list
-  [@@deriving show]
+  type t = diff list [@@deriving show]
 
   type subsequence_info = {
     (* Starting index of longest subsequence in the list of new values *)

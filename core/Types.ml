@@ -16,7 +16,10 @@ type completion_status =
 (* If a test failed with an exception, we don't check the output.
    Incorrect_output implies the test returned without raising an exception. *)
 type fail_reason =
-    Raised_exception | Missing_output_file | Incorrect_output | Timeout
+  | Raised_exception
+  | Missing_output_file
+  | Incorrect_output
+  | Timeout
 
 (*
    The outcome defines whether a test succeeded or failed.
@@ -27,7 +30,6 @@ type fail_reason =
    the test passes: a test passes if its outcome matches the expected outcome.
 *)
 type outcome = Succeeded | Failed of fail_reason
-
 type missing_files = Missing_files of Fpath.t list
 
 (* A summary of the 'status' object using the same language as pytest.
@@ -54,7 +56,8 @@ type checked_output_options = {
 }
 
 type checked_output_file = {
-  name : string; (* file identifier used for the copy of the output file and
+  name : string;
+      (* file identifier used for the copy of the output file and
                     used by default as the snapshot file name *)
   options : checked_output_options;
 }
@@ -97,7 +100,8 @@ type expected_outcome =
 type expectation = {
   expected_outcome : expected_outcome;
   expected_output : (expected_output, missing_files) Result.t;
-  expected_output_files : (checked_output_file_with_contents, Fpath.t) Result.t list;
+  expected_output_files :
+    (checked_output_file_with_contents, Fpath.t) Result.t list;
 }
 
 (*

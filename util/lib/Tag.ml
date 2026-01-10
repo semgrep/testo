@@ -31,7 +31,12 @@ let has_valid_tag_syntax =
   let re = Re.Pcre.regexp tag_syntax in
   fun tag ->
     match tag with
-    | "and" | "or" | "not" | "all" | "none" -> false
+    | "and"
+    | "or"
+    | "not"
+    | "all"
+    | "none" ->
+        false
     | tag -> Re.execp re tag
 
 let check_tag_syntax tag =
@@ -40,10 +45,10 @@ let check_tag_syntax tag =
       (sprintf
          "Testo.declare_tag: invalid syntax for test tag '%s'.\n\
           A tag must be a dot-separated sequence of one or more lowercase \
-          identifiers of the form '[a-z_][a-z_0-9]*' \
-          such as 'foo_bar.v2.todo'. \
-          Additionally, a tag may not be a reserved \
-          keyword ('and', 'or', 'not', 'all', 'none')." tag)
+          identifiers of the form '[a-z_][a-z_0-9]*' such as \
+          'foo_bar.v2.todo'. Additionally, a tag may not be a reserved keyword \
+          ('and', 'or', 'not', 'all', 'none')."
+         tag)
 
 (* no duplicates are allowed *)
 let declared_tags : (t, unit) Hashtbl.t = Hashtbl.create 100

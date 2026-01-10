@@ -85,8 +85,7 @@ let truncate_text ~decorate_comment ~decorate_data_fragment ~max_bytes str =
   | Some max_len ->
       let orig_len = String.length str in
       let max_len = max 0 max_len in
-      if orig_len <= max_len then
-        str
+      if orig_len <= max_len then str
       else
         (* Let's keep the beginning and the end of the text since they're
            more likely to contain useful information than the middle.
@@ -96,26 +95,24 @@ let truncate_text ~decorate_comment ~decorate_data_fragment ~max_bytes str =
            sequences. *)
         let head_len = max_len / 2 in
         let tail_len = max_len - head_len in
-        if head_len <= 0 || tail_len <= 0 then
-          str
+        if head_len <= 0 || tail_len <= 0 then str
         else
           let mid_len = orig_len - head_len - tail_len in
           let head = String.sub str 0 head_len in
           let tail = String.sub str (head_len + mid_len) tail_len in
-          let mid =
-            sprintf "\n###### [hidden: %d bytes] ######\n"
-              mid_len
-          in
+          let mid = sprintf "\n###### [hidden: %d bytes] ######\n" mid_len in
           let warning =
             sprintf "###### Warning: bytes %d-%d below were elided ######\n"
-              head_len (head_len + mid_len - 1)
+              head_len
+              (head_len + mid_len - 1)
           in
-          String.concat "" [
-            decorate_comment warning;
-            decorate_data_fragment head;
-            decorate_comment mid;
-            decorate_data_fragment tail
-          ]
+          String.concat ""
+            [
+              decorate_comment warning;
+              decorate_data_fragment head;
+              decorate_comment mid;
+              decorate_data_fragment tail;
+            ]
 
 (*
    Add a trailing newline and indent each line.
@@ -123,10 +120,8 @@ let truncate_text ~decorate_comment ~decorate_data_fragment ~max_bytes str =
 let quote_multiline_text =
   (* Indent by one space, similarly to 'diff -u' output *)
   let margin = " " in
-  fun
-    ?(decorate_comment = color Yellow)
-    ?(decorate_data_fragment = fun str -> str)
-    ?max_bytes str ->
+  fun ?(decorate_comment = color Yellow)
+      ?(decorate_data_fragment = fun str -> str) ?max_bytes str ->
     str
     |> truncate_text ~decorate_comment ~decorate_data_fragment ~max_bytes
     |> String.split_on_char '\n'

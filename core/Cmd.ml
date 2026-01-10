@@ -63,7 +63,10 @@ let default_conf =
    - approve
 *)
 type cmd_conf =
-  | Run_tests of conf | Status of conf | Approve of conf | Show_tags
+  | Run_tests of conf
+  | Status of conf
+  | Approve of conf
+  | Show_tags
 
 type subcommand_result =
   | Run_result of Types.test_with_status list
@@ -93,8 +96,7 @@ let ignore_broken_pipe () =
       (Signal_handle (fun _signal -> exit Error.Exit_code.success))
 
 let show_tags () =
-  Tag.list ()
-  |> List.iter (fun tag -> printf "%s\n" (Tag.to_string tag))
+  Tag.list () |> List.iter (fun tag -> printf "%s\n" (Tag.to_string tag))
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
@@ -108,33 +110,32 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       Debug.debug := conf.debug;
       let tests = get_tests conf.env in
       Run.cmd_run
-        ~always_show_unchecked_output:(conf.show_output,
-                                       conf.max_inline_log_bytes)
-        ~argv:conf.argv
-        ~autoclean:conf.autoclean
+        ~always_show_unchecked_output:
+          (conf.show_output, conf.max_inline_log_bytes)
+        ~argv:conf.argv ~autoclean:conf.autoclean
         ~filter_by_substring:conf.filter_by_substring
-        ~filter_by_tag:conf.filter_by_tag
-        ~intro:conf.intro
-        ~is_worker:conf.is_worker
-        ~jobs:conf.jobs ~lazy_:conf.lazy_ ~slice:conf.slice ~strict:conf.strict
+        ~filter_by_tag:conf.filter_by_tag ~intro:conf.intro
+        ~is_worker:conf.is_worker ~jobs:conf.jobs ~lazy_:conf.lazy_
+        ~slice:conf.slice ~strict:conf.strict
         ~test_list_checksum:conf.test_list_checksum tests
         (fun exit_code tests_with_status ->
           handle_subcommand_result exit_code (Run_result tests_with_status))
-      |> (* TODO: ignoring this promise doesn't make sense.
+      |>
+      (* TODO: ignoring this promise doesn't make sense.
             The whole Lwt support needs testing and probably doesn't
             work as is. If someone really needs it, please provide a test
             environment where it's justified i.e. where we can't
-            call 'Lwt_main.run' so we can make this work. *) ignore
+            call 'Lwt_main.run' so we can make this work. *)
+      ignore
   | Status conf ->
       Debug.debug := conf.debug;
       let exit_code, tests_with_status =
         Run.cmd_status
-          ~always_show_unchecked_output:(conf.show_output,
-                                         conf.max_inline_log_bytes)
+          ~always_show_unchecked_output:
+            (conf.show_output, conf.max_inline_log_bytes)
           ~autoclean:conf.autoclean
           ~filter_by_substring:conf.filter_by_substring
-          ~filter_by_tag:conf.filter_by_tag
-          ~intro:conf.intro
+          ~filter_by_tag:conf.filter_by_tag ~intro:conf.intro
           ~output_style:conf.status_output_style ~strict:conf.strict
           (get_tests conf.env)
       in
@@ -146,8 +147,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
           ~filter_by_tag:conf.filter_by_tag (get_tests conf.env)
       in
       handle_subcommand_result exit_code Approve_result
-  | Show_tags ->
-      show_tags ()
+  | Show_tags -> show_tags ()
 
 (****************************************************************************)
 (* Command-line options *)
@@ -174,8 +174,8 @@ let expert_term : bool Term.t =
   let info =
     Arg.info [ "expert" ]
       ~doc:
-        "Assume the user is familiar with Testo and don't show non-essential
-messages or tips targeted at new users."
+        "Assume the user is familiar with Testo and don't show non-essential\n\
+         messages or tips targeted at new users."
   in
   Arg.value (Arg.flag info)
 
@@ -183,7 +183,9 @@ let filter_by_substring_term : string list Term.t =
   let info =
     Arg.info
       [ "s"; "filter-substring" ]
-      ~docv:"SUBSTRING" ~doc:{|Select tests whose description
+      ~docv:"SUBSTRING"
+      ~doc:
+        {|Select tests whose description
 contains $(docv).
 Multiple '-s' search queries can be specified in which case only one
 of them needs to match.|}
@@ -196,9 +198,7 @@ let tag_query_conv =
     | Ok x -> Ok x
     | Error msg -> Error (`Msg msg)
   in
-  Cmdliner.Arg.conv
-    ~docv:"QUERY"
-    (parse, Tag_query.pp)
+  Cmdliner.Arg.conv ~docv:"QUERY" (parse, Tag_query.pp)
 
 (* This option currently supports only one tag. In the future, we might
    want to support boolean queries e.g. '-t "lang.python and not todo"' *)
@@ -207,17 +207,15 @@ let filter_by_tag_term : Tag_query.t option Term.t =
     Arg.info [ "t"; "filter-tag" ] ~docv:"QUERY"
       ~doc:
         (sprintf
-           "Select tests whose tags match $(docv). \
-            Filtering by tag is generally \
-            more robust than selecting tests by text contained in their \
-            name with '-s'. $(docv) is a boolean query combining tags with \
-            'and', 'or', 'not', and parentheses using the usual \
-            precedence rules. Tag-like selectors 'all' and 'none' are \
-            also supported. For example, '(foo or bar) and not e2e' \
-            will select any test with the tag 'foo' or the tag 'bar' \
-            but not if it has the tag 'e2e'. \
-            Run '%s show-tags' to see the list \
-            of tags defined for the current test suite."
+           "Select tests whose tags match $(docv). Filtering by tag is \
+            generally more robust than selecting tests by text contained in \
+            their name with '-s'. $(docv) is a boolean query combining tags \
+            with 'and', 'or', 'not', and parentheses using the usual \
+            precedence rules. Tag-like selectors 'all' and 'none' are also \
+            supported. For example, '(foo or bar) and not e2e' will select any \
+            test with the tag 'foo' or the tag 'bar' but not if it has the tag \
+            'e2e'. Run '%s show-tags' to see the list of tags defined for the \
+            current test suite."
            Sys.argv.(0))
   in
   Arg.value (Arg.opt (Arg.some tag_query_conv) None info)
@@ -236,51 +234,52 @@ let nonnegative_int_limit =
   let parse_nonnegative_int_limit str =
     match str with
     | "unlimited" -> Ok None
-    | _ ->
+    | _ -> (
         match int_of_string_opt str with
         | None ->
-            Error (`Msg (Printf.sprintf "not a nonnegative int or 'unlimited': %s" str))
+            Error
+              (`Msg
+                 (Printf.sprintf "not a nonnegative int or 'unlimited': %s" str))
         | Some n ->
             if n < 0 then
-              Error (`Msg (
-                Printf.sprintf
-                  "A negative integer is not a valid upper limit for a \
-                   nonnegative int: %s. \
-                   To suppress the default limit, use 'unlimited'" str
-              ))
-            else Ok (Some n)
+              Error
+                (`Msg
+                   (Printf.sprintf
+                      "A negative integer is not a valid upper limit for a \
+                       nonnegative int: %s. To suppress the default limit, use \
+                       'unlimited'"
+                      str))
+            else Ok (Some n))
   in
   let print_nonnegative_int_limit ppf opt_int =
     match opt_int with
     | None -> Format.fprintf ppf "unlimited"
     | Some n -> Format.fprintf ppf "%d" n
   in
-  Cmdliner.Arg.conv
-    ~docv:"LIMIT"
+  Cmdliner.Arg.conv ~docv:"LIMIT"
     (parse_nonnegative_int_limit, print_nonnegative_int_limit)
 
 let max_inline_log_bytes_term : int option Term.t =
   let info =
-    Arg.info [ "max-inline-log-bytes" ]
-      ~docv:"LIMIT"
-      ~doc:(sprintf
-              "When displaying logs (unchecked stdout or stderr output), \
-               show at most that many bytes for each test.
-               The default limit is %d bytes. To remove the default limit, \
-               specify 'unlimited'."
-              default_max_inline_log_bytes)
+    Arg.info [ "max-inline-log-bytes" ] ~docv:"LIMIT"
+      ~doc:
+        (sprintf
+           "When displaying logs (unchecked stdout or stderr output), show at \
+            most that many bytes for each test.\n\
+           \               The default limit is %d bytes. To remove the \
+            default limit, specify 'unlimited'."
+           default_max_inline_log_bytes)
   in
-  Arg.value (Arg.opt nonnegative_int_limit
-               (Some default_max_inline_log_bytes) info)
+  Arg.value
+    (Arg.opt nonnegative_int_limit (Some default_max_inline_log_bytes) info)
 
 let strict_term : bool Term.t =
   let info =
     Arg.info [ "strict" ]
       ~doc:
         "Treat broken tests as ordinary tests. This disables the default \
-         behavior of ignoring failing tests that were marked as \
-         broken by the programmer when determining the overall \
-         success of the test run."
+         behavior of ignoring failing tests that were marked as broken by the \
+         programmer when determining the overall success of the test run."
   in
   Arg.value (Arg.flag info)
 
@@ -405,22 +404,23 @@ let run_doc = "run the tests"
 let run_man : Manpage.block list =
   [
     `S Manpage.s_description;
-    `P {|Run all or only some of the tests. By default, the status
+    `P
+      {|Run all or only some of the tests. By default, the status
 of each test is reported as they are executed. Here's the legend for test
 statuses:|};
-    `Pre "\
-• [PASS]: a successful test that was expected to succeed (good);
-• [FAIL]: a failing test that was expected to succeed (needs fixing);
-• [XFAIL]: a failing test that was expected to fail (tolerated failure);
-• [XPASS]: a successful test that was expected to fail (progress?).
-• [MISS]: a test that never ran;
-• [SKIP]: a test that is always skipped but kept around for some reason;
-• [xxxx*]: a new test for which there's no expected output yet.
-  In this case, you should review the test output and run the 'approve'
-  subcommand once you're satisfied with the output.
-";
-    `P {|To review the status of the tests without rerunning them,
-use the 'status' subcommand.|}
+    `Pre
+      "• [PASS]: a successful test that was expected to succeed (good);\n\
+       • [FAIL]: a failing test that was expected to succeed (needs fixing);\n\
+       • [XFAIL]: a failing test that was expected to fail (tolerated failure);\n\
+       • [XPASS]: a successful test that was expected to fail (progress?).\n\
+       • [MISS]: a test that never ran;\n\
+       • [SKIP]: a test that is always skipped but kept around for some reason;\n\
+       • [xxxx*]: a new test for which there's no expected output yet.\n\
+      \  In this case, you should review the test output and run the 'approve'\n\
+      \  subcommand once you're satisfied with the output.\n";
+    `P
+      {|To review the status of the tests without rerunning them,
+use the 'status' subcommand.|};
   ]
 
 let optional_nonempty_list xs =
@@ -430,9 +430,9 @@ let optional_nonempty_list xs =
 
 let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     unit Term.t =
-  let combine autoclean debug env expert filter_by_substring filter_by_tag
-      jobs lazy_ max_inline_log_bytes show_output
-      slice strict test_list_checksum verbose worker =
+  let combine autoclean debug env expert filter_by_substring filter_by_tag jobs
+      lazy_ max_inline_log_bytes show_output slice strict test_list_checksum
+      verbose worker =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
     let show_output = show_output || verbose in
@@ -463,12 +463,10 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ autoclean_term $ debug_term
-    $ env_term $ expert_term $ filter_by_substring_term
-    $ filter_by_tag_term $ jobs_term ~default_workers $ lazy_term
-    $ max_inline_log_bytes_term $ show_output_term $ slice_term
-    $ strict_term $ test_list_checksum_term
-    $ verbose_run_term $ worker_term)
+    const combine $ autoclean_term $ debug_term $ env_term $ expert_term
+    $ filter_by_substring_term $ filter_by_tag_term $ jobs_term ~default_workers
+    $ lazy_term $ max_inline_log_bytes_term $ show_output_term $ slice_term
+    $ strict_term $ test_list_checksum_term $ verbose_run_term $ worker_term)
 
 let subcmd_run ~argv ~default_workers test_spec =
   let info = Cmd.info "run" ~doc:run_doc ~man:run_man in
@@ -511,8 +509,8 @@ let verbose_status_term : bool Term.t =
 let status_doc = "show test status"
 
 let subcmd_status_term tests : unit Term.t =
-  let combine all autoclean debug env expert filter_by_substring filter_by_tag long max_inline_log_bytes show_output
-      strict verbose =
+  let combine all autoclean debug env expert filter_by_substring filter_by_tag
+      long max_inline_log_bytes show_output strict verbose =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
     let status_output_style : Run.status_output_style =
@@ -542,9 +540,9 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ autoclean_term $ debug_term $ env_term $ expert_term $ filter_by_substring_term
-    $ filter_by_tag_term $ long_term $ max_inline_log_bytes_term
-    $ show_output_term $ strict_term
+    const combine $ all_term $ autoclean_term $ debug_term $ env_term
+    $ expert_term $ filter_by_substring_term $ filter_by_tag_term $ long_term
+    $ max_inline_log_bytes_term $ show_output_term $ strict_term
     $ verbose_status_term)
 
 let subcmd_status tests =
@@ -560,14 +558,7 @@ let approve_doc = "approve new test output"
 let subcmd_approve_term tests : unit Term.t =
   let combine debug env filter_by_substring filter_by_tag =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
-    Approve
-      {
-        default_conf with
-        debug;
-        env;
-        filter_by_substring;
-        filter_by_tag;
-      }
+    Approve { default_conf with debug; env; filter_by_substring; filter_by_tag }
     |> run_with_conf tests
   in
   Term.(
@@ -620,8 +611,8 @@ The latter should be kept under version control (git or similar).
 |}
          !!(Store.get_status_workspace ())
          !!(Store.get_expectation_workspace ()));
-
-    `P {|Visit https://testocaml.net/ to learn how to
+    `P
+      {|Visit https://testocaml.net/ to learn how to
 create and manage test suites with Testo.|};
   ]
 
@@ -673,4 +664,7 @@ let interpret_argv ?(argv = Sys.argv) ?(default_workers = None)
         ~default:(root_term ~argv ~default_workers test_spec)
         (root_info ~project_name)
         (subcommands ~argv ~default_workers test_spec)
-      |> Cmd.eval ~argv |> (* does not reach this point by default *) exit)
+      |> Cmd.eval ~argv
+      |>
+      (* does not reach this point by default *)
+      exit)

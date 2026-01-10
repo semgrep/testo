@@ -38,4 +38,6 @@ val left_col : string -> string
 val quote_multiline_text :
   ?decorate_comment:(string -> string) ->
   ?decorate_data_fragment:(string -> string) ->
-  ?max_bytes:int -> string -> string
+  ?max_bytes:int ->
+  string ->
+  string
