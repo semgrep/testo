@@ -1,2 +1,2 @@
 #! /usr/bin/env bash
-_build/default/tests/test.exe
+_build/default/tests/test.exe "$@"
