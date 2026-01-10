@@ -127,7 +127,7 @@ jobs:
           shell: bash.exe
           command: |
             opam exec -- dune exec diff/tests/test.exe
-            opam exec -- dune exec tests/test.exe
+            opam exec -- dune exec tests/test_alcotest.exe
             opam exec -- dune exec tests/meta_test.exe
 
   semgrep-full-scan:
