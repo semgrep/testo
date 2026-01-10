@@ -9,7 +9,6 @@ build: symlinks
 # dune-release gets confused by dead symlinks so we create them dynamically
 .PHONY: symlinks
 symlinks:
-	ln -sf _build/default/tests/test.exe test
 	ln -sf _build/default/tests/failing_test.exe failing-test
 	ln -sf _build/default/tests/parallel_test.exe parallel-test
 	ln -sf _build/default/tests/test_alcotest.exe test-alcotest
@@ -21,7 +20,7 @@ symlinks:
 
 .PHONY: delete-symlinks
 delete-symlinks:
-	rm -f test failing-test parallel-test test-alcotest meta-test \
+	rm -f failing-test parallel-test test-alcotest meta-test \
 	  timeout-test tests/diff-data/testo-diff bin
 
 # Install opam dependencies. This requires pre-commit which requires
