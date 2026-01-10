@@ -10,6 +10,14 @@ let t = Testo.create
 let testing_tag = Testo.Tag.declare "testing"
 let tags_tag = Testo.Tag.declare "tags"
 
+(* Tag for tests that are designed to be run by the meta-test program
+   or that don't succeed without special flags or preparation.
+   We use this exclude this tag to exclude these special tests when running
+   the simple test suite normally:
+     ./test -t 'not meta'
+*)
+let meta_tag = Testo.Tag.declare "meta"
+
 let fruit_tests =
   Testo.categorize "fruit" [ t "apple" (fun () -> ()); t "kiwi" (fun () -> ()) ]
 
@@ -88,7 +96,8 @@ let test_internal_files =
   in
   let test_check_name_files =
     (* This test depends on previous tests. Don't try this at home. *)
-    t "check for name file in previous tests" ~category (fun () ->
+    t "check for name file in previous tests" ~tags:[ meta_tag ] ~category
+      (fun () ->
         let name_file_path = snapshot_dir_path test_create_name_file / "name" in
         if not (Sys.file_exists !!name_file_path) then
           Testo.fail ("Missing file: " ^ !!name_file_path);
@@ -481,34 +490,38 @@ let tests env =
     t "checked output file names" test_checked_output_file_names;
     t "unchecked stdout" (fun () -> print_endline "hello\nworld");
     t "unchecked stderr" (fun () -> prerr_string "hello\n");
-    t "capture stdout" ~category:[ "auto-approve" ]
+    t "capture stdout" ~tags:[ meta_tag ] ~category:[ "auto-approve" ]
       ~checked_output:(Testo.stdout ()) (fun () -> print_string "hello\n");
-    t "capture stderr" ~category:[ "auto-approve" ]
+    t "capture stderr" ~tags:[ meta_tag ] ~category:[ "auto-approve" ]
       ~checked_output:(Testo.stderr ()) (fun () -> prerr_string "error\n");
-    t "capture stdxxx" ~category:[ "auto-approve" ]
+    t "capture stdxxx" ~tags:[ meta_tag ] ~category:[ "auto-approve" ]
       ~checked_output:(Testo.stdxxx ()) (fun () ->
         print_string "hello\n";
         flush stdout;
         prerr_string "error\n";
         flush stderr;
         print_string "goodbye\n");
-    t "capture stdout and stderr" ~category:[ "auto-approve" ]
+    t "capture stdout and stderr" ~tags:[ meta_tag ]
+      ~category:[ "auto-approve" ]
       ~checked_output:(Testo.split_stdout_stderr ()) (fun () ->
         print_string "hello\n";
         prerr_string "error\n");
-    t "capture stdout in custom location" ~category:[ "auto-approve" ]
+    t "capture stdout in custom location" ~tags:[ meta_tag ]
+      ~category:[ "auto-approve" ]
       ~checked_output:
         (Testo.stdout
            ~expected_stdout_path:(Fpath.v "tests/custom-snapshots/my-stdout")
            ())
       (fun () -> print_string "hello\n");
-    t "capture stderr in custom location" ~category:[ "auto-approve" ]
+    t "capture stderr in custom location" ~tags:[ meta_tag ]
+      ~category:[ "auto-approve" ]
       ~checked_output:
         (Testo.stderr
            ~expected_stderr_path:(Fpath.v "tests/custom-snapshots/my-stderr")
            ())
       (fun () -> prerr_string "error\n");
-    t "capture stdxxx in custom location" ~category:[ "auto-approve" ]
+    t "capture stdxxx in custom location" ~tags:[ meta_tag ]
+      ~category:[ "auto-approve" ]
       ~checked_output:
         (Testo.stdxxx
            ~expected_stdxxx_path:(Fpath.v "tests/custom-snapshots/my-stdxxx")
@@ -519,7 +532,7 @@ let tests env =
         prerr_string "error\n";
         flush stderr;
         print_string "goodbye\n");
-    t "capture stdout and stderr in custom location"
+    t "capture stdout and stderr in custom location" ~tags:[ meta_tag ]
       ~category:[ "auto-approve" ]
       ~checked_output:
         (Testo.split_stdout_stderr
@@ -593,7 +606,7 @@ let tests env =
         print_endline "incorrect output printed by the test");
     t "skipped" ~skipped:"some reason" (fun () ->
         failwith "this shouldn't happen");
-    t "broken" ~broken:"this test is super flaky" (fun () ->
+    t "broken" ~tags:[ meta_tag ] ~broken:"this test is super flaky" (fun () ->
         failwith "I am broken");
     t "tracking URL" ~tracking_url:"https://example.com/issue/1234" (fun () ->
         ());
@@ -671,7 +684,7 @@ let tests env =
     t "temporary files" test_temporary_files;
     t "user output capture" ~checked_output:(Testo.stdout ())
       test_user_output_capture;
-    t "require '--env foo=bar'" (fun () ->
+    t "require '--env foo=bar'" ~tags:[ meta_tag ] (fun () ->
         match List.assoc_opt "foo" env with
         | None -> Alcotest.fail "Missing option: -e foo=bar"
         | Some "bar" -> ()
