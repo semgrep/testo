@@ -68,9 +68,12 @@ jobs:
       - run:
           name: Set weekly cache key segment
           shell: bash.exe
-          # This command calculates a number that increments
-          # every 7 days (604800 seconds)
-          command: echo $(( ( $(date +%s) / 604800 ) )) > week_id.txt
+          # These commands calculate a number that increments
+          # every 30 days or every 7 days
+          command: |
+            echo $(( ( $(date +%s) / 2592000 ) )) > 30day_id.txt
+            echo $(( ( $(date +%s) / 604800 ) )) > week_id.txt
+            echo $(( ( $(date +%s) / 604800 - 1 ) )) > previous_week_id.txt
 
       # Caching: refreshing a cache entry requires changing the cache
       # key. We refresh the caches once a week by using an identifier
@@ -80,7 +83,9 @@ jobs:
           keys:
             # The first available key is the one being used
             - opam-win-5.3.0-pkgs-{{ checksum "week_id.txt" }}
+            - opam-win-5.3.0-pkgs-{{ checksum "previous_week_id.txt" }}
             - opam-win-5.3.0-{{ checksum "week_id.txt" }}
+            - opam-win-5.3.0-{{ checksum "30day_id.txt" }}
 
       - run:
           name: Install Opam
@@ -106,7 +111,7 @@ jobs:
             fi
 
       - save_cache:
-          key: opam-win-5.3.0-{{ checksum "week_id.txt" }}
+          key: opam-win-5.3.0-{{ checksum "30day_id.txt" }}
           paths:
             - ~/AppData/Local/opam
 
