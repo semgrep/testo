@@ -10,4 +10,8 @@
 # Default: auto-detect text files
 * text=auto
 
-# Add exceptions below
+# CRLFs and LFs in the diff tests are intentional and should not change.
+# The *.diff files, however, should behave as ordinary text files subject
+# to LF->CRLF conversion upon Git checkout.
+tests/diff-data/*.left binary
+tests/diff-data/*.right binary

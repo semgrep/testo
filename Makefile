@@ -33,6 +33,7 @@ setup:
 test: build
 	dune exec diff/tests/test.exe
 	./test-alcotest
+	./test -t 'not meta'
 	./meta-test
 
 # The test program offers various options. This is one of them.

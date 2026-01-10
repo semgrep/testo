@@ -1,0 +1,3 @@
+[1m--- crlf-lf-only.left[0m
+[1m+++ crlf-lf-only.right[0m
+Files differ only by line endings (CRLF ↔ LF)

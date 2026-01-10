@@ -7,50 +7,114 @@
 
 open Printf
 open Fpath_.Operators
-module Diff = Testo_diff.Make (
-  struct
-    type t = string
-    [@@deriving show]
 
-    let compare = String.compare
-  end
-)
+type eol = LF | CRLF | No_EOL [@@deriving show]
+
+module Diff = Testo_diff.Make (struct
+  type t = string * eol [@@deriving show]
+
+  let compare = compare
+end)
 
 let debug = false
 
-type diff = Diff.diff
-[@@deriving show]
-
-type diffs = diff list
-[@@deriving show]
+type diff = Diff.diff [@@deriving show]
+type diffs = diff list [@@deriving show]
 
 (* 1-based line number in each file *)
-type pos = int * int
-[@@deriving show]
-
-type pre_hunk = (diff * pos) list
-[@@deriving show]
-
-type pre_hunks = pre_hunk list
-[@@deriving show]
-
-type span = { start_line : int; length : int }
-[@@deriving show]
+type pos = int * int [@@deriving show]
+type pre_hunk = (diff * pos) list [@@deriving show]
+type pre_hunks = pre_hunk list [@@deriving show]
+type span = { start_line : int; length : int } [@@deriving show]
 
 type hunk = {
   span1 : span;
   span2 : span;
-  left_context : string array;
+  left_context : (string * eol) array;
   edits : diff list;
-  right_context : string array;
+  right_context : (string * eol) array;
 }
 [@@deriving show]
 
-type hunks = hunk list
+type hunks = hunk list [@@deriving show]
+type eol_style = LF | CRLF | Mixed [@@deriving show]
+
+type eol_analysis = {
+  style1 : eol_style;
+  style2 : eol_style;
+  equal_after_normalization : bool;
+  same_consistent_style : bool;
+}
 [@@deriving show]
 
-let read_lines path =
-  path |> Helpers.read_file |> String.split_on_char '\n' |> Array.of_list
+let ends_in_cr str = str <> "" && str.[String.length str - 1] = '\r'
+
+let classify_ordinary_line str : string * eol =
+  if ends_in_cr str then (String.sub str 0 (String.length str - 1), CRLF)
+  else (str, LF)
+
+(* Classify each line of input coming from the splitting around LFs.
+   The last element of the list is the last "line" without an end-of-line.
+   If the last element is the empty string, we remove it because it's
+   not a line. *)
+let classify_lines (lines : string list) : (string * eol) list =
+  match List.rev lines with
+  | "" :: lines -> List.rev_map classify_ordinary_line lines
+  | last :: lines ->
+      (* file has no trailing EOL *)
+      List.fold_left
+        (fun acc line -> classify_ordinary_line line :: acc)
+        [ (last, No_EOL) ]
+        lines
+  | [] -> []
+
+let read_lines path : (string * eol) list =
+  path |> Helpers.read_file |> String.split_on_char '\n' |> classify_lines
+
+let detect_eol_style lines : eol_style =
+  let has_crlf = ref false in
+  let has_lf = ref false in
+  List.iter
+    (fun (_line, (eol : eol)) ->
+      match eol with
+      | LF -> has_lf := true
+      | CRLF -> has_crlf := true
+      | No_EOL -> ())
+    lines;
+  match (!has_lf, !has_crlf) with
+  | true, false -> LF
+  | false, true -> CRLF
+  | true, true -> Mixed
+  | false, false -> (* one line file without eol *) LF
+
+let analyze_eol_style lines1 lines2 =
+  let style1 = detect_eol_style lines1 in
+  let style2 = detect_eol_style lines2 in
+  let equal_after_normalization =
+    (* normalization = pretend CRLF is equivalent to LF *)
+    try
+      List.for_all2
+        (fun (line1, eol1) (line2, eol2) ->
+          line1 = line2
+          &&
+          match (eol1, eol2) with
+          | No_EOL, No_EOL -> true
+          | No_EOL, _
+          | _, No_EOL ->
+              false
+          | _ -> true)
+        lines1 lines2
+    with
+    | Invalid_argument _ -> false
+  in
+  let same_consistent_style =
+    match (style1, style2) with
+    | LF, LF
+    | CRLF, CRLF ->
+        true
+    | _ -> false
+  in
+  { style1; style2; equal_after_normalization; same_consistent_style }
 
 (* Minimum number of lines of context to show before or after a deletion
    or an insertion when possible *)
@@ -105,13 +169,9 @@ let group_diffs_by_hunk (diffs : (diff * pos) list) : (diff * pos) list list =
         fold hunks (ed :: current_hunk) diffs
     | [] -> List.rev (List.rev current_hunk :: hunks)
   in
-  if debug then
-    printf "diffs:\n%s\n" (show_pre_hunk diffs);
-  let pre_hunks =
-    fold [] [] diffs |> List.filter is_nontrivial_hunk
-  in
-  if debug then
-    printf "pre-hunks:\n%s\n" (show_pre_hunks pre_hunks);
+  if debug then printf "diffs:\n%s\n" (show_pre_hunk diffs);
+  let pre_hunks = fold [] [] diffs |> List.filter is_nontrivial_hunk in
+  if debug then printf "pre-hunks:\n%s\n" (show_pre_hunks pre_hunks);
   pre_hunks
 
 (*
@@ -121,10 +181,7 @@ let group_diffs_by_hunk (diffs : (diff * pos) list) : (diff * pos) list list =
 let truncate_left_context ~context_len lines =
   let len = Array.length lines in
   if len <= context_len then None
-  else
-    Some
-      ( len - context_len,
-        Array.sub lines (len - context_len) context_len )
+  else Some (len - context_len, Array.sub lines (len - context_len) context_len)
 
 (*
    Truncate the context (Equal block) on the right of a hunk.
@@ -133,10 +190,7 @@ let truncate_left_context ~context_len lines =
 let truncate_right_context ~context_len lines =
   let len = Array.length lines in
   if len <= context_len then None
-  else
-    Some
-      ( Array.sub lines 0 context_len,
-        len - context_len )
+  else Some (Array.sub lines 0 context_len, len - context_len)
 
 (* Trim the leading and trailing Equal blocks and figure out the
    start and length of the lines represented by the hunk in each file. *)
@@ -148,8 +202,7 @@ let finalize_hunk (hunks : (diff * pos) list) =
         | None -> (lines, start1, start2, hunks)
         | Some (removed, right) ->
             let offset = removed in
-            (right, start1 + offset, start2 + offset, hunks)
-      )
+            (right, start1 + offset, start2 + offset, hunks))
     | ((Added _ | Deleted _), (start1, start2)) :: _ ->
         ([||], start1, start2, hunks)
     | [] -> assert false
@@ -190,8 +243,7 @@ let finalize_hunk (hunks : (diff * pos) list) =
   }
 
 let hunks_of_edits (edits : diff list) : hunk list =
-  if debug then
-    printf "edits:\n%s\n" (show_diffs edits);
+  if debug then printf "edits:\n%s\n" (show_diffs edits);
   edits |> number_diffs |> group_diffs_by_hunk |> Helpers.list_map finalize_hunk
 
 let format_header ~color buf path1 path2 =
@@ -203,53 +255,90 @@ let format_header ~color buf path1 path2 =
     (Style.opt_color color Bold line1)
     (Style.opt_color color Bold line2)
 
-let format_context buf lines =
-  Array.iter (fun line -> bprintf buf " %s\n" line) lines
+let render_eol ~show_eol (eol : eol) =
+  match eol with
+  | LF when show_eol -> "·"
+  | CRLF when show_eol -> "↵↵"
+  | No_EOL -> {|\ No newline at end of file|}
+  | LF
+  | CRLF ->
+      ""
 
-let format_edit ~color buf (x : diff) =
+let format_context ~show_eol buf lines =
+  Array.iter
+    (fun (line, eol) -> bprintf buf " %s%s\n" line (render_eol ~show_eol eol))
+    lines
+
+let format_edit ~color ~show_eol buf (x : diff) =
   match x with
-  | Equal lines -> format_context buf lines
+  | Equal lines -> format_context ~show_eol buf lines
   | Added lines ->
       Array.iter
-        (fun line ->
-          bprintf buf "%s\n" (sprintf "+%s" line |> Style.opt_color color Green))
+        (fun (line, eol) ->
+          bprintf buf "%s\n"
+            (sprintf "+%s%s" line (render_eol ~show_eol eol)
+            |> Style.opt_color color Green))
         lines
   | Deleted lines ->
       Array.iter
-        (fun line ->
-          bprintf buf "%s\n" (sprintf "-%s" line |> Style.opt_color color Red))
+        (fun (line, eol) ->
+          bprintf buf "%s\n"
+            (sprintf "-%s%s" line (render_eol ~show_eol eol)
+            |> Style.opt_color color Red))
         lines
 
-let format_hunk ~color buf (x : hunk) =
+let format_hunk ~color ~show_eol buf (x : hunk) =
   sprintf "@@ -%d,%d +%d,%d @@" x.span1.start_line x.span1.length
     x.span2.start_line x.span2.length
   |> Style.opt_color color Cyan |> bprintf buf "%s\n";
-  format_context buf x.left_context;
-  List.iter (format_edit ~color buf) x.edits;
-  format_context buf x.right_context
+  format_context ~show_eol buf x.left_context;
+  List.iter (format_edit ~color ~show_eol buf) x.edits;
+  format_context ~show_eol buf x.right_context
 
 (*
    Print in the Unified format.
    See https://www.gnu.org/software/diffutils/manual/html_node/Detailed-Unified.html
 *)
-let format ~color buf path1 path2 (edits : diff list) : unit =
+let format ~color ~show_eol buf path1 path2 (edits : diff list) : unit =
   let hunks = hunks_of_edits edits in
-  if debug then
-    printf "hunks:\n%s\n" (show_hunks hunks);
+  if debug then printf "hunks:\n%s\n" (show_hunks hunks);
   format_header ~color buf path1 path2;
-  List.iter (format_hunk ~color buf) hunks
+  List.iter (format_hunk ~color ~show_eol buf) hunks
 
-let print_to_string ~color path1 path2 edits =
+let print_diff_to_string ~color ~show_eol path1 path2 edits =
   let buf = Buffer.create 1000 in
-  format ~color buf path1 path2 edits;
+  format ~color ~show_eol buf path1 path2 edits;
   Buffer.contents buf
 
-let lines ?(color = true) ?(path1 = Fpath.v "a") ?(path2 = Fpath.v "b") lines1
-    lines2 =
+let format_eol_style eol_style =
+  match eol_style with
+  | LF -> "LF"
+  | CRLF -> "CRLF"
+  | Mixed -> "mixed LF/CRLF"
+
+let print_eol_diff_to_string ?(color = true) path1 path2 eol_res =
+  let buf = Buffer.create 100 in
+  format_header ~color buf path1 path2;
+  bprintf buf "Files differ only by line endings (%s ↔ %s)\n"
+    (format_eol_style eol_res.style1)
+    (format_eol_style eol_res.style2);
+  Buffer.contents buf
+
+let lines ?(color = true) ?(path1 = Fpath.v "a") ?(path2 = Fpath.v "b")
+    ?(show_eol = false) lines1 lines2 =
   let edits = Diff.get_diff lines1 lines2 in
-  print_to_string ~color path1 path2 edits
+  print_diff_to_string ~color ~show_eol path1 path2 edits
 
 let files ?color path1 path2 =
   let lines1 = read_lines path1 in
   let lines2 = read_lines path2 in
-  (lines1 = lines2, lines ?color ~path1 ~path2 lines1 lines2)
+  if lines1 = lines2 then None
+  else
+    let eol_res = analyze_eol_style lines1 lines2 in
+    if eol_res.equal_after_normalization then
+      Some (print_eol_diff_to_string ?color path1 path2 eol_res)
+    else
+      Some
+        (lines ?color ~path1 ~path2
+           ~show_eol:(not eol_res.same_consistent_style)
+           (Array.of_list lines1) (Array.of_list lines2))

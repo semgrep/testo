@@ -34,11 +34,11 @@ type alcotest_test = string * alcotest_test_case list
 
 type caught_exn = {
   (* Human-readable exception + stack backtrace *)
-  exn_txt: string;
+  exn_txt : string;
   (* For translations to Alcotest, we keep the original exception and its
      backtrace around: *)
-  exn: exn;
-  trace: Printexc.raw_backtrace;
+  exn : exn;
+  trace : Printexc.raw_backtrace;
 }
 
 (* The result of running a test function before or after flipping the outcome.
@@ -150,11 +150,7 @@ let check_test_definitions tests =
   check_snapshot_uniqueness tests
 
 let string_of_status_summary (sum : T.status_summary) =
-  let approval_suffix =
-    if sum.has_expected_output then
-      ""
-    else "*"
-  in
+  let approval_suffix = if sum.has_expected_output then "" else "*" in
   match sum.passing_status with
   | PASS -> "PASS" ^ approval_suffix
   | FAIL _ -> "FAIL" ^ approval_suffix
@@ -164,8 +160,7 @@ let string_of_status_summary (sum : T.status_summary) =
 
 let success_of_status_summary (sum : T.status_summary) =
   match sum.passing_status with
-  | PASS ->
-      if sum.has_expected_output then OK else OK_but_new
+  | PASS -> if sum.has_expected_output then OK else OK_but_new
   | XFAIL _ ->
       (* If a test raises an exception, it's normal that some of the checked
          output snapshosts (std or files) are missing.
@@ -222,11 +217,10 @@ let stats_of_tests tests tests_with_status =
          | None ->
              (match sum.passing_status with
              | MISS _
-             | XFAIL _ -> ()
+             | XFAIL _ ->
+                 ()
              | _ ->
-                 if not sum.has_expected_output then
-                   incr stats.needs_approval
-             );
+                 if not sum.has_expected_output then incr stats.needs_approval);
              incr
                (match sum.passing_status with
                | PASS -> stats.pass
@@ -325,7 +319,7 @@ let protect_globals (test : T.test) (func : unit -> 'promise) : unit -> 'promise
 
 let to_alcotest_gen ~(alcotest_skip : unit -> _)
     ~(wrap_test_function :
-        T.test -> (unit -> unit Promise.t) -> unit -> test_result)
+       T.test -> (unit -> unit Promise.t) -> unit -> test_result)
     (tests : T.test list) : _ list =
   tests
   |> Helpers.list_map (fun (test : T.test) ->
@@ -362,8 +356,7 @@ let to_alcotest_gen ~(alcotest_skip : unit -> _)
                let func () =
                  func () >>= function
                  | Ok () -> P.return ()
-                 | Error e ->
-                     Printexc.raise_with_backtrace e.exn e.trace
+                 | Error e -> Printexc.raise_with_backtrace e.exn e.trace
                in
                func
          in
@@ -383,16 +376,11 @@ let to_alcotest_gen ~(alcotest_skip : unit -> _)
 
    The with_storage and flip_xfail_outcome are for translations to Alcotest.
 *)
-let catch_user_exception
-    ~with_storage
-    ~flip_xfail_outcome
-    test func () : (unit, caught_exn) result Promise.t =
+let catch_user_exception ~with_storage ~flip_xfail_outcome test func () :
+    (unit, caught_exn) result Promise.t =
   let func =
     (* Wrap the test function so as to redirect stdout/stderr captures *)
-    if with_storage then
-      Store.with_result_capture test func
-    else
-      func
+    if with_storage then Store.with_result_capture test func else func
   in
   let flip_outcome =
     match test.expected_outcome with
@@ -401,47 +389,41 @@ let catch_user_exception
   in
   P.catch
     (fun () ->
-       (* Make sure to only catch exceptions raised by the used-defined
+      (* Make sure to only catch exceptions raised by the used-defined
           test function. *)
-       func () >>= fun () ->
-       P.return (Ok ())
-    )
+      func () >>= fun () -> P.return (Ok ()))
     (fun exn trace ->
       let exn_txt =
         sprintf "%s\n%s" (Printexc.to_string exn)
           (Printexc.raw_backtrace_to_string trace)
       in
-      P.return (Error { exn_txt; exn; trace })
-    )
+      P.return (Error { exn_txt; exn; trace }))
   >>= function
   | Ok () ->
-      if with_storage then
-        Store.store_exception test None;
+      if with_storage then Store.store_exception test None;
       let res =
         if flip_outcome then
-          Error { exn_txt = "Test failed to raise an exception";
-                  (* Fake exception for Alcotest *)
-                  exn = Error.Test_failure "failed to raise an exception";
-                  trace = Printexc.get_raw_backtrace () }
-        else
-          Ok ()
+          Error
+            {
+              exn_txt = "Test failed to raise an exception";
+              (* Fake exception for Alcotest *)
+              exn = Error.Test_failure "failed to raise an exception";
+              trace = Printexc.get_raw_backtrace ();
+            }
+        else Ok ()
       in
       P.return res
   | Error e ->
-      if with_storage then
-        Store.store_exception test (Some e.exn_txt);
+      if with_storage then Store.store_exception test (Some e.exn_txt);
       let res =
         if flip_outcome then (
           eprintf "XFAIL: As expected, an exception was raised: %s\n" e.exn_txt;
-          Ok ()
-        )
-        else
-          Error e
+          Ok ())
+        else Error e
       in
       P.return res
 
 let current_test : T.test option ref = ref None
-
 let get_current_test () = !current_test
 
 (* Set the current_test ref for the duration of the test.
@@ -452,48 +434,42 @@ let get_current_test () = !current_test
    make this the outmost wrapper in 'wrap_test_function'.
 *)
 let with_current_test_ref test func =
-  fun () ->
+ fun () ->
   P.protect
     (fun () ->
-       current_test := Some test;
-       func ()
-    )
-    ~finally:(fun () -> current_test := None; P.return ())
+      current_test := Some test;
+      func ())
+    ~finally:(fun () ->
+      current_test := None;
+      P.return ())
 
 (* The options and the detailed result are for the interface with Alcotest *)
 let wrap_test_function_internal ~with_storage ~flip_xfail_outcome test
-    (func : unit -> unit Promise.t) : unit ->
-    (unit, caught_exn) result Promise.t =
-  fun () ->
+    (func : unit -> unit Promise.t) :
+    unit -> (unit, caught_exn) result Promise.t =
+ fun () ->
   Store.init_test_workspace test;
   Store.remove_stashed_output_files test;
   (func
-   |> catch_user_exception ~with_storage ~flip_xfail_outcome test
-   |> protect_globals test
-   |> with_current_test_ref test
-  ) ()
+  |> catch_user_exception ~with_storage ~flip_xfail_outcome test
+  |> protect_globals test |> with_current_test_ref test)
+    ()
 
 (* Wrap the test function for Testo *)
-let wrap_test_function test (func : unit -> unit Promise.t)
-  : unit -> unit Promise.t =
-  (* Ignore the result because it's already stored *)
-  fun () ->
-  wrap_test_function_internal
-    ~with_storage:true
-    ~flip_xfail_outcome:false
-    test
-    func
-    ()
+let wrap_test_function test (func : unit -> unit Promise.t) :
+    unit -> unit Promise.t =
+ (* Ignore the result because it's already stored *)
+ fun () ->
+  wrap_test_function_internal ~with_storage:true ~flip_xfail_outcome:false test
+    func ()
   >>= fun _res -> P.return ()
 
 (* Wrapper that exposes a plain Alcotest test suite that doesn't
    write test statuses and prints "OK" for XFAIL statuses. *)
 let to_alcotest ~alcotest_skip tests =
-  to_alcotest_gen
-    ~alcotest_skip
-    ~wrap_test_function:(wrap_test_function_internal
-                           ~with_storage:false
-                           ~flip_xfail_outcome:true)
+  to_alcotest_gen ~alcotest_skip
+    ~wrap_test_function:
+      (wrap_test_function_internal ~with_storage:false ~flip_xfail_outcome:true)
     tests
 
 let filter ~filter_by_substring ~filter_by_tag tests =
@@ -524,12 +500,8 @@ let filter ~filter_by_substring ~filter_by_tag tests =
 
 let print_error (msg : Error.msg) =
   match msg with
-  | Error msg ->
-      eprintf "%s%s\n"
-        (Style.color Red "Error: ") msg
-  | Warning msg ->
-      eprintf "%s%s\n"
-        (Style.color Yellow "Warning: ") msg
+  | Error msg -> eprintf "%s%s\n" (Style.color Red "Error: ") msg
+  | Warning msg -> eprintf "%s%s\n" (Style.color Yellow "Warning: ") msg
 
 (* Returns an exit code *)
 let print_errors (xs : (Store.changed, Error.msg) Result.t list) : int =
@@ -553,23 +525,27 @@ let print_errors (xs : (Store.changed, Error.msg) Result.t list) : int =
 
 let is_important_status ((test : T.test), _status, (sum : T.status_summary)) =
   test.skipped = None
-  && (match success_of_status_summary sum with
-    | OK -> false
-    | OK_but_new
-    | Not_OK _ ->
-        true)
+  &&
+  match success_of_status_summary sum with
+  | OK -> false
+  | OK_but_new
+  | Not_OK _ ->
+      true
 
 (*
    Show difference between expected and actual output if both files are
    available.
 *)
 let show_diff (output_kind : string) path_to_expected_output path_to_output =
-  if Sys.file_exists !!path_to_output
-  && Sys.file_exists !!path_to_expected_output then
-    let equal, diffs = Diff.files path_to_expected_output path_to_output in
-    if not equal then
-      printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
-        diffs
+  if
+    Sys.file_exists !!path_to_output
+    && Sys.file_exists !!path_to_expected_output
+  then
+    match Diff.files path_to_expected_output path_to_output with
+    | None -> ()
+    | Some diffs ->
+        printf "%sCaptured %s differs from expectation:\n%s" bullet output_kind
+          diffs
 
 let show_output_details (test : T.test) (sum : T.status_summary)
     (capture_paths : Store.capture_paths list) =
@@ -597,13 +573,13 @@ let show_output_details (test : T.test) (sum : T.status_summary)
                  !!path_to_expected_output);
          printf "%sPath to captured %s: %s%s\n" bullet short_name
            !!path_to_output
-           (match Store.get_orig_output_suffix test, kind with
+           (match (Store.get_orig_output_suffix test, kind) with
            | Some suffix, Std -> sprintf " [%s]" suffix
            | None, _
-           | Some _, (Log | File) -> ""))
+           | Some _, (Log | File) ->
+               ""))
 
 let print_error text = printf "%s%s\n" bullet (Style.color Red text)
-
 let print_hint text = printf "%s%s\n" bullet (Style.color Faint text)
 
 let format_one_line_status ((test : T.test), (_status : T.status), sum) =
@@ -625,8 +601,8 @@ let ends_with_newline str =
   str <> "" && str.[String.length str - 1] = '\n'
 
 let print_status ~highlight_test
-    ~always_show_unchecked_output:(always_show_unchecked_output,
-                                   max_inline_log_bytes)
+    ~always_show_unchecked_output:
+      (always_show_unchecked_output, max_inline_log_bytes)
     (((test : T.test), (status : T.status), sum) as test_with_status) =
   let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
@@ -635,11 +611,12 @@ let print_status ~highlight_test
       | Some _reason -> printf "%sAlways skipped\n" bullet
       | None -> (
           (match test.solo with
-           | None -> ()
-           | Some reason ->
-               printf "%sThis is a solo test, set to not run concurrently with other tests. Reason: %s\n"
-                bullet reason
-          );
+          | None -> ()
+          | Some reason ->
+              printf
+                "%sThis is a solo test, set to not run concurrently with other \
+                 tests. Reason: %s\n"
+                bullet reason);
           (match test.broken with
           | None -> ()
           | Some reason ->
@@ -670,8 +647,7 @@ let print_status ~highlight_test
               let names =
                 Helpers.list_map (fun (x : T.checked_output_file) -> x.name) xs
               in
-              printf "%sChecked output file%s: %s\n"
-                bullet
+              printf "%sChecked output file%s: %s\n" bullet
                 (if_plural (List.length names) "s")
                 (String.concat ", " names));
           (* Details about results *)
@@ -685,79 +661,77 @@ let print_status ~highlight_test
                 (sprintf "Missing files containing the expected output: %s"
                    (String.concat ", " (Fpath_.to_string_list paths)))
           | Ok _expected_output -> (
-              (match status.result with
-               | Error (Missing_files [ path ]) ->
-                   print_error
-                     (sprintf "Missing file containing the test output: %s"
-                        !!path)
-               | Error (Missing_files paths) ->
-                   print_error
-                     (sprintf "Missing files containing the test output: %s"
-                        (String.concat ", " (Fpath_.to_string_list paths)))
-               | Ok result ->
-                   match result.missing_output_files with
-                   | [] -> ()
-                   | missing_files ->
-                       print_error
-                         (sprintf "Missing captured output file%s: %s"
-                            (if List.length missing_files > 1 then "s" else "")
-                            (String.concat ", "
-                               (Fpath_.to_string_list missing_files)));
-                       print_hint "If you ran the test already, you may have \
-                                   forgotten to call \
-                                   'Testo.stash_output_file' in the test function."
-              )
-            )
-          );
+              match status.result with
+              | Error (Missing_files [ path ]) ->
+                  print_error
+                    (sprintf "Missing file containing the test output: %s"
+                       !!path)
+              | Error (Missing_files paths) ->
+                  print_error
+                    (sprintf "Missing files containing the test output: %s"
+                       (String.concat ", " (Fpath_.to_string_list paths)))
+              | Ok result -> (
+                  match result.missing_output_files with
+                  | [] -> ()
+                  | missing_files ->
+                      print_error
+                        (sprintf "Missing captured output file%s: %s"
+                           (if List.length missing_files > 1 then "s" else "")
+                           (String.concat ", "
+                              (Fpath_.to_string_list missing_files)));
+                      print_hint
+                        "If you ran the test already, you may have forgotten \
+                         to call 'Testo.stash_output_file' in the test \
+                         function.")));
           status.expectation.expected_output_files
           |> List.iter (function
-            | Error missing_file ->
-                print_error
-                  (sprintf "Missing file containing the expected output: %s"
-                     !!missing_file)
-            | Ok _ -> ()
-          );
+               | Error missing_file ->
+                   print_error
+                     (sprintf "Missing file containing the expected output: %s"
+                        !!missing_file)
+               | Ok _ -> ());
           let capture_paths = Store.all_capture_paths_of_test test in
           show_output_details test sum capture_paths;
           let success = success_of_status_summary sum in
           (* Show timeout info *)
-          (match test.max_duration, success with
-           | None, (OK | OK_but_new) -> ()
-           | Some max_duration, (OK | OK_but_new) ->
-               printf "%sTime limit: %g seconds%s\n"
-                 bullet
-                 max_duration
-                 (match test.solo with
-                  | None -> ""
-                  | Some _reason -> " (unenforceable due to solo setting)")
-           | _, Not_OK (Some Timeout) -> (
-               let current_max_duration =
-                 match test.max_duration with
-                 | None ->
-                     (* the test was reconfigured since the run that
+          (match (test.max_duration, success) with
+          | None, (OK | OK_but_new) -> ()
+          | Some max_duration, (OK | OK_but_new) ->
+              printf "%sTime limit: %g seconds%s\n" bullet max_duration
+                (match test.solo with
+                | None -> ""
+                | Some _reason -> " (unenforceable due to solo setting)")
+          | _, Not_OK (Some Timeout) ->
+              let current_max_duration =
+                match test.max_duration with
+                | None ->
+                    (* the test was reconfigured since the run that
                         produced the timeout *)
-                     "none"
-                 | Some max_duration -> sprintf "%g seconds" max_duration
-               in
-               printf "%s%s. Current time limit: %s\n"
-                 bullet
-                 (Style.color Red "Timed out")
-                 current_max_duration
-             )
-           | _, Not_OK (None | Some (Raised_exception | Missing_output_file | Incorrect_output)) -> ()
-          );
+                    "none"
+                | Some max_duration -> sprintf "%g seconds" max_duration
+              in
+              printf "%s%s. Current time limit: %s\n" bullet
+                (Style.color Red "Timed out")
+                current_max_duration
+          | ( _,
+              Not_OK
+                ( None
+                | Some
+                    (Raised_exception | Missing_output_file | Incorrect_output)
+                  ) ) ->
+              ());
           let show_unchecked_output =
             (* Test settings override '--show-output' *)
             match test.inline_logs with
             | On -> true
             | Off -> false
-            | Auto ->
-                (always_show_unchecked_output
-                 ||
-                 match success with
-                 | OK -> false
-                 | OK_but_new -> true
-                 | Not_OK _ -> true)
+            | Auto -> (
+                always_show_unchecked_output
+                ||
+                match success with
+                | OK -> false
+                | OK_but_new -> true
+                | Not_OK _ -> true)
           in
           (* Whether we show exceptions for tests that are expected to
              raise an exception (XFAIL) *)
@@ -779,15 +753,16 @@ let print_status ~highlight_test
                        "%sFailed due to an exception. See captured output.\n"
                        bullet
                  | Not_OK (Some Missing_output_file) ->
-                     printf "%sFailed due to one or more missing output files.\n" bullet
+                     printf
+                       "%sFailed due to one or more missing output files.\n"
+                       bullet
                  | Not_OK (Some Incorrect_output) ->
                      printf "%sFailed due to wrong output.\n" bullet
                  | Not_OK (Some Timeout) ->
-                     printf "%sFailed due to timeout (%gs).\n"
-                       bullet
+                     printf "%sFailed due to timeout (%gs).\n" bullet
                        (match test.max_duration with
-                        | None -> (* impossible *) infinity
-                        | Some dur -> dur)
+                       | None -> (* impossible *) infinity
+                       | Some dur -> dur)
                  | Not_OK None ->
                      printf
                        "%sSucceded when it should have failed. See captured \
@@ -799,8 +774,7 @@ let print_status ~highlight_test
                  | _ ->
                      printf "%sLog (%s):\n%s" bullet log_description
                        (Style.quote_multiline_text
-                          ?max_bytes:max_inline_log_bytes
-                          data);
+                          ?max_bytes:max_inline_log_bytes data);
                      if not (ends_with_newline data) then print_char '\n'));
           (* Show the exception in case of a test failure due to an exception *)
           if show_unchecked_output then
@@ -810,8 +784,7 @@ let print_status ~highlight_test
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
                       (Style.quote_multiline_text
-                         ~decorate_data_fragment:(Style.color Red)
-                         msg)
+                         ~decorate_data_fragment:(Style.color Red) msg)
                 | None ->
                     (* = assert false *)
                     ())
@@ -824,12 +797,13 @@ let print_status ~highlight_test
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
                       (Style.quote_multiline_text
-                         ~decorate_data_fragment:(Style.color Green)
-                         msg)
+                         ~decorate_data_fragment:(Style.color Green) msg)
                 | None -> ())
             | OK
             | OK_but_new
-            | Not_OK (Some (Missing_output_file | Incorrect_output | Timeout) | None) ->
+            | Not_OK
+                (Some (Missing_output_file | Incorrect_output | Timeout) | None)
+              ->
                 ()));
   flush stdout
 
@@ -905,12 +879,14 @@ let report_dead_snapshots ~autoclean all_tests =
   if n > 0 then (
     if autoclean then
       printf
-        "%i folder%s no longer belong%s to the test suite and %s being removed:\n" n
-        (if_plural n "s") (if_singular n "s") (if n < 2 then "is" else "are")
+        "%i folder%s no longer belong%s to the test suite and %s being removed:\n"
+        n (if_plural n "s") (if_singular n "s")
+        (if n < 2 then "is" else "are")
     else
       printf
-        "%i folder%s no longer belong%s to the test suite and can be removed manually or with '--autoclean':\n" n
-        (if_plural n "s") (if_singular n "s");
+        "%i folder%s no longer belong%s to the test suite and can be removed \
+         manually or with '--autoclean':\n"
+        n (if_plural n "s") (if_singular n "s");
     List.iter
       (fun (x : Store.dead_snapshot) ->
         let msg =
@@ -919,9 +895,7 @@ let report_dead_snapshots ~autoclean all_tests =
           | Some name -> name
         in
         printf "  %s %s\n" !!(x.dir_or_junk_file) msg;
-        if autoclean then
-          Store.remove_dead_snapshot x
-      )
+        if autoclean then Store.remove_dead_snapshot x)
       dead_snapshots)
 
 let print_status_summary ~autoclean ~strict tests tests_with_status : int =
@@ -958,7 +932,8 @@ let print_status_summary ~autoclean ~strict tests tests_with_status : int =
   if overall_success then Error.Exit_code.success
   else Error.Exit_code.test_failure
 
-let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro tests tests_with_status =
+let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro tests
+    tests_with_status =
   print_introduction intro;
   print_newline ();
   print_long_status ~always_show_unchecked_output tests_with_status;
@@ -966,8 +941,8 @@ let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro tests tes
   print_short_status ~always_show_unchecked_output tests_with_status;
   print_status_summary ~autoclean tests tests_with_status
 
-let print_important_statuses ~always_show_unchecked_output ~autoclean  ~strict tests
-    tests_with_status : int =
+let print_important_statuses ~always_show_unchecked_output ~autoclean ~strict
+    tests tests_with_status : int =
   (* Print details about each test that needs attention *)
   print_short_status ~always_show_unchecked_output tests_with_status;
   print_status_summary ~autoclean ~strict tests tests_with_status
@@ -981,29 +956,27 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
 (*
    Entry point for the 'status' subcommand
 *)
-let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring ~filter_by_tag ~intro
-    ~output_style ~strict tests =
+let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring
+    ~filter_by_tag ~intro ~output_style ~strict tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
     | Long_all ->
-        print_all_statuses ~always_show_unchecked_output ~autoclean ~intro ~strict tests
-          tests_with_status
+        print_all_statuses ~always_show_unchecked_output ~autoclean ~intro
+          ~strict tests tests_with_status
     | Long_important ->
-        print_important_statuses ~always_show_unchecked_output ~autoclean ~strict tests
-          tests_with_status
+        print_important_statuses ~always_show_unchecked_output ~autoclean
+          ~strict tests tests_with_status
     | Compact_all -> print_compact_status ~strict tests_with_status
     | Compact_important ->
         print_compact_status ~important:true ~strict tests_with_status
   in
   (exit_code, tests_with_status)
 
-let report_start_test
-    (timers : Timers.t option)
-    (worker : Multiprocess.Client.worker option)
-    (test : T.test) =
+let report_start_test (timers : Timers.t option)
+    (worker : Multiprocess.Client.worker option) (test : T.test) =
   let run_label =
     match test.solo with
     | None -> "[RUN]"
@@ -1013,7 +986,7 @@ let report_start_test
     (Style.left_col (Style.color Yellow run_label))
     (format_title test);
   (* Start a timer if the test has a maximum duration *)
-  match timers, worker with
+  match (timers, worker) with
   | None, None -> () (* single process mode: timeouts are not supported *)
   | Some timers, Some worker -> Timers.add_test timers test worker
   | _ -> (* bad combination *) Error.assert_false ~__LOC__ ()
@@ -1029,8 +1002,7 @@ let report_skip_test test reason =
 
 let report_timeout test max_duration =
   printf "%s%s\n%!"
-    (Style.left_col
-       (Style.color Red (sprintf "[TIMEOUT: %gs]" max_duration)))
+    (Style.left_col (Style.color Red (sprintf "[TIMEOUT: %gs]" max_duration)))
     (format_title test)
 
 (* Identify timed-out tests, record and print their status, and return the
@@ -1039,16 +1011,15 @@ let get_timed_out_workers timers =
   let timed_out = Timers.remove_timeouts timers in
   (* TODO: record test status *)
   (* print *)
-  List.iter (fun (test, max_duration, _worker) ->
-    report_timeout test max_duration
-  ) timed_out;
+  List.iter
+    (fun (test, max_duration, _worker) -> report_timeout test max_duration)
+    timed_out;
   (* report workers to kill *)
-  Helpers.list_map (fun (test, _max_duration, worker) ->
-    let on_worker_termination () =
-      Store.mark_test_as_timed_out test
-    in
-    (worker, on_worker_termination)
-  ) timed_out
+  Helpers.list_map
+    (fun (test, _max_duration, worker) ->
+      let on_worker_termination () = Store.mark_test_as_timed_out test in
+      (worker, on_worker_termination))
+    timed_out
 
 (*
    Run tests and report progress. This is done in the main process when
@@ -1058,33 +1029,34 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
     'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
-       (* Catch internal errors *)
-       P.catch (fun () ->
-         let test_func : unit -> unit Promise.t =
-           wrap_test_function test test.func
-         in
-         previous >>= fun () ->
-         match test.skipped with
-         | Some reason ->
-             report_skip_test test reason;
-             P.return ()
-         | None ->
-             report_start_test None None test;
-             test_func () >>= fun () ->
-             report_end_sequential_test ~always_show_unchecked_output test;
-             P.return ()
-       )
-         (fun exn trace ->
-            (* For now, we abort in case of an internal error.
+      (* Catch internal errors *)
+      P.catch
+        (fun () ->
+          let test_func : unit -> unit Promise.t =
+            wrap_test_function test test.func
+          in
+          previous >>= fun () ->
+          match test.skipped with
+          | Some reason ->
+              report_skip_test test reason;
+              P.return ()
+          | None ->
+              report_start_test None None test;
+              test_func () >>= fun () ->
+              report_end_sequential_test ~always_show_unchecked_output test;
+              P.return ())
+        (fun exn trace ->
+          (* For now, we abort in case of an internal error.
                We could try to be more tolerant and keep going anyway? *)
-            eprintf "Internal error encountered in the master process \
-                     while processing test %s:\n%s\n%s\n%!"
-              test.name
-              (Printexc.to_string exn)
-              (Printexc.raw_backtrace_to_string trace);
-            exit Error.Exit_code.internal_error
-         )
-    )
+          eprintf
+            "Internal error encountered in the master process while processing \
+             test %s:\n\
+             %s\n\
+             %s\n\
+             %!"
+            test.name (Printexc.to_string exn)
+            (Printexc.raw_backtrace_to_string trace);
+          exit Error.Exit_code.internal_error))
     (P.return ()) tests
 
 let run_tests_requested_by_master (tests : T.test list) : unit Promise.t =
@@ -1112,15 +1084,13 @@ let run_tests_requested_by_master (tests : T.test list) : unit Promise.t =
               Multiprocess.Server.write (End_test test_id);
               P.return ()
           | None ->
-              P.catch test_func
-                (fun exn trace ->
-                   let msg =
-                     sprintf "Uncaught exception: %s %s"
-                       (Printexc.to_string exn)
-                       (Printexc.raw_backtrace_to_string trace)
-                   in
-                   Multiprocess.Server.fatal_error msg) >>=
-              fun () ->
+              P.catch test_func (fun exn trace ->
+                  let msg =
+                    sprintf "Uncaught exception: %s %s" (Printexc.to_string exn)
+                      (Printexc.raw_backtrace_to_string trace)
+                  in
+                  Multiprocess.Server.fatal_error msg)
+              >>= fun () ->
               Multiprocess.Server.write (End_test test_id);
               P.return ()
         in
@@ -1155,7 +1125,8 @@ let before_run ~filter_by_substring ~filter_by_tag ~intro ~lazy_ ~slice tests =
   selected_tests
 
 (* Run this after a run or Lwt run. *)
-let after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests =
+let after_run ~always_show_unchecked_output ~autoclean ~strict tests
+    selected_tests =
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     (* Print details about each test that needs attention *)
@@ -1215,29 +1186,29 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       | Some reason -> report_skip_test test reason
       | None ->
           get_test_with_status test
-          |> print_status ~highlight_test:false
-            ~always_show_unchecked_output
+          |> print_status ~highlight_test:false ~always_show_unchecked_output
     in
     (* Run in the same process. This is for situations or platforms where
        multiprocessing might not work for whatever reason. *)
     run_tests_sequentially ~always_show_unchecked_output sequential_tests
     >>= fun () ->
-    if num_workers > 0 then
-      (match Multiprocess.Client.run_tests_in_workers
-        ~argv
-        ~get_test_id:(fun (x : T.test) -> x.id)
-        ~get_timed_out_workers:(fun () -> get_timed_out_workers timers)
-        ~num_workers
-        ~on_start_test:(report_start_test (Some timers))
-        ~on_end_test
-        ~test_list_checksum:(get_checksum tests) parallel_tests
-      with Ok () -> ()
-         | Error msg ->
-             eprintf "Internal error: %s\n%!" msg;
-             exit Error.Exit_code.internal_error);
+    (if num_workers > 0 then
+       match
+         Multiprocess.Client.run_tests_in_workers ~argv
+           ~get_test_id:(fun (x : T.test) -> x.id)
+           ~get_timed_out_workers:(fun () -> get_timed_out_workers timers)
+           ~num_workers
+           ~on_start_test:(report_start_test (Some timers))
+           ~on_end_test ~test_list_checksum:(get_checksum tests) parallel_tests
+       with
+       | Ok () -> ()
+       | Error msg ->
+           eprintf "Internal error: %s\n%!" msg;
+           exit Error.Exit_code.internal_error);
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
-      after_run ~always_show_unchecked_output ~autoclean ~strict tests selected_tests
+      after_run ~always_show_unchecked_output ~autoclean ~strict tests
+        selected_tests
     in
     cont exit_code tests_with_status |> ignore;
     (* The continuation 'cont' should exit but otherwise we exit once
