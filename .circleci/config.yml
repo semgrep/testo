@@ -71,10 +71,9 @@ jobs:
       # such as '-v123'.
       - restore_cache:
           keys:
-            # These cache two successive versions of the same folder.
-            # We assume they're restored in the specified order.
-            - opam-win-5.3.0-{{ checksum "week_id.txt" }}
+            # The first available key is the one being used
             - opam-win-5.3.0-pkgs-{{ checksum "week_id.txt" }}
+            - opam-win-5.3.0-{{ checksum "week_id.txt" }}
 
       - run:
           name: Install Opam
