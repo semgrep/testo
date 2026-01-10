@@ -282,6 +282,11 @@ let delete pat = T.mask_pcre_pattern ~replace:(fun _ -> "") pat
 let mask_stack_backtrace =
   Testo.mask_line ~after:"Raised at " ~before:", line" ()
 
+(* Replace all backslashes with forward slashes to normalize Windows paths.
+   This may replace more backslashes than we want. *)
+let normalize_paths =
+  T.mask_pcre_pattern ~replace:(fun _backslash -> "/") {|\\|}
+
 let mask_alcotest_output =
   [
     T.mask_line ~mask:"<MASKED RUN ID>" ~after:"This run has ID `" ~before:"'"
@@ -299,10 +304,9 @@ let mask_alcotest_output =
     delete (Re.Pcre.quote "::group::{test}\n");
     delete (Re.Pcre.quote "::endgroup::\n");
     mask_stack_backtrace;
-    (* Replace all backslashes with forward slashes to normalize Windows paths.
-       This may replace more backslashes than we want. *)
-    T.mask_pcre_pattern ~replace:(fun _backslash -> "/") {|\\|};
   ]
+
+let mask_testo_output = [ normalize_paths ]
 
 let sort_lines str =
   str |> String.split_on_char '\n' |> List.sort String.compare
@@ -312,7 +316,9 @@ let sort_lines str =
 let remove_optional_lines =
   Testo.remove_matching_lines (Testo.contains_substring ~sub:"OPTIONAL")
 
-let mask_and_sort = mask_alcotest_output @ [ sort_lines; remove_optional_lines ]
+let mask_and_sort =
+  mask_alcotest_output @ mask_testo_output
+  @ [ sort_lines; remove_optional_lines ]
 
 (* FIXME: Running parallel jobs on Windows is unstable, producing
    Sys_error("Invalid argument")` during some attempts to flush channels.
@@ -356,8 +362,10 @@ let tests =
     t "new output file capture" test_new_output_file_capture;
     t "updated output file capture" test_updated_output_file_capture;
     t "max inline log size" ~checked_output:(T.stdout ())
+      ~normalize:mask_testo_output
       (test_max_inline_log_size ~limit:"5");
     t "no max inline log size" ~checked_output:(T.stdout ())
+      ~normalize:mask_testo_output
       (test_max_inline_log_size ~limit:"unlimited");
   ]
 
