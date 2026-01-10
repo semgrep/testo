@@ -15,7 +15,7 @@ opam update
 # This should not install 'testo' even though it's a dependency of 'testo-lwt'.
 # Pass '-y' to 'setup' to answer 'yes' to all questions from opam.
 #
-opam install --deps-only "$@" \
+opam install --deps-only --with-test "$@" \
   ./testo-diff.opam \
   ./testo-util.opam \
   ./testo.opam \
