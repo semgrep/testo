@@ -4,9 +4,7 @@
 
 open Printf
 
-type msg =
-  | Error of string
-  | Warning of string
+type msg = Error of string | Warning of string
 
 exception Test_failure of string
 exception User_error of string

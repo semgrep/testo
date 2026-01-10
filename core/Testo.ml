@@ -23,7 +23,12 @@ type completion_status = T.completion_status =
   | Test_function_raised_an_exception
   | Test_timeout
 
-type fail_reason = T.fail_reason = Raised_exception | Missing_output_file | Incorrect_output | Timeout
+type fail_reason = T.fail_reason =
+  | Raised_exception
+  | Missing_output_file
+  | Incorrect_output
+  | Timeout
+
 type outcome = T.outcome = Succeeded | Failed of fail_reason
 
 (* abstract types *)
@@ -140,35 +145,33 @@ let split_stdout_stderr ?expected_stdout_path ?expected_stderr_path () :
       { snapshot_path = expected_stderr_path } )
 
 let validate_name =
-  let rex = Re.Pcre.regexp {|\A[a-zA-Z0-9_-](?:[.a-zA-Z0-9_-]*[a-zA-Z0-9_-])?\z|} in
-  fun str ->
-    Re.Pcre.pmatch ~rex str
+  let rex =
+    Re.Pcre.regexp {|\A[a-zA-Z0-9_-](?:[.a-zA-Z0-9_-]*[a-zA-Z0-9_-])?\z|}
+  in
+  fun str -> Re.Pcre.pmatch ~rex str
 
 let checked_output_file ?snapshot_path name : checked_output_file =
   if not (validate_name name) then
     invalid_arg
       ("Invalid 'name' argument for Testo.checked_output_file: " ^ name);
-  {
-    name;
-    options = { snapshot_path };
-  }
+  { name; options = { snapshot_path } }
 
 let stash_output_file src_path name =
   match Run.get_current_test () with
-  | None ->
-      failwith "Testo.stash_output_file is being called outside of a test"
-  | Some test ->
-      match List.find_opt (fun (x : T.checked_output_file) -> x.name = name)
-              test.checked_output_files with
+  | None -> failwith "Testo.stash_output_file is being called outside of a test"
+  | Some test -> (
+      match
+        List.find_opt
+          (fun (x : T.checked_output_file) -> x.name = name)
+          test.checked_output_files
+      with
       | None ->
-          invalid_arg (
-            sprintf
-              "Testo.stash_output_file: invalid output file name \
-               for test '%s': '%s'"
-              test.name name
-          )
-      | Some x ->
-          Store.stash_output_file test src_path x
+          invalid_arg
+            (sprintf
+               "Testo.stash_output_file: invalid output file name for test \
+                '%s': '%s'"
+               test.name name)
+      | Some x -> Store.stash_output_file test src_path x)
 
 (*
    Create an hexadecimal hash that is just long enough to not suffer from
@@ -189,11 +192,8 @@ let update_id (test : t) =
   { test with id; internal_full_name }
 
 let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
-    ?(checked_output_files = [])
-    ?(expected_outcome = Should_succeed)
-    ?(inline_logs = Auto)
-    ?max_duration
-    ?(normalize = []) ?skipped ?solo
+    ?(checked_output_files = []) ?(expected_outcome = Should_succeed)
+    ?(inline_logs = Auto) ?max_duration ?(normalize = []) ?skipped ?solo
     ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
     id = "";
@@ -219,11 +219,9 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
 (* Update a setting if the new value 'option' is not None *)
 let opt option default = Option.value option ~default
 
-let update
-    ?broken ?category ?checked_output ?checked_output_files
-    ?expected_outcome ?func
-    ?inline_logs ?max_duration ?normalize
-    ?name ?skipped ?solo ?tags ?tolerate_chdir ?tracking_url old =
+let update ?broken ?category ?checked_output ?checked_output_files
+    ?expected_outcome ?func ?inline_logs ?max_duration ?normalize ?name ?skipped
+    ?solo ?tags ?tolerate_chdir ?tracking_url old =
   {
     id = "";
     internal_full_name = "";
@@ -260,16 +258,13 @@ let write_file = Helpers.write_file
 let read_file = Helpers.read_file
 let map_file = Helpers.map_file
 let copy_file = Helpers.copy_file
-
 let with_temp_file = Temp_file.with_temp_file
 let with_capture = Store.with_capture
 
 let with_chdir path func =
   let orig_cwd = Unix.getcwd () in
   Unix.chdir !!path;
-  Fun.protect
-    ~finally:(fun () -> Unix.chdir orig_cwd)
-    func
+  Fun.protect ~finally:(fun () -> Unix.chdir orig_cwd) func
 
 module Filename_old = struct
   (* The code in this submodule was copied from 'filename.ml' in
@@ -277,7 +272,7 @@ module Filename_old = struct
   let prng = lazy (Random.State.make_self_init ())
 
   let temp_file_name temp_dir prefix suffix =
-    let rnd = (Random.State.bits (Lazy.force prng)) land 0xFFFFFF in
+    let rnd = Random.State.bits (Lazy.force prng) land 0xFFFFFF in
     Filename.concat temp_dir (Printf.sprintf "%s%06x%s" prefix rnd suffix)
 end
 
@@ -289,35 +284,34 @@ module Filename_new = struct
      The following code was minimally adapted from OCaml 5.3's
      implementation of 'Filename.temp_dir'.
   *)
-  let temp_dir ?(temp_dir = Filename.get_temp_dir_name ())
-      ?(perms = 0o700) prefix suffix =
+  let temp_dir ?(temp_dir = Filename.get_temp_dir_name ()) ?(perms = 0o700)
+      prefix suffix =
     let rec try_name counter =
       let name = Filename_old.temp_file_name temp_dir prefix suffix in
       try
         Unix.mkdir name perms;
         name
-      with Unix.Unix_error _ as e ->
-        if counter >= 20 then
-          (* nosemgrep: bad-reraise *)
-          raise e
-        else
-          try_name (counter + 1)
-    in try_name 0
+      with
+      | Unix.Unix_error _ as e ->
+          if counter >= 20 then
+            (* nosemgrep: bad-reraise *)
+            raise e
+          else try_name (counter + 1)
+    in
+    try_name 0
 end
 
-let with_temp_dir
-    ?(chdir = false) ?parent ?perms ?(prefix = "testo-") ?(suffix = "") func =
+let with_temp_dir ?(chdir = false) ?parent ?perms ?(prefix = "testo-")
+    ?(suffix = "") func =
   let dir =
-    Filename_new.temp_dir ?temp_dir:(Option.map Fpath.to_string parent) ?perms prefix suffix
+    Filename_new.temp_dir
+      ?temp_dir:(Option.map Fpath.to_string parent)
+      ?perms prefix suffix
     |> Fpath.v
   in
   Fun.protect
     ~finally:(fun () -> Helpers.remove_file_or_dir dir)
-    (fun () ->
-       if chdir then
-         with_chdir dir (fun () -> func dir)
-       else
-         func dir)
+    (fun () -> if chdir then with_chdir dir (fun () -> func dir) else func dir)
 
 (* We need this to allow the user's test function to call
    'stash_output_file' *)
@@ -490,13 +484,18 @@ let nonpath_character = "[^" ^ path_character_range ^ "]"
    repeated path separators, but these are normalized away by Fpath. *)
 let posixify_path p =
   if Sys.win32 then
-    String.map (function '\\' -> '/' | c -> c) p
-  else
-    p
+    String.map
+      (function
+        | '\\' -> '/'
+        | c -> c)
+      p
+  else p
 
 let mask_temp_paths ?(depth = Some 1) ?replace
     ?(temp_dir = Filename_.get_temp_dir_name ()) () =
-  let temp_dir_str = Fpath.(rem_empty_seg temp_dir |> to_string) |> posixify_path in
+  let temp_dir_str =
+    Fpath.(rem_empty_seg temp_dir |> to_string) |> posixify_path
+  in
   let temp_dir_pat = Re.Pcre.quote temp_dir_str in
   let suffix_pat =
     match depth with
@@ -526,8 +525,7 @@ let mask_temp_paths ?(depth = Some 1) ?replace
     | None -> default_replace_path ~temp_dir:temp_dir_str
     | Some f -> f
   in
-  fun p ->
-    posixify_path p |> mask_pcre_pattern ~replace pat
+  fun p -> posixify_path p |> mask_pcre_pattern ~replace pat
 
 let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
   let re = Re.Pcre.regexp pat in
@@ -552,7 +550,6 @@ let mask_not_substrings ?mask substrings =
     |> String.concat "|")
 
 let mask_not_substring ?mask substring = mask_not_substrings ?mask [ substring ]
-
 let has_tag tag test = List.mem tag test.tags
 
 let categorize name (tests : _ list) : _ list =

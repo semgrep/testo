@@ -7,10 +7,7 @@ type 'a t = 'a Monad.t
 val return : 'a -> 'a t
 val bind : 'a t -> ('a -> 'b t) -> 'b t
 val catch : (unit -> 'a t) -> (exn -> Printexc.raw_backtrace -> 'a t) -> 'a t
-
-val catch_result :
-  (unit -> 'a t) ->
-  ('a, (exn * Printexc.raw_backtrace)) result t
+val catch_result : (unit -> 'a t) -> ('a, exn * Printexc.raw_backtrace) result t
 
 module Operators : sig
   (* The bind operator *)

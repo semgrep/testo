@@ -17,30 +17,30 @@
 open Promise.Operators (* >>= *)
 
 type redirect = Stdout_to_stderr | Stderr_to_stdout
-
-type 'a uncomputed = {
-  func: unit -> 'a Promise.t;
-  redirect: redirect option;
-}
+type 'a uncomputed = { func : unit -> 'a Promise.t; redirect : redirect option }
 
 type 'a computed = {
-  result: ('a, exn * Printexc.raw_backtrace) result;
-  stdout: string option;
-  stderr: string option;
+  result : ('a, exn * Printexc.raw_backtrace) result;
+  stdout : string option;
+  stderr : string option;
 }
 
-type 'a state =
-  | Uncomputed of 'a uncomputed
-  | Computed of 'a computed
-
+type 'a state = Uncomputed of 'a uncomputed | Computed of 'a computed
 type 'a t = 'a state ref
 
-let create ?redirect func =
-  ref (Uncomputed {func; redirect})
+let create ?redirect func = ref (Uncomputed { func; redirect })
 
 let restore_result (x : 'a computed) : 'a Promise.t =
-  Option.iter (fun s -> print_string s; flush stdout) x.stdout;
-  Option.iter (fun s -> prerr_string s; flush stderr) x.stderr;
+  Option.iter
+    (fun s ->
+      print_string s;
+      flush stdout)
+    x.stdout;
+  Option.iter
+    (fun s ->
+      prerr_string s;
+      flush stderr)
+    x.stderr;
   match x.result with
   | Ok x -> Promise.return x
   | Error (e, trace) ->
@@ -51,20 +51,19 @@ let restore_result (x : 'a computed) : 'a Promise.t =
 let capture_result (x : 'a uncomputed) : 'a computed Promise.t =
   match x.redirect with
   | None ->
-      Store.with_capture stderr
-        (fun () -> Store.with_capture stdout
-            (fun () -> Promise.catch_result x.func))
+      Store.with_capture stderr (fun () ->
+          Store.with_capture stdout (fun () -> Promise.catch_result x.func))
       >>= fun ((result, out), err) ->
       Promise.return { result; stdout = Some out; stderr = Some err }
   | Some Stderr_to_stdout ->
       Store.with_capture stdout
-        (Store.with_redirect_fds ~from:[Unix.stderr] ~to_:Unix.stdout
+        (Store.with_redirect_fds ~from:[ Unix.stderr ] ~to_:Unix.stdout
            (fun () -> Promise.catch_result x.func))
       >>= fun (result, out) ->
       Promise.return { result; stdout = Some out; stderr = None }
   | Some Stdout_to_stderr ->
       Store.with_capture stderr
-        (Store.with_redirect_fds ~from:[Unix.stdout] ~to_:Unix.stderr
+        (Store.with_redirect_fds ~from:[ Unix.stdout ] ~to_:Unix.stderr
            (fun () -> Promise.catch_result x.func))
       >>= fun (result, err) ->
       Promise.return { result; stdout = None; stderr = Some err }

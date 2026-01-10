@@ -34,8 +34,8 @@ module Client = struct
   let iter_workers workers func = Array.iter func workers.array
 
   let fds_of_running_workers (workers : t) =
-    Array.fold_right (fun x acc ->
-      if x.running then x.std_in_fd :: acc else acc)
+    Array.fold_right
+      (fun x acc -> if x.running then x.std_in_fd :: acc else acc)
       workers.array []
 
   (* For debugging *)
@@ -100,24 +100,21 @@ module Client = struct
       let status = Unix.close_process x.process in
       let t2 = Unix.gettimeofday () in
       Debug.log (fun () ->
-        sprintf "closed worker %s: %s (took %.6fs)"
-          x.name (show_process_status status) (t2 -. t1)
-      )
-    )
+          sprintf "closed worker %s: %s (took %.6fs)" x.name
+            (show_process_status status)
+            (t2 -. t1)))
 
   (* This should be used only during final cleanup operations because
      it doesn't guarantee that the worker actually gets closed, potentially
      hiding problems. We don't want to hide problems so it's better to
      use the regular 'close_worker' if we're not about to exit. *)
   let safe_close_worker (x : worker) =
-    try close_worker x
-    with exn ->
-      eprintf "Failed to close worker %s: %s\n%!"
-        x.name
-        (Printexc.to_string exn)
+    try close_worker x with
+    | exn ->
+        eprintf "Failed to close worker %s: %s\n%!" x.name
+          (Printexc.to_string exn)
 
-  let safe_close (workers : t) =
-    Array.iter safe_close_worker workers.array
+  let safe_close (workers : t) = Array.iter safe_close_worker workers.array
 
   (* Used when a worker times out *)
   let replace_worker workers worker =
@@ -177,31 +174,29 @@ module Client = struct
       Buffer.add_subbytes x.std_input_buffer buf 0 bytes_read;
       flush_input_buffer x x.std_input_buffer incoming_message_queue)
 
-  let kill_and_replace_timed_out_workers
-      ~feed_or_terminate_worker
+  let kill_and_replace_timed_out_workers ~feed_or_terminate_worker
       ~get_timed_out_workers workers =
     let timed_out_workers : (worker * (unit -> unit)) list =
-      get_timed_out_workers () in
-    List.iter (fun (worker, on_worker_termination) ->
-      let new_worker = replace_worker workers worker in
-      on_worker_termination ();
-      (* As soon as a worker is created, it must be fed with a test
+      get_timed_out_workers ()
+    in
+    List.iter
+      (fun (worker, on_worker_termination) ->
+        let new_worker = replace_worker workers worker in
+        on_worker_termination ();
+        (* As soon as a worker is created, it must be fed with a test
          otherwise the poller will wait forever for input from the
          worker. Passing around the feed_or_terminate_worker function isn't
          elegant. There may be a better way. *)
-      feed_or_terminate_worker new_worker;
-    ) timed_out_workers
+        feed_or_terminate_worker new_worker)
+      timed_out_workers
 
   (* This table maps file descriptors to worker data.
      This is needed to recover the worker info from the file descriptor
      returned by Unix.select.
      Each time a worker is created, this table must be updated. *)
-  let create_fd_worker_table () =
-    Hashtbl.create 100
+  let create_fd_worker_table () = Hashtbl.create 100
 
-  let make_poller
-      ?(max_poll_interval_secs = 0.1)
-      ~feed_or_terminate_worker
+  let make_poller ?(max_poll_interval_secs = 0.1) ~feed_or_terminate_worker
       ~fd_worker_tbl ~get_timed_out_workers () =
     let incoming_message_queue = Queue.create () in
     let rec poll (workers : t) =
@@ -210,9 +205,8 @@ module Client = struct
          of incoming message from any worker. *)
       match Queue.take_opt incoming_message_queue with
       | Some msg -> Some msg
-      | None ->
-          kill_and_replace_timed_out_workers
-            ~feed_or_terminate_worker
+      | None -> (
+          kill_and_replace_timed_out_workers ~feed_or_terminate_worker
             ~get_timed_out_workers workers;
           match fds_of_running_workers workers with
           | [] -> None
@@ -248,20 +242,15 @@ module Client = struct
                        max_poll_interval_secs is negative, preventing
                        Unix.select from timing out. *)
                     Debug.log (fun () ->
-                      "'select' returned nothing. Did a worker exit \
-                       prematurely?");
+                        "'select' returned nothing. Did a worker exit \
+                         prematurely?");
                     safe_close workers;
-                    None)
-            )
+                    None)))
     in
     poll
 
-  let create_worker
-      ~fd_worker_tbl
-      ~num_workers
-      ~original_argv
-      ~test_list_checksum
-      worker_id =
+  let create_worker ~fd_worker_tbl ~num_workers ~original_argv
+      ~test_list_checksum worker_id =
     let worker_name = sprintf "%d/%d" (worker_id + 1) num_workers in
     let program_name =
       (* This requires the caller of the current program to not have
@@ -276,24 +265,26 @@ module Client = struct
         ]
     in
     Debug.log (fun () ->
-      sprintf "create worker %s with command: %s" worker_name
-        (argv |> Array.to_list |> String.concat " "));
+        sprintf "create worker %s with command: %s" worker_name
+          (argv |> Array.to_list |> String.concat " "));
 
     (* This is supposed to work on all platforms. *)
     let ((std_in_ch, std_out_ch) as process) =
       Unix.open_process_args program_name argv
     in
     let std_in_fd = Unix.descr_of_in_channel std_in_ch in
-    let worker = {
-      id = worker_id;
-      name = worker_name;
-      process;
-      std_in_ch;
-      std_in_fd;
-      std_out_ch;
-      std_input_buffer = Buffer.create 200;
-      running = true;
-    } in
+    let worker =
+      {
+        id = worker_id;
+        name = worker_name;
+        process;
+        std_in_ch;
+        std_in_fd;
+        std_out_ch;
+        std_input_buffer = Buffer.create 200;
+        running = true;
+      }
+    in
     Hashtbl.replace fd_worker_tbl std_in_fd worker;
     worker
 
@@ -302,21 +293,19 @@ module Client = struct
      the same command as the current process but with modifications
      (e.g. '--worker' is added, a '--slice' option is added, ...)
   *)
-  let create
-      ~feed_or_terminate_worker
-      ~get_timed_out_workers
-      ~num_workers
-      ~original_argv
-      ~test_list_checksum
-      () =
+  let create ~feed_or_terminate_worker ~get_timed_out_workers ~num_workers
+      ~original_argv ~test_list_checksum () =
     Debug.log (fun () -> sprintf "create %i worker(s)" num_workers);
     let fd_worker_tbl = create_fd_worker_table () in
     let create_worker =
-      create_worker ~fd_worker_tbl ~num_workers ~original_argv ~test_list_checksum in
+      create_worker ~fd_worker_tbl ~num_workers ~original_argv
+        ~test_list_checksum
+    in
     let worker_array = Array.init num_workers create_worker in
     let read =
-      make_poller
-        ~feed_or_terminate_worker ~fd_worker_tbl ~get_timed_out_workers () in
+      make_poller ~feed_or_terminate_worker ~fd_worker_tbl
+        ~get_timed_out_workers ()
+    in
     { array = worker_array; read; create_worker }
 
   (*
@@ -345,26 +334,17 @@ module Client = struct
     | Some test -> start_test ~on_start_test worker (get_test_id test) test
     | None -> close_worker worker
 
-  let run_tests_in_workers
-      ~argv
-      ~get_test_id
-      ~get_timed_out_workers
-      ~num_workers
-      ~on_end_test
-      ~on_start_test
-      ~test_list_checksum (tests : 'test list) =
+  let run_tests_in_workers ~argv ~get_test_id ~get_timed_out_workers
+      ~num_workers ~on_end_test ~on_start_test ~test_list_checksum
+      (tests : 'test list) =
     let test_queue = tests |> List.to_seq |> Queue.of_seq in
     let feed_or_terminate_worker worker =
       (* feed the worker if possible or terminate it *)
       feed_worker ~get_test_id ~on_start_test test_queue worker
     in
     let workers =
-      create
-        ~feed_or_terminate_worker
-        ~get_timed_out_workers
-        ~num_workers
-        ~original_argv:argv
-        ~test_list_checksum ()
+      create ~feed_or_terminate_worker ~get_timed_out_workers ~num_workers
+        ~original_argv:argv ~test_list_checksum ()
     in
     let get_test =
       let tbl = Hashtbl.create (2 * List.length tests) in
@@ -373,7 +353,8 @@ module Client = struct
         try Hashtbl.find tbl test_id with
         | Not_found ->
             failwith
-              (sprintf "Internal error: received invalid test ID from worker: %S"
+              (sprintf
+                 "Internal error: received invalid test ID from worker: %S"
                  test_id)
     in
     (* Send a first task (test) to each worker.
@@ -387,33 +368,33 @@ module Client = struct
           (* There are no more workers = they were closed after we
              tried to feed each of them from the empty queue. *)
           Ok ()
-      | Some (worker, msg) ->
-          (match msg with
-           | End_test test_id ->
-               let test = get_test test_id in
-               on_end_test test;
-               feed_or_terminate_worker worker;
-               safe_loop ()
-           | Error msg ->
-               let msg =
-                 sprintf "error in worker %s: %s" worker.name msg
-               in
-               safe_close workers;
-               Error msg
-           | Junk line ->
-               printf "[worker %s] %s\n%!" worker.name line;
-               safe_loop ())
+      | Some (worker, msg) -> (
+          match msg with
+          | End_test test_id ->
+              let test = get_test test_id in
+              on_end_test test;
+              feed_or_terminate_worker worker;
+              safe_loop ()
+          | Error msg ->
+              let msg = sprintf "error in worker %s: %s" worker.name msg in
+              safe_close workers;
+              Error msg
+          | Junk line ->
+              printf "[worker %s] %s\n%!" worker.name line;
+              safe_loop ())
     and safe_loop () =
-      try loop ()
-      with exn ->
-        let trace = Printexc.get_backtrace () in
-        safe_close workers;
-        eprintf "\
-Fatal internal error in Testo's master process:\n%s\n%s
-Please report this bug at https://github.com/semgrep/testo/issues.\n%!"
-            (Printexc.to_string exn)
-            trace;
-        exit Error.Exit_code.internal_error
+      try loop () with
+      | exn ->
+          let trace = Printexc.get_backtrace () in
+          safe_close workers;
+          eprintf
+            "Fatal internal error in Testo's master process:\n\
+             %s\n\
+             %s\n\
+             Please report this bug at https://github.com/semgrep/testo/issues.\n\
+             %!"
+            (Printexc.to_string exn) trace;
+          exit Error.Exit_code.internal_error
     in
     safe_loop ()
 end
