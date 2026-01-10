@@ -115,14 +115,20 @@ jobs:
           paths:
             - ~/AppData/Local/opam
 
+      # We don't call 'make' since Windows doesn't have GNU Make
+      # and relying on it is not encouraged.
       - run:
           name: Build
           shell: bash.exe
-          command: opam exec -- make
+          command: |
+            opam exec -- dune build .
       - run:
           name: Test
           shell: bash.exe
-          command: opam exec -- make test
+          command: |
+            opam exec -- dune exec diff/tests/test.exe
+            opam exec -- dune exec tests/test.exe
+            opam exec -- dune exec tests/meta_test.exe
 
   semgrep-full-scan:
     docker:
