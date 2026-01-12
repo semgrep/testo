@@ -1,3 +1,9 @@
+(rule
+ (alias runtest)
+ (deps test.exe)
+ (action (run ./test.exe))
+)
+
 ; Test program for testo-diff. It doesn't use Testo to as to keep things
 ; simple and modular.
 (executable

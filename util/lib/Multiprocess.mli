@@ -23,6 +23,7 @@ module Client : sig
     num_workers:int ->
     on_end_test:('test -> unit) ->
     on_start_test:(worker option -> 'test -> unit) ->
+    orig_cwd:Fpath.t option ->
     test_list_checksum:string ->
     'test list ->
     (unit, string) result

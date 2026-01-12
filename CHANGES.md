@@ -38,6 +38,8 @@ x.x.x (xxxx-xx-xx)
   `write_text_file`, `read_text_file`, etc.
   ([#165](https://github.com/semgrep/testo/pull/165)).
 * Testo's own test suite now passes successfully on Windows.
+* Add a `-C`/`--chdir` option to set the current working directory
+  ([#167](https://github.com/semgrep/testo/pull/167)).
 
 0.2.0 (2025-09-11)
 ------------------

@@ -249,7 +249,7 @@ module Client = struct
     in
     poll
 
-  let create_worker ~fd_worker_tbl ~num_workers ~original_argv
+  let create_worker ~fd_worker_tbl ~num_workers ~orig_argv ~orig_cwd
       ~test_list_checksum worker_id =
     let worker_name = sprintf "%d/%d" (worker_id + 1) num_workers in
     let program_name =
@@ -260,7 +260,7 @@ module Client = struct
     let argv =
       Array.concat
         [
-          original_argv;
+          orig_argv;
           [| "--worker"; "--test-list-checksum"; test_list_checksum |];
         ]
     in
@@ -270,7 +270,11 @@ module Client = struct
 
     (* This is supposed to work on all platforms. *)
     let ((std_in_ch, std_out_ch) as process) =
-      Unix.open_process_args program_name argv
+      (* This change the current directory back to the original
+         for the command name to be interpreted correctly in case
+         it's a relative path such as './test'. *)
+      Helpers.with_opt_chdir orig_cwd (fun () ->
+          Unix.open_process_args program_name argv)
     in
     (* Make sure to communicate over the pipe in binary mode to avoid
        CRLF<->LF conversions *)
@@ -298,11 +302,11 @@ module Client = struct
      (e.g. '--worker' is added, a '--slice' option is added, ...)
   *)
   let create ~feed_or_terminate_worker ~get_timed_out_workers ~num_workers
-      ~original_argv ~test_list_checksum () =
+      ~orig_argv ~orig_cwd ~test_list_checksum () =
     Debug.log (fun () -> sprintf "create %i worker(s)" num_workers);
     let fd_worker_tbl = create_fd_worker_table () in
     let create_worker =
-      create_worker ~fd_worker_tbl ~num_workers ~original_argv
+      create_worker ~fd_worker_tbl ~num_workers ~orig_argv ~orig_cwd
         ~test_list_checksum
     in
     let worker_array = Array.init num_workers create_worker in
@@ -339,7 +343,7 @@ module Client = struct
     | None -> close_worker worker
 
   let run_tests_in_workers ~argv ~get_test_id ~get_timed_out_workers
-      ~num_workers ~on_end_test ~on_start_test ~test_list_checksum
+      ~num_workers ~on_end_test ~on_start_test ~orig_cwd ~test_list_checksum
       (tests : 'test list) =
     let test_queue = tests |> List.to_seq |> Queue.of_seq in
     let feed_or_terminate_worker worker =
@@ -348,7 +352,7 @@ module Client = struct
     in
     let workers =
       create ~feed_or_terminate_worker ~get_timed_out_workers ~num_workers
-        ~original_argv:argv ~test_list_checksum ()
+        ~orig_argv:argv ~orig_cwd ~test_list_checksum ()
     in
     let get_test =
       let tbl = Hashtbl.create (2 * List.length tests) in

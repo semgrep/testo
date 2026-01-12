@@ -31,8 +31,11 @@ jobs:
           name: Build
           command: opam exec -- make
       - run:
-          name: Test
+          name: Test with Make
           command: opam exec -- make test
+      - run:
+          name: Test with Dune
+          command: opam exec -- dune runtest
   build_legacy:
     docker:
       - image: mjambon/mj-ocaml-4.08:alpine
@@ -49,8 +52,11 @@ jobs:
           name: Build
           command: opam exec -- make
       - run:
-          name: Test
+          name: Test with Make
           command: opam exec -- make test
+      - run:
+          name: Test with Dune
+          command: opam exec -- dune runtest
 
   windows_build:
     executor:
@@ -131,17 +137,11 @@ jobs:
       - run:
           name: Build
           shell: bash.exe
-          command: |
-            opam exec -- dune build .
+          command: opam exec -- dune build .
       - run:
           name: Test
           shell: bash.exe
-          command: |
-            set -e
-            opam exec -- dune exec diff/tests/test.exe
-            opam exec -- dune exec tests/test_alcotest.exe
-            opam exec -- dune exec tests/test.exe -- -t 'not meta'
-            opam exec -- dune exec tests/meta_test.exe
+          command: opam exec -- dune runtest
 
   semgrep-full-scan:
     docker:

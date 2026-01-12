@@ -7,7 +7,6 @@
 
 open Printf
 open Testo_util
-open Fpath_.Operators
 module T = Types
 
 (****************************************************************************)
@@ -267,11 +266,7 @@ let read_file = read_text_file
 let map_file = map_text_file
 let copy_file = copy_text_file
 let with_temp_file = with_temp_text_file
-
-let with_chdir path func =
-  let orig_cwd = Unix.getcwd () in
-  Unix.chdir !!path;
-  Fun.protect ~finally:(fun () -> Unix.chdir orig_cwd) func
+let with_chdir = Helpers.with_chdir
 
 module Filename_old = struct
   (* The code in this submodule was copied from 'filename.ml' in

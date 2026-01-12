@@ -7,16 +7,29 @@ open Testo_util
 open Fpath_.Operators
 open Cmdliner
 
+(* Record that groups configuration options known before parsing the command
+   line. *)
+type ocaml_conf = {
+  argv : string array;
+  project_name : string;
+  expectation_workspace_root : Fpath.t option;
+  status_workspace_root : Fpath.t option;
+}
+
 (*
    Configuration object type that is used for all subcommands although
    not all of them use all the fields.
+
+   This configuration is obtained after evaluating the command line.
 *)
 type conf = {
   (* All subcommands *)
+  chdir : string option;
   debug : bool;
   filter_by_substring : string list option;
   filter_by_tag : Tag_query.t option;
   env : (string * string) list;
+  ocaml_conf : ocaml_conf;
   (* Run and Status *)
   intro : string;
   show_output : bool;
@@ -25,7 +38,6 @@ type conf = {
   (* Status *)
   status_output_style : Run.status_output_style;
   (* Run *)
-  argv : string array;
   lazy_ : bool;
   slice : Slice.t list;
   is_worker : bool;
@@ -36,8 +48,18 @@ type conf = {
 
 let default_max_inline_log_bytes = 1_000_000
 
+let default_ocaml_conf =
+  {
+    argv = Sys.argv;
+    project_name = "";
+    expectation_workspace_root = None;
+    status_workspace_root = None;
+  }
+
 let default_conf =
   {
+    ocaml_conf = default_ocaml_conf;
+    chdir = None;
     debug = false;
     filter_by_substring = None;
     filter_by_tag = None;
@@ -46,7 +68,6 @@ let default_conf =
     autoclean = false;
     max_inline_log_bytes = Some default_max_inline_log_bytes;
     status_output_style = Compact_important;
-    argv = Sys.argv;
     intro = Run.introduction_text;
     lazy_ = false;
     slice = [];
@@ -66,7 +87,7 @@ type cmd_conf =
   | Run_tests of conf
   | Status of conf
   | Approve of conf
-  | Show_tags
+  | Show_tags of ocaml_conf
 
 type subcommand_result =
   | Run_result of Types.test_with_status list
@@ -81,22 +102,17 @@ type 'continuation_result test_spec =
 (* Dispatch subcommands to do real work *)
 (****************************************************************************)
 
-(*
-   A "broken pipe" signal is delivered to a worker process when the worker
-   is trying to write something to a closed pipe. This can happen when:
-   - A worker is still busy building the test suite and logs material
-     to stdout.
-   - The master is already killing the worker because its test queue has
-     become empty. This closes the pipe connected to the worker's stdout.
-*)
-let ignore_broken_pipe () =
-  (* There are no signals to handle on Windows *)
-  if not Sys.win32 then
-    Sys.set_signal Sys.sigpipe
-      (Signal_handle (fun _signal -> exit Error.Exit_code.success))
-
 let show_tags () =
   Tag.list () |> List.iter (fun tag -> printf "%s\n" (Tag.to_string tag))
+
+let init_cwd_sensitive ~chdir ocaml_conf =
+  let orig_cwd = Option.map (fun _ -> Fpath.v (Sys.getcwd ())) chdir in
+  Option.iter Sys.chdir chdir;
+  Store.init_settings
+    ?expectation_workspace_root:ocaml_conf.expectation_workspace_root
+    ?status_workspace_root:ocaml_conf.status_workspace_root
+    ~project_name:ocaml_conf.project_name ();
+  orig_cwd
 
 let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
     (cmd_conf : cmd_conf) : unit =
@@ -106,21 +122,22 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
   *)
   match cmd_conf with
   | Run_tests conf ->
-      if conf.is_worker then (
-        ignore_broken_pipe ();
-        (* Make sure to communicate over the pipe in binary mode to avoid
-           CRLF<->LF conversions *)
-        set_binary_mode_in stdin true;
-        set_binary_mode_out stdout true);
+      let orig_cwd = init_cwd_sensitive ~chdir:conf.chdir conf.ocaml_conf in
       Debug.debug := conf.debug;
+      (* Make sure to communicate over the pipe in binary mode to avoid
+         CRLF<->LF conversions.
+         We do this before running the user function 'get_tests' in case
+         it prints messages to stdout that ends up as junk in the pipe. *)
+      set_binary_mode_in stdin true;
+      set_binary_mode_out stdout true;
       let tests = get_tests conf.env in
       Run.cmd_run
         ~always_show_unchecked_output:
           (conf.show_output, conf.max_inline_log_bytes)
-        ~argv:conf.argv ~autoclean:conf.autoclean
+        ~argv:conf.ocaml_conf.argv ~autoclean:conf.autoclean
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~intro:conf.intro
-        ~is_worker:conf.is_worker ~jobs:conf.jobs ~lazy_:conf.lazy_
+        ~is_worker:conf.is_worker ~jobs:conf.jobs ~lazy_:conf.lazy_ ~orig_cwd
         ~slice:conf.slice ~strict:conf.strict
         ~test_list_checksum:conf.test_list_checksum tests
         (fun exit_code tests_with_status ->
@@ -133,6 +150,7 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
             call 'Lwt_main.run' so we can make this work. *)
       ignore
   | Status conf ->
+      let _orig_cwd = init_cwd_sensitive ~chdir:conf.chdir conf.ocaml_conf in
       Debug.debug := conf.debug;
       let exit_code, tests_with_status =
         Run.cmd_status
@@ -146,13 +164,16 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       in
       handle_subcommand_result exit_code (Status_result tests_with_status)
   | Approve conf ->
+      let _orig_cwd = init_cwd_sensitive ~chdir:conf.chdir conf.ocaml_conf in
       Debug.debug := conf.debug;
       let exit_code =
         Run.cmd_approve ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag (get_tests conf.env)
       in
       handle_subcommand_result exit_code Approve_result
-  | Show_tags -> show_tags ()
+  | Show_tags ocaml_conf ->
+      let _orig_cwd = init_cwd_sensitive ~chdir:None ocaml_conf in
+      show_tags ()
 
 (****************************************************************************)
 (* Command-line options *)
@@ -174,6 +195,14 @@ let debug_term : bool Term.t =
       ~doc:"Log information that can be useful for debugging the Testo library."
   in
   Arg.value (Arg.flag info)
+
+let chdir_term : string option Term.t =
+  let info =
+    Arg.info [ "C"; "chdir" ] ~docv:"DIR"
+      ~doc:
+        "Change the current working directory to $(docv) before doing any work."
+  in
+  Arg.value (Arg.opt (Arg.some Arg.string) None info)
 
 let expert_term : bool Term.t =
   let info =
@@ -433,11 +462,11 @@ let optional_nonempty_list xs =
   | [] -> None
   | or_terms -> Some or_terms
 
-let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
+let subcmd_run_term ~default_workers ocaml_conf (test_spec : _ test_spec) :
     unit Term.t =
-  let combine autoclean debug env expert filter_by_substring filter_by_tag jobs
-      lazy_ max_inline_log_bytes show_output slice strict test_list_checksum
-      verbose worker =
+  let combine autoclean chdir debug env expert filter_by_substring filter_by_tag
+      jobs lazy_ max_inline_log_bytes show_output slice strict
+      test_list_checksum verbose worker =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
     let show_output = show_output || verbose in
@@ -450,6 +479,7 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
       {
         default_conf with
         autoclean;
+        chdir;
         debug;
         env;
         filter_by_substring;
@@ -459,23 +489,24 @@ let subcmd_run_term ~argv ~default_workers (test_spec : _ test_spec) :
         jobs;
         lazy_;
         max_inline_log_bytes;
+        ocaml_conf;
         show_output;
         slice;
         strict;
         test_list_checksum;
-        argv;
       }
     |> run_with_conf test_spec
   in
   Term.(
-    const combine $ autoclean_term $ debug_term $ env_term $ expert_term
-    $ filter_by_substring_term $ filter_by_tag_term $ jobs_term ~default_workers
-    $ lazy_term $ max_inline_log_bytes_term $ show_output_term $ slice_term
-    $ strict_term $ test_list_checksum_term $ verbose_run_term $ worker_term)
+    const combine $ autoclean_term $ chdir_term $ debug_term $ env_term
+    $ expert_term $ filter_by_substring_term $ filter_by_tag_term
+    $ jobs_term ~default_workers $ lazy_term $ max_inline_log_bytes_term
+    $ show_output_term $ slice_term $ strict_term $ test_list_checksum_term
+    $ verbose_run_term $ worker_term)
 
-let subcmd_run ~argv ~default_workers test_spec =
+let subcmd_run ~default_workers ocaml_conf test_spec =
   let info = Cmd.info "run" ~doc:run_doc ~man:run_man in
-  Cmd.v info (subcmd_run_term ~argv ~default_workers test_spec)
+  Cmd.v info (subcmd_run_term ~default_workers ocaml_conf test_spec)
 
 (****************************************************************************)
 (* Subcommand: status (replaces alcotest's 'list') *)
@@ -513,9 +544,9 @@ let verbose_status_term : bool Term.t =
 
 let status_doc = "show test status"
 
-let subcmd_status_term tests : unit Term.t =
-  let combine all autoclean debug env expert filter_by_substring filter_by_tag
-      long max_inline_log_bytes show_output strict verbose =
+let subcmd_status_term ocaml_conf tests : unit Term.t =
+  let combine all autoclean chdir debug env expert filter_by_substring
+      filter_by_tag long max_inline_log_bytes show_output strict verbose =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
     let status_output_style : Run.status_output_style =
@@ -532,12 +563,14 @@ let subcmd_status_term tests : unit Term.t =
       {
         default_conf with
         autoclean;
+        chdir;
         debug;
         env;
         filter_by_substring;
         filter_by_tag;
         intro;
         max_inline_log_bytes;
+        ocaml_conf;
         show_output;
         status_output_style;
         strict;
@@ -545,14 +578,14 @@ let subcmd_status_term tests : unit Term.t =
     |> run_with_conf tests
   in
   Term.(
-    const combine $ all_term $ autoclean_term $ debug_term $ env_term
-    $ expert_term $ filter_by_substring_term $ filter_by_tag_term $ long_term
-    $ max_inline_log_bytes_term $ show_output_term $ strict_term
+    const combine $ all_term $ autoclean_term $ chdir_term $ debug_term
+    $ env_term $ expert_term $ filter_by_substring_term $ filter_by_tag_term
+    $ long_term $ max_inline_log_bytes_term $ show_output_term $ strict_term
     $ verbose_status_term)
 
-let subcmd_status tests =
+let subcmd_status ocaml_conf tests =
   let info = Cmd.info "status" ~doc:status_doc in
-  Cmd.v info (subcmd_status_term tests)
+  Cmd.v info (subcmd_status_term ocaml_conf tests)
 
 (****************************************************************************)
 (* Subcommand: approve *)
@@ -560,19 +593,28 @@ let subcmd_status tests =
 
 let approve_doc = "approve new test output"
 
-let subcmd_approve_term tests : unit Term.t =
-  let combine debug env filter_by_substring filter_by_tag =
+let subcmd_approve_term ocaml_conf tests : unit Term.t =
+  let combine chdir debug env filter_by_substring filter_by_tag =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
-    Approve { default_conf with debug; env; filter_by_substring; filter_by_tag }
+    Approve
+      {
+        default_conf with
+        chdir;
+        debug;
+        env;
+        filter_by_substring;
+        filter_by_tag;
+        ocaml_conf;
+      }
     |> run_with_conf tests
   in
   Term.(
-    const combine $ debug_term $ env_term $ filter_by_substring_term
-    $ filter_by_tag_term)
+    const combine $ chdir_term $ debug_term $ env_term
+    $ filter_by_substring_term $ filter_by_tag_term)
 
-let subcmd_approve tests =
+let subcmd_approve ocaml_conf tests =
   let info = Cmd.info "approve" ~doc:approve_doc in
-  Cmd.v info (subcmd_approve_term tests)
+  Cmd.v info (subcmd_approve_term ocaml_conf tests)
 
 (****************************************************************************)
 (* Subcommand: show-tags *)
@@ -580,21 +622,21 @@ let subcmd_approve tests =
 
 let show_tags_doc = "show the list of valid tags for this test suite"
 
-let subcmd_show_tags_term tests : unit Term.t =
-  let combine () = run_with_conf tests Show_tags in
+let subcmd_show_tags_term ocaml_conf tests : unit Term.t =
+  let combine () = run_with_conf tests (Show_tags ocaml_conf) in
   Term.(const combine $ const ())
 
-let subcmd_show_tags tests =
+let subcmd_show_tags ocaml_conf tests =
   let info = Cmd.info "show-tags" ~doc:show_tags_doc in
-  Cmd.v info (subcmd_show_tags_term tests)
+  Cmd.v info (subcmd_show_tags_term ocaml_conf tests)
 
 (****************************************************************************)
 (* Main command *)
 (****************************************************************************)
 
-let root_doc ~project_name = sprintf "run tests for %s" project_name
+let root_doc ocaml_conf = sprintf "run tests for %s" ocaml_conf.project_name
 
-let root_man ~project_name : Manpage.block list =
+let root_man ocaml_conf : Manpage.block list =
   [
     `S Manpage.s_description;
     `P
@@ -605,7 +647,7 @@ Use the 'status' subcommand to check the status of each test without having
 to re-run them. 'approve' must be used on tests whose output is captured
 so as to make their latest output the new reference.
 |}
-         project_name);
+         ocaml_conf.project_name);
     `P
       (sprintf
          (* NOTE: We use quoted string paths via %S to avoid conflicts with
@@ -614,29 +656,31 @@ so as to make their latest output the new reference.
 %S and the expected test output in the persistent folder %S.
 The latter should be kept under version control (git or similar).
 |}
-         !!(Store.get_status_workspace ())
-         !!(Store.get_expectation_workspace ()));
+         !!(Option.value ocaml_conf.status_workspace_root
+              ~default:Store.default_status_workspace_root)
+         !!(Option.value ocaml_conf.status_workspace_root
+              ~default:Store.default_expectation_workspace_root));
     `P
       {|Visit https://testocaml.net/ to learn how to
 create and manage test suites with Testo.|};
   ]
 
-let root_info ~project_name =
+let root_info ocaml_conf =
   let name = Filename.basename Sys.argv.(0) in
-  Cmd.info name ~doc:(root_doc ~project_name) ~man:(root_man ~project_name)
+  Cmd.info name ~doc:(root_doc ocaml_conf) ~man:(root_man ocaml_conf)
 
-let root_term ~argv ~default_workers test_spec =
+let root_term ~default_workers ocaml_conf test_spec =
   (*
   Term.ret (Term.const (`Help (`Pager, None)))
 *)
-  subcmd_run_term ~argv ~default_workers test_spec
+  subcmd_run_term ~default_workers ocaml_conf test_spec
 
-let subcommands ~argv ~default_workers test_spec =
+let subcommands ~default_workers ~ocaml_conf test_spec =
   [
-    subcmd_run ~argv ~default_workers test_spec;
-    subcmd_status test_spec;
-    subcmd_approve test_spec;
-    subcmd_show_tags test_spec;
+    subcmd_run ~default_workers ocaml_conf test_spec;
+    subcmd_status ocaml_conf test_spec;
+    subcmd_approve ocaml_conf test_spec;
+    subcmd_show_tags ocaml_conf test_spec;
   ]
 
 let with_record_backtrace func =
@@ -659,16 +703,17 @@ let interpret_argv ?(argv = Sys.argv) ?(default_workers = None)
     ?(handle_subcommand_result = fun exit_code _ -> exit exit_code)
     ?status_workspace_root ~project_name
     (get_tests : (string * string) list -> Types.test list) =
+  let ocaml_conf =
+    { argv; project_name; expectation_workspace_root; status_workspace_root }
+  in
   let test_spec = (get_tests, handle_subcommand_result) in
   (* TODO: is there any reason why we shouldn't always record a stack
      backtrace when running tests? *)
   with_record_backtrace (fun () ->
-      Store.init_settings ?expectation_workspace_root ?status_workspace_root
-        ~project_name ();
       Cmd.group
-        ~default:(root_term ~argv ~default_workers test_spec)
-        (root_info ~project_name)
-        (subcommands ~argv ~default_workers test_spec)
+        ~default:(root_term ~default_workers ocaml_conf test_spec)
+        (root_info ocaml_conf)
+        (subcommands ~ocaml_conf ~default_workers test_spec)
       |> Cmd.eval ~argv
       |>
       (* does not reach this point by default *)

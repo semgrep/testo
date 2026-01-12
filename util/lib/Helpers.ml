@@ -139,3 +139,13 @@ let map_text_file func src_path dst_path =
 
 let copy_text_file src_path dst_path =
   map_text_file (fun data -> data) src_path dst_path
+
+let with_chdir path func =
+  let orig_cwd = Sys.getcwd () in
+  Sys.chdir !!path;
+  Fun.protect ~finally:(fun () -> Sys.chdir orig_cwd) func
+
+let with_opt_chdir opt_path func =
+  match opt_path with
+  | None -> func ()
+  | Some path -> with_chdir path func

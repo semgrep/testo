@@ -26,4 +26,4 @@ let () =
     ~handle_subcommand_result:(fun exit_code _res ->
       Printf.printf "Testo exit code: %i\n" exit_code;
       Testo.to_alcotest ~alcotest_skip:Alcotest.skip (tests [])
-      |> Alcotest.run "test-alcotest")
+      |> Alcotest.run ~argv:[| "<test alcotest>" |] "test-alcotest")
