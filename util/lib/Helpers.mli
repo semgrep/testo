@@ -35,3 +35,7 @@ val write_text_file : Fpath.t -> string -> unit
 val read_text_file : Fpath.t -> string
 val map_text_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
 val copy_text_file : Fpath.t -> Fpath.t -> unit
+
+(* Change the current directory temporarily *)
+val with_chdir : Fpath.t -> (unit -> 'a) -> 'a
+val with_opt_chdir : Fpath.t option -> (unit -> 'a) -> 'a

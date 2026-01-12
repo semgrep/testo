@@ -2,9 +2,5 @@
 /_opam
 
 # Symbolic links created dynamically
-/failing-test
-/meta-test
-/parallel-test
-/test-alcotest
 /bin
 /tests/diff-data/testo-diff

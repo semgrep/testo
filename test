@@ -1,2 +1,13 @@
 #! /usr/bin/env bash
-_build/default/tests/test.exe "$@"
+#
+# Allow the test program to be invoked from anywhere
+#
+
+# Make the current directory the location of this script,
+# normally the project root.
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# Run the compiled test program with the original arguments.
+# The path may have to be adjusted to match the
+# location of the binary built by Dune.
+./_build/default/tests/test.exe "$@"

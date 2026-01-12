@@ -1138,6 +1138,20 @@ let after_run ~always_show_unchecked_output ~autoclean ~strict tests
   (exit_code, tests_with_status)
 
 (*
+   A "broken pipe" signal is delivered to a worker process when the worker
+   is trying to write something to a closed pipe. This can happen when:
+   - A worker is still busy building the test suite and logs material
+     to stdout.
+   - The master is already killing the worker because its test queue has
+     become empty. This closes the pipe connected to the worker's stdout.
+*)
+let ignore_broken_pipe () =
+  (* There are no signals to handle on Windows *)
+  if not Sys.win32 then
+    Sys.set_signal Sys.sigpipe
+      (Signal_handle (fun _signal -> exit Error.Exit_code.success))
+
+(*
    Entry point for the 'run' subcommand
 
    It splits into master and worker. Options that affect formatting
@@ -1147,9 +1161,10 @@ let after_run ~always_show_unchecked_output ~autoclean ~strict tests
    list of selected tests to the workers).
 *)
 let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
-    ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~slice ~strict
+    ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~orig_cwd ~slice ~strict
     ~test_list_checksum:expected_checksum tests cont =
   if is_worker then (
+    ignore_broken_pipe ();
     (*
         The checksum is computed on the list of tests before applying
         the --slice options since a --slice option is added to the
@@ -1199,7 +1214,8 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
            ~get_timed_out_workers:(fun () -> get_timed_out_workers timers)
            ~num_workers
            ~on_start_test:(report_start_test (Some timers))
-           ~on_end_test ~test_list_checksum:(get_checksum tests) parallel_tests
+           ~on_end_test ~orig_cwd ~test_list_checksum:(get_checksum tests)
+           parallel_tests
        with
        | Ok () -> ()
        | Error msg ->

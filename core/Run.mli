@@ -28,6 +28,7 @@ val cmd_run :
   is_worker:bool ->
   jobs:int option ->
   lazy_:bool ->
+  orig_cwd:Fpath.t option ->
   slice:Testo_util.Slice.t list ->
   strict:bool ->
   test_list_checksum:string option ->

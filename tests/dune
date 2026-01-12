@@ -1,3 +1,23 @@
+; Allow 'dune runtest' to run the tests from dune's copy of the project root.
+(rule
+ (alias runtest)
+ (deps
+   test_alcotest.exe
+   test.exe
+   meta_test.exe
+   parallel_test.exe  ; invoked by meta_test
+   timeout_test.exe  ; invoked by meta_test
+ )
+ (action
+   (progn
+     ; The -C argument should be a path to our source project's root
+     (run ./test_alcotest.exe -C ../../..)
+     (run ./test.exe -C ../../.. -t "not meta")
+     (run ./meta_test.exe -C ../../..)
+   )
+ )
+)
+
 ; Unit tests for internal modules of the Testo library and some "dummy" tests
 (executable
  (name test)
