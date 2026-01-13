@@ -10,3 +10,4 @@ repos:
     language: system
     files: "\\.mli?$"
     args: ["-i"]
+    exclude: "template/"
