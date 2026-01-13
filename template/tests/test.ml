@@ -1,5 +1,5 @@
 (*
-   The entry point for the 'test' program that runs the suite of OCaml
+   The entry point for the 'test.exe' program that runs the suite of OCaml
    tests for <this project>.
 *)
 
