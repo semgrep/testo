@@ -1,7 +1,0 @@
-ASSERT <description>
-Alcotest assertion failure<MASKED>
-FAIL <description>
-
-   Expected: `"a"'
-   Received: `"b"'
-

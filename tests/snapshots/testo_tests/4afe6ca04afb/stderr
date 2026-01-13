@@ -1,0 +1,21 @@
+Test failed: <description>
+not equal:
+  expected (left):
+    The quick brown
+    fox jumps over
+    the lazy dog.
+    
+  actual  (right):
+    The quick red
+    fox jumps over
+    the lazy dog.
+    
+differences:
+[1m--- expected[0m
+[1m+++ actual[0m
+[36m@@ -1,4 +1,4 @@[0m
+[31m-The quick brown[0m
+[32m+The quick red[0m
+ fox jumps over
+ the lazy dog.
+ 

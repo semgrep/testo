@@ -86,7 +86,7 @@ let test_checked_output_file_names () =
       printf "Check that name is invalid: %S\n%!" name;
       try
         ignore (Testo.checked_output_file name);
-        Alcotest.fail "failed to raise Invalid_argument"
+        Testo.fail "failed to raise Invalid_argument"
       with
       | Invalid_argument _ -> ())
     invalid_names;
@@ -137,7 +137,7 @@ let test_mask_pcre_pattern () =
       | Some x -> sprintf "%S" x);
     let replace = Option.map (fun mask _ -> mask) mask in
     let res = Testo.mask_pcre_pattern ?replace pat subj in
-    Alcotest.(check string) __LOC__ expected_result res
+    Testo.(check string) ~msg:__LOC__ expected_result res
   in
   (* re.1.12.0 requires ocaml >= 4.12 but we want to support older versions
      of ocaml so we're not sure of the behavior of the re library here.
@@ -181,7 +181,7 @@ let test_mask_temp_paths () =
       | None -> "default")
       input_str expected_result;
     let res = Testo.mask_temp_paths ?depth ~temp_dir () input_str in
-    Alcotest.(check string) __LOC__ expected_result res
+    Testo.(check string) ~msg:__LOC__ expected_result res
   in
   let tmp rel_path = sprintf "%s/%s" !!temp_dir rel_path in
   [
@@ -223,8 +223,8 @@ let test_mask_exotic_temp_paths () =
     let masked_data =
       Testo.mask_temp_paths ~temp_dir:(Fpath.v temp_dir) ~depth:(Some 0) () data
     in
-    Alcotest.(check string)
-      (sprintf "temp dir %S" temp_dir)
+    Testo.(check string)
+      ~msg:(sprintf "temp dir %S" temp_dir)
       expected_masked_data masked_data
   in
   ([
@@ -274,7 +274,7 @@ let test_filter_map_lines () =
            | "d" -> None
            | other -> Some (String.uppercase_ascii other))
   in
-  Alcotest.(check string) "equal" "A\nE\n\nFF\r\nGG\nH" res
+  Testo.(check string) "A\nE\n\nFF\r\nGG\nH" res
 
 let test_remove_matching_lines () =
   let res =
@@ -282,13 +282,13 @@ let test_remove_matching_lines () =
       (Testo.contains_substring ~sub:"DEBUG")
       "DEBUG\nxxxDEBUGxxx\nhello\n"
   in
-  Alcotest.(check string) "equal" "hello\n" res;
+  Testo.(check string) "hello\n" res;
   let res =
     Testo.remove_matching_lines
       (Testo.contains_pcre_pattern ~pat:"^DEBUG")
       "DEBUG\nxxxDEBUGxxx\nhello\n"
   in
-  Alcotest.(check string) "equal" "xxxDEBUGxxx\nhello\n" res
+  Testo.(check string) "xxxDEBUGxxx\nhello\n" res
 
 let test_keep_matching_lines () =
   let res =
@@ -296,20 +296,101 @@ let test_keep_matching_lines () =
       (Testo.contains_substring ~sub:"DEBUG")
       "DEBUG\nxxxDEBUGxxx\nhello\n"
   in
-  Alcotest.(check string) "equal" "DEBUG\nxxxDEBUGxxx\n" res;
+  Testo.(check string) "DEBUG\nxxxDEBUGxxx\n" res;
   let res =
     Testo.keep_matching_lines
       (Testo.contains_pcre_pattern ~pat:"^DEBUG")
       "DEBUG\nxxxDEBUGxxx\nhello\n"
   in
-  Alcotest.(check string) "equal" "DEBUG\n" res
+  Testo.(check string) "DEBUG\n" res
 
-let test_alcotest_error_formatting () =
-  printf
-    "This alcotest check is expected to fail with nice error formatting.\n%!";
+let test_error_formatting () =
+  printf "This check is expected to fail with nice error formatting.\n%!";
   let exn =
     try
-      Alcotest.(check string) "<description>" "a" "b";
+      Testo.(check string) ~msg:"<description>" "a" "b";
+      assert false
+    with
+    | e -> e
+  in
+  eprintf "%s%!" (Printexc.to_string exn)
+
+let test_error_formatting_multiline ~as_text () =
+  printf "This check is expected to fail with nice error formatting.\n%!";
+  let exn =
+    try
+      Testo.(check (if as_text then text else string))
+        ~msg:"<description>" "The quick brown\nfox jumps over\nthe lazy dog.\n"
+        "The quick red\nfox jumps over\nthe lazy dog.\n";
+      assert false
+    with
+    | e -> e
+  in
+  eprintf "%s%!" (Printexc.to_string exn)
+
+let test_error_formatting_text () =
+  test_error_formatting_multiline ~as_text:true ()
+
+let test_error_formatting_multiline_quoted_string () =
+  test_error_formatting_multiline ~as_text:false ()
+
+let test_error_formatting_short_list () =
+  printf "This check is expected to fail with nice error formatting.\n%!";
+  let exn =
+    try
+      Testo.(check (list (tuple2 string int)))
+        [ ("a", 1); ("b", 2) ]
+        [ ("a", 1); ("b", 2); ("c", 3) ];
+      assert false
+    with
+    | e -> e
+  in
+  eprintf "%s%!" (Printexc.to_string exn)
+
+let test_error_formatting_long_list () =
+  printf "This check is expected to fail with nice error formatting.\n%!";
+  let exn =
+    try
+      Testo.(check (list (list string)))
+        [
+          [
+            "The";
+            "quick";
+            "brown";
+            "fox";
+            "jumps";
+            "over";
+            "the";
+            "lazy";
+            "dog.";
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+          ];
+        ]
+        [
+          [ "The"; "quick"; "brown"; "fox"; "jumps"; "over" ];
+          [ "the"; "lazy"; "dog."; "aaaaaaaaaaaaaaaa\naaaaaaaaaaaaaaaaaa" ];
+        ];
+      assert false
+    with
+    | e -> e
+  in
+  eprintf "%s%!" (Printexc.to_string exn)
+
+let test_error_formatting_long_tuple () =
+  printf "This check is expected to fail with nice error formatting.\n%!";
+  let exn =
+    try
+      Testo.(check (tuple5 string int float bool bool))
+        ( "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          12345,
+          -9.87e6,
+          true,
+          false )
+        ( "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaXXXX",
+          12345,
+          -9.87e6,
+          true,
+          false );
       assert false
     with
     | e -> e
@@ -322,10 +403,10 @@ let test_temporary_files () =
     Testo.with_temp_text_file ~contents:"hello" (fun path ->
         path_ref := Some path;
         let data = Testo.read_text_file path in
-        Alcotest.(check string) "file contents" "hello" data;
+        Testo.(check string) ~msg:"file contents" "hello" data;
         Testo.write_text_file path "";
         let data = Testo.read_text_file path in
-        Alcotest.(check string) "empty file contents" "" data;
+        Testo.(check string) ~msg:"empty file contents" "" data;
         raise Exit |> ignore);
     assert false
   with
@@ -340,13 +421,13 @@ let test_user_output_capture () =
         print_string "hello";
         42)
   in
-  Alcotest.(check string) "captured stdout" "hello" capture;
-  Alcotest.(check int) "result" 42 result;
+  Testo.(check string) ~msg:"captured stdout" "hello" capture;
+  Testo.(check int) 42 result;
   (* capture to snapshot file *)
   print_string "snapshot data\n";
   (* more capture from the same channel *)
   let (), capture2 = Testo.with_capture stdout (fun () -> print_string "wow") in
-  Alcotest.(check string) "more captured stdout" "wow" capture2
+  Testo.(check string) ~msg:"more captured stdout" "wow" capture2
 
 (*
    Test the formatting for diffs, as implemented in the testo-util library.
@@ -385,11 +466,11 @@ let test_tag_selector =
     let query =
       match Testo_util.Tag_query.parse query_str with
       | Ok x -> x
-      | Error msg -> Alcotest.fail msg
+      | Error msg -> Testo.fail msg
     in
     let tags = List.map Testo_util.Tag.of_string_exn tags in
     let res = Testo_util.Tag_query.match_ tags query in
-    Alcotest.(check bool) "" expected_match res
+    Testo.(check bool) expected_match res
 
 let tag_selection_tests =
   [
@@ -411,30 +492,30 @@ let test_write_read_map () =
       Testo.write_text_file src_path contents;
       Testo.with_temp_text_file (fun dst_path ->
           let contents2 = Testo.read_text_file src_path in
-          Alcotest.(check string) "read" contents contents2;
+          Testo.(check string) ~msg:"read" contents contents2;
           let new_contents = "new" in
           Testo.map_text_file
             (fun contents3 ->
-              Alcotest.(check string) "map_file input" contents contents3;
+              Testo.(check string) ~msg:"map_file input" contents contents3;
               new_contents)
             src_path dst_path;
           let new_contents2 = Testo.read_text_file dst_path in
-          Alcotest.(check string) "map_file output" new_contents new_contents2))
+          Testo.(check string) ~msg:"map_file output" new_contents new_contents2))
 
 let test_write_read_map_in_place () =
   let contents = "hello" in
   Testo.with_temp_text_file (fun path ->
       Testo.write_text_file path contents;
       let contents2 = Testo.read_text_file path in
-      Alcotest.(check string) "read" contents contents2;
+      Testo.(check string) ~msg:"read" contents contents2;
       let new_contents = "new" in
       Testo.map_text_file
         (fun contents3 ->
-          Alcotest.(check string) "map_file input" contents contents3;
+          Testo.(check string) ~msg:"map_file input" contents contents3;
           new_contents)
         path path;
       let new_contents2 = Testo.read_text_file path in
-      Alcotest.(check string) "map_file output" new_contents new_contents2)
+      Testo.(check string) ~msg:"map_file output" new_contents new_contents2)
 
 let shared_context_merged_output =
   (* get_count is used to check that the lazy block is evaluated only once *)
@@ -458,10 +539,10 @@ let test_shared_context_merged_output test_name =
             Testo.with_capture stdout (fun () ->
                 Testo.Lazy_with_output.force shared_context_merged_output))
       in
-      Alcotest.(check int) "" 1 res;
-      Alcotest.(check string) "error output" "" err;
-      Alcotest.(check string)
-        "standard output" "stdout a\nstderr b\nstdout c\n" out)
+      Testo.(check int) 1 res;
+      Testo.(check string) ~msg:"error output" "" err;
+      Testo.(check string)
+        ~msg:"standard output" "stdout a\nstderr b\nstdout c\n" out)
 
 let shared_context_split_output =
   Testo.Lazy_with_output.create (fun () ->
@@ -478,8 +559,8 @@ let test_shared_context_split_output test_name =
             Testo.with_capture stdout (fun () ->
                 Testo.Lazy_with_output.force shared_context_split_output))
       in
-      Alcotest.(check string) "error output" "stderr b\n" err;
-      Alcotest.(check string) "standard output" "stdout a\nstdout c\n" out)
+      Testo.(check string) ~msg:"error output" "stderr b\n" err;
+      Testo.(check string) ~msg:"standard output" "stdout a\nstdout c\n" out)
 
 let shared_context_tests =
   [
@@ -626,30 +707,24 @@ let tests env =
         ());
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
     t "with environment variables ok" (fun () ->
-        Alcotest.(check (option string)) "equal" None (Sys.getenv_opt "B");
+        Testo.(check (option string)) None (Sys.getenv_opt "B");
         Testo.with_environment_variables
           [ ("A", "a"); ("B", "b"); ("C", "c") ]
           (fun () ->
-            Alcotest.(check (option string))
-              "equal" (Some "a") (Sys.getenv_opt "A");
-            Alcotest.(check (option string))
-              "equal" (Some "b") (Sys.getenv_opt "B");
+            Testo.(check (option string)) (Some "a") (Sys.getenv_opt "A");
+            Testo.(check (option string)) (Some "b") (Sys.getenv_opt "B");
             Testo.with_environment_variables
               [ ("B", "z") ]
               (fun () ->
-                Alcotest.(check (option string))
-                  "equal" (Some "a") (Sys.getenv_opt "A");
-                Alcotest.(check (option string))
-                  "equal" (Some "z") (Sys.getenv_opt "B"));
-            Alcotest.(check (option string))
-              "equal" (Some "b") (Sys.getenv_opt "B"));
+                Testo.(check (option string)) (Some "a") (Sys.getenv_opt "A");
+                Testo.(check (option string)) (Some "z") (Sys.getenv_opt "B"));
+            Testo.(check (option string)) (Some "b") (Sys.getenv_opt "B"));
         (* Check that the env var is cleared again outside of the combinator *)
         let expected_unset_B =
           (* On Windows, [Sys.getenv_opt v = None] for empty variables *)
           if Sys.win32 then None else Some ""
         in
-        Alcotest.(check (option string))
-          "equal" expected_unset_B (Sys.getenv_opt "B"));
+        Testo.(check (option string)) expected_unset_B (Sys.getenv_opt "B"));
     t "with environment variables bad"
       ~expected_outcome:(Should_fail "fail to restore environment variable")
       (fun () ->
@@ -685,25 +760,27 @@ let tests env =
         [ Testo.mask_not_substrings [ "a"; "def"; "defgh"; "efghij"; "z" ] ]
       "check for substrings in stdout"
       (fun () -> printf "abcdefghijklmnoprstuvwxyz");
-    t "alcotest error formatting" ~checked_output:(Testo.stderr ())
-      ~normalize:
-        [
-          (* In our CI environment for ocaml 4.08, the line
-             "File "tests/Test.ml", line ..." is missing, so we mask it if
-             it exists. *)
-          Testo.mask_pcre_pattern
-            "Alcotest assertion failure((?:\nFile [^\n]*)?)\n";
-        ]
-      test_alcotest_error_formatting;
+    t "error formatting" ~checked_output:(Testo.stderr ()) test_error_formatting;
+    t "error formatting text" ~checked_output:(Testo.stderr ())
+      test_error_formatting_text;
+    t "error formatting multiline quoted string"
+      ~checked_output:(Testo.stderr ())
+      test_error_formatting_multiline_quoted_string;
+    t "error formatting short list" ~checked_output:(Testo.stderr ())
+      test_error_formatting_short_list;
+    t "error formatting long list" ~checked_output:(Testo.stderr ())
+      test_error_formatting_long_list;
+    t "error formatting long tuple" ~checked_output:(Testo.stderr ())
+      test_error_formatting_long_tuple;
     t "temporary files" test_temporary_files;
     t "user output capture" ~checked_output:(Testo.stdout ())
       test_user_output_capture;
     t "require '--env foo=bar'" ~tags:[ meta_tag ] (fun () ->
         match List.assoc_opt "foo" env with
-        | None -> Alcotest.fail "Missing option: -e foo=bar"
+        | None -> Testo.fail "Missing option: -e foo=bar"
         | Some "bar" -> ()
         | Some other ->
-            Alcotest.fail (sprintf "Invalid value for variable foo: %S" other));
+            Testo.fail (sprintf "Invalid value for variable foo: %S" other));
     t "solo 1/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
     t "solo 2/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
     test_diff "hello";
@@ -723,9 +800,9 @@ let tests env =
     test_diff "missing-eol";
     t "current test" (fun () ->
         match Testo.get_current_test () with
-        | None -> Alcotest.fail "current test is unset"
+        | None -> Testo.fail "current test is unset"
         | Some test ->
-            Alcotest.(check string) "test name" "current test" test.name);
+            Testo.(check string) ~msg:"test name" "current test" test.name);
     t "write/read/map file" test_write_read_map;
     t "write/read/map file in place" test_write_read_map_in_place;
   ]

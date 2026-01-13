@@ -1,0 +1,27 @@
+Test failed: not equal:
+  expected (left):
+    (
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      12345,
+      -9870000.,
+      true,
+      false
+    )
+  actual  (right):
+    (
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaXXXX",
+      12345,
+      -9870000.,
+      true,
+      false
+    )
+differences:
+[1m--- expected[0m
+[1m+++ actual[0m
+[36m@@ -1,5 +1,5 @@[0m
+ (
+[31m-  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",[0m
+[32m+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaXXXX",[0m
+   12345,
+   -9870000.,
+   true,

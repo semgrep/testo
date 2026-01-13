@@ -1,0 +1,48 @@
+Test failed: not equal:
+  expected (left):
+    [
+      [
+        "The";
+        "quick";
+        "brown";
+        "fox";
+        "jumps";
+        "over";
+        "the";
+        "lazy";
+        "dog.";
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+      ];
+    ]
+  actual  (right):
+    [
+      ["The"; "quick"; "brown"; "fox"; "jumps"; "over";];
+      [
+        "the";
+        "lazy";
+        "dog.";
+        "aaaaaaaaaaaaaaaa\n\
+         aaaaaaaaaaaaaaaaaa";
+      ];
+    ]
+differences:
+[1m--- expected[0m
+[1m+++ actual[0m
+[36m@@ -1,14 +1,10 @@[0m
+ [
+[32m+  ["The"; "quick"; "brown"; "fox"; "jumps"; "over";];[0m
+   [
+[31m-    "The";[0m
+[31m-    "quick";[0m
+[31m-    "brown";[0m
+[31m-    "fox";[0m
+[31m-    "jumps";[0m
+[31m-    "over";[0m
+     "the";
+     "lazy";
+     "dog.";
+[31m-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";[0m
+[32m+    "aaaaaaaaaaaaaaaa\n\[0m
+[32m+     aaaaaaaaaaaaaaaaaa";[0m
+   ];
+ ]
