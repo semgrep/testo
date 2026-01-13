@@ -1,0 +1,27 @@
+; Allow running the tests by invoking 'dune runtest' which also takes
+; care of rebuilding the executable as needed.
+(rule
+ (alias runtest)
+ (action
+   ; It is against Dune's ideology to chdir into the source project but
+   ; we do it anyway. It allows us to write the test results into the
+   ; same folder as when we operate the test program by hand, avoiding
+   ; unnecessary re-runs.
+   ;
+   ; Operating the test program by hand is done via a script or a symlink
+   ; typically located at the (sub)project root.
+   ; It is invoked with a subcommand ('run', 'status', and 'approve')
+   ; and a variety of options.
+   ;
+   (run ./test.exe --chdir ../../..)
+ )
+)
+
+; Build the test executable like an ordinary OCaml executable
+(executable
+ (name test)
+ (libraries
+   alcotest
+   testo
+ )
+)
