@@ -32,7 +32,7 @@ let test_addition =
 
 When such a test fails, the location of the `assert ...` expression is
 shown to the user. The advantage over using a dedicated function
-like `Alcotest.check` is that it's a little quicker to write and
+like `Testo.check` is that it's a little quicker to write and
 simpler to understand.
 The main disadvantage is that the
 expected and actual values are not printed. In this case, it's best
@@ -58,20 +58,10 @@ let test_addition =
 
 In case of a failure, the test's output will be shown to the user.
 
-How to write an assertion for a value of a simple type with Alcotest?
+How to write an assertion for a value of a simple type?
 --
 
-Testo was originally meant to extend
-[Alcotest](https://github.com/mirage/alcotest), but it became too
-different and ended up being a separate project. However, Alcotest provides
-some functionality that wasn't reimplemented in Testo and can benefit
-Testo tests. Like Testo, Alcotest is an ordinary OCaml library that is
-typically installed with Opam:
-```
-$ opam install alcotest
-```
-
-`Alcotest.check` is the function we'll use to check test results
+`Testo.check` is the function we'll use to check test results
 against expectations. If a check fails, an exception is raised and it is
 formatted as a nice error message.
 
@@ -82,9 +72,9 @@ let test_addition =
   Testo.create "addition"
     (fun () ->
       let res = 1 + 1 in
-      Alcotest.check Alcotest.int "sum" 2 res;
+      Testo.check Testo.int 2 res;
       let res = 2 + 2 in
-      Alcotest.check Alcotest.int "sum" 4 res
+      Testo.check Testo.int 4 res
     )
 ```
 
@@ -94,15 +84,13 @@ let test_addition =
   Testo.create "addition"
     (fun () ->
       let res = 1 + 1 in
-      Alcotest.(check int) "sum" 2 res;
+      Testo.(check int) 2 res;
       let res = 2 + 2 in
-      Alcotest.(check int) "sum" 4 res
+      Testo.(check int) 4 res
     )
 ```
 
-`Alcotest.int` is called a
-["testable"](https://mirage.github.io/alcotest/alcotest/Alcotest/index.html#testable-values).
-There are predefined testables
+`Testo.int` is called a "testable". There are predefined testables
 for OCaml's simple types such as `bool`, `int`, `string`, etc.
 
 Checking a list of strings can be done as follows:
@@ -112,7 +100,7 @@ let test_items =
    Testo.create "items"
      (fun () ->
        let res = ["a"] @ ["b"] in
-       Alcotest.(check (list string)) "sum" ["a"; "b"] res
+       Testo.(check (list string)) ["a"; "b"] res
      )
 ```
 
@@ -120,8 +108,8 @@ How to write an assertion for a custom type?
 --
 
 A testable (see previous section) must be created for types such as
-records or variants. This is done with `Alcotest.testable print equal`
-where `print` is a printer and `equal` is an equality function.
+records or variants. This is done with `Testo.testable show equal`
+where `show` is a printer and `equal` is an equality function.
 
 Let's assume we're testing values of type `Thing.t`. Module `Thing`
 exposes the following signature:
@@ -136,12 +124,13 @@ end
 
 The test program will define a testable as follows:
 ```
-let print_thing fmt x = Format.pp_print_string fmt (Thing.to_string x)
-let equal_thing a b = (Thing.compare a b = 0)
-let thing = Alcotest.testable print_thing equal_thing
+let thing =
+  Testo.testable
+    Thing.to_string
+    (fun a b -> Thing.compare a b = 0)
 ```
 
-A test function will call `Alcotest.check` as follows:
+A test function will call `Testo.check` as follows:
 ```
 let test_things =
   Testo.create
@@ -149,7 +138,7 @@ let test_things =
     (fun () ->
       let result = ... in
       let expected_thing = ... in
-      Alcotest.check thing "equal" expected_thing result
+      Testo.check thing expected_thing result
     )
 ```
 

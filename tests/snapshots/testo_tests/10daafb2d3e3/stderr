@@ -1,0 +1,21 @@
+Test failed: <description>
+not equal:
+  expected (left):
+    "The quick brown\n\
+     fox jumps over\n\
+     the lazy dog.\n\
+     "
+  actual  (right):
+    "The quick red\n\
+     fox jumps over\n\
+     the lazy dog.\n\
+     "
+differences:
+[1m--- expected[0m
+[1m+++ actual[0m
+[36m@@ -1,4 +1,4 @@[0m
+[31m-"The quick brown\n\[0m
+[32m+"The quick red\n\[0m
+  fox jumps over\n\
+  the lazy dog.\n\
+  "

@@ -40,6 +40,10 @@ x.x.x (xxxx-xx-xx)
 * Testo's own test suite now passes successfully on Windows.
 * Add a `-C`/`--chdir` option to set the current working directory
   ([#167](https://github.com/semgrep/testo/pull/167)).
+* Add support for a `Testo.check` function and testables, replicating the
+  similar functionality found in Alcotest. This makes it practical to
+  write tests that don't depend on the Alcotest library
+  ([#169](https://github.com/semgrep/testo/pull/169)).
 
 0.2.0 (2025-09-11)
 ------------------

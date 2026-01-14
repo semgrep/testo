@@ -361,18 +361,109 @@ val update :
 (** {2 Assertions and exceptions}
 
     Signaling a test failure is done by raising an exception. You may raise any
-    exception to signal a test failure.
-
-    At this time, Testo doesn't provide advanced functions for checking a result
-    against an expected value and printing these values nicely. For these, you
-    may want to use `Alcotest.check` from the [alcotest] library. *)
+    exception to signal a test failure. *)
 
 exception Test_failure of string
-(** The exception raised by {!fail} *)
+(** The exception raised by {!check} and {!fail}.
 
-val fail : string -> unit
+    This exception as well as any exception defined outside [Testo] will be
+    interpreted as a test failure. *)
+
+type 'a testable = { show : 'a -> string; equal : 'a -> 'a -> bool }
+(** A testable is the pair of functions needed to compare an expected value
+    against an actual result produced in a test using the {!check} function, and
+    to print error messages.
+
+    Testables were directly inspired by Alcotest's testables and work similarly.
+
+    For example, checking the value of an int is done as follows:
+    {v
+      let res = 1 + 1 in
+      Testo.(check int) 2 res
+    v}
+
+    Checking a list of ints is done as follows:
+    {v
+      let res = List.map (fun x -> x + 1) [1; 2; 3] in
+      Testo.(check (list int)) [2; 3; 4] res
+    v} *)
+
+val testable : ('a -> string) -> ('a -> 'a -> bool) -> 'a testable
+(** A function to create a [testable] record in a more compact fashion.
+
+    In a typical module that provides a type [t], a function [show], and a
+    function [equal], a testable is defined as
+    [let testable = Testo.testable {show; equal}] or equivalently as
+    [let testable = Testo.testable show equal] with the signature
+    [val testable : t Testo.testable]. *)
+
+val check : 'a testable -> ?msg:string -> 'a -> 'a -> unit
+(** Check an expected result (left) against an actual result (right). If the
+    values don't match, they will be printed to stderr and the {!Test_failure}
+    exception will be raised, signaling a test failure.
+
+    An optional message [msg] can be provided. It will be printed in the case of
+    a test failure. *)
+
+val bool : bool testable
+val int : int testable
+val int32 : int32 testable
+val int64 : int64 testable
+
+val float : float testable
+(** The {!float} testable uses the vanilla [Float.to_string] function to render
+    floats. Unfortunately, the exact output is platform-dependent. For example,
+    Windows prints [1e+012] when on Linux (GLibc?) we get [1e+12]. This may
+    result in distracting diffs being reported for floats when reporting
+    legitimate differences for complex data. *)
+
+val string : string testable
+(** The {!string} testable is the safe default for rendering strings in error
+    messages and diffs shown by Testo when a test fails. Strings are formatted
+    as valid OCaml string literals with visible line breaks. All bytes outside
+    the printable ASCII range \[32-126\] are escaped. If you prefer to visualize
+    all characters as rendered by your terminal, use {!text} or your own
+    testable. *)
+
+val text : string testable
+(** Multiline strings that are unlikely to contains control characters should
+    use {!text} rather than {!string} for best diff rendering. *)
+
+val bytes : bytes testable
+(** This is the same as the {!string} testable except that it operates on
+    mutable strings known as [bytes]. *)
+
+val list : 'a testable -> 'a list testable
+val array : 'a testable -> 'a array testable
+val seq : 'a testable -> 'a Seq.t testable
+val option : 'a testable -> 'a option testable
+val result : 'a testable -> 'b testable -> ('a, 'b) Result.t testable
+val tuple2 : 'a testable -> 'b testable -> ('a * 'b) testable
+
+val tuple3 :
+  'a testable -> 'b testable -> 'c testable -> ('a * 'b * 'c) testable
+
+val tuple4 :
+  'a testable ->
+  'b testable ->
+  'c testable ->
+  'd testable ->
+  ('a * 'b * 'c * 'd) testable
+
+val tuple5 :
+  'a testable ->
+  'b testable ->
+  'c testable ->
+  'd testable ->
+  'e testable ->
+  ('a * 'b * 'c * 'd * 'e) testable
+
+val fail : string -> 'a
 (** Raise the {!Test_failure} exception with a message indicating the reason for
-    the failure. *)
+    the failure. [fail msg] has the same effect as [failwith msg] but clarifies
+    that it's a failed check rather than some other error. A {!Test_failure}
+    exception may also be reported by Testo in a nicer way than a generic
+    [Failure] raised by [failwith]. *)
 
 (** {2 Temporary files and output redirection} *)
 

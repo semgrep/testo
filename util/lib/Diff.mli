@@ -15,10 +15,26 @@ val files : ?color:bool -> Fpath.t -> Fpath.t -> string option
     The return value is [Some formatted_diffs] if the files differ, [None]
     otherwise. *)
 
+val strings :
+  ?color:bool ->
+  ?is_file:bool ->
+  path1:Fpath.t ->
+  path2:Fpath.t ->
+  string ->
+  string ->
+  string option
+(** Show the differences between two strings. The paths [path1] and [path2] are
+    only for display purposes.
+
+    @param is_files
+      should be set to true if the object compared are real files. This is used
+      in messages referring the input. *)
+
 type eol = LF | CRLF | No_EOL
 
 val lines :
   ?color:bool ->
+  ?is_file:bool ->
   ?path1:Fpath.t ->
   ?path2:Fpath.t ->
   ?show_eol:bool ->

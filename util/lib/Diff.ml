@@ -69,8 +69,8 @@ let classify_lines (lines : string list) : (string * eol) list =
         lines
   | [] -> []
 
-let read_lines path : (string * eol) list =
-  path |> Helpers.read_text_file |> String.split_on_char '\n' |> classify_lines
+let read_lines_from_string str : (string * eol) list =
+  str |> String.split_on_char '\n' |> classify_lines
 
 let detect_eol_style lines : eol_style =
   let has_crlf = ref false in
@@ -257,59 +257,63 @@ let format_header ~color buf path1 path2 =
     (Style.opt_color color Bold line1)
     (Style.opt_color color Bold line2)
 
-let render_eol ~show_eol (eol : eol) =
+let render_eol ~is_file ~show_eol (eol : eol) =
   match eol with
   | LF when show_eol -> "·"
   | CRLF when show_eol -> "↵↵"
-  | No_EOL -> {|\ No newline at end of file|}
+  | No_EOL ->
+      sprintf {|\ No newline at end of %s|}
+        (if is_file then "file" else "input")
   | LF
   | CRLF ->
       ""
 
-let format_context ~show_eol buf lines =
+let format_context ~is_file ~show_eol buf lines =
   Array.iter
-    (fun (line, eol) -> bprintf buf " %s%s\n" line (render_eol ~show_eol eol))
+    (fun (line, eol) ->
+      bprintf buf " %s%s\n" line (render_eol ~is_file ~show_eol eol))
     lines
 
-let format_edit ~color ~show_eol buf (x : diff) =
+let format_edit ~color ~is_file ~show_eol buf (x : diff) =
   match x with
-  | Equal lines -> format_context ~show_eol buf lines
+  | Equal lines -> format_context ~is_file ~show_eol buf lines
   | Added lines ->
       Array.iter
         (fun (line, eol) ->
           bprintf buf "%s\n"
-            (sprintf "+%s%s" line (render_eol ~show_eol eol)
+            (sprintf "+%s%s" line (render_eol ~is_file ~show_eol eol)
             |> Style.opt_color color Green))
         lines
   | Deleted lines ->
       Array.iter
         (fun (line, eol) ->
           bprintf buf "%s\n"
-            (sprintf "-%s%s" line (render_eol ~show_eol eol)
+            (sprintf "-%s%s" line (render_eol ~is_file ~show_eol eol)
             |> Style.opt_color color Red))
         lines
 
-let format_hunk ~color ~show_eol buf (x : hunk) =
+let format_hunk ~color ~is_file ~show_eol buf (x : hunk) =
   sprintf "@@ -%d,%d +%d,%d @@" x.span1.start_line x.span1.length
     x.span2.start_line x.span2.length
   |> Style.opt_color color Cyan |> bprintf buf "%s\n";
-  format_context ~show_eol buf x.left_context;
-  List.iter (format_edit ~color ~show_eol buf) x.edits;
-  format_context ~show_eol buf x.right_context
+  format_context ~is_file ~show_eol buf x.left_context;
+  List.iter (format_edit ~color ~is_file ~show_eol buf) x.edits;
+  format_context ~is_file ~show_eol buf x.right_context
 
 (*
    Print in the Unified format.
    See https://www.gnu.org/software/diffutils/manual/html_node/Detailed-Unified.html
 *)
-let format ~color ~show_eol buf path1 path2 (edits : diff list) : unit =
+let format ~color ~is_file ~show_eol buf path1 path2 (edits : diff list) : unit
+    =
   let hunks = hunks_of_edits edits in
   if debug then printf "hunks:\n%s\n" (show_hunks hunks);
   format_header ~color buf path1 path2;
-  List.iter (format_hunk ~color ~show_eol buf) hunks
+  List.iter (format_hunk ~color ~is_file ~show_eol buf) hunks
 
-let print_diff_to_string ~color ~show_eol path1 path2 edits =
+let print_diff_to_string ~color ~is_file ~show_eol path1 path2 edits =
   let buf = Buffer.create 1000 in
-  format ~color ~show_eol buf path1 path2 edits;
+  format ~color ~is_file ~show_eol buf path1 path2 edits;
   Buffer.contents buf
 
 let format_eol_style eol_style =
@@ -326,14 +330,14 @@ let print_eol_diff_to_string ?(color = true) path1 path2 eol_res =
     (format_eol_style eol_res.style2);
   Buffer.contents buf
 
-let lines ?(color = true) ?(path1 = Fpath.v "a") ?(path2 = Fpath.v "b")
-    ?(show_eol = false) lines1 lines2 =
+let lines ?(color = true) ?(is_file = false) ?(path1 = Fpath.v "a")
+    ?(path2 = Fpath.v "b") ?(show_eol = false) lines1 lines2 =
   let edits = Diff.get_diff lines1 lines2 in
-  print_diff_to_string ~color ~show_eol path1 path2 edits
+  print_diff_to_string ~color ~is_file ~show_eol path1 path2 edits
 
-let files ?color path1 path2 =
-  let lines1 = read_lines path1 in
-  let lines2 = read_lines path2 in
+let strings ?color ?is_file ~path1 ~path2 str1 str2 =
+  let lines1 = read_lines_from_string str1 in
+  let lines2 = read_lines_from_string str2 in
   if lines1 = lines2 then None
   else
     let eol_res = analyze_eol_style lines1 lines2 in
@@ -341,5 +345,10 @@ let files ?color path1 path2 =
       Some (print_eol_diff_to_string ?color path1 path2 eol_res)
     else
       Some
-        (lines ?color ~path1 ~path2 ~show_eol:(not eol_res.same_style)
+        (lines ?color ?is_file ~path1 ~path2 ~show_eol:(not eol_res.same_style)
            (Array.of_list lines1) (Array.of_list lines2))
+
+let files ?color path1 path2 =
+  let str1 = Helpers.read_text_file path1 in
+  let str2 = Helpers.read_text_file path2 in
+  strings ?color ~is_file:true ~path1 ~path2 str1 str2

@@ -243,7 +243,187 @@ let update ?broken ?category ?checked_output ?checked_output_files
   }
   |> update_id
 
+(****************************************************************************)
+(* Assertions and test failures *)
+(****************************************************************************)
+
 exception Test_failure = Testo_util.Error.Test_failure
+
+type 'a testable = { show : 'a -> string; equal : 'a -> 'a -> bool }
+
+let testable show equal = { show; equal }
+
+(* Indent a list of strings that may contain newlines *)
+let indent_list prefix xs : string =
+  Helpers.list_map (String.split_on_char '\n') xs
+  |> Helpers.list_flatten
+  |> Helpers.list_map (fun line -> prefix ^ line)
+  |> String.concat "\n"
+
+let indent prefix str = indent_list prefix [ str ]
+
+let check testable ?msg expected actual =
+  if not (testable.equal expected actual) then
+    let expected = testable.show expected in
+    let actual = testable.show actual in
+    let inline_or_block str =
+      if String.contains str '\n' then "\n" ^ indent "    " str else " " ^ str
+    in
+    raise
+      (Test_failure
+         (sprintf
+            "%snot equal:\n\
+            \  expected (left):%s\n\
+            \  actual  (right):%s\n\
+             differences:\n\
+             %s"
+            (match msg with
+            | None -> ""
+            | Some str -> str ^ "\n")
+            (inline_or_block expected) (inline_or_block actual)
+            (Diff.strings ~color:true ~path1:(Fpath.v "expected")
+               ~path2:(Fpath.v "actual") (expected ^ "\n") (actual ^ "\n")
+            |> Option.value ~default:"<no difference>")))
+
+let bool = testable Bool.to_string Bool.equal
+let int = testable Int.to_string Int.equal
+let int32 = testable Int32.to_string Int32.equal
+let int64 = testable Int64.to_string Int64.equal
+let float = testable Float.to_string Float.equal
+
+(* Print a quoted string with line breaks after escaped newline characters.
+   The result is a valid OCaml string literal and inserting indentation
+   doesn't change its value. See the tests for an example.
+*)
+let show_multiline_quoted_string str =
+  String.split_on_char '\n' str
+  |> Helpers.list_map String.escaped
+  |> String.concat "\\n\\\n " |> sprintf {|"%s"|}
+
+let string = testable show_multiline_quoted_string String.equal
+let text = testable (fun str -> str) String.equal
+
+let bytes =
+  testable
+    (fun bytes -> show_multiline_quoted_string (Bytes.to_string bytes))
+    Bytes.equal
+
+(*
+   Reimplement some functionality of the Format module.
+   The goal is to make it easier for the user to specify printers,
+   so we take 'show' functions that produce strings and then
+   we figure out a way to indent those blocks.
+
+   Note that nice printers of OCaml data structures are typically created
+   using ppx_deriving.show which does use 'Format'.
+*)
+let format_list ~open_bracket ~close_bracket strings =
+  (* Approximate length of the list contents *)
+  let len = List.fold_left (fun n str -> n + String.length str + 4) 0 strings in
+  (* Render list elements vertically if they're too long horizontally
+     or if they already contain newlines *)
+  if len > 76 || List.exists (fun str -> String.contains str '\n') strings then
+    (* vertical *)
+    sprintf "%s\n%s\n%s" open_bracket (indent_list "  " strings) close_bracket
+  else
+    (* horizontal *)
+    sprintf "%s%s%s" open_bracket (String.concat " " strings) close_bracket
+
+(* ["a"; "b"; "c"] -> ["a;"; "b;"; "c;"] *)
+let append_sep separator strings =
+  Helpers.list_map (fun str -> str ^ separator) strings
+
+(* ["a"; "b"; "c"] -> ["a,"; "b,"; "c"] *)
+let insert_sep separator strings : string list =
+  let rec insert acc xs =
+    match xs with
+    | [] -> []
+    | [ single ] -> [ single ]
+    | [ prev; last ] -> last :: (prev ^ separator) :: acc |> List.rev
+    | x :: xs -> insert ((x ^ separator) :: acc) xs
+  in
+  insert [] strings
+
+let list_show t xs =
+  format_list ~open_bracket:"[" ~close_bracket:"]"
+    (Helpers.list_map t.show xs |> append_sep ";")
+
+(* exists because OCaml 4.08 doesn't have List.equal *)
+let list_equal equal a b =
+  List.length a = List.length b && List.for_all2 equal a b
+
+let list t = testable (list_show t) (list_equal t.equal)
+
+let array_show t ar =
+  format_list ~open_bracket:"[" ~close_bracket:"]"
+    (Array.to_list ar |> Helpers.list_map t.show |> append_sep ";")
+
+(* exists OCaml 4.08 doesn't have Array.for_all2 *)
+let array_for_all2 equal a b =
+  List.for_all2 equal (Array.to_list a) (Array.to_list b)
+
+let array_equal t a b =
+  Array.length a = Array.length b && array_for_all2 t.equal a b
+
+let array t = testable (array_show t) (array_equal t)
+
+let seq_show t seq =
+  (* TODO: is there a recommended syntax that we should use for a seq? *)
+  format_list ~open_bracket:"[?" ~close_bracket:"?]"
+    (List.of_seq seq |> Helpers.list_map t.show |> append_sep ";")
+
+(* exists because OCaml 4.08 doesn't have Seq.equal *)
+let seq_equal equal a b = list_equal equal (List.of_seq a) (List.of_seq b)
+let seq t = testable (seq_show t) (seq_equal t.equal)
+
+let option t =
+  testable
+    (function
+      | None -> "None"
+      | Some x -> sprintf "Some (%s)" (t.show x))
+    (Option.equal t.equal)
+
+let result ok error =
+  testable
+    (function
+      | Ok a -> sprintf "Ok (%s)" (ok.show a)
+      | Error b -> sprintf "Error (%s)" (error.show b))
+    (Result.equal ~ok:ok.equal ~error:error.equal)
+
+(* The names are "tuple2" and "tuple3" rather than "pair" and "triple"
+   because the rename is easier when adding or removing an element. *)
+let tuple2 ta tb =
+  testable
+    (fun (a, b) ->
+      format_list ~open_bracket:"(" ~close_bracket:")"
+        (insert_sep "," [ ta.show a; tb.show b ]))
+    (fun (a1, b1) (a2, b2) -> ta.equal a1 a2 && tb.equal b1 b2)
+
+let tuple3 ta tb tc =
+  testable
+    (fun (a, b, c) ->
+      format_list ~open_bracket:"(" ~close_bracket:")"
+        (insert_sep "," [ ta.show a; tb.show b; tc.show c ]))
+    (fun (a1, b1, c1) (a2, b2, c2) ->
+      ta.equal a1 a2 && tb.equal b1 b2 && tc.equal c1 c2)
+
+let tuple4 ta tb tc td =
+  testable
+    (fun (a, b, c, d) ->
+      format_list ~open_bracket:"(" ~close_bracket:")"
+        (insert_sep "," [ ta.show a; tb.show b; tc.show c; td.show d ]))
+    (fun (a1, b1, c1, d1) (a2, b2, c2, d2) ->
+      ta.equal a1 a2 && tb.equal b1 b2 && tc.equal c1 c2 && td.equal d1 d2)
+
+let tuple5 ta tb tc td te =
+  testable
+    (fun (a, b, c, d, e) ->
+      format_list ~open_bracket:"(" ~close_bracket:")"
+        (insert_sep ","
+           [ ta.show a; tb.show b; tc.show c; td.show d; te.show e ]))
+    (fun (a1, b1, c1, d1, e1) (a2, b2, c2, d2, e2) ->
+      ta.equal a1 a2 && tb.equal b1 b2 && tc.equal c1 c2 && td.equal d1 d2
+      && te.equal e1 e2)
 
 (* 'Testo.fail' is unambiguous to the user, no need to call it
    'Testo.fail_test'. *)

@@ -64,9 +64,9 @@ b.BWHI {background-color: #aaaaaa}
        output the new reference.
 
        This test program was configured to store the temporary results in
-       "_build/testo/status/my_project" and the expected test output in the
-       persistent folder "tests/snapshots/my_project". The latter should be
-       kept under version control (git or similar).
+       "_build/testo/status" and the expected test output in the persistent
+       folder "tests/snapshots". The latter should be kept under version
+       control (git or similar).
 
        Visit https://testocaml.net/ to learn how to create and manage test
        suites with Testo.
@@ -87,6 +87,9 @@ b.BWHI {background-color: #aaaaaa}
 <b class="BOLD">OPTIONS</b>
        <b class="BOLD">--autoclean</b>
            Remove test snapshots that don't match any test.
+
+       <b class="BOLD">-C </b><b class="BOLD UND"></b><b class=UND>DIR</b>, <b class="BOLD">--chdir</b>=<b class=UND>DIR</b>
+           Change the current working directory to <b class=UND>DIR</b> before doing any work.
 
        <b class="BOLD">--debug</b>
            Log information that can be useful for debugging the Testo library.

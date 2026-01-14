@@ -28,7 +28,7 @@ Features include:
 - parallel execution (using multiprocessing);
 - supports OCaml >= 4.08.
 
-Like with Alcotest, a test executable is generated from a list of tests
+A test executable is generated from a list of tests
 written in OCaml. The function to interpret the command line
 and run things is `Testo.interpret_argv`.
 The core subcommands supported by a test executable are:
@@ -43,12 +43,9 @@ returns normally and is considered failed if it raises an exception.
 A test is created with `Testo.create` which takes a variety of options
 in addition to the name and the test function.
 
-Testo doesn't provide a library for writing assertions. Using the
-[Alcotest](https://mirage.github.io/alcotest/alcotest/Alcotest/index.html)
-module for this is recommended. For example,
-checking that some test result `res` equals an expected value of `42`
-is written as:
+For example, checking that some test result `res` equals an expected
+value of `42` is written as:
 ```ocaml
-Alcotest.(check int) "equal" 42 res;
+Testo.(check int) 42 res;
 ```
 This raises an exception that is turned into a nice error message.

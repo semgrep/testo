@@ -1,0 +1,10 @@
+Test failed: <description>
+not equal:
+  expected (left): "a"
+  actual  (right): "b"
+differences:
+[1m--- expected[0m
+[1m+++ actual[0m
+[36m@@ -1,1 +1,1 @@[0m
+[31m-"a"[0m
+[32m+"b"[0m
