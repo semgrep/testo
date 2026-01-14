@@ -21,7 +21,6 @@
 (executable
  (name test)
  (libraries
-   alcotest
    testo
  )
 )
