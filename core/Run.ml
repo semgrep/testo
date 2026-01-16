@@ -393,10 +393,13 @@ let catch_user_exception ~with_storage ~flip_xfail_outcome test func () :
           test function. *)
       func () >>= fun () -> P.return (Ok ()))
     (fun exn trace ->
-      let exn_txt =
-        sprintf "%s\n%s" (Printexc.to_string exn)
-          (Printexc.raw_backtrace_to_string trace)
+      (* Only show a backtrace if it might be useful *)
+      let opt_trace =
+        match exn with
+        | Error.Test_failure _ -> ""
+        | _ -> Printexc.raw_backtrace_to_string trace
       in
+      let exn_txt = sprintf "%s\n%s" (Printexc.to_string exn) opt_trace in
       P.return (Error { exn_txt; exn; trace }))
   >>= function
   | Ok () ->

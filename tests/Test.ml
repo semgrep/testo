@@ -805,6 +805,44 @@ let tests env =
             Testo.(check string) ~msg:"test name" "current test" test.name);
     t "write/read/map file" test_write_read_map;
     t "write/read/map file in place" test_write_read_map_in_place;
+    t "string list fail if DEMO is set" (fun () ->
+        match Sys.getenv_opt "DEMO" with
+        | None -> ()
+        | Some _ ->
+            Testo.(check (list string))
+              [
+                "The quick brown fox jumps over the lazy dog.";
+                "Dude, where's my car?";
+                "Sir, this is a Wendy's";
+                "You get a car!\n\
+                 You get a car!\n\
+                 You get a car!\n\
+                 Everybody gets a car!";
+                "Electrolytes. That's what plants crave.";
+              ]
+              [
+                "The quick brown fox jumps over the lazy dog.";
+                "Dude, where's my car?";
+                "Sir, this is a Wendy's";
+                "You get a car!\n\
+                 You get a car.\n\
+                 You get a car!\n\
+                 Everybody gets a car!";
+                "Electrolytes. That's what plants crave.";
+              ]);
+    t "text fail if DEMO is set" (fun () ->
+        match Sys.getenv_opt "DEMO" with
+        | None -> ()
+        | Some _ ->
+            Testo.(check text)
+              "The quick brown fox jumps over the lazy dog.\n\
+               Dude, where's my car?\n\
+               Sir, this is a Wendy's.\n\
+               Electrolytes. That's what plants crave.\n"
+              "The quick brown fox jumps over the lazy dog.\n\
+               Dude, where's my car?\n\
+               Sir, this is a Wendy's.\r\n\
+               Electrolytes. That's what plants crave.\n");
   ]
   @ categorized @ test_internal_files
   @ Testo.categorize "Slice"

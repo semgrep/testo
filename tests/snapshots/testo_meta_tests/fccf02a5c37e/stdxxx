@@ -79,6 +79,8 @@ junk printed on stdout...
 [33m[MISS]  [0m08e4221951ee [36mcurrent test[0m
 [33m[MISS]  [0me06ba5b7f0ea [36mwrite/read/map file[0m
 [33m[MISS]  [0m76465929ce2f [36mwrite/read/map file in place[0m
+[33m[MISS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[33m[MISS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
@@ -518,6 +520,12 @@ Try '--help' for options.
 [33m[RUN][0m   76465929ce2f [36mwrite/read/map file in place[0m
 [32m[PASS]  [0m76465929ce2f [36mwrite/read/map file in place[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/76465929ce2f/log
+[33m[RUN][0m   c97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[32m[PASS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c97a5036c7e6/log
+[33m[RUN][0m   0c2f56ef73e6 [36mtext fail if DEMO is set[0m
+[32m[PASS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0c2f56ef73e6/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -728,9 +736,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
-  98 successful (91 pass, 7 xfail)
+  100 successful (93 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -1058,6 +1066,10 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/e06ba5b7f0ea/log
 [32m[PASS]  [0m76465929ce2f [36mwrite/read/map file in place[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/76465929ce2f/log
+[32m[PASS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c97a5036c7e6/log
+[32m[PASS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0c2f56ef73e6/log
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
 [32m[PASS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
@@ -1242,9 +1254,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
-  98 successful (91 pass, 7 xfail)
+  100 successful (93 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 9 tests whose output needs first-time approval
 overall status: [31mfailure[0m
@@ -1362,7 +1374,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/104 selected tests:
+1/106 selected tests:
   0 successful (0 pass, 0 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [31mfailure[0m
@@ -1392,7 +1404,7 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-1/104 selected tests:
+1/106 selected tests:
   1 successful (1 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m
@@ -1695,6 +1707,12 @@ Try '--help' for options.
 [33m[MISS]  [0m76465929ce2f [36mwrite/read/map file in place[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/76465929ce2f/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/76465929ce2f/log
+[33m[MISS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c97a5036c7e6/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c97a5036c7e6/log
+[33m[MISS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0c2f56ef73e6/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0c2f56ef73e6/log
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -2277,6 +2295,18 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/76465929ce2f/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c97a5036c7e6/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c97a5036c7e6/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m                                [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0c2f56ef73e6/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0c2f56ef73e6/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
@@ -2483,11 +2513,11 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-99 new tests
+101 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -2970,6 +3000,18 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/76465929ce2f/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m                         [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/c97a5036c7e6/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c97a5036c7e6/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
+[0m[2m│[0m [33m[MISS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m                                [2m│[0m
+[2m└──────────────────────────────────────────────────────────────────────────────┘
+[0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/0c2f56ef73e6/completion_status[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0c2f56ef73e6/log
+[2m────────────────────────────────────────────────────────────────────────────────[0m
+[2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m                               [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
 [0m[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_tests/33a93d234d01/completion_status[0m
@@ -3176,11 +3218,11 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
   0 successful (0 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
-99 new tests
+101 new tests
 overall status: [31mfailure[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
@@ -3254,6 +3296,8 @@ junk printed on stdout...
 [33m[MISS]  [0m08e4221951ee [36mcurrent test[0m
 [33m[MISS]  [0me06ba5b7f0ea [36mwrite/read/map file[0m
 [33m[MISS]  [0m76465929ce2f [36mwrite/read/map file in place[0m
+[33m[MISS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[33m[MISS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m
 [33m[MISS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [33m[MISS]  [0mec7514c8554d [36mbiohazard[0m > [36mfruit[0m > [36mkiwi[0m
 [33m[MISS]  [0mb8cd199f2e62 [36mbiohazard[0m > [36manimal[0m > [36mbanana slug[0m
@@ -3691,6 +3735,12 @@ Try '--help' for options.
 [33m[RUN][0m   76465929ce2f [36mwrite/read/map file in place[0m
 [32m[PASS]  [0m76465929ce2f [36mwrite/read/map file in place[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/76465929ce2f/log
+[33m[RUN][0m   c97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[32m[PASS]  [0mc97a5036c7e6 [36mstring list fail if DEMO is set[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/c97a5036c7e6/log
+[33m[RUN][0m   0c2f56ef73e6 [36mtext fail if DEMO is set[0m
+[32m[PASS]  [0m0c2f56ef73e6 [36mtext fail if DEMO is set[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_tests/0c2f56ef73e6/log
 [33m[RUN][0m   33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [32m[PASS]  [0m33a93d234d01 [36mbiohazard[0m > [36mfruit[0m > [36mapple[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/33a93d234d01/log
@@ -3816,9 +3866,9 @@ Try '--help' for options.
 2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
-  98 successful (91 pass, 7 xfail)
+  100 successful (93 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3893,9 +3943,9 @@ junk printed on stdout...
 2 folders no longer belong to the test suite and are being removed:
   tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
   tests/snapshots/testo_tests/unnamed-junk ??
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
-  98 successful (91 pass, 7 xfail)
+  100 successful (93 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
@@ -3937,9 +3987,9 @@ junk printed on stdout...
  Called from <MASKED>
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
-100/104 selected tests:
+102/106 selected tests:
   1 skipped
-  98 successful (91 pass, 7 xfail)
+  100 successful (93 pass, 7 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
 [33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
