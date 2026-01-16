@@ -1,0 +1,3 @@
+[submodule "testo-template"]
+	path = template
+	url = https://github.com/semgrep/testo-template.git
