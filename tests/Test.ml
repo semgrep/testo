@@ -647,7 +647,7 @@ let tests env =
     t "fail to capture one file"
       ~expected_outcome:(Should_fail "must raise exception")
       ~checked_output_files:[ Testo.checked_output_file "results.txt" ]
-      (fun () -> failwith "I am failing on purpose");
+      (fun () -> Testo.fail "I am failing on purpose");
     t "capture multiple files and stdout"
       ~normalize:[ (fun s -> "[normalized] " ^ s) ]
       ~checked_output:(Testo.stdout ())
@@ -694,15 +694,15 @@ let tests env =
             printf "TESTO_TEST is empty or unset.\n"
         | str -> printf "TESTO_TEST is set to %S.\n" str);
     t "xfail" ~expected_outcome:(Should_fail "raises exception on purpose")
-      (fun () -> failwith "this exception is expected");
+      (fun () -> Testo.fail "this exception is expected");
     t "xfail due to invalid output"
       ~expected_outcome:(Should_fail "produces incorrect output on purpose")
       ~checked_output:(Testo.stdout ()) (fun () ->
         print_endline "incorrect output printed by the test");
     t "skipped" ~skipped:"some reason" (fun () ->
-        failwith "this shouldn't happen");
+        Testo.fail "this shouldn't happen");
     t "broken" ~tags:[ meta_tag ] ~broken:"this test is super flaky" (fun () ->
-        failwith "I am broken");
+        Testo.fail "I am broken");
     t "tracking URL" ~tracking_url:"https://example.com/issue/1234" (fun () ->
         ());
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
