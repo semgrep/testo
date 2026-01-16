@@ -324,28 +324,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [33m[RUN][0m   a55170a13733 [36mtracking URL[0m
 [32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
@@ -690,28 +669,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -901,28 +859,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
 [2m• [0mTracking URL: https://example.com/issue/1234
@@ -1218,28 +1155,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
@@ -3539,28 +3455,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [33m[RUN][0m   a55170a13733 [36mtracking URL[0m
 [32m[PASS]  [0ma55170a13733 [36mtracking URL[0m
@@ -3838,28 +3733,7 @@ Try '--help' for options.
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [31m[FAIL]  [0m54ddc3c7d064 ([1mmeta[0m) [36mbroken[0m
@@ -3916,28 +3790,7 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 2 folders no longer belong to the test suite and are being removed:
@@ -3963,28 +3816,7 @@ junk printed on stdout...
 [2m• [0mPath to captured log: _build/testo/status/testo_tests/54ddc3c7d064/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Failure("I am broken")
- Raised at <MASKED>, line 29, characters 17-33
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
- Re-raised at <MASKED>
- Called from <MASKED>
- Called from <MASKED>
+ Test failed: I am broken
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 102/106 selected tests:
