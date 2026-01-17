@@ -1,4 +1,4 @@
-0.3.1 (2026-01-16)
+0.3.2 (2026-01-16)
 ------------------
 
 * Add support for checked output files
@@ -24,7 +24,7 @@
   ([#156](https://github.com/semgrep/testo/issues/156)).
 * Report and highlight differences in Unix vs. Windows line endings as
   well as missing trailing newlines
-  ([#163](https://github.com/semgrep/testo/pull/163).
+  ([#163](https://github.com/semgrep/testo/pull/163)).
 * Testo's snapshot files are now open in text mode for Windows-Unix
   compatibility. When reading files on Windows, CRLFs are converted to
   LFs. When writing, LFs are converted to CRLFs. Git or equivalent
@@ -46,7 +46,7 @@
   ([#169](https://github.com/semgrep/testo/pull/169)).
 * Show current working directory (cwd) when reporting missing files
   if one of the paths is relative
-  ([#170](https://github.com/semgrep/testo/pull/170).
+  ([#170](https://github.com/semgrep/testo/pull/170)).
 * Rename the `broken` option of `Testo.create` and `Testo.update` to
   `flaky`
   ([#172](https://github.com/semgrep/testo/issues/172)).
