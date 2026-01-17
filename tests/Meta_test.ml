@@ -2,9 +2,9 @@
    Test suite that runs the dummy test program and checks that its output
    is what we expect.
 
-   Warning: ./meta-test produces very confusing output!
-   I recommend running ./test and ./failed-test manually and see what's wrong
-   there.
+   Warning: to reduce the amount of captured output to review, most
+   calls to ./subtest are done in quiet mode. To see the output,
+   copy the command that was logged and run it manually.
 *)
 
 open Printf
@@ -51,25 +51,24 @@ let section text =
 %!|}
     text
 
+let args_of_tags = function
+  | None -> ""
+  | Some query -> sprintf "-t '%s'" query
+
 (*****************************************************************************)
 (* Exercise the regular test suite *)
 (*****************************************************************************)
 
 (*
-   Invoke the pre-build test program.
+   Invoke the pre-built test program.
 *)
-let test_subcommand ?expected_exit_code ~__LOC__:loc subcommand_name
-    shell_command_args =
+let test_subcommand ?expected_exit_code ?(quiet = false) ~__LOC__:loc
+    subcommand_name shell_command_args =
   let command =
-    sprintf "./test %s -e foo=bar %s" subcommand_name shell_command_args
+    sprintf "./subtest %s -e foo=bar %s" subcommand_name shell_command_args
   in
+  let command = if quiet then command ^ " > /dev/null 2>&1" else command in
   shell_command ?expected_exit_code ~__LOC__:loc command
-
-(*
-   The argument of '-t', a boolean query over tags.
-   TODO: select only a few tests so we can see what's going on
-*)
-let default_tags = "not unix_only"
 
 (*
    0 workers: no workers are created
@@ -77,25 +76,25 @@ let default_tags = "not unix_only"
    more than one worker: the output won't be in a particular order, making it
    harder to test expectations.
 *)
-let test_run ?expected_exit_code ?(num_workers = 1) ?(tags = default_tags)
-    ~__LOC__:loc shell_command_args =
-  test_subcommand ?expected_exit_code ~__LOC__:loc "run"
-    (sprintf "-j %d %s -t '%s'" num_workers shell_command_args tags)
-
-let test_status ?expected_exit_code ?(tags = default_tags) ~__LOC__:loc
+let test_run ?expected_exit_code ?(num_workers = 1) ?quiet ?tags ~__LOC__:loc
     shell_command_args =
-  test_subcommand ?expected_exit_code ~__LOC__:loc
-    (sprintf "status -t '%s'" tags)
+  test_subcommand ?expected_exit_code ~__LOC__:loc ?quiet "run"
+    (sprintf "-j %d %s %s" num_workers shell_command_args (args_of_tags tags))
+
+let test_status ?expected_exit_code ?quiet ?tags ~__LOC__:loc shell_command_args
+    =
+  test_subcommand ?expected_exit_code ?quiet ~__LOC__:loc
+    (sprintf "status %s" (args_of_tags tags))
     shell_command_args
 
-let test_approve ?expected_exit_code ?(tags = default_tags) ~__LOC__:loc
+let test_approve ?expected_exit_code ?quiet ?tags ~__LOC__:loc
     shell_command_args =
-  test_subcommand ?expected_exit_code ~__LOC__:loc
-    (sprintf "approve -t '%s'" tags)
+  test_subcommand ?expected_exit_code ?quiet ~__LOC__:loc
+    (sprintf "approve %s" (args_of_tags tags))
     shell_command_args
 
 let clear_status ~__LOC__:loc () =
-  shell_command ~__LOC__:loc "rm -rf _build/testo/status/testo_tests"
+  shell_command ~__LOC__:loc "rm -rf _build/testo/status/testo_subtests"
 
 (*
    These are the tests we want to approve/disapprove in the
@@ -120,59 +119,57 @@ let clear_snapshots ~__LOC__:loc () =
   (* snapshots at the default location *)
   auto_approve_tests
   |> List.iter (fun id ->
-         shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_tests/" ^ id));
+         shell_command ~__LOC__:loc
+           ("rm -rf tests/snapshots/testo_subtests/" ^ id));
   (* snapshots at a custom location *)
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
 
-(* FIXME: This integration test fails on Windows because the expected output
-   includes paths generated on POSIX systems. It runs correctly however. *)
-(* TODO: split this test into smaller tests because right now the changes
-   are so frequent and so big that unwanted changes may be accidentally
-   approved. *)
 let test_standard_flow () =
   Fun.protect
     (fun () ->
       section "Clean start";
       clear_status ~__LOC__ ();
       clear_snapshots ~__LOC__ ();
-      test_status ~__LOC__ "" ~expected_exit_code:1;
-      test_run ~__LOC__ "" ~expected_exit_code:1;
-      test_status ~__LOC__ "--all --long" ~expected_exit_code:1;
-      test_status ~__LOC__ "" ~expected_exit_code:1;
-      test_approve ~__LOC__ "-s auto-approve";
-      test_approve ~__LOC__ "-s environment-sensitive";
+      test_status ~quiet:true ~__LOC__ "" ~expected_exit_code:1;
+      test_run ~quiet:true ~__LOC__ "" ~expected_exit_code:1;
+      test_status ~quiet:true ~__LOC__ "--all --long" ~expected_exit_code:1;
+      test_status ~quiet:true ~__LOC__ "" ~expected_exit_code:1;
+      test_approve ~quiet:true ~__LOC__ "-s auto-approve";
+      test_approve ~quiet:true ~__LOC__ "-s environment-sensitive";
       test_status ~__LOC__ "";
-      test_status ~__LOC__ "--expert";
-      test_status ~__LOC__ "--env A_b123=xxx";
-      test_status ~__LOC__ "-e novalue" ~expected_exit_code:124;
-      test_status ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
-      test_status ~__LOC__ "-a" ~tags:"testin" ~expected_exit_code:124;
-      test_status ~__LOC__ "-a" ~tags:"testing";
-      test_status ~__LOC__ "--strict" ~expected_exit_code:1;
+      test_status ~quiet:true ~__LOC__ "--expert";
+      test_status ~quiet:true ~__LOC__ "--env A_b123=xxx";
+      test_status ~quiet:true ~__LOC__ "-e novalue" ~expected_exit_code:124;
+      test_status ~quiet:true ~__LOC__ "-e b@d_key=42" ~expected_exit_code:124;
+      test_status ~quiet:true ~__LOC__ "-a" ~tags:"testin"
+        ~expected_exit_code:124;
+      test_status ~quiet:true ~__LOC__ "-a" ~tags:"testing";
+      test_status ~quiet:true ~__LOC__ "--strict" ~expected_exit_code:1;
       (* Modify the output of the test named 'environment-sensitive'
        by setting an environment variable it consults, simulating a bug *)
       with_env ("TESTO_TEST", Some "hello") (fun () ->
-          test_run ~__LOC__ "-s environment-sensitive" ~expected_exit_code:1);
+          test_run ~quiet:true ~__LOC__ "-s environment-sensitive"
+            ~expected_exit_code:1);
       (* "Fix the bug" in test 'environment-sensitive' *)
-      test_run ~__LOC__ "-s environment-sensitive";
+      test_run ~quiet:true ~__LOC__ "-s environment-sensitive";
       section "Delete statuses but not snapshots";
       clear_status ~__LOC__ ();
       test_status ~__LOC__ "-v" ~expected_exit_code:1;
       test_status ~__LOC__ "-l" ~expected_exit_code:1;
       test_status ~__LOC__ "-a" ~expected_exit_code:1;
-      test_run ~__LOC__ "";
+      test_run ~quiet:true ~__LOC__ "";
       section "Delete snapshots but not statuses";
       clear_snapshots ~__LOC__ ();
-      test_status ~__LOC__ "" ~expected_exit_code:1;
-      test_approve ~__LOC__ "-s auto-approve";
+      test_status ~quiet:true ~__LOC__ "" ~expected_exit_code:1;
+      test_approve ~quiet:true ~__LOC__ "-s auto-approve";
       section "Delete the dead snapshots with --autoclean";
-      test_status ~__LOC__ "-l --autoclean";
+      test_status ~quiet:true ~__LOC__ "-l --autoclean";
       section "Check that the dead snapshots are gone";
       test_status ~__LOC__ "-l")
     ~finally:(fun () ->
       section "Restore any deleted snapshots";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests")
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_subtests")
 
 let test_multi_selection () =
   let (), capture =
@@ -180,7 +177,7 @@ let test_multi_selection () =
         (* Select two tests that have different names. We could pick
          any two tests for this. *)
         shell_command ~__LOC__
-          "./test status -a -s 'unchecked stdout' -s 'unchecked stderr'")
+          "./subtest status -a -s 'unchecked stdout' -s 'unchecked stderr'")
   in
   assert (Testo_util.Helpers.contains_substring capture ~sub:"unchecked stdout");
   assert (Testo_util.Helpers.contains_substring capture ~sub:"unchecked stderr")
@@ -196,7 +193,7 @@ let test_approve_xfail () =
   test_status ~__LOC__ "-s '05dd9a9f220b'" ~expected_exit_code:1;
   section "Clean up";
   shell_command ~__LOC__
-    "git restore tests/snapshots/testo_tests/05dd9a9f220b/stdout"
+    "git restore tests/snapshots/testo_subtests/05dd9a9f220b/stdout"
 
 (*
    Delete test snapshots to simulate a fresh test then check that approving
@@ -209,14 +206,14 @@ let test_new_output_file_capture () =
       let test_id = "0658581e95c7" in
       section (sprintf "Delete snapshots for test %s '%s'" test_id test_name);
       shell_command ~__LOC__
-        (sprintf "rm -rf tests/snapshots/testo_tests/%s" test_id);
+        (sprintf "rm -rf tests/snapshots/testo_subtests/%s" test_id);
       section "Run test without snapshots";
       test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
       section "Approve captured output";
       test_approve ~__LOC__ (sprintf "-s %s" test_id))
     ~finally:(fun () ->
       section "Restore any deleted snapshots";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests")
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_subtests")
 
 let test_updated_output_file_capture () =
   Fun.protect
@@ -227,7 +224,7 @@ let test_updated_output_file_capture () =
       shell_command ~__LOC__
         (sprintf
            "echo outdated_contents >> \
-            tests/snapshots/testo_tests/%s/file-results.txt"
+            tests/snapshots/testo_subtests/%s/file-results.txt"
            test_id);
       section "Run test with updated output in results.txt";
       test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
@@ -235,7 +232,7 @@ let test_updated_output_file_capture () =
       test_approve ~__LOC__ (sprintf "-s %s" test_id))
     ~finally:(fun () ->
       section "Restore any modified snapshot";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_tests")
+      shell_command ~__LOC__ "git restore tests/snapshots/testo_subtests")
 
 let test_max_inline_log_size ~limit () =
   test_run ~__LOC__ (sprintf "-s 'inline logs' --max-inline-log-bytes %s" limit)

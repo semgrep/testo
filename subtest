@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+_build/default/tests/subtest.exe "$@"
