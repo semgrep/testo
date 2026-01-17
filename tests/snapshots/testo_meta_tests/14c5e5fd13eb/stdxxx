@@ -1,7 +1,7 @@
 #####################################################################
 # Approve the incorrect output of an XFAIL test
 #####################################################################
-RUN ./test approve -t 'not unix_only' -e foo=bar -s '05dd9a9f220b'
+RUN ./subtest approve  -e foo=bar -s '05dd9a9f220b'
 junk printed on stdout...
 ... when creating the test suite
 Expected output changed for 1 test.
@@ -9,7 +9,7 @@ Expected output changed for 1 test.
 #####################################################################
 # Now expect XPASS status
 #####################################################################
-RUN ./test status -t 'not unix_only' -e foo=bar -s '05dd9a9f220b'
+RUN ./subtest status  -e foo=bar -s '05dd9a9f220b'
 junk printed on stdout...
 ... when creating the test suite
 [31m[XPASS] [0m05dd9a9f220b [36mxfail due to invalid output[0m
@@ -17,4 +17,4 @@ junk printed on stdout...
 #####################################################################
 # Clean up
 #####################################################################
-RUN git restore tests/snapshots/testo_tests/05dd9a9f220b/stdout
+RUN git restore tests/snapshots/testo_subtests/05dd9a9f220b/stdout

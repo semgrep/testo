@@ -1,4 +1,4 @@
-RUN ./test run -e foo=bar -j 1 -s 'inline logs' --max-inline-log-bytes unlimited -t 'not unix_only'
+RUN ./subtest run -e foo=bar -j 1 -s 'inline logs' --max-inline-log-bytes unlimited 
 junk printed on stdout...
 ... when creating the test suite
 Legend:
@@ -16,20 +16,17 @@ Try '--help' for options.
 [worker 1/1] junk printed on stdout...
 [worker 1/1] ... when creating the test suite
 [32m[PASS]  [0m57fbfca04c25 [36minline logs[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/57fbfca04c25/log
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/57fbfca04c25/log
 [2m• [0mLog (stdout, stderr):
  Hello. This is a log.
  
 [33m[RUN][0m   9c3540949276 [36mauto inline logs[0m
 [32m[PASS]  [0m9c3540949276 [36mauto inline logs[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/9c3540949276/log
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/9c3540949276/log
 [33m[RUN][0m   33c81575317c [36mno inline logs[0m
 [32m[PASS]  [0m33c81575317c [36mno inline logs[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_tests/33c81575317c/log
-2 folders no longer belong to the test suite and can be removed manually or with '--autoclean':
-  tests/snapshots/testo_tests/named-junk this is a ghost test that we keep around for meta tests
-  tests/snapshots/testo_tests/unnamed-junk ??
-3/106 selected tests:
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/33c81575317c/log
+3/20 selected tests:
   3 successful (3 pass, 0 xfail)
   0 unsuccessful (0 fail, 0 xpass)
 overall status: [32msuccess[0m

@@ -1,5 +1,5 @@
 (*
-   Test suite exercising a variety of test options.
+   Unit tests
 *)
 
 open Printf
@@ -7,16 +7,6 @@ open Printf
 let ( !! ) = Fpath.to_string
 let ( / ) = Fpath.( / )
 let t = Testo.create
-let testing_tag = Testo.Tag.declare "testing"
-let tags_tag = Testo.Tag.declare "tags"
-
-(* Tag for tests that are designed to be run by the meta-test program
-   or that don't succeed without special flags or preparation.
-   We use this exclude this tag to exclude these special tests when running
-   the simple test suite normally:
-     ./test -t 'not meta'
-*)
-let meta_tag = Testo.Tag.declare "meta"
 
 let fruit_tests =
   Testo.categorize "fruit" [ t "apple" (fun () -> ()); t "kiwi" (fun () -> ()) ]
@@ -95,38 +85,6 @@ let test_checked_output_file_names () =
       printf "Check that name is valid: %S\n%!" name;
       ignore (Testo.checked_output_file name))
     valid_names
-
-let test_internal_files =
-  let category = [ "auto-approve"; "internal files" ] in
-  let test_create_name_file =
-    t "create name file" ~checked_output:(Testo.stdout ()) ~category (fun () ->
-        ())
-  in
-  let test_dont_create_name_file =
-    t "don't create name file" ~category (fun () -> ())
-  in
-  let snapshot_dir_path (test : Testo.t) =
-    Fpath.v "tests/snapshots/testo_tests" / test.id
-  in
-  let test_check_name_files =
-    (* This test depends on previous tests. Don't try this at home. *)
-    t "check for name file in previous tests" ~tags:[ meta_tag ] ~category
-      (fun () ->
-        let name_file_path = snapshot_dir_path test_create_name_file / "name" in
-        if not (Sys.file_exists !!name_file_path) then
-          Testo.fail ("Missing file: " ^ !!name_file_path);
-        let missing_dir_path = snapshot_dir_path test_dont_create_name_file in
-        if Sys.file_exists !!missing_dir_path then
-          Testo.fail ("File should not exist: " ^ !!missing_dir_path))
-  in
-  (* Don't recategorize these tests as it changes their ID and would break
-     the last test. *)
-  [
-    test_create_name_file;
-    test_dont_create_name_file;
-    (* must run after the two tests above *)
-    test_check_name_files;
-  ]
 
 let test_mask_pcre_pattern () =
   let test_one (pat, subj, expected_result, mask) =
@@ -576,67 +534,13 @@ let shared_context_tests =
    Normal tests should not be auto-approved since it would defeat the purpose
    of approval.
 *)
-let tests env =
-  print_endline "junk printed on stdout...\n... when creating the test suite";
+let tests _env =
   [
     t "simple" (fun () -> ());
-    t "tags" ~tags:[ testing_tag; tags_tag ] (fun () -> ());
     t "category" ~category:[ "category"; "subcategory" ] (fun () -> ());
     t "checked output file names" test_checked_output_file_names;
     t "unchecked stdout" (fun () -> print_endline "hello\nworld");
     t "unchecked stderr" (fun () -> prerr_string "hello\n");
-    t "capture stdout" ~tags:[ meta_tag ] ~category:[ "auto-approve" ]
-      ~checked_output:(Testo.stdout ()) (fun () -> print_string "hello\n");
-    t "capture stderr" ~tags:[ meta_tag ] ~category:[ "auto-approve" ]
-      ~checked_output:(Testo.stderr ()) (fun () -> prerr_string "error\n");
-    t "capture stdxxx" ~tags:[ meta_tag ] ~category:[ "auto-approve" ]
-      ~checked_output:(Testo.stdxxx ()) (fun () ->
-        print_string "hello\n";
-        flush stdout;
-        prerr_string "error\n";
-        flush stderr;
-        print_string "goodbye\n");
-    t "capture stdout and stderr" ~tags:[ meta_tag ]
-      ~category:[ "auto-approve" ]
-      ~checked_output:(Testo.split_stdout_stderr ()) (fun () ->
-        print_string "hello\n";
-        prerr_string "error\n");
-    t "capture stdout in custom location" ~tags:[ meta_tag ]
-      ~category:[ "auto-approve" ]
-      ~checked_output:
-        (Testo.stdout
-           ~expected_stdout_path:(Fpath.v "tests/custom-snapshots/my-stdout")
-           ())
-      (fun () -> print_string "hello\n");
-    t "capture stderr in custom location" ~tags:[ meta_tag ]
-      ~category:[ "auto-approve" ]
-      ~checked_output:
-        (Testo.stderr
-           ~expected_stderr_path:(Fpath.v "tests/custom-snapshots/my-stderr")
-           ())
-      (fun () -> prerr_string "error\n");
-    t "capture stdxxx in custom location" ~tags:[ meta_tag ]
-      ~category:[ "auto-approve" ]
-      ~checked_output:
-        (Testo.stdxxx
-           ~expected_stdxxx_path:(Fpath.v "tests/custom-snapshots/my-stdxxx")
-           ())
-      (fun () ->
-        print_string "hello\n";
-        flush stdout;
-        prerr_string "error\n";
-        flush stderr;
-        print_string "goodbye\n");
-    t "capture stdout and stderr in custom location" ~tags:[ meta_tag ]
-      ~category:[ "auto-approve" ]
-      ~checked_output:
-        (Testo.split_stdout_stderr
-           ~expected_stdout_path:(Fpath.v "tests/custom-snapshots/split-stdout")
-           ~expected_stderr_path:(Fpath.v "tests/custom-snapshots/split-stderr")
-           ())
-      (fun () ->
-        print_string "hello\n";
-        prerr_string "error\n");
     t "capture one file"
       ~checked_output_files:[ Testo.checked_output_file "results.txt" ]
       (fun () ->
@@ -648,28 +552,6 @@ let tests env =
       ~expected_outcome:(Should_fail "must raise exception")
       ~checked_output_files:[ Testo.checked_output_file "results.txt" ]
       (fun () -> Testo.fail "I am failing on purpose");
-    t "capture multiple files and stdout"
-      ~normalize:[ (fun s -> "[normalized] " ^ s) ]
-      ~checked_output:(Testo.stdout ())
-      ~checked_output_files:
-        [
-          Testo.checked_output_file "results.txt";
-          Testo.checked_output_file "results.json";
-        ]
-      (fun () ->
-        Testo.with_temp_dir ~chdir:true (fun _dir ->
-            print_endline "this is a message on stdout";
-            let txt_path = Fpath.v "results.txt" in
-            Testo.write_text_file txt_path "hello world\n";
-            Testo.stash_output_file txt_path "results.txt";
-            let json_path = Fpath.v "results.json" in
-            Testo.write_text_file json_path "{}\n";
-            Testo.stash_output_file json_path "results.json"));
-    t "inline logs" ~inline_logs:On (fun () ->
-        print_endline "Hello. This is a log.");
-    t "auto inline logs" (fun () -> print_endline "Hello. This is a log.");
-    t "no inline logs" ~inline_logs:Off (fun () ->
-        print_endline "Hello. This is a log.");
     t "show exception on xfail"
       ~expected_outcome:(Should_fail "raises Failure exception on purpose")
       ~inline_logs:On (fun () ->
@@ -681,28 +563,10 @@ let tests env =
       ~expected_outcome:(Should_fail "raises Failure exception on purpose")
       ~inline_logs:Off (fun () ->
         failwith "This exception was raised on purpose");
-    t
-      "environment-sensitive"
-      (* We use an environment variable to make the output of the test
-         change without editing the code for the test. This allows us to
-         check that Testo's diff output looks right. *)
-      ~checked_output:(Testo.stdout ()) (fun () ->
-        printf "Checking if the environment variable TESTO_TEST is set:\n";
-        match Unix.getenv "TESTO_TEST" with
-        | ""
-        | (exception Not_found) ->
-            printf "TESTO_TEST is empty or unset.\n"
-        | str -> printf "TESTO_TEST is set to %S.\n" str);
     t "xfail" ~expected_outcome:(Should_fail "raises exception on purpose")
       (fun () -> Testo.fail "this exception is expected");
-    t "xfail due to invalid output"
-      ~expected_outcome:(Should_fail "produces incorrect output on purpose")
-      ~checked_output:(Testo.stdout ()) (fun () ->
-        print_endline "incorrect output printed by the test");
     t "skipped" ~skipped:"some reason" (fun () ->
         Testo.fail "this shouldn't happen");
-    t "broken" ~tags:[ meta_tag ] ~broken:"this test is super flaky" (fun () ->
-        Testo.fail "I am broken");
     t "tracking URL" ~tracking_url:"https://example.com/issue/1234" (fun () ->
         ());
     t "chdir" ~tolerate_chdir:true (fun () -> Sys.chdir "/");
@@ -775,12 +639,6 @@ let tests env =
     t "temporary files" test_temporary_files;
     t "user output capture" ~checked_output:(Testo.stdout ())
       test_user_output_capture;
-    t "require '--env foo=bar'" ~tags:[ meta_tag ] (fun () ->
-        match List.assoc_opt "foo" env with
-        | None -> Testo.fail "Missing option: -e foo=bar"
-        | Some "bar" -> ()
-        | Some other ->
-            Testo.fail (sprintf "Invalid value for variable foo: %S" other));
     t "solo 1/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
     t "solo 2/2" (fun () -> Unix.sleepf 0.02) ~solo:"testing";
     test_diff "hello";
@@ -844,16 +702,11 @@ let tests env =
                Sir, this is a Wendy's.\r\n\
                Electrolytes. That's what plants crave.\n");
   ]
-  @ categorized @ test_internal_files
+  @ categorized
   @ Testo.categorize "Slice"
       (List.map
          (fun (name, func) -> Testo.create name func)
          Testo_util.Slice.tests)
   @ tag_selection_tests @ shared_context_tests
 
-let () =
-  Testo.interpret_argv ~project_name:"testo_tests"
-    ~handle_subcommand_result:(fun exit_code _ ->
-      print_endline "<handling result before exiting>";
-      exit exit_code)
-    tests
+let () = Testo.interpret_argv ~project_name:"testo_tests" tests

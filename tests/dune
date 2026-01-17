@@ -6,24 +6,35 @@
    test.exe
    meta_test.exe
    parallel_test.exe  ; invoked by meta_test
+   subtest.exe ; invoked by meta_test
    timeout_test.exe  ; invoked by meta_test
  )
  (action
    (progn
      ; The -C argument should be a path to our source project's root
      (run ./test_alcotest.exe -C ../../..)
-     (run ./test.exe -C ../../.. -t "not meta")
+     (run ./test.exe -C ../../..)
      (run ./meta_test.exe -C ../../..)
    )
  )
 )
 
-; Unit tests for internal modules of the Testo library and some "dummy" tests
+; Unit tests for internal modules of the Testo library
 (executable
  (name test)
  (modules Test)
  (libraries
-    alcotest
+    testo
+ )
+)
+
+; A dummy test suite invoked by meta-test for checking the output of testo
+; programs in various situations
+(executable
+ (name subtest)
+ (modules Subtest)
+ (libraries
+    fpath
     testo
  )
 )
