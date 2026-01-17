@@ -15,6 +15,6 @@ junk printed on stdout...
 [31m[XPASS] [0m05dd9a9f220b [36mxfail due to invalid output[0m
 <handling result before exiting>
 #####################################################################
-# Clean up
+# Restore deleted snapshots (best effort)
 #####################################################################
-RUN git restore tests/snapshots/testo_subtests/05dd9a9f220b/stdout
+RUN git restore 'tests/snapshots/testo_subtests/05dd9a9f220b/stdout' 2>&1 | grep -v 'did not match any file' || true

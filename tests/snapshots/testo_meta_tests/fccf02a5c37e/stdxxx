@@ -513,6 +513,6 @@ overall status: [32msuccess[0m
 [33mThe status of 1 flaky test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
 #####################################################################
-# Restore any deleted snapshots
+# Restore deleted snapshots (best effort)
 #####################################################################
-RUN git restore tests/snapshots/testo_subtests
+RUN git restore 'tests/snapshots/testo_subtests' 2>&1 | grep -v 'did not match any file' || true
