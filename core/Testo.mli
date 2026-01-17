@@ -205,19 +205,19 @@ type t = private {
   name : string;
   func : unit -> unit Promise.t;
   (***** Options *****)
-  broken : string option;
-      (** If not [None], the [broken] property causes the test to run normally
-          but it will be ignored when determining the success of the test suite.
-          This allows flaky tests to be kept around until they can be fixed. Use
-          the string argument to explain briefly why the test is marked as
-          broken. The [--strict] command-line option causes the broken status to
-          be ignored i.e. a test run will fail if a broken test fails. *)
   checked_output : checked_output_kind;
   checked_output_files : checked_output_file list;
       (** Files created by the test function whose contents must match a
           reference snapshot. The test function must copy its checked output
           files into Testo's workspace using {!stash_output_files}. *)
   expected_outcome : expected_outcome;
+  flaky : string option;
+      (** If not [None], the [flaky] property causes the test to run normally
+          but it will be ignored when determining the success of the test suite.
+          This allows flaky tests to be kept around until they can be fixed. Use
+          the string argument to explain briefly why the test is marked as
+          flaky. The [--strict] command-line option causes the flaky status to
+          be ignored i.e. a test run will fail if a flaky test fails. *)
   inline_logs : inline_logs;
   max_duration : float option;
       (** A time limit for the test when running in a detached worker, in
@@ -283,11 +283,11 @@ type subcommand_result =
   | Approve_result
 
 val create :
-  ?broken:string ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
+  ?flaky:string ->
   ?inline_logs:inline_logs ->
   ?max_duration:float ->
   ?normalize:(string -> string) list ->
@@ -301,6 +301,7 @@ val create :
   t
 (** Create a test to appear in a test suite.
 
+    - [broken]: the old name for [flaky] used in testo-0.2.0.
     - [category]: the nested category to assign to the test. The category can be
       nested further using {!categorize} or {!categorize_suites}.
     - [checked_output]: determines how to capture the test's output. Defaults to
@@ -309,6 +310,8 @@ val create :
       remain the same from one test run to another.
     - [expected_outcome]: whether a test is expected to complete without raising
       an exception (default) or by raising an exception.
+    - [flaky]: a flaky test that fails will be reported as such but won't make
+      the test run fail unless the [--strict] is passed on the command line.
     - [inline_logs]: determines whether to show the test's logs inline when
       running a test or showing its status. For the sake of this option, logs
       include uncaptured stdout or stderr output and any information about
@@ -337,11 +340,11 @@ val create :
       regardless of this setting. *)
 
 val update :
-  ?broken:string option ->
   ?category:string list ->
   ?checked_output:checked_output_kind ->
   ?checked_output_files:checked_output_file list ->
   ?expected_outcome:expected_outcome ->
+  ?flaky:string option ->
   ?func:(unit -> unit Promise.t) ->
   ?inline_logs:inline_logs ->
   ?max_duration:float option ->

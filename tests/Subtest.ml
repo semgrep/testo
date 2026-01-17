@@ -96,8 +96,8 @@ let tests env =
         (fun () ->
           print_string "hello\n";
           prerr_string "error\n");
-      t "broken" ~broken:"this test is super flaky" (fun () ->
-          Testo.fail "I am broken");
+      t "flaky" ~flaky:"this test is super flaky" (fun () ->
+          Testo.fail "I am flaky");
       t "require '--env foo=bar'" (fun () ->
           match List.assoc_opt "foo" env with
           | None -> Testo.fail "Missing option: -e foo=bar"

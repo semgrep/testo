@@ -18,7 +18,7 @@ type status_output_style =
 type status_stats = {
   total_tests : int;
   selected_tests : int;
-  broken_tests : int;
+  flaky_tests : int;
   skipped_tests : int ref;
   pass : int ref;
   fail : int ref;
@@ -186,11 +186,11 @@ let format_status_summary (sum : T.status_summary) =
   let displayed_string = sum |> string_of_status_summary |> brackets in
   Style.left_col displayed_string |> Style.color style
 
-let count_broken_tests tests_with_status =
+let count_flaky_tests tests_with_status =
   tests_with_status
   |> List.fold_left
        (fun n ((test : T.test), _, _) ->
-         match test.broken with
+         match test.flaky with
          | None -> n
          | Some _reason -> n + 1)
        0
@@ -200,7 +200,7 @@ let stats_of_tests tests tests_with_status =
     {
       total_tests = List.length tests;
       selected_tests = List.length tests_with_status;
-      broken_tests = count_broken_tests tests_with_status;
+      flaky_tests = count_flaky_tests tests_with_status;
       skipped_tests = ref 0;
       pass = ref 0;
       fail = ref 0;
@@ -626,10 +626,10 @@ let print_status ~highlight_test
                 "%sThis is a solo test, set to not run concurrently with other \
                  tests. Reason: %s\n"
                 bullet reason);
-          (match test.broken with
+          (match test.flaky with
           | None -> ()
           | Some reason ->
-              printf "%sThis test was marked as broken by the programmer: %s\n"
+              printf "%sThis test was marked as flaky by the programmer: %s\n"
                 bullet reason);
           (match test.tracking_url with
           | None -> ()
@@ -833,7 +833,7 @@ let is_overall_success ~strict statuses =
   statuses
   |> List.for_all (fun ((test : T.test), _status, sum) ->
          test.skipped <> None
-         || ((not strict) && test.broken <> None)
+         || ((not strict) && test.flaky <> None)
          ||
          match sum |> success_of_status_summary with
          | OK -> true
@@ -935,14 +935,14 @@ let print_status_summary ~autoclean ~strict tests tests_with_status : int =
   printf "overall status: %s\n"
     (if overall_success then Style.color Green "success"
      else Style.color Red "failure");
-  if stats.broken_tests > 0 && not strict then
+  if stats.flaky_tests > 0 && not strict then
     printf "%s\n"
       (Style.color Yellow
          (sprintf
-            "The status of %i \"broken\" test%s was ignored! Use '--strict' to \
+            "The status of %i flaky test%s was ignored! Use '--strict' to \
              override."
-            stats.broken_tests
-            (if_plural stats.broken_tests "s")));
+            stats.flaky_tests
+            (if_plural stats.flaky_tests "s")));
   if overall_success then Error.Exit_code.success
   else Error.Exit_code.test_failure
 

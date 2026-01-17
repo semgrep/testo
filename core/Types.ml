@@ -146,10 +146,10 @@ type test = {
   name : string;
   func : unit -> unit Promise.t;
   (* Options (alphabetical order) *)
-  broken : string option;
   checked_output : checked_output_kind;
   checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
+  flaky : string option;
   inline_logs : inline_logs;
   max_duration (* seconds *) : float option;
   normalize : (string -> string) list;

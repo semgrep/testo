@@ -47,6 +47,9 @@
 * Show current working directory (cwd) when reporting missing files
   if one of the paths is relative
   ([#170](https://github.com/semgrep/testo/pull/170).
+* Rename the `broken` option of `Testo.create` and `Testo.update` to
+  `flaky`
+  ([#172](https://github.com/semgrep/testo/issues/172)).
 
 0.2.0 (2025-09-11)
 ------------------
