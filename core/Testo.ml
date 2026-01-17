@@ -103,10 +103,10 @@ type t = T.test = {
   category : string list;
   name : string;
   func : unit -> unit Promise.t;
-  broken : string option;
   checked_output : checked_output_kind;
   checked_output_files : checked_output_file list;
   expected_outcome : expected_outcome;
+  flaky : string option;
   inline_logs : inline_logs;
   max_duration : float option;
   normalize : (string -> string) list;
@@ -190,8 +190,8 @@ let update_id (test : t) =
   let id = String.sub md5_hex 0 12 in
   { test with id; internal_full_name }
 
-let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
-    ?(checked_output_files = []) ?(expected_outcome = Should_succeed)
+let create ?(category = []) ?(checked_output = T.Ignore_output)
+    ?(checked_output_files = []) ?(expected_outcome = Should_succeed) ?flaky
     ?(inline_logs = Auto) ?max_duration ?(normalize = []) ?skipped ?solo
     ?(tags = []) ?(tolerate_chdir = false) ?tracking_url name func =
   {
@@ -200,10 +200,10 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
     category;
     name;
     func;
-    broken;
     checked_output;
     checked_output_files;
     expected_outcome;
+    flaky;
     inline_logs;
     max_duration;
     normalize;
@@ -218,9 +218,9 @@ let create ?broken ?(category = []) ?(checked_output = T.Ignore_output)
 (* Update a setting if the new value 'option' is not None *)
 let opt option default = Option.value option ~default
 
-let update ?broken ?category ?checked_output ?checked_output_files
-    ?expected_outcome ?func ?inline_logs ?max_duration ?normalize ?name ?skipped
-    ?solo ?tags ?tolerate_chdir ?tracking_url old =
+let update ?category ?checked_output ?checked_output_files ?expected_outcome
+    ?flaky ?func ?inline_logs ?max_duration ?normalize ?name ?skipped ?solo
+    ?tags ?tolerate_chdir ?tracking_url old =
   {
     id = "";
     internal_full_name = "";
@@ -228,10 +228,10 @@ let update ?broken ?category ?checked_output ?checked_output_files
     name = opt name old.name;
     func = opt func old.func;
     (* requires same type for func and old.func *)
-    broken = opt broken old.broken;
     checked_output = opt checked_output old.checked_output;
     checked_output_files = opt checked_output_files old.checked_output_files;
     expected_outcome = opt expected_outcome old.expected_outcome;
+    flaky = opt flaky old.flaky;
     inline_logs = opt inline_logs old.inline_logs;
     max_duration = opt max_duration old.max_duration;
     normalize = opt normalize old.normalize;

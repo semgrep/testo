@@ -19,7 +19,7 @@ RUN ./subtest approve  -e foo=bar -s environment-sensitive > /dev/null 2>&1
 RUN ./subtest status  -e foo=bar 
 junk printed on stdout...
 ... when creating the test suite
-[31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m
+[31m[FAIL]  [0m3c1a494d9840 [36mflaky[0m
 <handling result before exiting>
 RUN ./subtest status  -e foo=bar --expert > /dev/null 2>&1
 RUN ./subtest status  -e foo=bar --env A_b123=xxx > /dev/null 2>&1
@@ -101,10 +101,10 @@ Try '--help' for options.
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/d7f47c9a03b6/completion_status <MASKED CWD>[0m
 [2m• [0mPath to captured split-stdout: _build/testo/status/testo_subtests/d7f47c9a03b6/stdout
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_subtests/d7f47c9a03b6/stderr
-[33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m
-[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/54ddc3c7d064/completion_status <MASKED CWD>[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_subtests/54ddc3c7d064/log
+[33m[MISS]  [0m3c1a494d9840 [36mflaky[0m
+[2m• [0mThis test was marked as flaky by the programmer: this test is super flaky
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/3c1a494d9840/completion_status <MASKED CWD>[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/3c1a494d9840/log
 [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/fb27e160e59b/completion_status <MASKED CWD>[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_subtests/fb27e160e59b/log
@@ -226,11 +226,11 @@ Try '--help' for options.
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_subtests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
+[0m[2m│[0m [33m[MISS]  [0m3c1a494d9840 [36mflaky[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/54ddc3c7d064/completion_status <MASKED CWD>[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_subtests/54ddc3c7d064/log
+[0m[2m• [0mThis test was marked as flaky by the programmer: this test is super flaky
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/3c1a494d9840/completion_status <MASKED CWD>[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/3c1a494d9840/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m                                 [2m│[0m
@@ -289,7 +289,7 @@ Try '--help' for options.
   0 unsuccessful (0 fail, 0 xpass)
 20 new tests
 overall status: [31mfailure[0m
-[33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
+[33mThe status of 1 flaky test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
 RUN ./subtest status  -e foo=bar -l
 junk printed on stdout...
@@ -383,11 +383,11 @@ junk printed on stdout...
 [2m• [0mPath to captured split-stderr: _build/testo/status/testo_subtests/d7f47c9a03b6/stderr
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
+[0m[2m│[0m [33m[MISS]  [0m3c1a494d9840 [36mflaky[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/54ddc3c7d064/completion_status <MASKED CWD>[0m
-[2m• [0mPath to captured log: _build/testo/status/testo_subtests/54ddc3c7d064/log
+[0m[2m• [0mThis test was marked as flaky by the programmer: this test is super flaky
+[2m• [0m[31mMissing file containing the test output: _build/testo/status/testo_subtests/3c1a494d9840/completion_status <MASKED CWD>[0m
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/3c1a494d9840/log
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
 [0m[2m│[0m [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m                                 [2m│[0m
@@ -446,7 +446,7 @@ junk printed on stdout...
   0 unsuccessful (0 fail, 0 xpass)
 20 new tests
 overall status: [31mfailure[0m
-[33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
+[33mThe status of 1 flaky test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
 RUN ./subtest status  -e foo=bar -a
 junk printed on stdout...
@@ -463,7 +463,7 @@ junk printed on stdout...
 [33m[MISS]  [0m8674d1483367 [36mauto-approve[0m > [36mcapture stderr in custom location[0m
 [33m[MISS]  [0medebe706faa8 [36mauto-approve[0m > [36mcapture stdxxx in custom location[0m
 [33m[MISS]  [0md7f47c9a03b6 [36mauto-approve[0m > [36mcapture stdout and stderr in custom location[0m
-[33m[MISS]  [0m54ddc3c7d064 [36mbroken[0m
+[33m[MISS]  [0m3c1a494d9840 [36mflaky[0m
 [33m[MISS]  [0mfb27e160e59b [36mrequire '--env foo=bar'[0m
 [33m[MISS]  [0m05dd9a9f220b [36mxfail due to invalid output[0m
 [33m[MISS]  [0m0658581e95c7 [36mcapture multiple files and stdout[0m
@@ -497,20 +497,20 @@ RUN ./subtest status  -e foo=bar -l
 junk printed on stdout...
 ... when creating the test suite
 [2m┌──────────────────────────────────────────────────────────────────────────────┐
-[0m[2m│[0m [31m[FAIL]  [0m54ddc3c7d064 [36mbroken[0m                                                  [2m│[0m
+[0m[2m│[0m [31m[FAIL]  [0m3c1a494d9840 [36mflaky[0m                                                   [2m│[0m
 [2m└──────────────────────────────────────────────────────────────────────────────┘
-[0m[2m• [0mThis test was marked as broken by the programmer: this test is super flaky
-[2m• [0mPath to captured log: _build/testo/status/testo_subtests/54ddc3c7d064/log
+[0m[2m• [0mThis test was marked as flaky by the programmer: this test is super flaky
+[2m• [0mPath to captured log: _build/testo/status/testo_subtests/3c1a494d9840/log
 [2m• [0mLog (stdout, stderr) is empty.
 [2m• [0mException raised by the test:
- Test failed: I am broken
+ Test failed: I am flaky
  
 [2m────────────────────────────────────────────────────────────────────────────────[0m
 20/20 selected tests:
   19 successful (18 pass, 1 xfail)
   1 unsuccessful (1 fail, 0 xpass)
 overall status: [32msuccess[0m
-[33mThe status of 1 "broken" test was ignored! Use '--strict' to override.[0m
+[33mThe status of 1 flaky test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
 #####################################################################
 # Restore any deleted snapshots

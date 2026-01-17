@@ -311,8 +311,8 @@ let strict_term : bool Term.t =
   let info =
     Arg.info [ "strict" ]
       ~doc:
-        "Treat broken tests as ordinary tests. This disables the default \
-         behavior of ignoring failing tests that were marked as broken by the \
+        "Treat flaky tests as ordinary tests. This disables the default \
+         behavior of ignoring failing tests that were marked as flaky by the \
          programmer when determining the overall success of the test run."
   in
   Arg.value (Arg.flag info)
