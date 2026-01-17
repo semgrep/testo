@@ -386,6 +386,15 @@ let tests =
       (test_max_inline_log_size ~limit:"unlimited");
   ]
 
+let check_for_file path =
+  if not (Sys.file_exists path) then (
+    eprintf {|meta-test invocation error:
+Missing file %s
+  cwd: %s
+|} path
+      (Sys.getcwd ());
+    exit 1)
+
 let () =
   (* stdout and stderr are in "text mode" by default, and on windows this
      entails rewriting line endings to CLRF. This makes the test output
@@ -396,4 +405,7 @@ let () =
   (* We have a few tests that use the same workspace. To avoid conflicts,
      we run them sequentially. *)
   Testo.interpret_argv ~default_workers:(Some 0)
-    ~project_name:"testo_meta_tests" (fun _env -> tests)
+    ~project_name:"testo_meta_tests" (fun _env ->
+      check_for_file "test";
+      check_for_file "_build/default/tests/test.exe";
+      tests)
