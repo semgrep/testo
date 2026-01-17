@@ -59,7 +59,10 @@ Note that:
 5. Install [dune-release](https://github.com/ocamllabs/dune-release)
    if not already installed:
    `opam install dune-release`
-6. Run `make opam-release` or run the individual steps below by hand:
+6. Attention: make sure to create a **draft release** via the
+   `--draft` flag. Otherwise, an immutable release is created and the
+   tarball can't be uploaded.
+   Run `make opam-release` or run the individual steps below by hand:
    * Run `dune-release tag`. It will pick up the version from the
      changelog and ask for confirmation.
    * Run `dune-release distrib` to create a tarball.
@@ -67,6 +70,7 @@ Note that:
      create GitHub release including the changes extracted from the
      changelog.
    * Create opam packages with `dune-release opam pkg`.
+   * Go to the release page on GitHub and publish the draft release.
    * Submit the opam packages to opam-repository using
      `dune-release opam submit`.
 7. Fix the opam-repository pull request as needed. For example, this

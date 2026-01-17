@@ -61,7 +61,7 @@ clean:
 .PHONY: opam-release
 opam-release: delete-symlinks opam-files
 	dune-release tag
-	dune-release bistro
+	dune-release bistro --draft
 
 .PHONY: opam-files
 opam-files:
