@@ -1,4 +1,4 @@
-x.x.x (xxxx-xx-xx)
+0.3.0 (2026-01-16)
 ------------------
 
 * Add support for checked output files
