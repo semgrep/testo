@@ -603,6 +603,12 @@ let ends_with_newline str =
   *)
   str <> "" && str.[String.length str - 1] = '\n'
 
+(* Extend an error message with the current working directory
+   if any of the given paths is relative, for easier debugging. *)
+let with_cwd paths =
+  if List.exists Fpath.is_rel paths then sprintf " [cwd: %s]" (Sys.getcwd ())
+  else ""
+
 let print_status ~highlight_test
     ~always_show_unchecked_output:
       (always_show_unchecked_output, max_inline_log_bytes)
@@ -657,31 +663,34 @@ let print_status ~highlight_test
           (match status.expectation.expected_output with
           | Error (Missing_files [ path ]) ->
               print_error
-                (sprintf "Missing file containing the expected output: %s"
-                   !!path)
+                (sprintf "Missing file containing the expected output: %s%s"
+                   !!path (with_cwd [ path ]))
           | Error (Missing_files paths) ->
               print_error
-                (sprintf "Missing files containing the expected output: %s"
-                   (String.concat ", " (Fpath_.to_string_list paths)))
+                (sprintf "Missing files containing the expected output: %s%s"
+                   (String.concat ", " (Fpath_.to_string_list paths))
+                   (with_cwd paths))
           | Ok _expected_output -> (
               match status.result with
               | Error (Missing_files [ path ]) ->
                   print_error
-                    (sprintf "Missing file containing the test output: %s"
-                       !!path)
+                    (sprintf "Missing file containing the test output: %s%s"
+                       !!path (with_cwd [ path ]))
               | Error (Missing_files paths) ->
                   print_error
-                    (sprintf "Missing files containing the test output: %s"
-                       (String.concat ", " (Fpath_.to_string_list paths)))
+                    (sprintf "Missing files containing the test output: %s%s"
+                       (String.concat ", " (Fpath_.to_string_list paths))
+                       (with_cwd paths))
               | Ok result -> (
                   match result.missing_output_files with
                   | [] -> ()
                   | missing_files ->
                       print_error
-                        (sprintf "Missing captured output file%s: %s"
+                        (sprintf "Missing captured output file%s: %s%s"
                            (if List.length missing_files > 1 then "s" else "")
                            (String.concat ", "
-                              (Fpath_.to_string_list missing_files)));
+                              (Fpath_.to_string_list missing_files))
+                           (with_cwd missing_files));
                       print_hint
                         "If you ran the test already, you may have forgotten \
                          to call 'Testo.stash_output_file' in the test \
@@ -690,8 +699,10 @@ let print_status ~highlight_test
           |> List.iter (function
                | Error missing_file ->
                    print_error
-                     (sprintf "Missing file containing the expected output: %s"
-                        !!missing_file)
+                     (sprintf
+                        "Missing file containing the expected output: %s%s"
+                        !!missing_file
+                        (with_cwd [ missing_file ]))
                | Ok _ -> ());
           let capture_paths = Store.all_capture_paths_of_test test in
           show_output_details test sum capture_paths;

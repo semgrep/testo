@@ -44,6 +44,9 @@
   similar functionality found in Alcotest. This makes it practical to
   write tests that don't depend on the Alcotest library
   ([#169](https://github.com/semgrep/testo/pull/169)).
+* Show current working directory (cwd) when reporting missing files
+  if one the paths is relative
+  ([#170](https://github.com/semgrep/testo/pull/170).
 
 0.2.0 (2025-09-11)
 ------------------

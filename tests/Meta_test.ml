@@ -318,7 +318,11 @@ let mask_alcotest_output =
     mask_stack_backtrace;
   ]
 
-let mask_testo_output = [ normalize_paths ]
+let mask_testo_output =
+  [
+    normalize_paths;
+    T.mask_pcre_pattern ~replace:(fun _ -> "<MASKED CWD>") {|\[cwd:[^\]]*\]|};
+  ]
 
 let sort_lines str =
   str |> String.split_on_char '\n' |> List.sort String.compare
