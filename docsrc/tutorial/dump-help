@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+#
+# Dump Testo's help pages using the template project, ensuring at the
+# same time that it builds.
+#
+set -eu
+
+here=$(pwd)
+(
+  cd "$(git rev-parse --show-toplevel)"/template
+  dune build .
+
+  # Save '--help' output for the online documentation
+  ./test --help=pager > "$here"/help.term
+  ./test run --help=pager > "$here"/run-help.term
+  ./test status --help=pager > "$here"/status-help.term
+  ./test approve --help=pager > "$here"/approve-help.term
+  ./test show-tags --help=pager > "$here"/show-tags-help.term
+)
