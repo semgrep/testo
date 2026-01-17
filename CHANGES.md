@@ -1,4 +1,4 @@
-0.3.0 (2026-01-16)
+0.3.1 (2026-01-16)
 ------------------
 
 * Add support for checked output files
