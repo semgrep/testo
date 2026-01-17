@@ -24,7 +24,7 @@ type ocaml_conf = {
 *)
 type conf = {
   (* All subcommands *)
-  chdir : string option;
+  chdir : Fpath.t option;
   debug : bool;
   filter_by_substring : string list option;
   filter_by_tag : Tag_query.t option;
@@ -105,9 +105,9 @@ type 'continuation_result test_spec =
 let show_tags () =
   Tag.list () |> List.iter (fun tag -> printf "%s\n" (Tag.to_string tag))
 
-let init_cwd_sensitive ~chdir ocaml_conf =
-  let orig_cwd = Option.map (fun _ -> Fpath.v (Sys.getcwd ())) chdir in
-  Option.iter Sys.chdir chdir;
+let init_cwd_sensitive ~chdir:cwd ocaml_conf =
+  let orig_cwd = Option.map (fun _ -> Fpath.v (Sys.getcwd ())) cwd in
+  Option.iter Helpers.chdir cwd;
   Store.init_settings
     ?expectation_workspace_root:ocaml_conf.expectation_workspace_root
     ?status_workspace_root:ocaml_conf.status_workspace_root
@@ -479,7 +479,7 @@ let subcmd_run_term ~default_workers ocaml_conf (test_spec : _ test_spec) :
       {
         default_conf with
         autoclean;
-        chdir;
+        chdir = Option.map Fpath.v chdir;
         debug;
         env;
         filter_by_substring;
@@ -563,7 +563,7 @@ let subcmd_status_term ocaml_conf tests : unit Term.t =
       {
         default_conf with
         autoclean;
-        chdir;
+        chdir = Option.map Fpath.v chdir;
         debug;
         env;
         filter_by_substring;
@@ -599,7 +599,7 @@ let subcmd_approve_term ocaml_conf tests : unit Term.t =
     Approve
       {
         default_conf with
-        chdir;
+        chdir = Option.map Fpath.v chdir;
         debug;
         env;
         filter_by_substring;

@@ -1,13 +1,13 @@
 #! /usr/bin/env bash
 #
-# Allow the test program to be invoked from anywhere
+# The basic test suite for Testo
 #
+# This script is invoked from meta-test.
+# It doesn't invoke dune so as to avoid a warning from dune telling us
+# we're already running dune when invoking ./test from meta-test via
+# 'dune runtest'.
+#
+# Regular users should use what's in 'template/test'.
 
-# Make the current directory the location of this script,
-# normally the project root.
-cd "$(dirname "${BASH_SOURCE[0]}")"
-
-# Run the compiled test program with the original arguments.
-# The path may have to be adjusted to match the
-# location of the binary built by Dune.
-./_build/default/tests/test.exe "$@"
+here=$(dirname "${BASH_SOURCE[0]}")
+_build/default/tests/test.exe "$@" --chdir "$here"
