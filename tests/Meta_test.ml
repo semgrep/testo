@@ -125,6 +125,17 @@ let clear_snapshots ~__LOC__:loc () =
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
 
+(* This requires the snapshots to be tracked by Git which isn't the
+   case when 'dune-release' runs the tests on a copy of the sources.
+   In this case, the environment is clean anyway so it doesn't matter
+   and we give up.
+*)
+let restore_git_snapshots ?(path = "tests/snapshots/testo_subtests") () =
+  section "Restore deleted snapshots (best effort)";
+  shell_command ~__LOC__
+    (sprintf "git restore '%s' 2>&1 | grep -v 'did not match any file' || true"
+       path)
+
 let test_standard_flow () =
   Fun.protect
     (fun () ->
@@ -167,9 +178,7 @@ let test_standard_flow () =
       test_status ~quiet:true ~__LOC__ "-l --autoclean";
       section "Check that the dead snapshots are gone";
       test_status ~__LOC__ "-l")
-    ~finally:(fun () ->
-      section "Restore any deleted snapshots";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_subtests")
+    ~finally:restore_git_snapshots
 
 let test_multi_selection () =
   let (), capture =
@@ -191,9 +200,8 @@ let test_approve_xfail () =
   test_approve ~__LOC__ "-s '05dd9a9f220b'";
   section "Now expect XPASS status";
   test_status ~__LOC__ "-s '05dd9a9f220b'" ~expected_exit_code:1;
-  section "Clean up";
-  shell_command ~__LOC__
-    "git restore tests/snapshots/testo_subtests/05dd9a9f220b/stdout"
+  restore_git_snapshots
+    ~path:"tests/snapshots/testo_subtests/05dd9a9f220b/stdout" ()
 
 (*
    Delete test snapshots to simulate a fresh test then check that approving
@@ -211,9 +219,7 @@ let test_new_output_file_capture () =
       test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
       section "Approve captured output";
       test_approve ~__LOC__ (sprintf "-s %s" test_id))
-    ~finally:(fun () ->
-      section "Restore any deleted snapshots";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_subtests")
+    ~finally:restore_git_snapshots
 
 let test_updated_output_file_capture () =
   Fun.protect
@@ -230,9 +236,7 @@ let test_updated_output_file_capture () =
       test_run ~__LOC__ ~expected_exit_code:1 (sprintf "-s %s" test_id);
       section "Approve updated captured output";
       test_approve ~__LOC__ (sprintf "-s %s" test_id))
-    ~finally:(fun () ->
-      section "Restore any modified snapshot";
-      shell_command ~__LOC__ "git restore tests/snapshots/testo_subtests")
+    ~finally:restore_git_snapshots
 
 let test_max_inline_log_size ~limit () =
   test_run ~__LOC__ (sprintf "-s 'inline logs' --max-inline-log-bytes %s" limit)
