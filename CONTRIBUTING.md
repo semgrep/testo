@@ -63,7 +63,7 @@ Note that:
    * Run `dune-release tag`. It will pick up the version from the
      changelog and ask for confirmation.
    * Run `dune-release distrib` to create a tarball.
-   * Run `dune-release publish` to upload the tarball to GitHub and
+   * Run `dune-release publish --draft` to upload the tarball to GitHub and
      create GitHub release including the changes extracted from the
      changelog.
    * Create opam packages with `dune-release opam pkg`.
