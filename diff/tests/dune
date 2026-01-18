@@ -1,5 +1,6 @@
 (rule
  (alias runtest)
+ (package testo-diff)
  (deps test.exe)
  (action (run ./test.exe))
 )
