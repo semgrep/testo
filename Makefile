@@ -24,6 +24,11 @@ delete-symlinks:
 setup:
 	./scripts/dev-setup-all-platforms
 
+# Create a clean local opam switch for development purposes
+.PHONY: opam-setup
+opam-setup:
+	opam switch create . ocaml-base-compiler.5.4.0 --deps-only
+
 # Run all the tests.
 # coupling: 'dune runtest' is also set up to run the same tests.
 .PHONY: test
@@ -59,10 +64,16 @@ clean:
 # See complete release instructions in CONTRIBUTING.md.
 #
 .PHONY: opam-release
-opam-release: delete-symlinks opam-files
+opam-release: delete-symlinks opam-files changes
 	dune-release tag
 	dune-release bistro --draft
 
 .PHONY: opam-files
 opam-files:
 	dune build *.opam
+
+# Rewrap the changelog because GitHub incorrectly treats single line breaks
+# as significant on release notes and pull request descriptions.
+.PHONY: changes
+changes:
+	pandoc -f markdown -t gfm --wrap=none CHANGES.md -o CHANGES.md

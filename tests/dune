@@ -1,6 +1,7 @@
 ; Allow 'dune runtest' to run the tests from dune's copy of the project root.
 (rule
  (alias runtest)
+ (package testo)
  (deps
    test_alcotest.exe
    test.exe
