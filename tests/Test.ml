@@ -227,10 +227,10 @@ let test_filter_map_lines () =
   let res =
     "a\nbc\nd\r\ne\n\nff\r\ngg\nh"
     |> Testo.filter_map_lines (fun line ->
-           match line with
-           | "bc" -> None
-           | "d" -> None
-           | other -> Some (String.uppercase_ascii other))
+        match line with
+        | "bc" -> None
+        | "d" -> None
+        | other -> Some (String.uppercase_ascii other))
   in
   Testo.(check string) "A\nE\n\nFF\r\nGG\nH" res
 
@@ -441,7 +441,7 @@ let tag_selection_tests =
     ("none", "none", [ "a"; "b" ], false);
   ]
   |> List.map (fun (name, query, tags, expect) ->
-         Testo.create name (fun () -> test_tag_selector query tags expect))
+      Testo.create name (fun () -> test_tag_selector query tags expect))
   |> Testo.categorize "tag selection"
 
 let test_write_read_map () =
@@ -539,6 +539,44 @@ let tests _env =
     t "simple" (fun () -> ());
     t "category" ~category:[ "category"; "subcategory" ] (fun () -> ());
     t "checked output file names" test_checked_output_file_names;
+    t "string list fail if DEMO is set" (fun () ->
+        match Sys.getenv_opt "DEMO" with
+        | None -> ()
+        | Some _ ->
+            Testo.(check (list string))
+              [
+                "The quick brown fox jumps over the lazy dog.";
+                "Dude, where's my car?";
+                "Sir, this is a Wendy's";
+                "You get a car!\n\
+                 You get a car!\n\
+                 You get a car!\n\
+                 Everybody gets a car!";
+                "Electrolytes. That's what plants crave.";
+              ]
+              [
+                "The quick brown fox jumps over the lazy dog.";
+                "Dude, where's my car?";
+                "Sir, this is a Wendy's";
+                "You get a car!\n\
+                 You get a car.\n\
+                 You get a car!\n\
+                 Everybody gets a car!";
+                "Electrolytes. That's what plants crave.";
+              ]);
+    t "text fail if DEMO is set" (fun () ->
+        match Sys.getenv_opt "DEMO" with
+        | None -> ()
+        | Some _ ->
+            Testo.(check text)
+              "The quick brown fox jumps over the lazy dog.\n\
+               Dude, where's my car?\n\
+               Sir, this is a Wendy's.\n\
+               Electrolytes. That's what plants crave.\n"
+              "The quick brown fox jumps over the lazy dog.\n\
+               Dude, where's my car?\n\
+               Sir, this is a Wendy's.\r\n\
+               Electrolytes. That's what plants crave.\n");
     t "unchecked stdout" (fun () -> print_endline "hello\nworld");
     t "unchecked stderr" (fun () -> prerr_string "hello\n");
     t "capture one file"
@@ -663,44 +701,6 @@ let tests _env =
             Testo.(check string) ~msg:"test name" "current test" test.name);
     t "write/read/map file" test_write_read_map;
     t "write/read/map file in place" test_write_read_map_in_place;
-    t "string list fail if DEMO is set" (fun () ->
-        match Sys.getenv_opt "DEMO" with
-        | None -> ()
-        | Some _ ->
-            Testo.(check (list string))
-              [
-                "The quick brown fox jumps over the lazy dog.";
-                "Dude, where's my car?";
-                "Sir, this is a Wendy's";
-                "You get a car!\n\
-                 You get a car!\n\
-                 You get a car!\n\
-                 Everybody gets a car!";
-                "Electrolytes. That's what plants crave.";
-              ]
-              [
-                "The quick brown fox jumps over the lazy dog.";
-                "Dude, where's my car?";
-                "Sir, this is a Wendy's";
-                "You get a car!\n\
-                 You get a car.\n\
-                 You get a car!\n\
-                 Everybody gets a car!";
-                "Electrolytes. That's what plants crave.";
-              ]);
-    t "text fail if DEMO is set" (fun () ->
-        match Sys.getenv_opt "DEMO" with
-        | None -> ()
-        | Some _ ->
-            Testo.(check text)
-              "The quick brown fox jumps over the lazy dog.\n\
-               Dude, where's my car?\n\
-               Sir, this is a Wendy's.\n\
-               Electrolytes. That's what plants crave.\n"
-              "The quick brown fox jumps over the lazy dog.\n\
-               Dude, where's my car?\n\
-               Sir, this is a Wendy's.\r\n\
-               Electrolytes. That's what plants crave.\n");
   ]
   @ categorized
   @ Testo.categorize "Slice"

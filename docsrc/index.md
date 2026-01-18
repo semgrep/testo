@@ -27,10 +27,10 @@ _A successful test run_
 <div style="margin-top:5em">
   <img src="img/status.png" width="60%"
        alt="screenshot showing the output of './test status'"
-       title="the output of './test status'"/>
+       title="the output of './test status -a'"/>
 </div>
 
-_The output of `./test status`_
+_The output of `./test status -a`_
 
 <div style="margin-top:5em">
   <img src="img/wendys.png" width="60%"
