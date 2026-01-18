@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Testo documentation</title>
+  <title>Testo(caml)</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -27,13 +27,23 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Testo documentation</h1>
+<h1 class="title">Testo(caml)</h1>
 </header>
-<p>Testo is a test framework suitable for unit-testing OCaml code and
-for end-to-end testing command-line executables. It is an open-source
-project initiated by <a
+<p>Testo is an industry-grade test framework for OCaml. It is suitable
+for unit-testing OCaml code and for end-to-end testing command-line
+executables. <a href="https://github.com/semgrep/testo">This community
+project</a> was started by <a
 href="https://www.linkedin.com/in/mjambon/">Martin Jambon</a> at <a
 href="https://semgrep.dev/">Semgrep</a>.</p>
+<h2 id="quick-start">Quick Start</h2>
+<pre><code>$ opam update
+$ opam install testo
+$ git clone https://github.com/semgrep/testo-template.git
+$ cd testo-template
+$ dune build
+$ ./test</code></pre>
+<p>Copy and adapt as needed.</p>
+<h2 id="documentation">Documentation</h2>
 <ul>
 <li><a href="tutorial">Getting Started with Testo: A Hands-On
 Tutorial</a></li>

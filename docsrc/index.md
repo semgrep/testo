@@ -1,9 +1,28 @@
-% Testo documentation
+% Testo(caml)
 
-Testo is a test framework suitable for unit-testing OCaml code
-and for end-to-end testing command-line executables. It is an open-source
-project initiated by [Martin Jambon](https://www.linkedin.com/in/mjambon/)
+Testo is an industry-grade test framework for OCaml.
+It is suitable for unit-testing OCaml code
+and for end-to-end testing command-line executables.
+[This community project](https://github.com/semgrep/testo)
+was started by [Martin Jambon](https://www.linkedin.com/in/mjambon/)
 at [Semgrep](https://semgrep.dev/).
+
+Quick Start
+--
+
+```
+$ opam update
+$ opam install testo
+$ git clone https://github.com/semgrep/testo-template.git
+$ cd testo-template
+$ dune build
+$ ./test
+```
+
+Copy and adapt as needed.
+
+Documentation
+--
 
 * [Getting Started with Testo: A Hands-On Tutorial](tutorial)
 * [Testo Howtos: Practical Guides and Examples](howtos)

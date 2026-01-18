@@ -1,12 +1,11 @@
-Testo [![CircleCI badge](https://circleci.com/gh/semgrep/testo.svg?style=svg)](https://app.circleci.com/pipelines/github/semgrep/testo)
+Testo(caml) [![CircleCI badge](https://circleci.com/gh/semgrep/testo.svg?style=svg)](https://app.circleci.com/pipelines/github/semgrep/testo)
 ==
-
-<!-- TODO: show once 0.3 is out:
 
 Quick start
 --
 
 ```
+$ opam update
 $ opam install testo
 $ git clone https://github.com/semgrep/testo-template.git
 $ cd testo-template
@@ -14,14 +13,21 @@ $ dune build
 $ ./test
 ```
 
--->
-
 Documentation: [testocaml.net](https://testocaml.net)
 --
 
 * [Getting started](https://testocaml.net/tutorial)
 * [Howtos](https://testocaml.net/howtos)
 * [API reference](https://testocaml.net/reference/testo/Testo/index.html)
+
+Contributing
+--
+
+Testo is maintained by the OCaml community for the OCaml community.
+If you see anything you like or dislike,
+[let us know](https://github.com/semgrep/testo/issues)!
+
+See our [contribution guidelines](https://github.com/semgrep/testo/blob/main/CONTRIBUTING.md).
 
 Features
 --

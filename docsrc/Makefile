@@ -21,7 +21,6 @@ HTML = \
 # get a uniform style.
 CONVERT_MARKDOWN_TO_HTML = \
   pandoc -t html5 --standalone \
-    --toc \
     --css=$(WWWROOT)/reference/odoc.support/odoc.css \
     --css=$(WWWROOT)/generic.css
 
@@ -59,7 +58,7 @@ $(DOCROOT)/index.html: index.md Makefile
 	$(CONVERT_MARKDOWN_TO_HTML) $< -o $@
 
 $(DOCROOT)/%/index.html: %/index.md Makefile
-	$(CONVERT_MARKDOWN_TO_HTML) $< -o $@
+	$(CONVERT_MARKDOWN_TO_HTML) --toc $< -o $@
 
 # Run a local HTTP server to preview the docs
 live:
