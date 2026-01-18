@@ -119,8 +119,7 @@ let clear_snapshots ~__LOC__:loc () =
   (* snapshots at the default location *)
   auto_approve_tests
   |> List.iter (fun id ->
-         shell_command ~__LOC__:loc
-           ("rm -rf tests/snapshots/testo_subtests/" ^ id));
+      shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_subtests/" ^ id));
   (* snapshots at a custom location *)
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
@@ -132,9 +131,7 @@ let clear_snapshots ~__LOC__:loc () =
 *)
 let restore_git_snapshots ?(path = "tests/snapshots/testo_subtests") () =
   section "Restore deleted snapshots (best effort)";
-  shell_command ~__LOC__
-    (sprintf "git restore '%s' 2>&1 | grep -v 'did not match any file' || true"
-       path)
+  shell_command ~__LOC__ (sprintf "git restore '%s' 2> /dev/null || true" path)
 
 let test_standard_flow () =
   Fun.protect
