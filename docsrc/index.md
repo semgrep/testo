@@ -17,9 +17,25 @@ at [Semgrep](https://semgrep.dev/).
 * [Contributing: source code and issue tracking on GitHub](https://github.com/semgrep/testo)
 
 <div style="margin-top:5em">
-  <img src="img/Test_Os.png" width="100%"
-       alt="SpaghettiOs but in space"
-       title="Artist's impression of Test Os"/>
+  <img src="img/success.png" width="60%"
+       alt="screenshot showing the tail of a successful test run"
+       title="a successful test run"/>
 </div>
 
-_Artist's impression of Test Os_
+_A successful test run_
+
+<div style="margin-top:5em">
+  <img src="img/status.png" width="60%"
+       alt="screenshot showing the output of './test status'"
+       title="the output of './test status'"/>
+</div>
+
+_The output of `./test status`_
+
+<div style="margin-top:5em">
+  <img src="img/wendys.png" width="60%"
+       alt="screenshot showing a test failure"
+       title="a test failure"/>
+</div>
+
+_A test failure showing a CRLF issue_
