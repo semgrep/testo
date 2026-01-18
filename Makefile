@@ -77,3 +77,6 @@ opam-files:
 .PHONY: changes
 changes:
 	pandoc -f markdown -t gfm --wrap=none CHANGES.md -o CHANGES.md
+	# Unfortunately, pandoc turns #3 into \#3 which is rendered as is
+	# by GitHub :-(
+	sed -i -e 's/\\#/#/g' CHANGES.md
