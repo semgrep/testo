@@ -13,6 +13,8 @@ $ dune build
 $ ./test
 ```
 
+Copy the template and adapt it as needed.
+
 Documentation: [testocaml.net](https://testocaml.net)
 --
 

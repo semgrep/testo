@@ -18,7 +18,7 @@ $ dune build
 $ ./test
 ```
 
-Copy and adapt as needed.
+Copy the template and adapt it as needed.
 
 Documentation
 --
