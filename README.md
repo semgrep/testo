@@ -1,9 +1,20 @@
 Testo [![CircleCI badge](https://circleci.com/gh/semgrep/testo.svg?style=svg)](https://app.circleci.com/pipelines/github/semgrep/testo)
 ==
 
-> Party hard, test harder &mdash; DJ Testo
+<!-- TODO: show once 0.3 is out:
 
-![image](https://github.com/semgrep/testo/assets/343265/51f3e6a0-fdb1-400b-a146-4312746ae8d0)
+Quick start
+--
+
+```
+$ opam install testo
+$ git clone https://github.com/semgrep/testo-template.git
+$ cd testo-template
+$ dune build
+$ ./test
+```
+
+-->
 
 Documentation: [testocaml.net](https://testocaml.net)
 --
