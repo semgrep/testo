@@ -1,4 +1,4 @@
-## 0.3.3 (2026-01-17)
+## 0.3.4 (2026-01-17)
 
 - Add support for checked output files ([#134](https://github.com/semgrep/testo/issues/134)).
 - Add an option `inline_logs` to create a test for which logs are always or never shown inline ([#142](https://github.com/semgrep/testo/issues/142)).

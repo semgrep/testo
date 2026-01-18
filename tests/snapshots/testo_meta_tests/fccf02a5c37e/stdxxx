@@ -515,4 +515,4 @@ overall status: [32msuccess[0m
 #####################################################################
 # Restore deleted snapshots (best effort)
 #####################################################################
-RUN git restore 'tests/snapshots/testo_subtests' 2>&1 | grep -v 'did not match any file' || true
+RUN git restore 'tests/snapshots/testo_subtests' 2> /dev/null || true
