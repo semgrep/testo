@@ -3,9 +3,8 @@
 Testo is an industry-grade test framework for OCaml.
 It is suitable for unit-testing OCaml code
 and for end-to-end testing command-line executables.
-[This community project](https://github.com/semgrep/testo)
-was started by [Martin Jambon](https://www.linkedin.com/in/mjambon/)
-at [Semgrep](https://semgrep.dev/).
+Testo is an [open-source project](https://github.com/semgrep/testo)
+maintained by the OCaml community, with support from Semgrep.
 
 Quick Start
 --
