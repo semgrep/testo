@@ -48,6 +48,12 @@ build:
 	# We need to run 'dune build @doc' from the project root. Why?
 	(cd .. && dune build @doc)
 	rm -rf $(DOCROOT)/reference
+	# !!! Hack to inline 'foo Promise.t' into just 'foo'
+	sed -i -e 's/ *\(<[^>]*>\)Promise\.t/\1/g' \
+	  ../_build/default/_doc/_html/testo/Testo/index.html
+	# !!! Hack to inline 'foo Promise.t' into 'foo Lwt.t'
+	sed -i -e 's/Promise\.t/Lwt.t/g' \
+	  ../_build/default/_doc/_html/testo-lwt/Testo_lwt/index.html
 	cp -a ../_build/default/_doc/_html $(DOCROOT)/reference
 
 .PHONY: test
