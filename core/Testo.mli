@@ -471,15 +471,28 @@ val fail : string -> 'a
 (** {2 Temporary files and output redirection} *)
 
 val write_file : Fpath.t -> string -> unit
-[@@deprecated "Use write_text_file instead."]
+[@@deprecated "Use 'write_text_file' instead."]
+(** @deprecated
+      Since version 0.3.0, this function was renamed {!write_text_file} to
+      clarify its behavior on Windows. *)
 
-val read_file : Fpath.t -> string [@@deprecated "Use read_text_file instead."]
+val read_file : Fpath.t -> string
+[@@deprecated "Use 'read_text_file' instead."]
+(** @deprecated
+      Since version 0.3.0, this function was renamed {!read_text_file} to
+      clarify its behavior on Windows. *)
 
 val map_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
-[@@deprecated "Use map_text_file instead."]
+[@@deprecated "Use 'map_text_file' instead."]
+(** @deprecated
+      Since version 0.3.0, this function was renamed {!map_text_file} to clarify
+      its behavior on Windows. *)
 
 val copy_file : Fpath.t -> Fpath.t -> unit
-[@@deprecated "Use copy_text_file instead."]
+[@@deprecated "Use 'copy_text_file' instead."]
+(** @deprecated
+      Since version 0.3.0, this function was renamed {!copy_text_file} to
+      clarify its behavior on Windows. *)
 
 val with_temp_file :
   ?contents:string ->
@@ -489,7 +502,10 @@ val with_temp_file :
   ?temp_dir:Fpath.t ->
   (Fpath.t -> 'a Promise.t) ->
   'a Promise.t
-[@@deprecated "Use with_temp_text_file instead."]
+[@@deprecated "Use 'with_temp_text_file' instead."]
+(** @deprecated
+      Since version 0.3.0, this function was renamed {!with_temp_text_file} to
+      clarify its behavior on Windows. *)
 
 val write_text_file : Fpath.t -> string -> unit
 (** Write data to a regular file. Create the file if it doesn't exist. Erase any
