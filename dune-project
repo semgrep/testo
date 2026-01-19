@@ -60,6 +60,7 @@ checking, and approving the output of tests.")
     (alcotest :with-test)
     (cmdliner (>= 1.1.0))
     fpath
+    (odoc (and (>= 3.1.0) :with-doc))
     (re (>= 1.10.0))
     (testo-util (= :version))
   )
