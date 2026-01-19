@@ -511,21 +511,21 @@ val write_text_file : Fpath.t -> string -> unit
 (** Write data to a regular file. Create the file if it doesn't exist. Erase any
     existing data.
 
-    Usage: [write_file path data] *)
+    Usage: [write_text_file path data] *)
 
 val read_text_file : Fpath.t -> string
 (** Read the contents of a regular file or symbolic link to a regular file. *)
 
 val map_text_file : (string -> string) -> Fpath.t -> Fpath.t -> unit
-(** [map_file func src dst] reads the contents of file (regular or symlink)
+(** [map_text_file func src dst] reads the contents of file (regular or symlink)
     [src], applies [func] to its contents, and writes the result into file
     [dst]. If file [dst] already exists, it is truncated and overwritten.
     Otherwise, a regular file is created. If [src] and [dst] represent the same
     file, [src] will be overwritten with the new contents. *)
 
 val copy_text_file : Fpath.t -> Fpath.t -> unit
-(** Copy a file. [copy_file src dst] is a shortcut for
-    [map_file (fun data -> data) src dst]. *)
+(** Copy a file. [copy_text_file src dst] is a shortcut for
+    [map_text_file (fun data -> data) src dst]. *)
 
 val with_temp_text_file :
   ?contents:string ->
@@ -535,7 +535,7 @@ val with_temp_text_file :
   ?temp_dir:Fpath.t ->
   (Fpath.t -> 'a Promise.t) ->
   'a Promise.t
-(** [with_temp_file func] creates a temporary file, passes its path to the
+(** [with_temp_text_file func] creates a temporary file, passes its path to the
     user-specified function [func], and returns the result. The temporary file
     is deleted when [func] terminates, even if it raises an exception.
 
