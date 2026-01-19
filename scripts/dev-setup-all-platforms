@@ -15,12 +15,11 @@ opam update
 # This should not install 'testo' even though it's a dependency of 'testo-lwt'.
 # Pass '-y' to 'setup' to answer 'yes' to all questions from opam.
 #
-opam install --deps-only --with-test "$@" \
+opam install --deps-only --with-test --with-dev-setup "$@" \
   ./testo-diff.opam \
   ./testo-util.opam \
   ./testo.opam \
-  ./testo-lwt.opam \
-  ocamlformat.0.27.0
+  ./testo-lwt.opam
 
 # Install pre-commit hooks. See https://pre-commit.com/
 # but don't bother if we're on Windows

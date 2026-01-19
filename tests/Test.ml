@@ -28,7 +28,11 @@ let categorized =
 let skipped_on_windows =
   if Sys.win32 then Some "This test does not make sense on Windows" else None
 
+let skipped_on_unix =
+  if Sys.win32 then None else Some "This test does not make sense on Unix"
+
 let unix_tag = Testo.Tag.declare "unix_only"
+let windows_tag = Testo.Tag.declare "windows_only"
 
 (*
    Test the 'validate_name' function used by 'checked_output_file'.
@@ -384,8 +388,10 @@ let test_user_output_capture () =
   (* capture to snapshot file *)
   print_string "snapshot data\n";
   (* more capture from the same channel *)
-  let (), capture2 = Testo.with_capture stdout (fun () -> print_string "wow") in
-  Testo.(check string) ~msg:"more captured stdout" "wow" capture2
+  let (), capture2 =
+    Testo.with_capture stdout (fun () -> print_string "wow\n")
+  in
+  Testo.(check string) ~msg:"more captured stdout" "wow\n" capture2
 
 (*
    Test the formatting for diffs, as implemented in the testo-util library.
@@ -693,6 +699,28 @@ let tests _env =
     test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "lf-crlf";
     test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "crlf-lf";
     test_diff "missing-eol-only";
+    t "capture crlf from stdout" ?skipped:skipped_on_unix ~tags:[ windows_tag ]
+      (fun () ->
+        (* write LF to a channel in text mode and read the data
+            back in binary mode, giving us a CRLF *)
+        let (), out =
+          Testo.with_capture ~binary:true stdout (fun () ->
+              print_string "hello\n")
+        in
+        Testo.(check string) "hello\r\n" out);
+    t "capture crlf from file" ?skipped:skipped_on_unix ~tags:[ windows_tag ]
+      (fun () ->
+        Testo.with_open_temp_text_file (fun _path oc ->
+            Fun.protect
+              (fun () ->
+                (* write LF to a channel in text mode and read the data
+                back in binary mode, giving us a CRLF *)
+                let (), out =
+                  Testo.with_capture ~binary:true oc (fun () ->
+                      output_string oc "hello\n")
+                in
+                Testo.(check string) "hello\r\n" out)
+              ~finally:(fun () -> close_out_noerr oc)));
     test_diff "missing-eol";
     t "current test" (fun () ->
         match Testo.get_current_test () with

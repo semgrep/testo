@@ -86,8 +86,9 @@ jobs:
       - restore_cache:
           keys:
             # The first available key is the one being used
-            - opam-win-5.3.0-pkgs-{{ checksum "week_id.txt" }}
-            - opam-win-5.3.0-pkgs-{{ checksum "previous_week_id.txt" }}
+            - opam-win-5.3.0-pkgs-v2-{{ checksum "week_id.txt" }}
+            - opam-win-5.3.0-pkgs-v1-{{ checksum "week_id.txt" }}
+            - opam-win-5.3.0-pkgs-v2-{{ checksum "previous_week_id.txt" }}
             - opam-win-5.3.0-v3
 
       - run:
@@ -128,7 +129,7 @@ jobs:
           command: ./scripts/dev-setup-all-platforms -y
 
       - save_cache:
-          key: opam-win-5.3.0-pkgs-{{ checksum "week_id.txt" }}
+          key: opam-win-5.3.0-pkgs-v2-{{ checksum "week_id.txt" }}
           paths:
             - ~/AppData/Local/opam
 

@@ -1,3 +1,9 @@
+## unreleased
+
+- `Testo.with_capture` now supports a `binary` option for reading back
+  raw data with CRLF-to-LF translations on Windows
+  ([#178](https://github.com/semgrep/testo/issues/178)).
+
 ## 0.3.4 (2026-01-17)
 
 - Add support for checked output files ([#134](https://github.com/semgrep/testo/issues/134)).

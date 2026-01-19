@@ -18,6 +18,8 @@ depends: [
   "odoc" {>= "3.1.0" & with-doc}
   "re" {>= "1.10.0"}
   "testo-util" {= version}
+  "ocamlformat" {>= "0.28.0" & < "0.29.0" & with-dev-setup}
+  "utop" {with-dev-setup}
 ]
 build: [
   ["dune" "subst"] {dev}
