@@ -3,5 +3,7 @@
    of file paths.
 *)
 
-val temp_file : ?temp_dir:Fpath.t -> string -> string -> Fpath.t
+val open_temp_file :
+  ?temp_dir:Fpath.t -> string -> string -> Fpath.t * out_channel
+
 val get_temp_dir_name : unit -> Fpath.t

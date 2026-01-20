@@ -527,17 +527,18 @@ val copy_text_file : Fpath.t -> Fpath.t -> unit
 (** Copy a file. [copy_text_file src dst] is a shortcut for
     [map_text_file (fun data -> data) src dst]. *)
 
-val with_temp_text_file :
+val with_open_temp_text_file :
   ?contents:string ->
   ?persist:bool ->
   ?prefix:string ->
   ?suffix:string ->
   ?temp_dir:Fpath.t ->
-  (Fpath.t -> 'a Promise.t) ->
+  (Fpath.t -> out_channel -> 'a Promise.t) ->
   'a Promise.t
-(** [with_temp_text_file func] creates a temporary file, passes its path to the
-    user-specified function [func], and returns the result. The temporary file
-    is deleted when [func] terminates, even if it raises an exception.
+(** [with_open_temp_text_file func] creates a temporary file, passes its path
+    and channel to the user-specified function [func], and returns the result.
+    The temporary file is deleted when [func] terminates, even if it raises an
+    exception.
 
     Options:
     - [contents]: data to write to the file. If unspecified, the file is created
@@ -552,10 +553,29 @@ val with_temp_text_file :
       created. The default is the system default returned by
       [Filename.get_temp_dir_name ()]. *)
 
+val with_temp_text_file :
+  ?contents:string ->
+  ?persist:bool ->
+  ?prefix:string ->
+  ?suffix:string ->
+  ?temp_dir:Fpath.t ->
+  (Fpath.t -> 'a Promise.t) ->
+  'a Promise.t
+(** See {!with_open_temp_text_file}. *)
+
 val with_capture :
-  out_channel -> (unit -> 'a Promise.t) -> ('a * string) Promise.t
-(** [with_capture stdout func] evaluates [func ()] while capturing the output of
-    the given channel [stdout] as a string. *)
+  ?binary:bool ->
+  out_channel ->
+  (unit -> 'a Promise.t) ->
+  ('a * string) Promise.t
+(** [with_capture oc func] evaluates [func ()] while capturing the output of the
+    given channel [oc] as a string. This is typically used with the standard
+    channels [stdout] and [stderr].
+
+    @param binary
+      This option prevents any CRLF-to-LF conversions occurring on Windows when
+      reading the data back from where they were written. The default is
+      [false]. Since 0.4.0. *)
 
 (** {2 Environment control} *)
 

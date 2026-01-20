@@ -63,6 +63,10 @@ checking, and approving the output of tests.")
     (odoc (and (>= 3.1.0) :with-doc))
     (re (>= 1.10.0))
     (testo-util (= :version))
+
+    ; Development-only
+    (ocamlformat (and (and (>= 0.28.0) (< 0.29.0)) :with-dev-setup))
+    (utop :with-dev-setup)
   )
   (maintenance_intent "(latest)")
 )

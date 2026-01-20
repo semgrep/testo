@@ -159,7 +159,10 @@ val remove_stashed_output_files : Types.test -> unit
 
 (* Capture stdout or stderr as a string. *)
 val with_capture :
-  out_channel -> (unit -> 'a Promise.t) -> ('a * string) Promise.t
+  ?binary:bool ->
+  out_channel ->
+  (unit -> 'a Promise.t) ->
+  ('a * string) Promise.t
 
 (**************************************************************************)
 (* Wrappers for capturing test output *)
