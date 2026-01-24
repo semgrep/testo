@@ -1,8 +1,15 @@
 ## unreleased
 
-- `Testo.with_capture` now supports a `binary` option for reading back
-  raw data with CRLF-to-LF translations on Windows
+- Experimental: `Testo.with_capture` now supports an `is_binary_mode`
+  option for reading back binary data correctly according to the
+  channel's mode on Windows
   ([#178](https://github.com/semgrep/testo/issues/178)).
+- De-deprecated `Testo.with_open_temp_file` which now supports
+  `get_random_key`, `perms`, `windows_binary`, and
+  `windows_file_share_delete` options. The main novelty is that
+  temporary files are now opened with `FILE_SHARE_DELETE` on Windows
+  to avoid a class of cleanup failures linked to duplicate file handles
+  ([#180](https://github.com/semgrep/testo/issues/180)).
 
 ## 0.3.4 (2026-01-17)
 

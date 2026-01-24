@@ -231,10 +231,10 @@ let test_filter_map_lines () =
   let res =
     "a\nbc\nd\r\ne\n\nff\r\ngg\nh"
     |> Testo.filter_map_lines (fun line ->
-        match line with
-        | "bc" -> None
-        | "d" -> None
-        | other -> Some (String.uppercase_ascii other))
+           match line with
+           | "bc" -> None
+           | "d" -> None
+           | other -> Some (String.uppercase_ascii other))
   in
   Testo.(check string) "A\nE\n\nFF\r\nGG\nH" res
 
@@ -447,7 +447,7 @@ let tag_selection_tests =
     ("none", "none", [ "a"; "b" ], false);
   ]
   |> List.map (fun (name, query, tags, expect) ->
-      Testo.create name (fun () -> test_tag_selector query tags expect))
+         Testo.create name (fun () -> test_tag_selector query tags expect))
   |> Testo.categorize "tag selection"
 
 let test_write_read_map () =
@@ -699,28 +699,53 @@ let tests _env =
     test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "lf-crlf";
     test_diff ?skipped:skipped_on_windows ~tags:[ unix_tag ] "crlf-lf";
     test_diff "missing-eol-only";
-    t "capture crlf from stdout" ?skipped:skipped_on_unix ~tags:[ windows_tag ]
-      (fun () ->
-        (* write LF to a channel in text mode and read the data
-            back in binary mode, giving us a CRLF *)
-        let (), out =
-          Testo.with_capture ~binary:true stdout (fun () ->
-              print_string "hello\n")
-        in
-        Testo.(check string) "hello\r\n" out);
-    t "capture crlf from file" ?skipped:skipped_on_unix ~tags:[ windows_tag ]
-      (fun () ->
-        Testo.with_open_temp_text_file (fun _path oc ->
-            Fun.protect
-              (fun () ->
-                (* write LF to a channel in text mode and read the data
-                back in binary mode, giving us a CRLF *)
-                let (), out =
-                  Testo.with_capture ~binary:true oc (fun () ->
-                      output_string oc "hello\n")
-                in
-                Testo.(check string) "hello\r\n" out)
-              ~finally:(fun () -> close_out_noerr oc)));
+    t "roundtrip lf from text channel" ?skipped:skipped_on_unix
+      ~tags:[ windows_tag ] (fun () ->
+        Testo.with_open_temp_text_file (fun temp_path oc ->
+            (* write LF to a channel in text mode and read the data
+           back in text mode, giving us an LF (even if preceded by a CR) *)
+            let (), out =
+              (* assume oc is in text mode *)
+              Testo.with_capture
+                ~is_binary_mode:(fun _ -> false)
+                oc
+                (fun () -> output_string oc "hello\nworld\r\n")
+            in
+            Testo.(check string) ~msg:"captured data" "hello\nworld\r\n" out;
+            (* Check that the original channel didn't change to binary mode.
+           Write CRLF to the temp file. Read back the raw file contents. *)
+            output_string oc "a line of text\n";
+            close_out_noerr oc;
+            let file_data =
+              let ic = open_in_bin !!temp_path in
+              Fun.protect
+                (fun () -> really_input_string ic (in_channel_length ic))
+                ~finally:(fun () -> close_in_noerr ic)
+            in
+            Testo.(check string)
+              ~msg:"data on disk (Windows only)" "a line of text\r\n" file_data));
+    t "roundtrip crlf from binary channel" (fun () ->
+        Testo.with_open_temp_file ~windows_binary:true (fun temp_path oc ->
+            (* Write CRLF to a binary-mode channel and read the data back *)
+            let (), out =
+              Testo.with_capture
+                ~is_binary_mode:(fun _ -> true)
+                oc
+                (fun () -> output_string oc "hello\r\nworld\n")
+            in
+            Testo.(check string) ~msg:"captured data" "hello\r\nworld\n" out;
+
+            (* Check that the original channel didn't change to text mode.
+           Write LF to the temp file. Read back the raw file contents. *)
+            output_string oc "binary data\n";
+            close_out_noerr oc;
+            let file_data =
+              let ic = open_in_bin !!temp_path in
+              Fun.protect
+                (fun () -> really_input_string ic (in_channel_length ic))
+                ~finally:(fun () -> close_in_noerr ic)
+            in
+            Testo.(check string) ~msg:"data on disk" "binary data\n" file_data));
     test_diff "missing-eol";
     t "current test" (fun () ->
         match Testo.get_current_test () with
