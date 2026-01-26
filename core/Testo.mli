@@ -494,19 +494,6 @@ val copy_file : Fpath.t -> Fpath.t -> unit
       Since version 0.3.0, this function was renamed {!copy_text_file} to
       clarify its behavior on Windows. *)
 
-val with_temp_file :
-  ?contents:string ->
-  ?persist:bool ->
-  ?prefix:string ->
-  ?suffix:string ->
-  ?temp_dir:Fpath.t ->
-  (Fpath.t -> 'a Promise.t) ->
-  'a Promise.t
-[@@deprecated "Use 'with_temp_text_file' instead."]
-(** @deprecated
-      Since version 0.3.0, this function was renamed {!with_temp_text_file} to
-      clarify its behavior on Windows. *)
-
 val write_text_file : Fpath.t -> string -> unit
 (** Write data to a regular file. Create the file if it doesn't exist. Erase any
     existing data.
@@ -527,44 +514,92 @@ val copy_text_file : Fpath.t -> Fpath.t -> unit
 (** Copy a file. [copy_text_file src dst] is a shortcut for
     [map_text_file (fun data -> data) src dst]. *)
 
-val with_open_temp_text_file :
+val with_open_temp_file :
   ?contents:string ->
+  ?get_random_key:(unit -> int) ->
+  ?perms:int ->
   ?persist:bool ->
   ?prefix:string ->
   ?suffix:string ->
   ?temp_dir:Fpath.t ->
+  ?windows_binary:bool ->
+  ?windows_file_share_delete:bool ->
   (Fpath.t -> out_channel -> 'a Promise.t) ->
   'a Promise.t
-(** [with_open_temp_text_file func] creates a temporary file, passes its path
-    and channel to the user-specified function [func], and returns the result.
-    The temporary file is deleted when [func] terminates, even if it raises an
+(** [with_open_temp_file func] creates a temporary file, passes its path and
+    channel to the user-specified function [func], and returns the result. The
+    temporary file is deleted when [func] terminates, even if it raises an
     exception.
 
-    Options:
-    - [contents]: data to write to the file. If unspecified, the file is created
-      empty.
-    - [persist]: if true, the temporary file is not deleted when done as is
-      normally the case. This intended for a user to inspect the file when
-      debugging.
-    - [prefix]: prefix for the temporary file name. The default is ["testo-"].
-    - [suffix]: a suffix to append to the temporary file name. The default is
-      empty.
-    - [temp_dir]: the path to the folder where the temporary file must be
-      created. The default is the system default returned by
-      [Filename.get_temp_dir_name ()]. *)
+    @param contents
+      data to write to the file. If unspecified, the file is created empty.
+    @param get_random_key
+      if the program is using multiple domains (OCaml >= 5), you must provide a
+      random-int generator that is specific to the current domain.
+    @param perms
+      permission mask. The default is [0o600], allowing only the the file owner
+      to write and read the file on Unix systems.
+    @param persist
+      if true, the temporary file is not deleted when done as is normally the
+      case. This intended for a user to inspect the file when debugging.
+    @param prefix prefix for the temporary file name. The default is ["testo-"].
+    @param suffix
+      a suffix to append to the temporary file name. The default is empty.
+    @param temp_dir
+      the path to the folder where the temporary file must be created. The
+      default is the system default returned by
+      [Fpath.v (Filename.get_temp_dir_name ())].
+    @param windows_binary set the channel to binary mode on Windows.
+    @param windows_file_share_delete
+      open the file with [FILE_SHARE_DELETE] ([Unix.O_SHARE_DELETE]) on Windows
+      so as to allow file deletion requests while file handles still exist. The
+      default is [true] so as to avoid issues occurring with output redirection.
+*)
+
+val with_open_temp_text_file :
+  ?contents:string ->
+  ?get_random_key:(unit -> int) ->
+  ?perms:int ->
+  ?persist:bool ->
+  ?prefix:string ->
+  ?suffix:string ->
+  ?temp_dir:Fpath.t ->
+  ?windows_file_share_delete:bool ->
+  (Fpath.t -> out_channel -> 'a Promise.t) ->
+  'a Promise.t
+(** Same as {!with_open_temp_file} but always creates a text file. *)
+
+val with_temp_file :
+  ?contents:string ->
+  ?get_random_key:(unit -> int) ->
+  ?perms:int ->
+  ?persist:bool ->
+  ?prefix:string ->
+  ?suffix:string ->
+  ?temp_dir:Fpath.t ->
+  ?windows_binary:bool ->
+  ?windows_file_share_delete:bool ->
+  (Fpath.t -> 'a Promise.t) ->
+  'a Promise.t
+(** Same as {!with_open_temp_file} but doesn't return a channel opened
+    exclusively. This is generally less secure than {!with_open_temp_file}
+    unless you don't open it. *)
 
 val with_temp_text_file :
   ?contents:string ->
+  ?get_random_key:(unit -> int) ->
+  ?perms:int ->
   ?persist:bool ->
   ?prefix:string ->
   ?suffix:string ->
   ?temp_dir:Fpath.t ->
+  ?windows_file_share_delete:bool ->
   (Fpath.t -> 'a Promise.t) ->
   'a Promise.t
-(** See {!with_open_temp_text_file}. *)
+(** Same as {!with_temp_file} but always creates a text file. *)
 
 val with_capture :
-  ?binary:bool ->
+  ?is_binary_mode:(out_channel -> bool) ->
   out_channel ->
   (unit -> 'a Promise.t) ->
   ('a * string) Promise.t
@@ -572,10 +607,16 @@ val with_capture :
     given channel [oc] as a string. This is typically used with the standard
     channels [stdout] and [stderr].
 
-    @param binary
-      This option prevents any CRLF-to-LF conversions occurring on Windows when
-      reading the data back from where they were written. The default is
-      [false]. Since 0.4.0. *)
+    Windows: Using this function to capture binary data on Windows is considered
+    experimental. If the channel is in binary mode, you must provide the
+    function [is_binary_mode] that indicates so.
+
+    @param is_binary_mode
+      EXPERIMENTAL. The [is_binary_mode] function is needed for proper output
+      redirection in binary mode on Windows. With OCaml 5.2 and above, the
+      appropriate function to use here is [Out_channel.is_binary_mode]. The
+      default behavior is to assume the output channel is in text mode. Since
+      0.4.0. *)
 
 (** {2 Environment control} *)
 
