@@ -609,9 +609,41 @@ let with_cwd paths =
   if List.exists Fpath.is_rel paths then sprintf " [cwd: %s]" (Sys.getcwd ())
   else ""
 
+(* Number of stack backtrace lines to show by default (excluding the exception
+   name/message line). *)
+let default_backtrace_lines = 5
+
+(* Truncate the backtrace portion of an exception message if full_stack_backtrace
+   is false. *)
+let truncate_backtrace ~full_stack_backtrace msg =
+  if full_stack_backtrace then msg
+  else
+    let lines = String.split_on_char '\n' msg in
+    (* Remove trailing empty string from a trailing newline *)
+    let content_lines =
+      match List.rev lines with
+      | "" :: rest -> List.rev rest
+      | _ -> lines
+    in
+    let max_lines = 1 + default_backtrace_lines in
+    if List.length content_lines <= max_lines then msg
+    else
+      (let rec take n = function
+         | [] -> []
+         | _ when n = 0 -> []
+         | x :: xs -> x :: take (n - 1) xs
+       in
+       take max_lines lines)
+      |> String.concat "\n"
+      |> fun head ->
+      head
+      ^ "\n\
+        \ ... (for the full stack backtrace, use --stack-backtrace, -v, or \
+         --verbose)"
+
 let print_status ~highlight_test
     ~always_show_unchecked_output:
-      (always_show_unchecked_output, max_inline_log_bytes)
+      (always_show_unchecked_output, max_inline_log_bytes, full_stack_backtrace)
     (((test : T.test), (status : T.status), sum) as test_with_status) =
   let title = format_one_line_status test_with_status in
   with_highlight_test ~highlight_test ~title (fun () ->
@@ -798,7 +830,8 @@ let print_status ~highlight_test
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
                       (Style.quote_multiline_text
-                         ~decorate_data_fragment:(Style.color Red) msg)
+                         ~decorate_data_fragment:(Style.color Red)
+                         (truncate_backtrace ~full_stack_backtrace msg))
                 | None ->
                     (* = assert false *)
                     ())
@@ -811,7 +844,8 @@ let print_status ~highlight_test
                 | Some msg ->
                     printf "%sException raised by the test:\n%s" bullet
                       (Style.quote_multiline_text
-                         ~decorate_data_fragment:(Style.color Green) msg)
+                         ~decorate_data_fragment:(Style.color Green)
+                         (truncate_backtrace ~full_stack_backtrace msg))
                 | None -> ())
             | OK
             | OK_but_new

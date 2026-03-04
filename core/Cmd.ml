@@ -34,6 +34,7 @@ type conf = {
   intro : string;
   show_output : bool;
   autoclean : bool;
+  full_stack_backtrace : bool;
   max_inline_log_bytes : int option;
   (* Status *)
   status_output_style : Run.status_output_style;
@@ -66,6 +67,7 @@ let default_conf =
     env = [];
     show_output = false;
     autoclean = false;
+    full_stack_backtrace = false;
     max_inline_log_bytes = Some default_max_inline_log_bytes;
     status_output_style = Compact_important;
     intro = Run.introduction_text;
@@ -133,7 +135,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       let tests = get_tests conf.env in
       Run.cmd_run
         ~always_show_unchecked_output:
-          (conf.show_output, conf.max_inline_log_bytes)
+          ( conf.show_output,
+            conf.max_inline_log_bytes,
+            conf.full_stack_backtrace )
         ~argv:conf.ocaml_conf.argv ~autoclean:conf.autoclean
         ~filter_by_substring:conf.filter_by_substring
         ~filter_by_tag:conf.filter_by_tag ~intro:conf.intro
@@ -155,7 +159,9 @@ let run_with_conf ((get_tests, handle_subcommand_result) : _ test_spec)
       let exit_code, tests_with_status =
         Run.cmd_status
           ~always_show_unchecked_output:
-            (conf.show_output, conf.max_inline_log_bytes)
+            ( conf.show_output,
+              conf.max_inline_log_bytes,
+              conf.full_stack_backtrace )
           ~autoclean:conf.autoclean
           ~filter_by_substring:conf.filter_by_substring
           ~filter_by_tag:conf.filter_by_tag ~intro:conf.intro
@@ -321,9 +327,19 @@ let verbose_run_term : bool Term.t =
   let info =
     Arg.info [ "v"; "verbose" ]
       ~doc:
-        "Print more details than by default. Currently, this is equivalent to \
-         '--show-output' but it may be extended in the future to bundle up \
-         more options."
+        "Print more details than by default. This is equivalent to \
+         '--show-output --stack-backtrace'."
+  in
+  Arg.value (Arg.flag info)
+
+let stack_backtrace_term : bool Term.t =
+  let info =
+    Arg.info [ "stack-backtrace" ]
+      ~doc:
+        (sprintf
+           "Show the full stack backtrace when a test raises an exception. By \
+            default, only the first %d lines of the backtrace are shown."
+           Run.default_backtrace_lines)
   in
   Arg.value (Arg.flag info)
 
@@ -465,11 +481,12 @@ let optional_nonempty_list xs =
 let subcmd_run_term ~default_workers ocaml_conf (test_spec : _ test_spec) :
     unit Term.t =
   let combine autoclean chdir debug env expert filter_by_substring filter_by_tag
-      jobs lazy_ max_inline_log_bytes show_output slice strict
+      jobs lazy_ max_inline_log_bytes show_output slice stack_backtrace strict
       test_list_checksum verbose worker =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
     let show_output = show_output || verbose in
+    let full_stack_backtrace = stack_backtrace || verbose in
     let jobs =
       match jobs with
       | None -> default_workers
@@ -484,6 +501,7 @@ let subcmd_run_term ~default_workers ocaml_conf (test_spec : _ test_spec) :
         env;
         filter_by_substring;
         filter_by_tag;
+        full_stack_backtrace;
         intro;
         is_worker = worker;
         jobs;
@@ -501,8 +519,8 @@ let subcmd_run_term ~default_workers ocaml_conf (test_spec : _ test_spec) :
     const combine $ autoclean_term $ chdir_term $ debug_term $ env_term
     $ expert_term $ filter_by_substring_term $ filter_by_tag_term
     $ jobs_term ~default_workers $ lazy_term $ max_inline_log_bytes_term
-    $ show_output_term $ slice_term $ strict_term $ test_list_checksum_term
-    $ verbose_run_term $ worker_term)
+    $ show_output_term $ slice_term $ stack_backtrace_term $ strict_term
+    $ test_list_checksum_term $ verbose_run_term $ worker_term)
 
 let subcmd_run ~default_workers ocaml_conf test_spec =
   let info = Cmd.info "run" ~doc:run_doc ~man:run_man in
@@ -546,7 +564,8 @@ let status_doc = "show test status"
 
 let subcmd_status_term ocaml_conf tests : unit Term.t =
   let combine all autoclean chdir debug env expert filter_by_substring
-      filter_by_tag long max_inline_log_bytes show_output strict verbose =
+      filter_by_tag long max_inline_log_bytes show_output stack_backtrace strict
+      verbose =
     let filter_by_substring = optional_nonempty_list filter_by_substring in
     let intro = if expert then "" else default_conf.intro in
     let status_output_style : Run.status_output_style =
@@ -559,6 +578,7 @@ let subcmd_status_term ocaml_conf tests : unit Term.t =
         | false, false -> Compact_important
     in
     let show_output = show_output || verbose in
+    let full_stack_backtrace = stack_backtrace || verbose in
     Status
       {
         default_conf with
@@ -568,6 +588,7 @@ let subcmd_status_term ocaml_conf tests : unit Term.t =
         env;
         filter_by_substring;
         filter_by_tag;
+        full_stack_backtrace;
         intro;
         max_inline_log_bytes;
         ocaml_conf;
@@ -580,8 +601,8 @@ let subcmd_status_term ocaml_conf tests : unit Term.t =
   Term.(
     const combine $ all_term $ autoclean_term $ chdir_term $ debug_term
     $ env_term $ expert_term $ filter_by_substring_term $ filter_by_tag_term
-    $ long_term $ max_inline_log_bytes_term $ show_output_term $ strict_term
-    $ verbose_status_term)
+    $ long_term $ max_inline_log_bytes_term $ show_output_term
+    $ stack_backtrace_term $ strict_term $ verbose_status_term)
 
 let subcmd_status ocaml_conf tests =
   let info = Cmd.info "status" ~doc:status_doc in
