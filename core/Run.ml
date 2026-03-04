@@ -628,7 +628,13 @@ let truncate_backtrace ~full_stack_backtrace msg =
     let max_lines = 1 + default_backtrace_lines in
     if List.length content_lines <= max_lines then msg
     else
-      List.filteri (fun i _ -> i < max_lines) lines |> String.concat "\n"
+      (let rec take n = function
+         | [] -> []
+         | _ when n = 0 -> []
+         | x :: xs -> x :: take (n - 1) xs
+       in
+       take max_lines lines)
+      |> String.concat "\n"
       |> fun head ->
       head
       ^ "\n\
