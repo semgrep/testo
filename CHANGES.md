@@ -1,5 +1,9 @@
 ## unreleased
 
+- Truncate long stack backtraces to 5 lines by default when reporting a test
+  failure due to an exception. The full backtrace can be shown with the new
+  `--stack-backtrace` option or with `-v`/`--verbose`
+  ([#181](https://github.com/semgrep/testo/issues/181)).
 - Experimental: `Testo.with_capture` now supports an `is_binary_mode`
   option for reading back binary data correctly according to the
   channel's mode on Windows
