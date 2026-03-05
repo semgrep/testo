@@ -1,5 +1,7 @@
 ## unreleased
 
+- The legend printed at the start of a test run now mentions `--expert` as a
+  way to hide it.
 - Truncate long stack backtraces to 5 lines by default when reporting a test
   failure due to an exception. The full backtrace can be shown with the new
   `--stack-backtrace` option or with `-v`/`--verbose`
