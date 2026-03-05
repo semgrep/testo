@@ -11,7 +11,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
-Try '--help' for options.
+Try '--help' for options. Use '--expert' to hide this legend.
 [33m[RUN][0m   57fbfca04c25 [36minline logs[0m
 [worker 1/1] junk printed on stdout...
 [worker 1/1] ... when creating the test suite

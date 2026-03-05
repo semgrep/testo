@@ -37,5 +37,5 @@
 8/8 selected tests:
 Legend:
 RUN ./parallel-test run -j100
-Try '--help' for options.
+Try '--help' for options. Use '--expert' to hide this legend.
 overall status: [32msuccess[0m
