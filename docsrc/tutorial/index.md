@@ -100,7 +100,7 @@ Legend:
 • [xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
-Try '--help' for options.
+Try '--help' for options. Use '--expert' to hide this legend.
 [RUN]   5d41402abc4b hello
 [PASS]  5d41402abc4b hello
 • Path to captured log: _build/testo/status/my_project/5d41402abc4b/log

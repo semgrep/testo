@@ -1302,6 +1302,6 @@ let introduction_text =
 %s[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
-Try '--help' for options.
+Try '--help' for options. Use '--expert' to hide this legend.
 |}
     bullet bullet bullet bullet bullet bullet bullet

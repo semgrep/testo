@@ -47,7 +47,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
-Try '--help' for options.
+Try '--help' for options. Use '--expert' to hide this legend.
 
 [33m[MISS]  [0mf66d12950c64 [36mauto-approve[0m > [36minternal files[0m > [36mcreate name file[0m
 [2m• [0mChecked output: stdout

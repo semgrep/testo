@@ -9,7 +9,7 @@ Legend:
 [2m• [0m[xxxx*]: a new test for which there's no expected output yet.
   In this case, you should review the test output and run the 'approve'
   subcommand once you're satisfied with the output.
-Try '--help' for options.
+Try '--help' for options. Use '--expert' to hide this legend.
 
 [32m[PASS]  [0m68018e4a009a [36mdoes not time out[0m
 [2m• [0mPath to captured log: _build/testo/status/testo_timeout_test/68018e4a009a/log
