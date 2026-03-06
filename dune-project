@@ -8,9 +8,9 @@
 
 ; Default attributes of opam packages
 (license "ISC")
-(source (github semgrep/testo))
-(homepage "https://github.com/semgrep/testo")
-(maintainers "Martin Jambon <martin@semgrep.com>")
+(source (github mjambon/testo))
+(homepage "https://github.com/mjambon/testo")
+(maintainers "Martin Jambon <martin@mjambon.com>")
 (authors
   "Martin Jambon"
   "Gabriel Jaldon"

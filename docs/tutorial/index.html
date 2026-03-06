@@ -108,7 +108,7 @@ and to be maintained by the community of users. We’ve been using it to
 test <a href="https://github.com/semgrep/semgrep">Semgrep</a> which has
 about 7000 OCaml tests, many of which were originally migrated from
 Alcotest. Check out the <a
-href="https://github.com/semgrep/testo/issues">known missing
+href="https://github.com/mjambon/testo/issues">known missing
 features</a> to see if anything critical to you is missing.</p>
 <h2 id="getting-started">Getting started</h2>
 <h3 id="install-the-testo-library">Install the <code>testo</code>
@@ -118,9 +118,9 @@ href="https://opam.ocaml.org/">Opam</a> using
 <code>opam install testo</code>.</p>
 <h3 id="set-up-your-project">Set up your project</h3>
 <p>At this stage, you need an OCaml project that uses Dune and Git.
-First, clone <a href="https://github.com/semgrep/testo-template">our
+First, clone <a href="https://github.com/mjambon/testo-template">our
 template</a>:</p>
-<pre><code>$ git clone https://github.com/semgrep/testo-template.git
+<pre><code>$ git clone https://github.com/mjambon/testo-template.git
 $ cd testo-template</code></pre>
 <p>Then, check that it works:</p>
 <pre><code>$ dune build
@@ -137,7 +137,7 @@ Legend:
 • [xxxx*]: a new test for which there&#39;s no expected output yet.
   In this case, you should review the test output and run the &#39;approve&#39;
   subcommand once you&#39;re satisfied with the output.
-Try &#39;--help&#39; for options.
+Try &#39;--help&#39; for options. Use &#39;--expert&#39; to hide this legend.
 [RUN]   5d41402abc4b hello
 [PASS]  5d41402abc4b hello
 • Path to captured log: _build/testo/status/my_project/5d41402abc4b/log
