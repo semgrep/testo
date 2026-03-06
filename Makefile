@@ -65,8 +65,17 @@ clean:
 #
 .PHONY: opam-release
 opam-release: delete-symlinks opam-files changes
+	# tag the head commit with the release extracted from CHANGES.md
 	dune-release tag
-	dune-release bistro --draft
+	# create tarball
+	dune-release distrib
+	# create draft release on GitHub (needed if admin setting prevents
+	# uploading assets once the release is created)
+	dune-release publish --draft
+	# upload the tarballs to GitHub, attaching them to the release
+	dune-release opam pkg
+	@echo "===> Go to the release page on GitHub and mark it as final"
+	@echo "===> Then create the opam PR: dune-release opam submit"
 
 .PHONY: opam-files
 opam-files:

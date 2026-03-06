@@ -62,26 +62,16 @@ Note that:
 6. Attention: make sure to create a **draft release** via the
    `--draft` flag. Otherwise, an immutable release is created and the
    tarball can't be uploaded.
-   Run `make opam-release` or run the individual steps below by hand:
-   * Run `dune-release tag`. It will pick up the version from the
-     changelog and ask for confirmation.
-   * Run `dune-release distrib` to create a tarball.
-   * Run `dune-release publish --draft` to upload the tarball to GitHub and
-     create GitHub release including the changes extracted from the
-     changelog.
-   * Create opam packages with `dune-release opam pkg`.
-   * Submit the opam packages to opam-repository using
-     `dune-release opam submit`.
-7. Go to the release page on GitHub and publish the draft release.
-8. Go to the opam-repository PR and mark it as ready for review.
-   Restart the CI jobs if they failed due to starting before the
-   GitHub release was final.
-9. Fix the opam-repository pull request as needed. For example, this
+   Run `make opam-release` and follow the instructions if any.
+   If anything goes wrong, you may be able to resume where you left
+   off without creating a new version. In this case, visit the
+   `Makefile` and run the `dune-release` instructions by hand.
+7. Fix the opam-repository pull request as needed. For example, this
    may require setting a new version constraint on the `atd` package
    in the opam files, if it wasn't possible to do so in
    `dune-project`.
-10. Check whether opam-repository's CI test succeed and fix problems
-    accordingly until the pull request is merged.
+8. Check whether opam-repository's CI test succeed and fix problems
+   accordingly until the pull request is merged.
 
 Shortcut for all the `dune-release` steps:
 ```
