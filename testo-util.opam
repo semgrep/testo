@@ -5,8 +5,8 @@ description: "Testo is a test framework for OCaml."
 maintainer: ["Martin Jambon <martin@semgrep.com>"]
 authors: ["Martin Jambon" "Gabriel Jaldon"]
 license: "ISC"
-homepage: "https://github.com/semgrep/testo"
-bug-reports: "https://github.com/semgrep/testo/issues"
+homepage: "https://github.com/mjambon/testo"
+bug-reports: "https://github.com/mjambon/testo/issues"
 depends: [
   "dune" {>= "3.18"}
   "ocaml" {>= "4.08.0"}
@@ -30,5 +30,5 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/semgrep/testo.git"
+dev-repo: "git+https://github.com/mjambon/testo.git"
 x-maintenance-intent: ["(latest)"]

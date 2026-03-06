@@ -399,7 +399,7 @@ module Client = struct
             "Fatal internal error in Testo's master process:\n\
              %s\n\
              %s\n\
-             Please report this bug at https://github.com/semgrep/testo/issues.\n\
+             Please report this bug at https://github.com/mjambon/testo/issues.\n\
              %!"
             (Printexc.to_string exn) trace;
           exit Error.Exit_code.internal_error

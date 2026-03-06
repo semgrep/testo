@@ -61,7 +61,7 @@ and to be maintained by the community of users. We've been using it to test
 [Semgrep](https://github.com/semgrep/semgrep) which has about 7000
 OCaml tests, many of which were originally migrated from Alcotest.
 Check out the
-[known missing features](https://github.com/semgrep/testo/issues) to
+[known missing features](https://github.com/mjambon/testo/issues) to
 see if anything critical to you is missing.
 
 Getting started
@@ -75,9 +75,9 @@ using `opam install testo`.
 ### Set up your project
 
 At this stage, you need an OCaml project that uses Dune and Git.
-First, clone [our template](https://github.com/semgrep/testo-template):
+First, clone [our template](https://github.com/mjambon/testo-template):
 ```
-$ git clone https://github.com/semgrep/testo-template.git
+$ git clone https://github.com/mjambon/testo-template.git
 $ cd testo-template
 ```
 
