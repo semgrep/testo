@@ -3,7 +3,7 @@
 Testo is an industry-grade test framework for OCaml.
 It is suitable for unit-testing OCaml code
 and for end-to-end testing command-line executables.
-Testo is an [open-source project](https://github.com/semgrep/testo)
+Testo is an [open-source project](https://github.com/mjambon/testo)
 maintained by the OCaml community, with support from Semgrep.
 
 Quick Start
@@ -12,7 +12,7 @@ Quick Start
 ```
 $ opam update
 $ opam install testo
-$ git clone https://github.com/semgrep/testo-template.git
+$ git clone https://github.com/mjambon/testo-template.git
 $ cd testo-template
 $ dune build
 $ ./test
@@ -32,7 +32,7 @@ Documentation
   - [`status --help`](cli-reference/status-help.html)
   - [`approve --help`](cli-reference/approve-help.html)
   - [`show-tags --help`](cli-reference/show-tags-help.html)
-* [Contributing: source code and issue tracking on GitHub](https://github.com/semgrep/testo)
+* [Contributing: source code and issue tracking on GitHub](https://github.com/mjambon/testo)
 
 <div style="margin-top:5em">
   <img src="img/success.png" width="60%"

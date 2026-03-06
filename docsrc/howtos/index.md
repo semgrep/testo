@@ -377,7 +377,7 @@ unit`.
 
 For the Async library, we don't provide `testo-async` but it should be
 straightforward to add. Check the status of the [corresponding GitHub
-issue](https://github.com/semgrep/testo/issues/73).
+issue](https://github.com/mjambon/testo/issues/73).
 
 How to run tests in parallel?
 --
@@ -466,7 +466,7 @@ How to report problems with Testo?
 --
 
 Check for known issues at
-[https://github.com/semgrep/testo/issues](https://github.com/semgrep/testo/issues).
+[https://github.com/mjambon/testo/issues](https://github.com/mjambon/testo/issues).
 If your problem seems new, please file a new issue as a first step
 toward its resolution.
 The `--debug` flag might reveal what's going on and can be helpful for
@@ -476,4 +476,4 @@ How to export test output to JUnit?
 --
 
 🚧 not implemented,
-see [Issue #14](https://github.com/semgrep/testo/issues/14).
+see [Issue #14](https://github.com/mjambon/testo/issues/14).
