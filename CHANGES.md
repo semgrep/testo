@@ -1,21 +1,9 @@
 ## 0.4.0 (2026-04-05)
 
-- The legend printed at the start of a test run now mentions `--expert` as a
-  way to hide it.
-- Truncate long stack backtraces to 5 lines by default when reporting a test
-  failure due to an exception. The full backtrace can be shown with the new
-  `--stack-backtrace` option or with `-v`/`--verbose`
-  ([#181](https://github.com/mjambon/testo/issues/181)).
-- Experimental: `Testo.with_capture` now supports an `is_binary_mode`
-  option for reading back binary data correctly according to the
-  channel's mode on Windows
-  ([#178](https://github.com/mjambon/testo/issues/178)).
-- De-deprecated `Testo.with_open_temp_file` which now supports
-  `get_random_key`, `perms`, `windows_binary`, and
-  `windows_file_share_delete` options. The main novelty is that
-  temporary files are now opened with `FILE_SHARE_DELETE` on Windows
-  to avoid a class of cleanup failures linked to duplicate file handles
-  ([#180](https://github.com/mjambon/testo/issues/180)).
+- The legend printed at the start of a test run now mentions `--expert` as a way to hide it.
+- Truncate long stack backtraces to 5 lines by default when reporting a test failure due to an exception. The full backtrace can be shown with the new `--stack-backtrace` option or with `-v`/`--verbose` ([#181](https://github.com/mjambon/testo/issues/181)).
+- Experimental: `Testo.with_capture` now supports an `is_binary_mode` option for reading back binary data correctly according to the channel’s mode on Windows ([#178](https://github.com/mjambon/testo/issues/178)).
+- De-deprecated `Testo.with_open_temp_file` which now supports `get_random_key`, `perms`, `windows_binary`, and `windows_file_share_delete` options. The main novelty is that temporary files are now opened with `FILE_SHARE_DELETE` on Windows to avoid a class of cleanup failures linked to duplicate file handles ([#180](https://github.com/mjambon/testo/issues/180)).
 
 ## 0.3.4 (2026-01-17)
 
