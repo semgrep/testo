@@ -70,15 +70,18 @@ Note that:
      create GitHub release including the changes extracted from the
      changelog.
    * Create opam packages with `dune-release opam pkg`.
-   * Go to the release page on GitHub and publish the draft release.
    * Submit the opam packages to opam-repository using
      `dune-release opam submit`.
-7. Fix the opam-repository pull request as needed. For example, this
+7. Go to the release page on GitHub and publish the draft release.
+8. Go to the opam-repository PR and mark it as ready for review.
+   Restart the CI jobs if they failed due to starting before the
+   GitHub release was final.
+9. Fix the opam-repository pull request as needed. For example, this
    may require setting a new version constraint on the `atd` package
    in the opam files, if it wasn't possible to do so in
    `dune-project`.
-8. Check whether opam-repository's CI test succeed and fix problems
-   accordingly until the pull request is merged.
+10. Check whether opam-repository's CI test succeed and fix problems
+    accordingly until the pull request is merged.
 
 Shortcut for all the `dune-release` steps:
 ```
