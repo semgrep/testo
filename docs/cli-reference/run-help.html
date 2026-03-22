@@ -102,68 +102,67 @@ b.BWHI {background-color: #aaaaaa}
            '-j0' and '-j1' ensure sequential, non-overlapping execution of the
            tests. Unlike '-j1',  '-j0'  will  not  create  a  separate  worker
            process  to  run  the  tests. The default can be changed by passing
-           '~default_workers' to the  OCaml  function  'Testo.interpret_argv'.
-           NOTE: Parallel executation of tests is not stable on Windows.
+           '~default_workers' to the OCaml function 'Testo.interpret_argv'.
 
        <b class="BOLD">--lazy</b>
            Run only the tests that were not previously successful.
 
        <b class="BOLD">--max-inline-log-bytes</b>=<b class=UND>LIMIT</b> (absent=<b class="BOLD">1000000</b>)
-           When  displaying  logs (unchecked stdout or stderr output), show at
-           most that many bytes for each test. The default  limit  is  1000000
+           When displaying logs (unchecked stdout or stderr output),  show  at
+           most  that  many  bytes for each test. The default limit is 1000000
            bytes. To remove the default limit, specify 'unlimited'.
 
        <b class="BOLD">-s </b><b class="BOLD UND"></b><b class=UND>SUBSTRING</b>, <b class="BOLD">--filter-substring</b>=<b class=UND>SUBSTRING</b>
-           Select  tests  whose  description contains <b class=UND>SUBSTRING</b>. Multiple '-s'
-           search queries can be specified in which  case  only  one  of  them
+           Select tests whose description contains  <b class=UND>SUBSTRING</b>.  Multiple  '-s'
+           search  queries  can  be  specified  in which case only one of them
            needs to match.
 
        <b class="BOLD">--slice</b>=<b class=UND>NUM/NUM_SLICES</b>
-           Divide  the  test  suite into NUM_SLICES and work on slice NUM only
+           Divide the test suite into NUM_SLICES and work on  slice  NUM  only
            (1-based). For example, '1/4' is the first of four slices and '4/4'
-           is the last one. If multiple '--slice' options are specified,  they
-           are  applied sequentially from left to right. If the original suite
-           defines 23 tests,  '--slice  2/4'  selects  tests  [7,8,9,10,11,12]
-           (1-based).  If  additionally '--slice 1/3' is specified after it on
-           the same command line, the remaining  tests  will  be  [7,8].  This
-           filter  is  meant  for  running  tests in parallel, possibly across
-           multiple hosts. It is applied after any  other  filters  to  as  to
+           is  the last one. If multiple '--slice' options are specified, they
+           are applied sequentially from left to right. If the original  suite
+           defines  23  tests,  '--slice  2/4'  selects tests [7,8,9,10,11,12]
+           (1-based). If additionally '--slice 1/3' is specified after  it  on
+           the  same  command  line,  the  remaining tests will be [7,8]. This
+           filter is meant for running  tests  in  parallel,  possibly  across
+           multiple  hosts.  It  is  applied  after any other filters to as to
            divide the work more evenly.
 
        <b class="BOLD">--stack-backtrace</b>
-           Show  the  full stack backtrace when a test raises an exception. By
+           Show the full stack backtrace when a test raises an  exception.  By
            default, only the first 5 lines of the backtrace are shown.
 
        <b class="BOLD">--strict</b>
-           Treat flaky tests as ordinary  tests.  This  disables  the  default
+           Treat  flaky  tests  as  ordinary  tests. This disables the default
            behavior of ignoring failing tests that were marked as flaky by the
            programmer when determining the overall success of the test run.
 
        <b class="BOLD">-t </b><b class="BOLD UND"></b><b class=UND>QUERY</b>, <b class="BOLD">--filter-tag</b>=<b class=UND>QUERY</b>
-           Select  tests whose tags match <b class=UND>QUERY</b>. Filtering by tag is generally
-           more robust than selecting tests by text contained  in  their  name
-           with  '-s'.  <b class=UND>QUERY</b>  is  a  boolean query combining tags with 'and',
-           'or', 'not', and parentheses  using  the  usual  precedence  rules.
+           Select tests whose tags match <b class=UND>QUERY</b>. Filtering by tag is  generally
+           more  robust  than  selecting tests by text contained in their name
+           with '-s'. <b class=UND>QUERY</b> is a boolean  query  combining  tags  with  'and',
+           'or',  'not',  and  parentheses  using  the usual precedence rules.
            Tag-like  selectors  'all'  and  'none'  are  also  supported.  For
-           example, '(foo or bar) and not e2e' will select any test  with  the
-           tag  'foo'  or  the  tag 'bar' but not if it has the tag 'e2e'. Run
+           example,  '(foo  or bar) and not e2e' will select any test with the
+           tag 'foo' or the tag 'bar' but not if it has  the  tag  'e2e'.  Run
            '/home/martin/testo/_build/default/template/tests/test.exe
-           show-tags' to see the list of tags defined  for  the  current  test
+           show-tags'  to  see  the  list of tags defined for the current test
            suite.
 
        <b class="BOLD">--test-list-checksum</b>=<b class=UND>STR</b>
-           Internal  use  only. This is a checksum used to check that the list
-           of tests generated in a worker is the same as  the  list  of  tests
+           Internal use only. This is a checksum used to check that  the  list
+           of  tests  generated  in  a worker is the same as the list of tests
            generated by the master.
 
        <b class="BOLD">-v</b>, <b class="BOLD">--verbose</b>
-           Print   more  details  than  by  default.  This  is  equivalent  to
+           Print  more  details  than  by  default.  This  is  equivalent   to
            '--show-output --stack-backtrace'.
 
        <b class="BOLD">-w</b>, <b class="BOLD">--show-output</b>
            Show the output of all tests rather than only showing the output of
-           the failed tests. This excludes  the  output  (stdout,  stderr,  or
-           both)  that  may  be  captured  explicitly  to  be compared against
+           the  failed  tests.  This  excludes  the output (stdout, stderr, or
+           both) that may  be  captured  explicitly  to  be  compared  against
            expectations.
 
        <b class="BOLD">--worker</b>
@@ -171,8 +170,8 @@ b.BWHI {background-color: #aaaaaa}
 
 <b class="BOLD">COMMON OPTIONS</b>
        <b class="BOLD">--help</b>[=<b class=UND>FMT</b>] (default=<b class="BOLD">auto</b>)
-           Show this help in format <b class=UND>FMT</b>. The value <b class=UND>FMT</b> must be  one  of  <b class="BOLD">auto</b>,
-           <b class="BOLD">pager</b>,  <b class="BOLD">groff  </b>or  <b class="BOLD">plain</b>.  With  <b class="BOLD">auto</b>, the format is <b class="BOLD">pager </b>or <b class="BOLD">plain</b>
+           Show  this  help  in format <b class=UND>FMT</b>. The value <b class=UND>FMT</b> must be one of <b class="BOLD">auto</b>,
+           <b class="BOLD">pager</b>, <b class="BOLD">groff </b>or <b class="BOLD">plain</b>. With <b class="BOLD">auto</b>, the  format  is  <b class="BOLD">pager  </b>or  <b class="BOLD">plain</b>
            whenever the <b class="BOLD">TERM </b>env var is <b class="BOLD">dumb </b>or undefined.
 
 <b class="BOLD">EXIT STATUS</b>
