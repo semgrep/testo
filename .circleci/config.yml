@@ -1,32 +1,50 @@
 #
 # Circle CI configuration. Runs each time we push a new commit to Github.
 #
-
-# The Semgrep config was derived from the example at
-# https://semgrep.dev/docs/semgrep-ci/sample-ci-configs/#circleci
-
 version: 2.1
 
 orbs:
   win: circleci/windows@5.1.0
 
-# TODO: check that the docs are up-to-date (requires odoc and pandoc)
-jobs:
+commands:
   build:
-    docker:
-      - image: mjambon/mj-ocaml:alpine
-    working_directory: ~/testo
+    parameters:
+      ocaml_version:
+        type: string
+      run_lint:
+        type: boolean
+        default: false
     steps:
       - checkout
       - run:
-          name: Install OS-specific dependencies
-          command: ./scripts/dev-setup-alpine
+          name: Set weekly cache key segment
+          # Compute a number that increments every 7 days.
+          # To force a cache refresh, increment the version suffix
+          # (v1, v2, ...). When a new week starts, use the previous week's
+          # cache as a starting point if available to save time.
+          command: |
+            echo $(( $(date +%s) / 604800 )) > week_id.txt
+            echo $(( $(date +%s) / 604800 - 1 )) > previous_week_id.txt
+      - restore_cache:
+          keys:
+            - opam-ubuntu-<< parameters.ocaml_version >>-v1-{{ checksum "week_id.txt" }}
+            - opam-ubuntu-<< parameters.ocaml_version >>-v1-{{ checksum "previous_week_id.txt" }}
       - run:
-          name: Install OS-independent dependencies
-          command: ./scripts/dev-setup-all-platforms -y
+          name: Install system dependencies
+          command: ./.circleci/setup-system
       - run:
-          name: Lint
-          command: pre-commit run
+          name: Install opam dependencies
+          command: ./.circleci/setup-opam
+      - save_cache:
+          key: opam-ubuntu-<< parameters.ocaml_version >>-v1-{{ checksum "week_id.txt" }}
+          paths:
+            - ~/.opam
+      - when:
+          condition: << parameters.run_lint >>
+          steps:
+            - run:
+                name: Lint
+                command: opam exec -- pre-commit run --all-files
       - run:
           name: Build
           command: opam exec -- make
@@ -36,27 +54,24 @@ jobs:
       - run:
           name: Test with Dune
           command: opam exec -- dune runtest
-  build_legacy:
+
+jobs:
+  build_latest_ocaml:
     docker:
-      - image: mjambon/mj-ocaml-4.08:alpine
+      - image: ocaml/opam:ubuntu-24.04-ocaml-5.3
     working_directory: ~/testo
     steps:
-      - checkout
-      - run:
-          name: Install OS-specific dependencies
-          command: ./scripts/dev-setup-alpine
-      - run:
-          name: Install dependencies
-          command: ./scripts/dev-setup-all-platforms -y
-      - run:
-          name: Build
-          command: opam exec -- make
-      - run:
-          name: Test with Make
-          command: opam exec -- make test
-      - run:
-          name: Test with Dune
-          command: opam exec -- dune runtest
+      - build:
+          ocaml_version: "5.3"
+          run_lint: true
+
+  build_min_ocaml:
+    docker:
+      - image: ocaml/opam:ubuntu-24.04-ocaml-4.08
+    working_directory: ~/testo
+    steps:
+      - build:
+          ocaml_version: "4.08"
 
   windows_build:
     executor:
@@ -171,8 +186,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
-      - build_legacy
+      - build_latest_ocaml
+      - build_min_ocaml
       - windows_build
   semgrep:
     jobs:
