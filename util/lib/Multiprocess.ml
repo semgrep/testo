@@ -270,7 +270,7 @@ module Client = struct
 
     (* This is supposed to work on all platforms. *)
     let ((std_in_ch, std_out_ch) as process) =
-      (* This change the current directory back to the original
+      (* This changes the current directory back to the original
          for the command name to be interpreted correctly in case
          it's a relative path such as './test'. *)
       Helpers.with_opt_chdir orig_cwd (fun () ->

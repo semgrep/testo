@@ -609,37 +609,78 @@ let with_cwd paths =
   if List.exists Fpath.is_rel paths then sprintf " [cwd: %s]" (Sys.getcwd ())
   else ""
 
-(* Number of stack backtrace lines to show by default (excluding the exception
-   name/message line). *)
+(* Number of stack backtrace lines to show by default. *)
 let default_backtrace_lines = 5
 
+(* Detect if a line is an OCaml stack backtrace line.
+   Backtrace lines start with one of these prefixes.
+   Note: this is a heuristic. If an exception message itself contains lines
+   that look like backtrace lines (e.g. starting with "Raised at "), those
+   lines and everything after them will be incorrectly treated as the backtrace
+   and subject to truncation. *)
+let is_backtrace_line line =
+  let prefixes =
+    [ "Raised at "; "Called from "; "Re-raised at "; "Reraise at " ]
+  in
+  List.exists
+    (fun prefix ->
+      (* TODO: use String.starts_with ~prefix line once we require OCaml >= 4.13 *)
+      let n = String.length prefix in
+      String.length line >= n && String.sub line 0 n = prefix)
+    prefixes
+
 (* Truncate the backtrace portion of an exception message if full_stack_backtrace
-   is false. *)
+   is false. Only lines that are recognized as OCaml backtrace lines are
+   truncated; the exception message itself is always shown in full.
+
+   We can't truncate earlier (at capture time) because the exception message
+   and its backtrace are stored together on disk in full, so that the user can
+   retrieve the complete backtrace with --stack-backtrace. Truncation is
+   therefore a display-only concern applied here at print time. *)
 let truncate_backtrace ~full_stack_backtrace msg =
   if full_stack_backtrace then msg
   else
     let lines = String.split_on_char '\n' msg in
-    (* Remove trailing empty string from a trailing newline *)
-    let content_lines =
-      match List.rev lines with
-      | "" :: rest -> List.rev rest
-      | _ -> lines
+    (* Find the index of the first backtrace line *)
+    let backtrace_start =
+      lines
+      |> List.mapi (fun i line -> (i, line))
+      |> List.find_opt (fun (_i, line) -> is_backtrace_line line)
+      |> Option.map fst
     in
-    let max_lines = 1 + default_backtrace_lines in
-    if List.length content_lines <= max_lines then msg
-    else
-      (let rec take n = function
-         | [] -> []
-         | _ when n = 0 -> []
-         | x :: xs -> x :: take (n - 1) xs
-       in
-       take max_lines lines)
-      |> String.concat "\n"
-      |> fun head ->
-      head
-      ^ "\n\
-        \ ... (for the full stack backtrace, use --stack-backtrace, -v, or \
-         --verbose)"
+    match backtrace_start with
+    | None ->
+        (* No backtrace detected: don't truncate anything *)
+        msg
+    | Some start ->
+        let rec take n = function
+          | [] -> []
+          | _ when n = 0 -> []
+          | x :: xs -> x :: take (n - 1) xs
+        in
+        let rec drop n = function
+          | [] -> []
+          | _ :: xs when n > 0 -> drop (n - 1) xs
+          | xs -> xs
+        in
+        let before_backtrace = take start lines in
+        let backtrace_lines =
+          drop start lines
+          (* Remove trailing empty string from a trailing newline *)
+          |> fun ls ->
+          match List.rev ls with
+          | "" :: rest -> List.rev rest
+          | _ -> ls
+        in
+        if List.length backtrace_lines <= default_backtrace_lines then msg
+        else
+          before_backtrace @ take default_backtrace_lines backtrace_lines
+          |> String.concat "\n"
+          |> fun head ->
+          head
+          ^ "\n\
+            \ ... (for the full stack backtrace, use --stack-backtrace, -v, or \
+             --verbose)"
 
 let print_status ~highlight_test
     ~always_show_unchecked_output:

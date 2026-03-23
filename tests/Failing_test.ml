@@ -9,9 +9,32 @@ let failing_function () =
   print_endline "<something being printed by the test>";
   Testo.fail "oh no, I'm failing"
 
+(*
+   A custom exception whose printed form spans more than 5 lines, used to
+   verify that backtrace truncation does not accidentally truncate the
+   exception message itself.
+*)
+exception Multiline_exception
+
+let () =
+  Printexc.register_printer (function
+    | Multiline_exception ->
+        Some
+          "Multiline_exception:\n\
+           Line 2 of exception message\n\
+           Line 3 of exception message\n\
+           Line 4 of exception message\n\
+           Line 5 of exception message\n\
+           Line 6 of exception message (last line)"
+    | _ -> None)
+
+let backtrace_truncation_tag = Testo.Tag.declare "backtrace_truncation"
+
 let tests _env =
   [
     t "failing" failing_function;
+    t "multiline exception" ~tags:[ backtrace_truncation_tag ] (fun () ->
+        raise Multiline_exception);
     t "failing to fail" ~expected_outcome:(Should_fail "<reasons>") (fun () ->
         print_string "<something being printed by the test>");
     t "output mismatch" ~checked_output:(Testo.stdout ()) (fun () ->

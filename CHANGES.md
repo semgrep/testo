@@ -1,3 +1,7 @@
+## Unreleased
+
+- Fix: backtrace truncation was incorrectly applied to the exception message itself, cutting off legitimate output that happened to be longer than 5 lines. Truncation now only applies to lines that are recognized as OCaml backtrace lines (`Raised at ...`, `Called from ...`, etc.) ([#188](https://github.com/mjambon/testo/pull/188)).
+
 ## 0.4.0 (2026-04-05)
 
 - The legend printed at the start of a test run now mentions `--expert` as a way to hide it.
