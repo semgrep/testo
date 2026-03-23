@@ -257,9 +257,9 @@ let test_more_workers_than_tests () =
 (* Exercise the failing test suite *)
 (*****************************************************************************)
 
-let failing_test_subcommand ~loc shell_command_string =
+let failing_test_subcommand ?expected_exit_code ~loc shell_command_string =
   let command = "./failing-test " ^ shell_command_string in
-  shell_command ~__LOC__:loc command
+  shell_command ?expected_exit_code ~__LOC__:loc command
 
 let test_failing_flow_run () = failing_test_subcommand ~loc:__LOC__ "run"
 let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
@@ -272,16 +272,16 @@ let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
 *)
 let test_backtrace_truncation () =
   (* Run the specific test to populate its status *)
-  shell_command ~__LOC__ ~expected_exit_code:1
-    "./failing-test run -t backtrace_truncation";
+  failing_test_subcommand ~loc:__LOC__ ~expected_exit_code:1
+    "run -t backtrace_truncation";
   (* Distinctive last line of the exception message (6 lines total) *)
   let last_exception_line = "Line 6 of exception message (last line)" in
   (* Status without --stack-backtrace: the exception message must be shown
      in full even though it spans more than 5 lines *)
   let (), output_truncated =
     Testo.with_capture stdout (fun () ->
-        shell_command ~__LOC__ ~expected_exit_code:1
-          "./failing-test status -al -t backtrace_truncation")
+        failing_test_subcommand ~loc:__LOC__ ~expected_exit_code:1
+          "status -al -t backtrace_truncation")
   in
   assert (
     Testo_util.Helpers.contains_substring output_truncated
@@ -290,8 +290,8 @@ let test_backtrace_truncation () =
      the output is at least as long (the backtrace is not cut short) *)
   let (), output_full =
     Testo.with_capture stdout (fun () ->
-        shell_command ~__LOC__ ~expected_exit_code:1
-          "./failing-test status -al --stack-backtrace -t backtrace_truncation")
+        failing_test_subcommand ~loc:__LOC__ ~expected_exit_code:1
+          "status -al --stack-backtrace -t backtrace_truncation")
   in
   assert (
     Testo_util.Helpers.contains_substring output_full ~sub:last_exception_line);
