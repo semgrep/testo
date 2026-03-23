@@ -119,7 +119,8 @@ let clear_snapshots ~__LOC__:loc () =
   (* snapshots at the default location *)
   auto_approve_tests
   |> List.iter (fun id ->
-      shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_subtests/" ^ id));
+         shell_command ~__LOC__:loc
+           ("rm -rf tests/snapshots/testo_subtests/" ^ id));
   (* snapshots at a custom location *)
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"
@@ -263,6 +264,39 @@ let failing_test_subcommand ~loc shell_command_string =
 let test_failing_flow_run () = failing_test_subcommand ~loc:__LOC__ "run"
 let test_failing_flow_status () = failing_test_subcommand ~loc:__LOC__ "status"
 
+(*
+   Check that the exception message of a multi-line exception is shown in full
+   in the status output, both with and without --stack-backtrace.
+   We don't do a full snapshot comparison here because stack traces change
+   between OCaml versions.
+*)
+let test_backtrace_truncation () =
+  (* Run the specific test to populate its status *)
+  shell_command ~__LOC__ ~expected_exit_code:1
+    "./failing-test run -t backtrace_truncation";
+  (* Distinctive last line of the exception message (6 lines total) *)
+  let last_exception_line = "Line 6 of exception message (last line)" in
+  (* Status without --stack-backtrace: the exception message must be shown
+     in full even though it spans more than 5 lines *)
+  let (), output_truncated =
+    Testo.with_capture stdout (fun () ->
+        shell_command ~__LOC__ ~expected_exit_code:1
+          "./failing-test status -al -t backtrace_truncation")
+  in
+  assert (
+    Testo_util.Helpers.contains_substring output_truncated
+      ~sub:last_exception_line);
+  (* Status with --stack-backtrace: still shows the full exception message and
+     the output is at least as long (the backtrace is not cut short) *)
+  let (), output_full =
+    Testo.with_capture stdout (fun () ->
+        shell_command ~__LOC__ ~expected_exit_code:1
+          "./failing-test status -al --stack-backtrace -t backtrace_truncation")
+  in
+  assert (
+    Testo_util.Helpers.contains_substring output_full ~sub:last_exception_line);
+  assert (String.length output_full >= String.length output_truncated)
+
 (*****************************************************************************)
 (* Exercise the test suite with timeouts *)
 (*****************************************************************************)
@@ -358,6 +392,7 @@ let tests =
       ~expected_outcome:
         (Should_fail "the invoked test suite is designed to fail")
       test_failing_flow_status;
+    t "backtrace truncation" test_backtrace_truncation;
     t "timeout flow run" test_timeout_flow_run;
     t "timeout flow status" ~checked_output:(T.stdxxx ())
       ~normalize:mask_testo_output test_timeout_flow_status;
