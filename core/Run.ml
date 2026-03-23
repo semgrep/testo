@@ -658,9 +658,14 @@ let truncate_backtrace ~full_stack_backtrace msg =
           | _ when n = 0 -> []
           | x :: xs -> x :: take (n - 1) xs
         in
+        let rec drop n = function
+          | [] -> []
+          | _ :: xs when n > 0 -> drop (n - 1) xs
+          | xs -> xs
+        in
         let before_backtrace = take start lines in
         let backtrace_lines =
-          List.filteri (fun i _ -> i >= start) lines
+          drop start lines
           (* Remove trailing empty string from a trailing newline *)
           |> fun ls ->
           match List.rev ls with
