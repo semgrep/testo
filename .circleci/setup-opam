@@ -16,8 +16,11 @@ if ! opam repo list | grep -q '^github\b'; then
 fi
 # no need for 'opam update'
 
-opam install --deps-only --with-test --with-dev-setup -y \
+opam install --deps-only --with-test -y \
   ./testo-diff.opam \
   ./testo-util.opam \
   ./testo.opam \
   ./testo-lwt.opam
+
+# Install dev tools separately (--with-dev-setup requires opam >= 2.1)
+opam install -y ocamlformat
