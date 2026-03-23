@@ -22,5 +22,6 @@ opam install --deps-only --with-test -y \
   ./testo.opam \
   ./testo-lwt.opam
 
-# Install dev tools separately (--with-dev-setup requires opam >= 2.1)
-opam install -y ocamlformat
+# Install dev tools separately (--with-dev-setup requires opam >= 2.1).
+# The version must match what's used locally (see testo.opam).
+opam install -y ocamlformat.0.28.1
