@@ -88,16 +88,16 @@ let tests =
       [ 7 ] );
   ]
   |> List.map (fun (name, slice_strs, input, expected_result) ->
-         let func () =
-           printf "Expected result: %s\n%!" (string_of_list expected_result);
-           let slices =
-             List.map of_string slice_strs
-             |> List.map (function
-                  | Some x -> x
-                  | None -> assert false)
-           in
-           let result = apply_slices slices input in
-           printf "Result: %s\n%!" (string_of_list result);
-           assert (result = expected_result)
-         in
-         (name, func))
+      let func () =
+        printf "Expected result: %s\n%!" (string_of_list expected_result);
+        let slices =
+          List.map of_string slice_strs
+          |> List.map (function
+            | Some x -> x
+            | None -> assert false)
+        in
+        let result = apply_slices slices input in
+        printf "Result: %s\n%!" (string_of_list result);
+        assert (result = expected_result)
+      in
+      (name, func))

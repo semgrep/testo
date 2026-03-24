@@ -119,8 +119,7 @@ let clear_snapshots ~__LOC__:loc () =
   (* snapshots at the default location *)
   auto_approve_tests
   |> List.iter (fun id ->
-         shell_command ~__LOC__:loc
-           ("rm -rf tests/snapshots/testo_subtests/" ^ id));
+      shell_command ~__LOC__:loc ("rm -rf tests/snapshots/testo_subtests/" ^ id));
   (* snapshots at a custom location *)
   shell_command ~__LOC__:loc "mkdir -p tests/custom-snapshots";
   shell_command ~__LOC__:loc "rm -f tests/custom-snapshots/*"

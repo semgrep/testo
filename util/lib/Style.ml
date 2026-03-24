@@ -121,7 +121,10 @@ let quote_multiline_text =
   (* Indent by one space, similarly to 'diff -u' output *)
   let margin = " " in
   fun ?(decorate_comment = color Yellow)
-      ?(decorate_data_fragment = fun str -> str) ?max_bytes str ->
+    ?(decorate_data_fragment = fun str -> str)
+    ?max_bytes
+    str
+  ->
     str
     |> truncate_text ~decorate_comment ~decorate_data_fragment ~max_bytes
     |> String.split_on_char '\n'

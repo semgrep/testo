@@ -140,8 +140,8 @@ module Client = struct
          messages against junk. See 'write'. *)
       take_lines_from_buffer buf
       |> List.filter (function
-           | "" -> false
-           | _ -> true)
+        | "" -> false
+        | _ -> true)
     in
     List.iter
       (fun line -> Queue.add (worker, Msg_from_worker.of_string line) queue)

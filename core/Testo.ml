@@ -574,26 +574,24 @@ let mask_pcre_pattern ?replace pat =
   fun subj ->
     Re.split_full re subj
     |> Helpers.list_map (function
-         | `Text (* unmatched input *) str -> str
-         | `Delim (* match *) groups ->
-             let match_start, match_stop =
-               try Re.Group.offset groups 0 with
-               | Not_found -> Error.assert_false ~__LOC__ ()
-             in
-             let group_start, group_stop =
-               try Re.Group.offset groups 1 with
-               | Not_found -> (match_start, match_stop)
-             in
-             assert (group_start >= match_start);
-             assert (group_stop <= match_stop);
-             let frag1 =
-               String.sub subj match_start (group_start - match_start)
-             in
-             let to_be_replaced =
-               String.sub subj group_start (group_stop - group_start)
-             in
-             let frag2 = String.sub subj group_stop (match_stop - group_stop) in
-             frag1 ^ replace to_be_replaced ^ frag2)
+      | `Text (* unmatched input *) str -> str
+      | `Delim (* match *) groups ->
+          let match_start, match_stop =
+            try Re.Group.offset groups 0 with
+            | Not_found -> Error.assert_false ~__LOC__ ()
+          in
+          let group_start, group_stop =
+            try Re.Group.offset groups 1 with
+            | Not_found -> (match_start, match_stop)
+          in
+          assert (group_start >= match_start);
+          assert (group_stop <= match_stop);
+          let frag1 = String.sub subj match_start (group_start - match_start) in
+          let to_be_replaced =
+            String.sub subj group_start (group_stop - group_start)
+          in
+          let frag2 = String.sub subj group_stop (match_stop - group_stop) in
+          frag1 ^ replace to_be_replaced ^ frag2)
     |> String.concat ""
 
 let represent_lines_as_pairs (xs : Re.Pcre.split_result list) :
@@ -719,11 +717,11 @@ let mask_not_pcre_pattern ?(mask = "<MASKED>") pat =
   fun subj ->
     Re.split_full re subj
     |> Helpers.list_map (function
-         | `Text _ -> mask
-         | `Delim groups -> (
-             match Re.Group.get_opt groups 0 with
-             | Some substring -> substring
-             | None -> (* assert false *) ""))
+      | `Text _ -> mask
+      | `Delim groups -> (
+          match Re.Group.get_opt groups 0 with
+          | Some substring -> substring
+          | None -> (* assert false *) ""))
     |> String.concat ""
 
 let mask_not_substrings ?mask substrings =
@@ -732,7 +730,7 @@ let mask_not_substrings ?mask substrings =
         the longest match possible when two of them share a prefix. *)
      substrings
     |> List.stable_sort (fun a b ->
-           Int.compare (String.length b) (String.length a))
+        Int.compare (String.length b) (String.length a))
     |> Helpers.list_map Re.Pcre.quote
     |> String.concat "|")
 
@@ -751,8 +749,8 @@ let categorize_suites name (tests : t list list) : t list =
 let sort (tests : t list) : t list =
   tests
   |> List.stable_sort (fun a b ->
-         let c = compare a.category b.category in
-         if c <> 0 then c else String.compare a.name b.name)
+      let c = compare a.category b.category in
+      if c <> 0 then c else String.compare a.name b.name)
 
 let to_alcotest = Run.to_alcotest
 let registered_tests : t list ref = ref []

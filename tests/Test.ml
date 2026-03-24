@@ -231,10 +231,10 @@ let test_filter_map_lines () =
   let res =
     "a\nbc\nd\r\ne\n\nff\r\ngg\nh"
     |> Testo.filter_map_lines (fun line ->
-           match line with
-           | "bc" -> None
-           | "d" -> None
-           | other -> Some (String.uppercase_ascii other))
+        match line with
+        | "bc" -> None
+        | "d" -> None
+        | other -> Some (String.uppercase_ascii other))
   in
   Testo.(check string) "A\nE\n\nFF\r\nGG\nH" res
 
@@ -447,7 +447,7 @@ let tag_selection_tests =
     ("none", "none", [ "a"; "b" ], false);
   ]
   |> List.map (fun (name, query, tags, expect) ->
-         Testo.create name (fun () -> test_tag_selector query tags expect))
+      Testo.create name (fun () -> test_tag_selector query tags expect))
   |> Testo.categorize "tag selection"
 
 let test_write_read_map () =
