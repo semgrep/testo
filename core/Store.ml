@@ -409,12 +409,12 @@ let std_capture_paths_of_test (test : T.test) : capture_paths list =
 let file_capture_paths_of_test (test : T.test) : capture_paths list =
   test.checked_output_files
   |> Helpers.list_map (fun (x : T.checked_output_file) ->
-         {
-           kind = File;
-           short_name = x.name;
-           path_to_expected_output = Some (get_file_snapshot_path test x);
-           path_to_output = get_output_file_path test x;
-         })
+      {
+        kind = File;
+        short_name = x.name;
+        path_to_expected_output = Some (get_file_snapshot_path test x);
+        path_to_output = get_output_file_path test x;
+      })
 
 let all_capture_paths_of_test (test : T.test) =
   std_capture_paths_of_test test @ file_capture_paths_of_test test
@@ -477,7 +477,7 @@ let clear_expected_output (test : T.test) =
   |> List.iter (fun x -> Option.iter remove_file x.path_to_expected_output);
   test.checked_output_files
   |> List.iter (fun (x : T.checked_output_file) ->
-         remove_file (get_file_snapshot_path test x))
+      remove_file (get_file_snapshot_path test x))
 
 let read_name_file ~dir =
   let name_file_path = get_name_file_path_from_dir dir in
@@ -645,20 +645,20 @@ let normalize_output (test : T.test) =
       let paths = std_capture_paths_of_test test in
       get_checked_output_paths paths
       |> List.iter (fun std_path ->
-             let backup_path = Fpath.v (!!std_path ^ orig_suffix) in
-             if Sys.file_exists !!backup_path then Sys.remove !!backup_path;
-             Sys.rename !!std_path !!backup_path;
-             let orig_data = read_file_exn backup_path in
-             let normalized_data =
-               try rewrite_string orig_data with
-               | e ->
-                   Error.user_error
-                     (sprintf
-                        "Exception raised by the test's normalize_output \
-                         function: %s"
-                        (Printexc.to_string e))
-             in
-             Helpers.write_text_file std_path normalized_data)
+          let backup_path = Fpath.v (!!std_path ^ orig_suffix) in
+          if Sys.file_exists !!backup_path then Sys.remove !!backup_path;
+          Sys.rename !!std_path !!backup_path;
+          let orig_data = read_file_exn backup_path in
+          let normalized_data =
+            try rewrite_string orig_data with
+            | e ->
+                Error.user_error
+                  (sprintf
+                     "Exception raised by the test's normalize_output \
+                      function: %s"
+                     (Printexc.to_string e))
+          in
+          Helpers.write_text_file std_path normalized_data)
 
 let with_redirect_merged_stdout_stderr path func =
   (* redirect stderr and stdout to a stdxxx file *)
@@ -726,7 +726,7 @@ let stash_output_file (test : T.test) src_path (x : T.checked_output_file) :
 let remove_stashed_output_files (test : T.test) =
   test.checked_output_files
   |> List.iter (fun (x : T.checked_output_file) ->
-         remove_file (get_output_file_path test x))
+      remove_file (get_output_file_path test x))
 
 (**************************************************************************)
 (* High-level interface *)
@@ -768,12 +768,11 @@ let get_expectation (test : T.test) ~(std_capture_paths : capture_paths list) :
   let expected_output_files =
     test.checked_output_files
     |> Helpers.list_map (fun (checked_file : T.checked_output_file) ->
-           match read_file (get_file_snapshot_path test checked_file) with
-           | Ok contents ->
-               Ok
-                 ({ checked_file; contents }
-                   : T.checked_output_file_with_contents)
-           | Error path -> Error path)
+        match read_file (get_file_snapshot_path test checked_file) with
+        | Ok contents ->
+            Ok
+              ({ checked_file; contents } : T.checked_output_file_with_contents)
+        | Error path -> Error path)
   in
   {
     expected_outcome = test.expected_outcome;
@@ -791,12 +790,12 @@ let get_result (test : T.test) (paths : capture_paths list) :
       let captured_output_files, missing_output_files =
         test.checked_output_files
         |> Helpers.list_map (fun (checked_file : T.checked_output_file) ->
-               match read_file (get_output_file_path test checked_file) with
-               | Ok contents ->
-                   Ok
-                     ({ checked_file; contents }
-                       : T.checked_output_file_with_contents)
-               | Error missing_file -> Error missing_file)
+            match read_file (get_output_file_path test checked_file) with
+            | Ok contents ->
+                Ok
+                  ({ checked_file; contents }
+                    : T.checked_output_file_with_contents)
+            | Error missing_file -> Error missing_file)
         |> Helpers.split_result_list
       in
       (* captured standard output *)
@@ -963,9 +962,9 @@ let approve_new_output (test : T.test) : (changed, Error.msg) Result.t =
             let data =
               all_capture_paths |> get_checked_output
               |> list_map (function
-                   | Ok data -> data
-                   | Error missing_file ->
-                       raise (Local_error (errmsg_of_missing_file missing_file)))
+                | Ok data -> data
+                | Error missing_file ->
+                    raise (Local_error (errmsg_of_missing_file missing_file)))
             in
             set_expected_output test all_capture_paths data;
             let new_expectation = get_expectation test ~std_capture_paths in

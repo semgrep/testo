@@ -47,11 +47,11 @@ let replace_newlines str =
 
 let to_string x =
   (match x with
-  | End_test test_id -> sprintf "END_TEST %s" test_id
-  | Error msg -> sprintf "ERROR %s" msg
-  | Junk data ->
-      (* This should be unused. A writer should not send 'Junk' messages.
+    | End_test test_id -> sprintf "END_TEST %s" test_id
+    | Error msg -> sprintf "ERROR %s" msg
+    | Junk data ->
+        (* This should be unused. A writer should not send 'Junk' messages.
          If they do, it's by writing junk to stdout without going through
          this function. *)
-      sprintf "JUNK %s" data)
+        sprintf "JUNK %s" data)
   |> replace_newlines

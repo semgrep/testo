@@ -89,25 +89,24 @@ let check_id_uniqueness (tests : T.test list) =
   let id_tbl = Hashtbl.create 1000 in
   tests
   |> List.iter (fun (test : T.test) ->
-         let id = test.id in
-         let name = test.internal_full_name in
-         match Hashtbl.find_opt id_tbl id with
-         | None -> Hashtbl.add id_tbl id test.internal_full_name
-         | Some name0 ->
-             if name = name0 then
-               Error.user_error
-                 (sprintf "Two tests have the same name: %s" name)
-             else
-               Error.user_error
-                 (sprintf
-                    "Hash collision for two tests with different names:\n\
-                    \  %S\n\
-                    \  %S\n\
-                     These names result in the same hash ID: %s\n\
-                     If this is accidental, please report the problem to the \
-                     authors of\n\
-                     testo."
-                    name0 name id))
+      let id = test.id in
+      let name = test.internal_full_name in
+      match Hashtbl.find_opt id_tbl id with
+      | None -> Hashtbl.add id_tbl id test.internal_full_name
+      | Some name0 ->
+          if name = name0 then
+            Error.user_error (sprintf "Two tests have the same name: %s" name)
+          else
+            Error.user_error
+              (sprintf
+                 "Hash collision for two tests with different names:\n\
+                 \  %S\n\
+                 \  %S\n\
+                  These names result in the same hash ID: %s\n\
+                  If this is accidental, please report the problem to the \
+                  authors of\n\
+                  testo."
+                 name0 name id))
 
 (*
    Check that the user didn't mistakenly reuse the same path for keeping
@@ -118,32 +117,32 @@ let check_snapshot_uniqueness (tests : T.test list) =
   let path_tbl = Hashtbl.create 1000 in
   tests
   |> List.iter (fun (test : T.test) ->
-         test |> Store.all_capture_paths_of_test
-         |> List.iter (fun (paths : Store.capture_paths) ->
-                match paths.path_to_expected_output with
-                | None -> ()
-                | Some path -> (
-                    (* This may or may not be a custom path. *)
-                    let test_name = test.internal_full_name in
-                    match Hashtbl.find_opt path_tbl path with
-                    | None -> Hashtbl.add path_tbl path test_name
-                    | Some test_name0 ->
-                        if test_name = test_name0 then
-                          Error.user_error
-                            (sprintf
-                               "A test uses the same snapshot path twice:\n\
-                                - test name: %S\n\
-                                - conflicting snapshot path: %s\n\
-                                Fix it in the test definition.\n"
-                               test_name !!path)
-                        else
-                          Error.user_error
-                            (sprintf
-                               "Two different tests use the same snapshot path:\n\
-                                - first test: %S\n\
-                                - second test: %S\n\
-                                - conflicting snapshot path: %s\n"
-                               test_name0 test_name !!path))))
+      test |> Store.all_capture_paths_of_test
+      |> List.iter (fun (paths : Store.capture_paths) ->
+          match paths.path_to_expected_output with
+          | None -> ()
+          | Some path -> (
+              (* This may or may not be a custom path. *)
+              let test_name = test.internal_full_name in
+              match Hashtbl.find_opt path_tbl path with
+              | None -> Hashtbl.add path_tbl path test_name
+              | Some test_name0 ->
+                  if test_name = test_name0 then
+                    Error.user_error
+                      (sprintf
+                         "A test uses the same snapshot path twice:\n\
+                          - test name: %S\n\
+                          - conflicting snapshot path: %s\n\
+                          Fix it in the test definition.\n"
+                         test_name !!path)
+                  else
+                    Error.user_error
+                      (sprintf
+                         "Two different tests use the same snapshot path:\n\
+                          - first test: %S\n\
+                          - second test: %S\n\
+                          - conflicting snapshot path: %s\n"
+                         test_name0 test_name !!path))))
 
 let check_test_definitions tests =
   check_id_uniqueness tests;
@@ -212,22 +211,21 @@ let stats_of_tests tests tests_with_status =
   in
   tests_with_status
   |> List.iter (fun ((test : T.test), _status, (sum : T.status_summary)) ->
-         match test.skipped with
-         | Some _reason -> incr stats.skipped_tests
-         | None ->
-             (match sum.passing_status with
-             | MISS _
-             | XFAIL _ ->
-                 ()
-             | _ ->
-                 if not sum.has_expected_output then incr stats.needs_approval);
-             incr
-               (match sum.passing_status with
-               | PASS -> stats.pass
-               | FAIL _ -> stats.fail
-               | XFAIL _ -> stats.xfail
-               | XPASS -> stats.xpass
-               | MISS _ -> stats.miss));
+      match test.skipped with
+      | Some _reason -> incr stats.skipped_tests
+      | None ->
+          (match sum.passing_status with
+          | MISS _
+          | XFAIL _ ->
+              ()
+          | _ -> if not sum.has_expected_output then incr stats.needs_approval);
+          incr
+            (match sum.passing_status with
+            | PASS -> stats.pass
+            | FAIL _ -> stats.fail
+            | XFAIL _ -> stats.xfail
+            | XPASS -> stats.xpass
+            | MISS _ -> stats.miss));
   stats
 
 (* Sample output: "", " {foo, bar}" *)
@@ -255,12 +253,12 @@ let group_by_key key_value_list =
   let tbl = Hashtbl.create 100 in
   key_value_list
   |> List.iteri (fun pos (k, v) ->
-         let tbl_v =
-           match Hashtbl.find_opt tbl k with
-           | None -> (pos, [ v ])
-           | Some (pos, vl) -> (pos, v :: vl)
-         in
-         Hashtbl.replace tbl k tbl_v);
+      let tbl_v =
+        match Hashtbl.find_opt tbl k with
+        | None -> (pos, [ v ])
+        | Some (pos, vl) -> (pos, v :: vl)
+      in
+      Hashtbl.replace tbl k tbl_v);
   let clusters =
     Hashtbl.fold (fun k (pos, vl) acc -> (pos, (k, List.rev vl)) :: acc) tbl []
   in
@@ -323,45 +321,45 @@ let to_alcotest_gen ~(alcotest_skip : unit -> _)
     (tests : T.test list) : _ list =
   tests
   |> Helpers.list_map (fun (test : T.test) ->
-         let suite_name =
-           match test.category with
-           | [] -> test.name
-           | path -> String.concat " > " path
-         in
-         let xfail_note =
-           match test.expected_outcome with
-           | Should_succeed -> ""
-           | Should_fail _reason -> " [xfail]"
-         in
-         let suite_name =
-           sprintf "%s%s%s %s" test.id xfail_note (format_tags test) suite_name
-         in
-         let func =
-           (*
+      let suite_name =
+        match test.category with
+        | [] -> test.name
+        | path -> String.concat " > " path
+      in
+      let xfail_note =
+        match test.expected_outcome with
+        | Should_succeed -> ""
+        | Should_fail _reason -> " [xfail]"
+      in
+      let suite_name =
+        sprintf "%s%s%s %s" test.id xfail_note (format_tags test) suite_name
+      in
+      let func =
+        (*
               A "skipped" test is marked as skipped in Alcotest's run output
               and leaves no trace such that Testo thinks it never ran.
            *)
-           match test.skipped with
-           | Some _reason ->
-               fun () ->
-                 alcotest_skip () |> ignore;
-                 Error.user_error
-                   "The function 'alcotest_skip' passed to 'Testo.to_alcotest' \
-                    didn't raise\n\
-                    an exception as expected. 'Testo.to_alcotest' should be \
-                    called with\n\
-                    '~alcotest_skip:Alcotest.skip'."
-           | None ->
-               let func = wrap_test_function test test.func in
-               let func () =
-                 func () >>= function
-                 | Ok () -> P.return ()
-                 | Error e -> Printexc.raise_with_backtrace e.exn e.trace
-               in
-               func
-         in
-         (* This is the format expected by Alcotest: *)
-         (suite_name, (test.name, `Quick, func)))
+        match test.skipped with
+        | Some _reason ->
+            fun () ->
+              alcotest_skip () |> ignore;
+              Error.user_error
+                "The function 'alcotest_skip' passed to 'Testo.to_alcotest' \
+                 didn't raise\n\
+                 an exception as expected. 'Testo.to_alcotest' should be \
+                 called with\n\
+                 '~alcotest_skip:Alcotest.skip'."
+        | None ->
+            let func = wrap_test_function test test.func in
+            let func () =
+              func () >>= function
+              | Ok () -> P.return ()
+              | Error e -> Printexc.raise_with_backtrace e.exn e.trace
+            in
+            func
+      in
+      (* This is the format expected by Alcotest: *)
+      (suite_name, (test.name, `Quick, func)))
   |> group_by_key
 
 (* Catch any exception and return it converted to a human-readable
@@ -499,7 +497,7 @@ let filter ~filter_by_substring ~filter_by_tag tests =
   | _ ->
       tests
       |> List.filter (fun test ->
-             List.for_all (fun filter -> filter test) filters)
+          List.for_all (fun filter -> filter test) filters)
 
 let print_error (msg : Error.msg) =
   match msg with
@@ -512,9 +510,9 @@ let print_errors (xs : (Store.changed, Error.msg) Result.t list) : int =
   let error_messages = ref [] in
   xs
   |> List.iter (function
-       | Ok Store.Changed -> incr changed
-       | Ok Store.Unchanged -> ()
-       | Error msg -> error_messages := msg :: !error_messages);
+    | Ok Store.Changed -> incr changed
+    | Ok Store.Unchanged -> ()
+    | Error msg -> error_messages := msg :: !error_messages);
   let changed = !changed in
   let error_messages = List.rev !error_messages in
   printf "Expected output changed for %i test%s.\n%!" changed
@@ -770,13 +768,12 @@ let print_status ~highlight_test
                          function.")));
           status.expectation.expected_output_files
           |> List.iter (function
-               | Error missing_file ->
-                   print_error
-                     (sprintf
-                        "Missing file containing the expected output: %s%s"
-                        !!missing_file
-                        (with_cwd [ missing_file ]))
-               | Ok _ -> ());
+            | Error missing_file ->
+                print_error
+                  (sprintf "Missing file containing the expected output: %s%s"
+                     !!missing_file
+                     (with_cwd [ missing_file ]))
+            | Ok _ -> ());
           let capture_paths = Store.all_capture_paths_of_test test in
           show_output_details test sum capture_paths;
           let success = success_of_status_summary sum in
@@ -907,13 +904,13 @@ let print_statuses ~highlight_test ~always_show_unchecked_output
 let is_overall_success ~strict statuses =
   statuses
   |> List.for_all (fun ((test : T.test), _status, sum) ->
-         test.skipped <> None
-         || ((not strict) && test.flaky <> None)
-         ||
-         match sum |> success_of_status_summary with
-         | OK -> true
-         | OK_but_new -> false
-         | Not_OK _ -> false)
+      test.skipped <> None
+      || ((not strict) && test.flaky <> None)
+      ||
+      match sum |> success_of_status_summary with
+      | OK -> true
+      | OK_but_new -> false
+      | Not_OK _ -> false)
 
 (*
    Status output:
@@ -1281,7 +1278,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
     let sequential_tests, parallel_tests =
       selected_tests
       |> List.partition (fun (test : T.test) ->
-             all_sequential || test.solo <> None)
+          all_sequential || test.solo <> None)
     in
     let timers = Timers.create () in
     let on_end_test (test : T.test) =
