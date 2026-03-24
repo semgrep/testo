@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Fix: `--autoclean` was silently ignored by the `status` subcommand when using the default compact output style ([#171](https://github.com/mjambon/testo/issues/171), [#190](https://github.com/mjambon/testo/pull/190)).
 - Fix: backtrace truncation was incorrectly applied to the exception message itself, cutting off legitimate output that happened to be longer than 5 lines. Truncation now only applies to lines that are recognized as OCaml backtrace lines (`Raised at ...`, `Called from ...`, etc.) ([#188](https://github.com/mjambon/testo/pull/188)).
 
 ## 0.4.0 (2026-04-05)
