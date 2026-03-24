@@ -513,6 +513,20 @@ overall status: [32msuccess[0m
 [33mThe status of 1 flaky test was ignored! Use '--strict' to override.[0m
 <handling result before exiting>
 #####################################################################
+# Test --autoclean with the default (compact) output style
+#####################################################################
+RUN rm -rf 'tests/snapshots/testo_subtests/deadbeef0000'
+RUN mkdir -p 'tests/snapshots/testo_subtests/deadbeef0000' && echo dead > 'tests/snapshots/testo_subtests/deadbeef0000/stdout' && echo 'A Dead Test' > 'tests/snapshots/testo_subtests/deadbeef0000/name'
+RUN ./subtest status  -e foo=bar --autoclean > /dev/null 2>&1
+RUN test ! -e 'tests/snapshots/testo_subtests/deadbeef0000'
+#####################################################################
+# Test --autoclean on 'run'
+#####################################################################
+RUN mkdir -p 'tests/snapshots/testo_subtests/deadbeef0000' && echo dead > 'tests/snapshots/testo_subtests/deadbeef0000/stdout' && echo 'A Dead Test' > 'tests/snapshots/testo_subtests/deadbeef0000/name'
+RUN ./subtest run -e foo=bar -j 1 --autoclean  > /dev/null 2>&1
+RUN test ! -e 'tests/snapshots/testo_subtests/deadbeef0000'
+#####################################################################
 # Restore deleted snapshots (best effort)
 #####################################################################
 RUN git restore 'tests/snapshots/testo_subtests' 2> /dev/null || true
+RUN rm -rf 'tests/snapshots/testo_subtests/deadbeef0000'
