@@ -129,9 +129,12 @@ let clear_snapshots ~__LOC__:loc () =
    In this case, the environment is clean anyway so it doesn't matter
    and we give up.
 *)
+let fake_dead_snapshot_dir = "tests/snapshots/testo_subtests/deadbeef0000"
+
 let restore_git_snapshots ?(path = "tests/snapshots/testo_subtests") () =
   section "Restore deleted snapshots (best effort)";
-  shell_command ~__LOC__ (sprintf "git restore '%s' 2> /dev/null || true" path)
+  shell_command ~__LOC__ (sprintf "git restore '%s' 2> /dev/null || true" path);
+  shell_command ~__LOC__ (sprintf "rm -rf '%s'" fake_dead_snapshot_dir)
 
 let test_standard_flow () =
   Fun.protect
@@ -174,7 +177,25 @@ let test_standard_flow () =
       section "Delete the dead snapshots with --autoclean";
       test_status ~quiet:true ~__LOC__ "-l --autoclean";
       section "Check that the dead snapshots are gone";
-      test_status ~__LOC__ "-l")
+      test_status ~__LOC__ "-l";
+      section "Test --autoclean with the default (compact) output style";
+      (* Remove in case of a previous failed test run *)
+      shell_command ~__LOC__ (sprintf "rm -rf '%s'" fake_dead_snapshot_dir);
+      shell_command ~__LOC__
+        (sprintf
+           "mkdir -p '%s' && echo dead > '%s/stdout' && echo 'A Dead Test' > \
+            '%s/name'"
+           fake_dead_snapshot_dir fake_dead_snapshot_dir fake_dead_snapshot_dir);
+      test_status ~quiet:true ~__LOC__ "--autoclean";
+      shell_command ~__LOC__ (sprintf "test ! -e '%s'" fake_dead_snapshot_dir);
+      section "Test --autoclean on 'run'";
+      shell_command ~__LOC__
+        (sprintf
+           "mkdir -p '%s' && echo dead > '%s/stdout' && echo 'A Dead Test' > \
+            '%s/name'"
+           fake_dead_snapshot_dir fake_dead_snapshot_dir fake_dead_snapshot_dir);
+      test_run ~quiet:true ~__LOC__ "--autoclean";
+      shell_command ~__LOC__ (sprintf "test ! -e '%s'" fake_dead_snapshot_dir))
     ~finally:restore_git_snapshots
 
 let test_multi_selection () =

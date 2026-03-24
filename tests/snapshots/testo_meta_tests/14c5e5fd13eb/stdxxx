@@ -18,3 +18,4 @@ junk printed on stdout...
 # Restore deleted snapshots (best effort)
 #####################################################################
 RUN git restore 'tests/snapshots/testo_subtests/05dd9a9f220b/stdout' 2> /dev/null || true
+RUN rm -rf 'tests/snapshots/testo_subtests/deadbeef0000'

@@ -959,33 +959,36 @@ let print_long_status ~always_show_unchecked_output tests_with_status =
       print_statuses ~highlight_test:false ~always_show_unchecked_output
         tests_with_status
 
-let report_dead_snapshots ~autoclean all_tests =
-  let dead_snapshots = Store.find_dead_snapshots all_tests in
-  let n = List.length dead_snapshots in
-  if n > 0 then (
-    if autoclean then
-      printf
-        "%i folder%s no longer belong%s to the test suite and %s being removed:\n"
-        n (if_plural n "s") (if_singular n "s")
-        (if n < 2 then "is" else "are")
-    else
-      printf
-        "%i folder%s no longer belong%s to the test suite and can be removed \
-         manually or with '--autoclean':\n"
-        n (if_plural n "s") (if_singular n "s");
-    List.iter
-      (fun (x : Store.dead_snapshot) ->
-        let msg =
-          match x.test_name with
-          | None -> "??"
-          | Some name -> name
-        in
-        printf "  %s %s\n" !!(x.dir_or_junk_file) msg;
-        if autoclean then Store.remove_dead_snapshot x)
-      dead_snapshots)
+let handle_dead_snapshots ~autoclean ~report_dead_snapshots all_tests =
+  if autoclean || report_dead_snapshots then
+    let dead_snapshots = Store.find_dead_snapshots all_tests in
+    let n = List.length dead_snapshots in
+    if n > 0 then (
+      if autoclean then
+        printf
+          "%i folder%s no longer belong%s to the test suite and %s being \
+           removed:\n"
+          n (if_plural n "s") (if_singular n "s")
+          (if n < 2 then "is" else "are")
+      else
+        printf
+          "%i folder%s no longer belong%s to the test suite and can be removed \
+           manually or with '--autoclean':\n"
+          n (if_plural n "s") (if_singular n "s");
+      List.iter
+        (fun (x : Store.dead_snapshot) ->
+          let msg =
+            match x.test_name with
+            | None -> "??"
+            | Some name -> name
+          in
+          printf "  %s %s\n" !!(x.dir_or_junk_file) msg;
+          if autoclean then Store.remove_dead_snapshot x)
+        dead_snapshots)
 
-let print_status_summary ~autoclean ~strict tests tests_with_status : int =
-  report_dead_snapshots ~autoclean tests;
+let print_status_summary ~autoclean ~report_dead_snapshots ~strict tests
+    tests_with_status : int =
+  handle_dead_snapshots ~autoclean ~report_dead_snapshots tests;
   let stats = stats_of_tests tests tests_with_status in
   let overall_success = is_overall_success ~strict tests_with_status in
   printf "%i/%i selected test%s:\n" stats.selected_tests stats.total_tests
@@ -1018,20 +1021,21 @@ let print_status_summary ~autoclean ~strict tests tests_with_status : int =
   if overall_success then Error.Exit_code.success
   else Error.Exit_code.test_failure
 
-let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro tests
-    tests_with_status =
+let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro
+    ~report_dead_snapshots tests tests_with_status =
   print_introduction intro;
   print_newline ();
   print_long_status ~always_show_unchecked_output tests_with_status;
   print_newline ();
   print_short_status ~always_show_unchecked_output tests_with_status;
-  print_status_summary ~autoclean tests tests_with_status
+  print_status_summary ~autoclean ~report_dead_snapshots tests tests_with_status
 
-let print_important_statuses ~always_show_unchecked_output ~autoclean ~strict
-    tests tests_with_status : int =
+let print_important_statuses ~always_show_unchecked_output ~autoclean
+    ~report_dead_snapshots ~strict tests tests_with_status : int =
   (* Print details about each test that needs attention *)
   print_short_status ~always_show_unchecked_output tests_with_status;
-  print_status_summary ~autoclean ~strict tests tests_with_status
+  print_status_summary ~autoclean ~report_dead_snapshots ~strict tests
+    tests_with_status
 
 let get_test_with_status test =
   let status = Store.get_status test in
@@ -1050,13 +1054,16 @@ let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring
   let exit_code =
     match output_style with
     | Long_all ->
-        print_all_statuses ~always_show_unchecked_output ~autoclean ~intro
-          ~strict tests tests_with_status
+        print_all_statuses ~always_show_unchecked_output ~autoclean
+          ~report_dead_snapshots:true ~intro ~strict tests tests_with_status
     | Long_important ->
         print_important_statuses ~always_show_unchecked_output ~autoclean
-          ~strict tests tests_with_status
-    | Compact_all -> print_compact_status ~strict tests_with_status
+          ~report_dead_snapshots:true ~strict tests tests_with_status
+    | Compact_all ->
+        handle_dead_snapshots ~autoclean ~report_dead_snapshots:true tests;
+        print_compact_status ~strict tests_with_status
     | Compact_important ->
+        handle_dead_snapshots ~autoclean ~report_dead_snapshots:true tests;
         print_compact_status ~important:true ~strict tests_with_status
   in
   (exit_code, tests_with_status)
@@ -1219,7 +1226,8 @@ let after_run ~always_show_unchecked_output ~autoclean ~strict tests
     print_short_status ~always_show_unchecked_output tests_with_status;
     (* Print one line per test that needs attention *)
     print_compact_status ~important:true ~strict tests_with_status |> ignore;
-    print_status_summary ~autoclean ~strict tests tests_with_status
+    print_status_summary ~autoclean ~report_dead_snapshots:false ~strict tests
+      tests_with_status
   in
   (exit_code, tests_with_status)
 
