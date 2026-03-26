@@ -680,7 +680,7 @@ let truncate_backtrace ~full_stack_backtrace msg =
             \ ... (for the full stack backtrace, use --stack-backtrace, -v, or \
              --verbose)"
 
-let print_status ~highlight_test
+let print_status ~highlight_test ~show_output_paths
     ~always_show_unchecked_output:
       (always_show_unchecked_output, max_inline_log_bytes, full_stack_backtrace)
     (((test : T.test), (status : T.status), sum) as test_with_status) =
@@ -709,27 +709,28 @@ let print_status ~highlight_test
           | Should_succeed -> ()
           | Should_fail reason ->
               printf "%sExpected to fail: %s\n" bullet reason);
-          (match test.checked_output with
-          | Ignore_output -> ()
-          | _ ->
-              let text =
-                match test.checked_output with
-                | Ignore_output -> Error.assert_false ~__LOC__ ()
-                | Stdout _ -> "stdout"
-                | Stderr _ -> "stderr"
-                | Stdxxx _ -> "merged stdout and stderr"
-                | Split_stdout_stderr _ -> "separate stdout and stderr"
-              in
-              printf "%sChecked output: %s\n" bullet text);
-          (match test.checked_output_files with
-          | [] -> ()
-          | xs ->
-              let names =
-                Helpers.list_map (fun (x : T.checked_output_file) -> x.name) xs
-              in
-              printf "%sChecked output file%s: %s\n" bullet
-                (if_plural (List.length names) "s")
-                (String.concat ", " names));
+          if show_output_paths then (
+            (match test.checked_output with
+            | Ignore_output -> ()
+            | _ ->
+                let text =
+                  match test.checked_output with
+                  | Ignore_output -> Error.assert_false ~__LOC__ ()
+                  | Stdout _ -> "stdout"
+                  | Stderr _ -> "stderr"
+                  | Stdxxx _ -> "merged stdout and stderr"
+                  | Split_stdout_stderr _ -> "separate stdout and stderr"
+                in
+                printf "%sChecked output: %s\n" bullet text);
+            match test.checked_output_files with
+            | [] -> ()
+            | xs ->
+                let names =
+                  Helpers.list_map (fun (x : T.checked_output_file) -> x.name) xs
+                in
+                printf "%sChecked output file%s: %s\n" bullet
+                  (if_plural (List.length names) "s")
+                  (String.concat ", " names));
           (* Details about results *)
           (match status.expectation.expected_output with
           | Error (Missing_files [ path ]) ->
@@ -775,7 +776,8 @@ let print_status ~highlight_test
                      (with_cwd [ missing_file ]))
             | Ok _ -> ());
           let capture_paths = Store.all_capture_paths_of_test test in
-          show_output_details test sum capture_paths;
+          if show_output_paths then
+            show_output_details test sum capture_paths;
           let success = success_of_status_summary sum in
           (* Show timeout info *)
           (match (test.max_duration, success) with
@@ -893,10 +895,10 @@ let print_status ~highlight_test
                 ()));
   flush stdout
 
-let print_statuses ~highlight_test ~always_show_unchecked_output
+let print_statuses ~highlight_test ~show_output_paths ~always_show_unchecked_output
     tests_with_status =
   tests_with_status
-  |> List.iter (print_status ~highlight_test ~always_show_unchecked_output)
+  |> List.iter (print_status ~highlight_test ~show_output_paths ~always_show_unchecked_output)
 
 (*
    If anything's not perfect, consider it a failure.
@@ -944,19 +946,19 @@ let print_compact_status ?(important = false) ~strict tests_with_status =
   if is_overall_success ~strict tests_with_status then Error.Exit_code.success
   else Error.Exit_code.test_failure
 
-let print_short_status ~always_show_unchecked_output tests_with_status =
+let print_short_status ~show_output_paths ~always_show_unchecked_output tests_with_status =
   let tests_with_status = List.filter is_important_status tests_with_status in
   match tests_with_status with
   | [] -> ()
   | _ ->
-      print_statuses ~highlight_test:true ~always_show_unchecked_output
+      print_statuses ~highlight_test:true ~show_output_paths ~always_show_unchecked_output
         tests_with_status
 
-let print_long_status ~always_show_unchecked_output tests_with_status =
+let print_long_status ~show_output_paths ~always_show_unchecked_output tests_with_status =
   match tests_with_status with
   | [] -> ()
   | _ ->
-      print_statuses ~highlight_test:false ~always_show_unchecked_output
+      print_statuses ~highlight_test:false ~show_output_paths ~always_show_unchecked_output
         tests_with_status
 
 let handle_dead_snapshots ~autoclean ~report_dead_snapshots all_tests =
@@ -1021,19 +1023,19 @@ let print_status_summary ~autoclean ~report_dead_snapshots ~strict tests
   if overall_success then Error.Exit_code.success
   else Error.Exit_code.test_failure
 
-let print_all_statuses ~always_show_unchecked_output ~autoclean ~intro
+let print_all_statuses ~show_output_paths ~always_show_unchecked_output ~autoclean ~intro
     ~report_dead_snapshots tests tests_with_status =
   print_introduction intro;
   print_newline ();
-  print_long_status ~always_show_unchecked_output tests_with_status;
+  print_long_status ~show_output_paths ~always_show_unchecked_output tests_with_status;
   print_newline ();
-  print_short_status ~always_show_unchecked_output tests_with_status;
+  print_short_status ~show_output_paths ~always_show_unchecked_output tests_with_status;
   print_status_summary ~autoclean ~report_dead_snapshots tests tests_with_status
 
-let print_important_statuses ~always_show_unchecked_output ~autoclean
+let print_important_statuses ~show_output_paths ~always_show_unchecked_output ~autoclean
     ~report_dead_snapshots ~strict tests tests_with_status : int =
   (* Print details about each test that needs attention *)
-  print_short_status ~always_show_unchecked_output tests_with_status;
+  print_short_status ~show_output_paths ~always_show_unchecked_output tests_with_status;
   print_status_summary ~autoclean ~report_dead_snapshots ~strict tests
     tests_with_status
 
@@ -1047,17 +1049,17 @@ let get_tests_with_status tests = tests |> Helpers.list_map get_test_with_status
    Entry point for the 'status' subcommand
 *)
 let cmd_status ~always_show_unchecked_output ~autoclean ~filter_by_substring
-    ~filter_by_tag ~intro ~output_style ~strict tests =
+    ~filter_by_tag ~intro ~output_style ~show_output_paths ~strict tests =
   check_test_definitions tests;
   let selected_tests = filter ~filter_by_substring ~filter_by_tag tests in
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     match output_style with
     | Long_all ->
-        print_all_statuses ~always_show_unchecked_output ~autoclean
+        print_all_statuses ~show_output_paths ~always_show_unchecked_output ~autoclean
           ~report_dead_snapshots:true ~intro ~strict tests tests_with_status
     | Long_important ->
-        print_important_statuses ~always_show_unchecked_output ~autoclean
+        print_important_statuses ~show_output_paths ~always_show_unchecked_output ~autoclean
           ~report_dead_snapshots:true ~strict tests tests_with_status
     | Compact_all ->
         handle_dead_snapshots ~autoclean ~report_dead_snapshots:true tests;
@@ -1084,9 +1086,9 @@ let report_start_test (timers : Timers.t option)
   | Some timers, Some worker -> Timers.add_test timers test worker
   | _ -> (* bad combination *) Error.assert_false ~__LOC__ ()
 
-let report_end_sequential_test ~always_show_unchecked_output test =
+let report_end_sequential_test ~show_output_paths ~always_show_unchecked_output test =
   get_test_with_status test
-  |> print_status ~highlight_test:false ~always_show_unchecked_output
+  |> print_status ~highlight_test:false ~show_output_paths ~always_show_unchecked_output
 
 let report_skip_test test reason =
   printf "%s%s\n%!"
@@ -1118,7 +1120,7 @@ let get_timed_out_workers timers =
    Run tests and report progress. This is done in the main process when
    running without worker processes ('-j 0' option).
 *)
-let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
+let run_tests_sequentially ~show_output_paths ~always_show_unchecked_output (tests : T.test list) :
     'unit_promise =
   List.fold_left
     (fun previous (test : T.test) ->
@@ -1136,7 +1138,7 @@ let run_tests_sequentially ~always_show_unchecked_output (tests : T.test list) :
           | None ->
               report_start_test None None test;
               test_func () >>= fun () ->
-              report_end_sequential_test ~always_show_unchecked_output test;
+              report_end_sequential_test ~show_output_paths ~always_show_unchecked_output test;
               P.return ())
         (fun exn trace ->
           (* For now, we abort in case of an internal error.
@@ -1218,12 +1220,12 @@ let before_run ~filter_by_substring ~filter_by_tag ~intro ~lazy_ ~slice tests =
   selected_tests
 
 (* Run this after a run or Lwt run. *)
-let after_run ~always_show_unchecked_output ~autoclean ~strict tests
+let after_run ~show_output_paths ~always_show_unchecked_output ~autoclean ~strict tests
     selected_tests =
   let tests_with_status = get_tests_with_status selected_tests in
   let exit_code =
     (* Print details about each test that needs attention *)
-    print_short_status ~always_show_unchecked_output tests_with_status;
+    print_short_status ~show_output_paths ~always_show_unchecked_output tests_with_status;
     (* Print one line per test that needs attention *)
     print_compact_status ~important:true ~strict tests_with_status |> ignore;
     print_status_summary ~autoclean ~report_dead_snapshots:false ~strict tests
@@ -1255,8 +1257,8 @@ let ignore_broken_pipe () =
    list of selected tests to the workers).
 *)
 let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
-    ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~orig_cwd ~slice ~strict
-    ~test_list_checksum:expected_checksum tests cont =
+    ~filter_by_tag ~intro ~is_worker ~jobs ~lazy_ ~orig_cwd ~show_output_paths
+    ~slice ~strict ~test_list_checksum:expected_checksum tests cont =
   if is_worker then (
     ignore_broken_pipe ();
     (*
@@ -1295,11 +1297,11 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
       | Some reason -> report_skip_test test reason
       | None ->
           get_test_with_status test
-          |> print_status ~highlight_test:false ~always_show_unchecked_output
+          |> print_status ~highlight_test:false ~show_output_paths ~always_show_unchecked_output
     in
     (* Run in the same process. This is for situations or platforms where
        multiprocessing might not work for whatever reason. *)
-    run_tests_sequentially ~always_show_unchecked_output sequential_tests
+    run_tests_sequentially ~show_output_paths ~always_show_unchecked_output sequential_tests
     >>= fun () ->
     (if num_workers > 0 then
        match
@@ -1317,7 +1319,7 @@ let cmd_run ~always_show_unchecked_output ~argv ~autoclean ~filter_by_substring
            exit Error.Exit_code.internal_error);
     P.return () >>= fun () ->
     let exit_code, tests_with_status =
-      after_run ~always_show_unchecked_output ~autoclean ~strict tests
+      after_run ~show_output_paths ~always_show_unchecked_output ~autoclean ~strict tests
         selected_tests
     in
     cont exit_code tests_with_status |> ignore;
